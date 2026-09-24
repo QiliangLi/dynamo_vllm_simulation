@@ -8,6 +8,9 @@ __pycache__/
 .venv/
 venv/
 
+# Bootstrap downloads pinned upstream sources (vLLM / vLLM-Ascend / Dynamo)
+upstream/
+
 # Tool caches
 .ruff_cache/
 .video_agent/
