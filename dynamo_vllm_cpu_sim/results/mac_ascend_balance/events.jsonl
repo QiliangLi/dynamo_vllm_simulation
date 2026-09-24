@@ -1,0 +1,118 @@
+{"t": 0.0, "event": "arrival", "id": "r000", "worker": 0}
+{"t": 0.0, "event": "arrival", "id": "r001", "worker": 1}
+{"t": 0.0, "event": "arrival", "id": "r002", "worker": 1}
+{"t": 0.0, "event": "arrival", "id": "r003", "worker": 1}
+{"t": 0.0005, "event": "arrival", "id": "r004", "worker": 0}
+{"t": 0.0005, "event": "arrival", "id": "r005", "worker": 0}
+{"t": 0.0005, "event": "arrival", "id": "r006", "worker": 0}
+{"t": 0.0005, "event": "arrival", "id": "r007", "worker": 1}
+{"t": 0.000562, "event": "step_complete", "worker": 0, "scheduled": {"r000": 128}, "waiting_remote": []}
+{"t": 0.000562, "event": "step_complete", "worker": 1, "scheduled": {"r003": 128}, "waiting_remote": ["r001", "r002"]}
+{"t": 0.001, "event": "arrival", "id": "r008", "worker": 0}
+{"t": 0.001, "event": "arrival", "id": "r009", "worker": 0}
+{"t": 0.001, "event": "arrival", "id": "r010", "worker": 1}
+{"t": 0.001, "event": "arrival", "id": "r011", "worker": 0}
+{"t": 0.001124, "event": "step_complete", "worker": 0, "scheduled": {"r000": 128}, "waiting_remote": []}
+{"t": 0.001124, "event": "step_complete", "worker": 1, "scheduled": {"r003": 128}, "waiting_remote": ["r001", "r002"]}
+{"t": 0.001686, "event": "step_complete", "worker": 0, "scheduled": {"r000": 64, "r006": 64}, "waiting_remote": ["r004", "r005"]}
+{"t": 0.001686, "event": "step_complete", "worker": 1, "scheduled": {"r003": 128}, "waiting_remote": ["r001", "r002"]}
+{"t": 0.002197152, "event": "kv_received", "worker": 1, "id": "r001"}
+{"t": 0.002248, "event": "step_complete", "worker": 1, "scheduled": {"r003": 128}, "waiting_remote": ["r001", "r002"]}
+{"t": 0.002264, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 127}, "waiting_remote": ["r004", "r005"]}
+{"t": 0.002722, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 96}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.002826, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 32, "r007": 95}, "waiting_remote": ["r002"]}
+{"t": 0.002832, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0029419999999999997, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0030519999999999996, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0031619999999999994, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0032719999999999993, "event": "step_complete", "worker": 0, "scheduled": {"r000": 1, "r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.003361999999999999, "event": "step_complete", "worker": 0, "scheduled": {"r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.00342, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 126}, "waiting_remote": ["r002"]}
+{"t": 0.003451999999999999, "event": "step_complete", "worker": 0, "scheduled": {"r006": 1, "r009": 1}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.003451999999999999, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.003451999999999999, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.004014, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 126}, "waiting_remote": ["r002"]}
+{"t": 0.004014, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.004014, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0042943040000000005, "event": "kv_received", "worker": 1, "id": "r002"}
+{"t": 0.0042943040000000005, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0042943040000000005, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.004608, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 101, "r010": 25}, "waiting_remote": ["r002"]}
+{"t": 0.004608, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.004608, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005218, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 1, "r010": 103, "r002": 22}, "waiting_remote": []}
+{"t": 0.005218, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005218, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005772, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 1, "r010": 1, "r002": 106}, "waiting_remote": []}
+{"t": 0.005772, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005772, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005922, "event": "step_complete", "worker": 1, "scheduled": {"r003": 1, "r001": 1, "r007": 1, "r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.005922, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.005922, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006052, "event": "step_complete", "worker": 1, "scheduled": {"r001": 1, "r007": 1, "r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.006052, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006052, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006162, "event": "step_complete", "worker": 1, "scheduled": {"r007": 1, "r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.006162, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006162, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006272, "event": "step_complete", "worker": 1, "scheduled": {"r007": 1, "r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.006272, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006272, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006382, "event": "step_complete", "worker": 1, "scheduled": {"r007": 1, "r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.006382, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006382, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.006391456, "event": "kv_received", "worker": 0, "id": "r004"}
+{"t": 0.006391456, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r004", "r005", "r008", "r011"]}
+{"t": 0.0064719999999999995, "event": "step_complete", "worker": 1, "scheduled": {"r010": 1, "r002": 1}, "waiting_remote": []}
+{"t": 0.006541999999999999, "event": "step_complete", "worker": 1, "scheduled": {"r002": 1}, "waiting_remote": []}
+{"t": 0.006541999999999999, "event": "step_complete", "worker": 1, "scheduled": {}, "waiting_remote": []}
+{"t": 0.006953456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 128}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007515456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 128}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007585456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007655456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.0077254559999999995, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007795455999999999, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007865456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.007935456, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.008005456000000001, "event": "step_complete", "worker": 0, "scheduled": {"r004": 1}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.008005456000000001, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.008005456000000001, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.008488608, "event": "kv_received", "worker": 0, "id": "r005"}
+{"t": 0.008488608, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r005", "r008", "r011"]}
+{"t": 0.008666608, "event": "step_complete", "worker": 0, "scheduled": {"r005": 32}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.008736608, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.008806608, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.008876608000000001, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.008946608000000002, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.009016608000000002, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.009086608000000003, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.009156608000000004, "event": "step_complete", "worker": 0, "scheduled": {"r005": 1}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.009156608000000004, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.009156608000000004, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.01058576, "event": "kv_received", "worker": 0, "id": "r008"}
+{"t": 0.01058576, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r008", "r011"]}
+{"t": 0.01114776, "event": "step_complete", "worker": 0, "scheduled": {"r008": 128}, "waiting_remote": ["r011"]}
+{"t": 0.01170976, "event": "step_complete", "worker": 0, "scheduled": {"r008": 128}, "waiting_remote": ["r011"]}
+{"t": 0.01177976, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.01184976, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.011919760000000001, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.011989760000000002, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.012059760000000003, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.012129760000000003, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.012199760000000004, "event": "step_complete", "worker": 0, "scheduled": {"r008": 1}, "waiting_remote": ["r011"]}
+{"t": 0.012199760000000004, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r011"]}
+{"t": 0.012199760000000004, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r011"]}
+{"t": 0.012682912, "event": "kv_received", "worker": 0, "id": "r011"}
+{"t": 0.012682912, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": ["r011"]}
+{"t": 0.013244912, "event": "step_complete", "worker": 0, "scheduled": {"r011": 128}, "waiting_remote": []}
+{"t": 0.013806912, "event": "step_complete", "worker": 0, "scheduled": {"r011": 128}, "waiting_remote": []}
+{"t": 0.014368912, "event": "step_complete", "worker": 0, "scheduled": {"r011": 128}, "waiting_remote": []}
+{"t": 0.014674912, "event": "step_complete", "worker": 0, "scheduled": {"r011": 64}, "waiting_remote": []}
+{"t": 0.014744912, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.014814912000000001, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.014884912000000002, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.014954912000000002, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.015024912000000003, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.015094912000000004, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.015164912000000004, "event": "step_complete", "worker": 0, "scheduled": {"r011": 1}, "waiting_remote": []}
+{"t": 0.015164912000000004, "event": "step_complete", "worker": 0, "scheduled": {}, "waiting_remote": []}

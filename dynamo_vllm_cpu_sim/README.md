@@ -6,7 +6,7 @@
 
 ## 直接启动
 
-已验证平台：Linux x86_64、Python 3.12、CPU。建议使用独立机器/容器或 WSL2；macOS、Windows 原生和 ARM 未验证。需要能够下载 GitHub 源码、PyPI 包及 CPU PyTorch；无需模型权重、CUDA、CANN、NPU、etcd 或 NATS。初次准备建议预留数 GB 磁盘空间。
+已验证平台：Linux x86_64、Python 3.12、CPU；macOS 26 Apple Silicon 亦已验证（需按下文适配，2026-09-24，见 VALIDATION.md）。建议使用独立机器/容器或 WSL2。需要能够下载 GitHub 源码、PyPI 包及 CPU PyTorch；无需模型权重、CUDA、CANN、NPU、etcd 或 NATS。初次准备建议预留数 GB 磁盘空间。
 
 先安装 [uv](https://docs.astral.sh/uv/getting-started/installation/)，然后：
 
@@ -19,6 +19,25 @@ bash scripts/bootstrap.sh
 脚本会按 SHA 下载三个上游仓库、建立 `.venv`、安装固定依赖、以 `VLLM_TARGET_DEVICE=empty` 安装真实 vLLM Python 源码、检查来源并跑完 12 个请求。结果在 `results/bootstrap/report.json` 和 `events.jsonl`。脚本会拒绝覆盖来源不明的已有源码目录。
 
 若环境使用代理，按当地网络要求设置 `HTTPS_PROXY` / `HTTP_PROXY` 后运行；项目不会自行修改系统网络设置。启动后不需要联网获取模型。
+
+### 在 macOS（Apple Silicon）上运行
+
+bootstrap.sh 的固定安装路径在 macOS 上有三处不适用，需手动适配（2026-09-24 在 macOS 26.6 / ARM 验证，五模式全部跑通，指标与 Linux 逐位一致）：
+
+1. **torch**：PyTorch CPU 索引不为 macOS 发布 `+cpu` 后缀 wheel，改装无后缀同名版本 `uv pip install --python .venv/bin/python --no-deps 'torch==2.11.0'`。副作用：`scripts/doctor.py` 的 torch 精确版本检查（要求 `2.11.0+cpu`）在 mac 上会失败，属预期偏差；仿真与集成断言不受影响。
+2. **ai-dynamo-runtime 1.5.0**：PyPI 只发布 Linux wheel，需从已下载的固定 SHA 源码自行编译，且必须带 `select-service` feature（默认 feature 不含 `SelectionService`）：
+   ```bash
+   uv pip install --python .venv/bin/python maturin   # 另需 brew 的 rust/protoc
+   cd upstream/dynamo/lib/bindings/python
+   SDK=$(xcrun --show-sdk-path)
+   CXXFLAGS="-isystem $SDK/usr/include/c++/v1" <venv>/bin/maturin build --release \
+       --features select-service --out /tmp/dynamo-wheels
+   uv pip install --python <venv>/bin/python --no-deps /tmp/dynamo-wheels/*.whl
+   ```
+   `CXXFLAGS` 是本机 Xcode CommandLineTools 的 libc++ 头损坏时的绕法（vendored ZeroMQ 编译报 `'new' file not found`）；根治需重装 CLT。
+3. **vLLM**：0.20.2 的 `setup.py` 在 darwin 上强制把 `VLLM_TARGET_DEVICE` 覆盖为 `cpu`（触发 C++ 扩展编译）。本工程已将该文件改为：显式指定 `empty` 时不覆盖（macOS 默认仍为 `cpu`）。这是一处对上游源码的有意修改；`setup.py` 不在 `source-fingerprints.json` 内，doctor 溯源不受影响，重跑 bootstrap 会因 upstream 目录已存在而保留该修改。
+
+其余步骤（`fetch_sources.py`、lock 依赖 `--no-deps` 安装、editable vLLM、`sim.run`、测试）与 Linux 相同。
 
 ## 可复跑的实验
 

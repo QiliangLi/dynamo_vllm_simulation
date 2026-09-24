@@ -31,3 +31,19 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 验证范围不含完整 EngineCore、全量 Ascend 插件、HTTP 服务、cache-aware Dynamo、PD、多卡通信、逐层 overlap、写回、取消、失败和抢占压力。详细边界见设计文档。
 
 追加验收：在不含 upstream、.venv 或 patched 目录的新工程副本中运行同一 bootstrap.sh，成功按三个固定 SHA 下载源码、安装依赖、通过 doctor 并跑通全部请求和集成断言。报告见 results/clean_bootstrap，下载记录见 results/source-downloads.json。网络使用当前执行环境提供的 HTTPS 代理；工程脚本本身不设置代理。
+
+## 追加：macOS Apple Silicon 原生运行（2026-09-24）
+
+环境：macOS 26.6、Apple Silicon（arm64）、CPython 3.12.10（uv 提供）、torch 2.11.0（无 `+cpu` 后缀的 mac 构建）、vllm 0.20.2+empty、ai-dynamo-runtime 1.5.0（从同一固定 SHA 源码 maturin 编译，`--features select-service`）。适配细节见 README 的 macOS 小节；其中 doctor 的 torch 精确版本检查按预期失败（mac 无 `+cpu` 后缀），未作为通过条件。
+
+五模式全部完成，`check_results.py` 生命周期/远端等待/块回收/Dynamo 记账断言全部通过。虚拟时间汇总与上表 Linux 记录逐位一致（worker 标签可能因原生 picker 平局随机对调，汇总不变）：
+
+| 模式 | 完成数 | 平均 TTFT (ms) | makespan (ms) | 读取量 (MiB) | 报告 |
+|---|---:|---:|---:|---:|---|
+| 默认（Ascend 委托） | 12 | 5.364061 | 15.164912 | 48 | results/mac_default |
+| vLLM 原始调度器 | 12 | 5.364061 | 15.164912 | 48 | results/mac_upstream |
+| vLLM 原生 priority | 12 | 5.234561 | 15.164912 | 48 | results/mac_priority |
+| 慢共享链路 | 12 | 252.649073 | 673.670640 | 64 | results/mac_slow |
+| Ascend balance + 显式补丁 | 12 | 5.364061 | 15.164912 | 48 | results/mac_ascend_balance |
+
+存储单元测试 3/3 通过。macOS 路径涉及两处受控偏差并已在 README 记录：torch 版本串差异、vLLM `setup.py` 允许 darwin 上显式 `empty` 的一行修改。数值为合成模型验证，仍不代表 NPU 性能。
