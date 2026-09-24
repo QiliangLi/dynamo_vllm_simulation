@@ -1,0 +1,9 @@
+{
+ "workers":2,"scheduler":"ascend_default","policy":"fcfs","block_size":16,
+ "num_blocks":128,"max_model_len":4096,"max_num_seqs":8,"max_num_batched_tokens":128,
+ "enable_prefix_caching":true,
+ "storage":{"disks":2,"paths_per_disk":256,"disk_Bps":40000000000,"shared_link_Bps":10000000000,
+ "path_Bps":1000000000,"read_latency_s":0.0001,"kv_bytes_per_token":131072},
+ "compute":{"step_overhead_s":0.00005,"prefill_token_s":0.000004,"decode_token_s":0.00002},
+ "ttft_slo_s":0.02
+}

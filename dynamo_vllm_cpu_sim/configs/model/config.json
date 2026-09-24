@@ -1,0 +1,1 @@
+{"architectures":["OPTForCausalLM"],"model_type":"opt","hidden_size":128,"num_attention_heads":4,"num_hidden_layers":4,"ffn_dim":512,"max_position_embeddings":4096,"vocab_size":32000,"word_embed_proj_dim":128,"bos_token_id":1,"eos_token_id":2,"pad_token_id":0,"torch_dtype":"float32"}

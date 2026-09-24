@@ -1,0 +1,5 @@
+{
+ "vllm":{"repo":"vllm-project/vllm","tag":"v0.20.2","sha":"bc150f50299199599673614f80d12a196f377655"},
+ "ascend":{"repo":"vllm-project/vllm-ascend","tag":"v0.20.2rc1","sha":"367b8e62da799870a7476ce34f5f7658589a8aad"},
+ "dynamo":{"repo":"ai-dynamo/dynamo","tag":"v1.5.0","sha":"b83b1d9304ebfc624709ac46db32b1b6f1ff1615"}
+}

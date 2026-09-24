@@ -1,0 +1,27 @@
+Resolved 1 package in 3.42s
+   Building vllm @ file:///workspace/scratch/d6236fc2f388/clean_bootstrap_probe/upstream/vllm
+      Built vllm @ file:///workspace/scratch/d6236fc2f388/clean_bootstrap_probe/upstream/vllm
+Prepared 1 package in 2.52s
+Installed 1 package in 1ms
+ + vllm==0.20.2+empty (from file:///workspace/scratch/d6236fc2f388/clean_bootstrap_probe/upstream/vllm)
+WARNING 09-24 17:15:11 [cpu.py:409] Failed to import from vllm._C: ModuleNotFoundError("No module named 'vllm._C'")
+INFO 09-24 17:15:11 [importing.py:68] Triton not installed or not compatible; certain GPU-related functions will not be available.
+INFO 09-24 17:15:14 [nixl_utils.py:20] Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+WARNING 09-24 17:15:14 [nixl_utils.py:34] NIXL is not available
+WARNING 09-24 17:15:14 [nixl_utils.py:44] NIXL agent config is not available
+{
+  "status": "ready",
+  "vllm": "0.20.2",
+  "torch": "2.11.0+cpu",
+  "ascend_class": "BalanceScheduler",
+  "dynamo_class": "SelectionService",
+  "edited_sources": []
+}
+{
+  "status": "completed",
+  "requests_completed": 12,
+  "makespan_s": 0.015164912000000004,
+  "mean_ttft_s": 0.005364061333333333,
+  "bytes_read": 50331648
+}
+results/bootstrap: lifecycle / KV wait / block reclamation / native reservations PASS

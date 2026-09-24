@@ -1,0 +1,10 @@
+--- upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py
++++ patched/ascend_balance_schedule.py
+@@ -497,6 +497,7 @@
+                     # into the WAITING_FOR_REMOTE_KV state.
+                     skipped_waiting_requests.prepend_request(request)
+                     request.status = RequestStatus.WAITING_FOR_REMOTE_KVS
++                    request.num_computed_tokens = num_computed_tokens
+                     continue
+ 
+                 self.running.append(request)

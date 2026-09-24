@@ -1,0 +1,14 @@
+{
+  "upstream/vllm/vllm/v1/core/sched/scheduler.py": "ff208267973b16f1cde384cb4d86090b950f35d0e8bcd97433c642551867572d",
+  "upstream/vllm/vllm/v1/core/kv_cache_manager.py": "1372e06731f7b06cdee5afe7d42207dc0d3c489076c43e405ebc9ff119e1b137",
+  "upstream/vllm/vllm/v1/core/block_pool.py": "c2a8eb59aaae2f15f7e75e5d14a68bd321730d2e62158c822af7179b85157347",
+  "upstream/vllm/vllm/v1/core/kv_cache_utils.py": "03641434424a3facf3609ed2cc3a1c69d75ddde981016fd508f04a9122bac6a4",
+  "upstream/vllm/vllm/v1/outputs.py": "cee3afb8dd32f18afd1b75fec48c382f9d192f09c0320668af287f6e068dc0cc",
+  "upstream/vllm/vllm/v1/request.py": "32c6ff3af313b0d2ef1292308e8f2b9ee5759c076f096d7fc8c81a15bd733b4b",
+  "upstream/vllm/vllm/distributed/kv_transfer/kv_connector/v1/base.py": "b12e42e25f97a6a3cc9df3bdedd74bad3770c8fde7111e7cf502842acc89deba",
+  "upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py": "13e4407040d82ba29a35e12901551c94da0961439b23e507e73ccfe124e42ba5",
+  "upstream/dynamo/lib/kv-router/src/scheduling/selector/policy.rs": "4f6e3728be37d0ab58d5b72d15ee5925583beddd4b6d0ee068401e4acf16a7d3",
+  "upstream/dynamo/lib/kv-router/src/services/selection/core/mod.rs": "1bc6dd63adb2a42755b93b2350ecf1ee404ca70beaff0e59df554a1698e524f8",
+  "upstream/dynamo/lib/bindings/python/src/dynamo/_core.pyi": "6f3be8a8899f6db686046fae02e73e1ac99d4396f60a21ae30e612b276a9b1f6",
+  "upstream/ascend/vllm_ascend/distributed/kv_transfer/kv_pool/ascend_store/backend/backend.py": "660fae9e00ade10652fd0f49836023bd14dfd32b9ae13f0a562e8bff81473bf9"
+}

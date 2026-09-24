@@ -1,0 +1,20 @@
+{
+  "vllm": {
+    "repo": "vllm-project/vllm",
+    "tag": "v0.20.2",
+    "sha": "bc150f50299199599673614f80d12a196f377655",
+    "archive_sha256": "c96027ee6234fc3aa73bae71167febb371332eb431a72af603d86095389e7faf"
+  },
+  "ascend": {
+    "repo": "vllm-project/vllm-ascend",
+    "tag": "v0.20.2rc1",
+    "sha": "367b8e62da799870a7476ce34f5f7658589a8aad",
+    "archive_sha256": "64d5b586de75a64c7cb6348d2f2652a003e9500abc18a4cdb16625a2da5319a8"
+  },
+  "dynamo": {
+    "repo": "ai-dynamo/dynamo",
+    "tag": "v1.5.0",
+    "sha": "b83b1d9304ebfc624709ac46db32b1b6f1ff1615",
+    "archive_sha256": "1d5b68fe672834c626f3edc47c2c617f422fefc6b3043052262a184dbd778bfc"
+  }
+}
