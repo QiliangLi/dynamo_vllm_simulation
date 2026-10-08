@@ -73,6 +73,28 @@ class Storage:
         scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, sum(rates.values())))
         return {p: b * scale for p, b in rates.items()}
 
+    def link_flux(self):
+        """(demand_Bps, actual_Bps)：施加共享链路缩放前/后的活跃读速率总和。
+
+        demand 是"若链路无限"时盘/路径层级决定的速率和，actual 是链路后的
+        实际速率；二者之差即链路瓶颈压掉的带宽。供 opt-in 区间日志与带宽
+        时序图消费（run.py 的 storage_interval_log）。
+        """
+        heads = {
+            p: q[0]
+            for p, q in self.queues.items()
+            if q and q[0].ready <= self.now + 1e-12
+        }
+        counts = defaultdict(int)
+        for d, _ in heads:
+            counts[d] += 1
+        raw = {
+            p: min(self.c["path_Bps"], self.c["disk_Bps"] / counts[p[0]]) for p in heads
+        }
+        demand = sum(raw.values())
+        scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, demand))
+        return demand, demand * scale
+
     def next_time(self):
         times = [
             self.now + self.queues[p][0].remaining / b for p, b in self.rates().items()

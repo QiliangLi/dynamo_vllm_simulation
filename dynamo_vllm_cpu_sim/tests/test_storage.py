@@ -53,6 +53,35 @@ class StorageTests(unittest.TestCase):
         self.assertAlmostEqual(s.next_time(), 10.2)
         self.assertEqual(s.advance(10.2), [(0, "a")])
 
+    def test_link_flux_demand_vs_actual(self):
+        # 链路不绑定：actual == demand（盘内均分后的速率和）
+        s = make_store(bandwidth=1000)
+        blocks = [bytes([i]) for i in range(4)]
+        s.present.update(blocks)
+        s.submit(0, (0, "a"), blocks)  # 落在至多 4 条路径 → demand≤4×100
+        s.advance(0)
+        demand, actual = s.link_flux()
+        self.assertGreater(demand, 0)
+        self.assertEqual(actual, demand)
+        # 链路绑定：actual 被压到 shared_link_Bps，demand 不变
+        s2 = make_store(bandwidth=10)
+        s2.present.update(blocks)
+        s2.submit(0, (0, "a"), blocks)
+        s2.advance(0)
+        d2, a2 = s2.link_flux()
+        self.assertAlmostEqual(a2, 10.0)
+        # 与 rates() 一致（actual = Σrates）；区间守恒：∫actual = bytes
+        self.assertAlmostEqual(a2, sum(s2.rates().values()))
+        total = 0.0
+        t = s2.now
+        while s2.pending:  # 读全部完成后 pending 清空（queues 只留空 deque 键）
+            demand, actual = s2.link_flux()
+            nxt = s2.next_time()
+            total += actual * (nxt - t)
+            done = s2.advance(nxt)
+            t = nxt
+        self.assertAlmostEqual(total, s2.bytes_transferred, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()

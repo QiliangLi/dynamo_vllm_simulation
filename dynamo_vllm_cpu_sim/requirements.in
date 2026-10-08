@@ -30,6 +30,7 @@ diskcache
 partial-json-parser
 python-json-logger
 pandas
+matplotlib
 gguf
 mistral-common[image]==1.12.0
 tiktoken

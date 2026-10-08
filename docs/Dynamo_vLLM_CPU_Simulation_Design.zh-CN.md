@@ -386,7 +386,7 @@ CPU/Gloo 可帮助运行控制协议，但测得的 Gloo 时间不是 HCCL 时�
 | cache/bytes/queues | 按 tier 区分本地命中、远端读、真正跳过计算的 tokens |
 | normalized TTFT | 与相同模型/初始缓存的独占基线比较；不要称它为数学最优 |
 
-每次实验保存配置、trace hash、版本与源码/patch hash、随机 seed、初始 cache hash、策略 snapshot epoch 和关键决策日志。默认输出有版本、实际 scheduler 文件 hash、配置、请求时间和事件；尚未自动包含完整 provenance 清单，正式大规模实验应扩充。
+每次实验保存配置、trace hash、版本与源码/patch hash、随机 seed、初始 cache hash、策略 snapshot epoch 和关键决策日志。默认输出有版本、实际 scheduler 文件 hash、配置、请求时间和事件；尚未自动包含完整 provenance 清单，正式大规模实验应扩充。config 可选 `storage_interval_log=true` 时，events.jsonl 追加 `storage_interval` 事件（每个推进区间的链路需求/实际速率与队列深度；数据源 `Storage.link_flux()`），供带宽时序图与 ∫actual=bytes_read 守恒断言消费，默认关闭、不影响调度行为。
 
 本工程 wall-clock 运行时间主要是 Python 导入、native accounting 和仿真开销；报告的 makespan_s 是虚拟服务时间。两者应分别记录，不能混作 NPU 推理时延。
 

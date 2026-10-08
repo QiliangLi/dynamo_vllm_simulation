@@ -50,15 +50,19 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 
 ## 追加：A/B 双类带宽争抢实验（2026-10-08）
 
-设计见 `docs/AB双类带宽争抢实验设计-20261008.md`。环境：macOS 26.6 Apple Silicon、同上虚拟环境；`configs/ab.json`（32 worker、共享链路 120 GB/s 唯一瓶颈、`max_num_seqs=1` 映射 batch=1、`VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` 放行 139264 上下文）。负载 192 请求（64A+128B、每轮 32A+64B 同刻到达 ×2 轮、轮距 1.0s），两臂同 config、同到达时刻，仅到达顺序不同；trace 由 `scripts/gen_ab_trace.py` 生成（token 内容每请求唯一，杜绝本地前缀缓存命中）。虚拟 token 标定：A 重算 862/字面 256、B 字面 4096，每类读字节与计算时间命中 E26 大纲给定值（误差 ≤0.05%）。
+设计见 `docs/AB双类带宽争抢实验设计-20261008.md`，结果文档（含四图）见 `docs/AB双类带宽争抢实验结果-20261008.md`。环境：macOS 26.6 Apple Silicon、同上虚拟环境；`configs/ab.json`（32 worker、共享链路 120 GB/s 唯一瓶颈、`max_num_seqs=1` 映射 batch=1、`storage_interval_log` 开启、`VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` 放行 139264 上下文）。负载 192 请求（64A+128B、每轮 32A+64B 同刻到达 ×2 轮、轮距 1.0s），两臂同 config、同到达时刻，仅到达顺序不同；trace 由 `scripts/gen_ab_trace.py` 生成（token 内容每请求唯一，杜绝本地前缀缓存命中）。虚拟 token 标定：A 重算 862/字面 256、B 字面 4096，每类读字节与计算时间命中 E26 大纲给定值（误差 ≤0.05%）。下表为补记存储区间日志后的重跑数值（调度路径无变化；见文末复现性注记）：
 
 | 臂 | 完成数 | makespan (s) | 读取量 (GB) | A 类 TTFT mean/p95 (ms) | A 类 SLO | B 类 TTFT mean/p95 (ms) | B 类 SLO | 并发 A 峰值/p90 | 报告 |
 |---|---:|---:|---:|---|---:|---|---:|---|---|
-| 块状（32A 在前） | 192 | 2.2344 | 129.3547 | 363.8 / 588.1 | 26.6% | 705.8 / 1046.4 | 84.4% | 32 / 31 | results/ab_block_b1.0 |
-| 交错（(A,B,B)×32） | 192 | 2.8061 | 129.3547 | 644.1 / 1418.4 | 10.9% | 825.8 / 1502.2 | 66.4% | 35 / 32 | results/ab_interleave_b1.0 |
+| 块状（32A 在前） | 192 | 2.2080 | 129.3547 | 363.6 / 587.5 | 28.1% | 708.4 / 1048.1 | 83.6% | 32 / 31 | results/ab_block_b1.0 |
+| 交错（(A,B,B)×32） | 192 | 3.1118 | 129.3547 | 632.2 / 1355.4 | 18.8% | 856.0 / 1577.0 | 65.6% | 36 / 34 | results/ab_interleave_b1.0 |
 
-按类 SLO = α×单条理想 TTFT（α=4：A 239.4ms、B 925.1ms）。两臂 compute 合计逐位一致（32.671s）、读取量逐位一致（129.3547 GB = trace 声明），CRN 成立；块状臂 stall 19.7s/idle 19.1s，交错臂 stall 17.9s/idle 39.2s。冒烟（8A+16B，results/ab_smoke）先通过：24 请求、16.169 GB、系统级并发远端等待峰值 24。
+按类 SLO = α×单条理想 TTFT（α=4：A 239.4ms、B 925.1ms）。两臂 compute 合计逐位一致（32.671s）、读取量逐位一致（129.3547 GB = trace 声明），CRN 成立；块状臂 stall 19.7s/idle 18.3s，交错臂 stall 17.7s/idle 49.2s；两臂链路饱和（≥90%×120GB/s）时长均 1.076s ≈ 理论排空下限 2×0.539s。冒烟（8A+16B，results/ab_smoke）先通过：24 请求、16.169 GB、系统级并发远端等待峰值 24。
 
-集成断言（check_results.py）两臂全 PASS（生命周期/远端等待先于首 token/块回收 65535/65536/Dynamo 记账归零）。单元测试 10/10（原 3 项存储 + 新增 7 项 trace 生成器：顺序/计数、过 sim.run.validate、每类读字节命中 1.4052/0.30798 GB（0.01%）、确定性、前缀互异）。
+集成断言（check_results.py）两臂全 PASS（生命周期/远端等待先于首 token/块回收 65535/65536/Dynamo 记账归零）。单元测试 11/11（存储 4 项含 link_flux 区间守恒 + trace 生成器 7 项：顺序/计数、过 sim.run.validate、每类读字节命中 1.4052/0.30798 GB（0.01%）、确定性、前缀互异）。
 
-结果解读（虚拟时间，非 NPU 实测）：E26d 的"块状→洪水、交错→天然错峰"不迁移——异步 KV 加载下两臂并发 A 峰值均 ≈32（4.1 条即打满链路，超订 ~7.8×），A 类 TTFT 均为读分摊主导（~360ms ≈ 1.405GB ÷ 120/32 GB/s）；到达序的实际作用点是每 worker 计算队列次序（块状臂 A 全部首位；交错臂 A 随队列深度 TTFT 358→1485ms 单调恶化）。含义：真实 vLLM 语义下读不受准入控制，错峰需 admission 类策略（对应检视报告 §4.1 P/B 层缺口）。
+**图与守恒**：`scripts/ab_fig.py` 产出分类甘特与带宽时序四图（`docs/figures/ab_{gantt,bw}_{block,interleave}.png`），`--audit` 全部 PASS：甘特三分时间与 report 每 worker compute/stall/idle 一致（最大相对误差 2.4e-16）、带宽 ∫actual·dt = bytes_read（相对误差 1.1e-11）、实际峰值恰为链路上限 120 GB/s、需求峰值=盘聚合 240 GB/s。甘特重建以步完成事件反推计算区间（[t_end−duration, t_end]），前提为本 config prefill/decode 系数相等。
+
+**复现性注记**：同 trace 同 config 复跑一轮对照显示，Dynamo 原生 picker 平局随机使 ~185/192 请求 worker 落点变化——均值类指标漂 0.3~2.1%、最值类（makespan/p95）漂 1.2~10.9%，bytes_read 与 compute 合计逐位不变。12 请求 demo 中该随机表现为"worker 标签对调、汇总不变"；192 请求非对称负载下放大到汇总层。判读规则：均值类 ±2% 内视为同分布；makespan/p95 单次运行不足以下细粒度结论（正式对照需确定性 picker 或多种子，见检视报告 §2.3.4/§8）。
+
+结果解读（虚拟时间，非 NPU 实测）：E26d 的"块状→洪水、交错→天然错峰"不迁移——异步 KV 加载下两臂并发 A 峰值 32/36（4.1 条即打满链路，超订 ~7.8×），A 类 TTFT 均为读分摊主导（~360ms ≈ 1.405GB ÷ 120/32 GB/s）；到达序的实际作用点是每 worker 计算队列次序（块状臂 A 全部首位；交错臂 A 随队列深度 TTFT 345→1533ms 单调恶化）。含义：真实 vLLM 语义下读不受准入控制，错峰需 admission 类策略（对应检视报告 §4.1 P/B 层缺口）。

@@ -50,6 +50,8 @@ async def simulate(c, rows, output_dir):
     router = Router()
     stats = {r["id"]: {"arrival_s": r["arrival_s"], "output_tokens": 0} for r in rows}
     events = []
+    # opt-in：记录每个推进区间的链路需求/实际速率（带宽时序图数据源）
+    interval_log = events if c.get("storage_interval_log") else None
     now = rows[0]["arrival_s"]
     store.now = now
     cursor = completed = 0
@@ -117,6 +119,26 @@ async def simulate(c, rows, output_dir):
                 raise RuntimeError("deadlock: no future event; inspect block capacity")
             for e in engines:
                 e.account(target - now)
+            if interval_log is not None:
+                demand, actual = store.link_flux()
+                if demand > 0:
+                    interval_log.append(
+                        {
+                            "t": target,
+                            "event": "storage_interval",
+                            "from": now,
+                            "demand_Bps": demand,
+                            "actual_Bps": actual,
+                            "queued_reads": sum(
+                                len(q) for q in store.queues.values()
+                            ),
+                            "bytes_remaining": sum(
+                                r.remaining
+                                for q in store.queues.values()
+                                for r in q
+                            ),
+                        }
+                    )
             recvs = store.advance(target)
             now = target
             for wid, rid in recvs:
