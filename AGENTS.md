@@ -8,6 +8,7 @@
 |---|---|
 | [docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md](docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md) | 总体设计：真实/仿真代码边界、版本固定、存储模型、扩展路线 P1–P3 |
 | [docs/CPU真实代码仿真环境检视报告-20260924.md](docs/CPU真实代码仿真环境检视报告-20260924.md) | 实现与需求/研究目标的差距分析、待决策项、后续路线。**改代码前先读** |
+| [docs/macOS原生运行验证报告-20260924.md](docs/macOS原生运行验证报告-20260924.md) | macOS Apple Silicon 原生运行的平台适配、复现步骤与验证数据 |
 | [docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md](docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md) | 调度策略研究目标：S/P/B 三层策略、ASU/Path/带宽模型、E26–E31 实验规划 |
 | [docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md](docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md) | 前序形式化分析（09-17 文档已修正其部分结论） |
 | [docs/ChatGPT-Ascend路径问题说明-20260924-1858.md](docs/ChatGPT-Ascend路径问题说明-20260924-1858.md) | 方案沟通与交付过程记录 |
