@@ -50,7 +50,7 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 
 ## 追加：A/B 双类带宽争抢实验（2026-10-08）
 
-设计见 `docs/AB双类带宽争抢实验设计-20261008.md`，结果文档（含四图）见 `docs/AB双类带宽争抢实验结果-20261008.md`。环境：macOS 26.6 Apple Silicon、同上虚拟环境；`configs/ab.json`（32 worker、共享链路 120 GB/s 唯一瓶颈、`max_num_seqs=1` 映射 batch=1、`storage_interval_log` 开启、`VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` 放行 139264 上下文）。负载 192 请求（64A+128B、每轮 32A+64B 同刻到达 ×2 轮、轮距 1.0s），两臂同 config、同到达时刻，仅到达顺序不同；trace 由 `scripts/gen_ab_trace.py` 生成（token 内容每请求唯一，杜绝本地前缀缓存命中）。虚拟 token 标定：A 重算 862/字面 256、B 字面 4096，每类读字节与计算时间命中 E26 大纲给定值（误差 ≤0.05%）。下表为补记存储区间日志后的重跑数值（调度路径无变化；见文末复现性注记）：
+设计见 `docs/AB双类带宽争抢实验设计-20261008.md`，结果文档（含四图）见 `AB双类带宽争抢实验结果-20261008.md（仓库根）`。环境：macOS 26.6 Apple Silicon、同上虚拟环境；`configs/ab.json`（32 worker、共享链路 120 GB/s 唯一瓶颈、`max_num_seqs=1` 映射 batch=1、`storage_interval_log` 开启、`VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` 放行 139264 上下文）。负载 192 请求（64A+128B、每轮 32A+64B 同刻到达 ×2 轮、轮距 1.0s），两臂同 config、同到达时刻，仅到达顺序不同；trace 由 `scripts/gen_ab_trace.py` 生成（token 内容每请求唯一，杜绝本地前缀缓存命中）。虚拟 token 标定：A 重算 862/字面 256、B 字面 4096，每类读字节与计算时间命中 E26 大纲给定值（误差 ≤0.05%）。下表为补记存储区间日志后的重跑数值（调度路径无变化；见文末复现性注记）：
 
 | 臂 | 完成数 | makespan (s) | 读取量 (GB) | A 类 TTFT mean/p95 (ms) | A 类 SLO | B 类 TTFT mean/p95 (ms) | B 类 SLO | 并发 A 峰值/p90 | 报告 |
 |---|---:|---:|---:|---|---:|---|---:|---|---|

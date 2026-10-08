@@ -12,6 +12,8 @@
 | [docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md](docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md) | 调度策略研究目标：S/P/B 三层策略、ASU/Path/带宽模型、E26–E31 实验规划 |
 | [docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md](docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md) | 前序形式化分析（09-17 文档已修正其部分结论） |
 | [docs/ChatGPT-Ascend路径问题说明-20260924-1858.md](docs/ChatGPT-Ascend路径问题说明-20260924-1858.md) | 方案沟通与交付过程记录 |
+| [docs/AB双类带宽争抢实验设计-20261008.md](docs/AB双类带宽争抢实验设计-20261008.md) | A/B 双类带宽争抢实验设计：E26 工况映射、虚拟 token 标定、两到达序臂 |
+| [AB双类带宽争抢实验结果-20261008.md](AB双类带宽争抢实验结果-20261008.md) | A/B 实验结果：分类甘特图+带宽时序图、错峰不迁移结论、复现性注记。**含图的结果文档放仓库根**，图片链接用 `docs/figures/` 前缀（GitHub 与本地预览均正确） |
 | [dynamo_vllm_cpu_sim/README.md](dynamo_vllm_cpu_sim/README.md) | 实现工程的启动方式、可复跑实验、输入输出格式、适用边界 |
 | [dynamo_vllm_cpu_sim/VALIDATION.md](dynamo_vllm_cpu_sim/VALIDATION.md) | 已通过的验收记录与数值 |
 | `dynamo_vllm_cpu_sim/{sim,scripts,tests,configs,results,patched}/` | 实现代码、引导脚本、测试、配置与验证产物 |
