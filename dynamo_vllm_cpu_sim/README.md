@@ -68,6 +68,26 @@ export PYTHONHASHSEED=0 VLLM_PLUGINS='' HF_HUB_OFFLINE=1
 
 `ascend_balance` 补丁只针对本工程复现的异步 KV 状态更新问题，未在 NPU 验证。脚本不改上游文件。该模式为每个 worker 一个 DP rank，不模拟真实 DP collectives。
 
+## A/B 双类带宽争抢实验（2026-10-08）
+
+把旧框架 E26 的 A/B 双类工况（A=输入 128K/重算 256，每层读 175.65MB/算 6.02ms；B=输入 32K/重算 4096，每层读 38.5MB/算 28.59ms；32 NPU、共享链路 120 GB/s、batch=1、A:B=1:2）移植到本实验台。设计与结果解读见 [../docs/AB双类带宽争抢实验设计-20261008.md](../docs/AB双类带宽争抢实验设计-20261008.md)，验收数值见 [VALIDATION.md](VALIDATION.md) 追记。
+
+**虚拟 token 标定（语义说明，不得隐瞒）**：本实验台计算模型为单一全局线性系数，字面重算 token 数无法同时命中两类计算时间，因此按 E26 大纲 §3 的方法以"每类总读字节 + 每类总计算时间"为绑定量：B 类字面保留（重算 4096、prefill_token_s=55.83984375µs 精确命中 228.72ms）；A 类重算虚拟化为 862 token 命中 48.13ms（字面 256，偏差 −0.05%），prompt 变 131678（+0.5%）。读字节经 `kv_bytes_per_token=10741.744` 由字面前缀长度（A 130816 / B 28672）精确命中（A 1.4052GB、B 0.30798GB）。
+
+```bash
+.venv/bin/python scripts/gen_ab_trace.py --order block        # 生成 trace 到 results/traces/（gitignored，~68MB）
+.venv/bin/python scripts/gen_ab_trace.py --order interleave
+export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1   # 模型 stub 的 max_position_embeddings=4096 < 139264
+.venv/bin/python -m sim.run --config configs/ab.json --trace results/traces/ab_block_r2_b1.jsonl --output results/ab_block_b1.0
+.venv/bin/python -m sim.run --config configs/ab.json --trace results/traces/ab_interleave_r2_b1.jsonl --output results/ab_interleave_b1.0
+.venv/bin/python scripts/check_results.py results/ab_block_b1.0 results/ab_interleave_b1.0
+.venv/bin/python scripts/ab_analyze.py results/ab_block_b1.0 results/ab_interleave_b1.0
+```
+
+首轮结论（192 请求、2 轮、轮距 1.0s、两臂同 config 同 CRN）：两臂读量逐位一致（129.3547 GB）；**E26d 的"块状→洪水、交错→天然错峰"结论不迁移**——真实 vLLM 异步 KV 加载让每 worker 队列内全部请求的远端读立即提交（两臂并发 A 峰值均 ≈32，链路超订 ~7.8×，A 类 TTFT 都被读分摊拉到 ~360ms）；到达序的真实作用点是每 worker 的计算队列次序与 Dynamo 负载分布：块状臂 32 个 worker 首位全是 A（A 先算，makespan 2.23s、A 类 SLO 26.6%），交错臂首位 11A/21B，A 排在 B 的 229ms prefill 之后单调恶化（队列第 0→8 位 TTFT 358→1485ms，makespan 2.81s、A 类 SLO 10.9%）。含义：真实 vLLM 语义下"错峰"无法靠到达序获得（读不受准入控制），需要 admission 类策略——对应检视报告的 P/B 层挂载点缺口。
+
+局限：无逐层 I/O（收齐全部块才计算，单条理想 TTFT 比 E26 的 T0 多算读时）；decode_token_s 为任意取值；Dynamo 平局随机可致 worker 标签对调（汇总不变）；trace 为合成 token、无真实前缀共享结构。
+
 ## 代码入口
 
 | 文件 | 职责 |

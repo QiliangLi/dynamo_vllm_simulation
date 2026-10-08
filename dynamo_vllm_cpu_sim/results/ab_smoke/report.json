@@ -1,0 +1,836 @@
+{
+  "status": "completed",
+  "scope": "real Dynamo cache-blind selector + real scheduler; synthetic timing",
+  "versions": {
+    "ai-dynamo-runtime": "1.5.0",
+    "vllm": "0.20.2+empty",
+    "torch": "2.11.0"
+  },
+  "source_pins": {
+    "vllm": {
+      "repo": "vllm-project/vllm",
+      "tag": "v0.20.2",
+      "sha": "bc150f50299199599673614f80d12a196f377655"
+    },
+    "ascend": {
+      "repo": "vllm-project/vllm-ascend",
+      "tag": "v0.20.2rc1",
+      "sha": "367b8e62da799870a7476ce34f5f7658589a8aad"
+    },
+    "dynamo": {
+      "repo": "ai-dynamo/dynamo",
+      "tag": "v1.5.0",
+      "sha": "b83b1d9304ebfc624709ac46db32b1b6f1ff1615"
+    }
+  },
+  "workload_sha256": "96270ce1d8a6e953fe872233b3807d9f8ba4f35f9abef1a643f94bc1e65abead",
+  "scheduler_file": "/Users/qiliangli/Documents/Coding/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py",
+  "scheduler_sha256": "13e4407040d82ba29a35e12901551c94da0961439b23e507e73ccfe124e42ba5",
+  "config": {
+    "workers": 32,
+    "scheduler": "ascend_default",
+    "policy": "fcfs",
+    "block_size": 16,
+    "num_blocks": 65536,
+    "max_model_len": 139264,
+    "max_num_seqs": 1,
+    "max_num_batched_tokens": 8192,
+    "enable_prefix_caching": true,
+    "storage": {
+      "disks": 2,
+      "paths_per_disk": 256,
+      "disk_Bps": 120000000000,
+      "shared_link_Bps": 120000000000,
+      "path_Bps": 2000000000,
+      "read_latency_s": 5e-05,
+      "kv_bytes_per_token": 10741.744
+    },
+    "compute": {
+      "step_overhead_s": 5e-05,
+      "prefill_token_s": 5.583984375e-05,
+      "decode_token_s": 5.583984375e-05
+    },
+    "ttft_slo_s": 1.0
+  },
+  "requests_completed": 24,
+  "makespan_s": 0.36527315352348544,
+  "throughput_req_s": 65.7042538398785,
+  "mean_ttft_s": 0.25552963619219327,
+  "p95_ttft_s": 0.3507516844927998,
+  "ttft_slo_attainment": 1.0,
+  "bytes_read": 16169332408,
+  "workers": [
+    {
+      "id": 0,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 1,
+      "compute_s": 0.04977154296874996,
+      "stall_s": 0.02424900088320002,
+      "idle_s": 0.29125260967153543,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 2,
+      "compute_s": 0.04977154296874996,
+      "stall_s": 0.03744845591040005,
+      "idle_s": 0.27805315464433544,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 3,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 4,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.03964836508160006,
+      "idle_s": 0.09526719078563523,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 5,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 6,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.04184827425280006,
+      "idle_s": 0.09306728161443523,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 7,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.045514789538133406,
+      "idle_s": 0.08940076632910188,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 8,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.04918130482346675,
+      "idle_s": 0.08573425104376853,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 9,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 10,
+      "compute_s": 0.04977154296874996,
+      "stall_s": 0.06531397207893343,
+      "idle_s": 0.25018763847580205,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 11,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.06898048736426673,
+      "idle_s": 0.06593506850296854,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 12,
+      "compute_s": 0.2303575976562502,
+      "stall_s": 0.07044709347840006,
+      "idle_s": 0.06446846238883519,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 13,
+      "compute_s": 0.23035759765625013,
+      "stall_s": 0.0733803057066667,
+      "idle_s": 0.0615352501605686,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 14,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 15,
+      "compute_s": 0.2303575976562502,
+      "stall_s": 0.07631351793493335,
+      "idle_s": 0.0586020379323019,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 16,
+      "compute_s": 0.049771542968750165,
+      "stall_s": 0.0924461851903999,
+      "idle_s": 0.22305542536433537,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 17,
+      "compute_s": 0.23035759765625016,
+      "stall_s": 0.09537939741866655,
+      "idle_s": 0.039536158448568726,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 18,
+      "compute_s": 0.23035759765625013,
+      "stall_s": 0.09904591270399986,
+      "idle_s": 0.03586964316323543,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 19,
+      "compute_s": 0.2303575976562502,
+      "stall_s": 0.10051251881813318,
+      "idle_s": 0.03440303704910208,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 20,
+      "compute_s": 0.23035759765625013,
+      "stall_s": 0.10271242798933317,
+      "idle_s": 0.03220312787790214,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 21,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 22,
+      "compute_s": 0.049771542968750165,
+      "stall_s": 0.11221385861546646,
+      "idle_s": 0.20328775193926882,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 23,
+      "compute_s": 0.2303575976562502,
+      "stall_s": 0.11509264600746645,
+      "idle_s": 0.01982290985976881,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 24,
+      "compute_s": 0.2303575976562502,
+      "stall_s": 0.11721235015679977,
+      "idle_s": 0.017703205710435488,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 25,
+      "compute_s": 0.23035759765625013,
+      "stall_s": 0.12198168449279982,
+      "idle_s": 0.012933871374435468,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 26,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 27,
+      "compute_s": 0.049771542968750165,
+      "stall_s": 0.1317896128810665,
+      "idle_s": 0.18371199767366878,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 28,
+      "compute_s": 0.049771542968750165,
+      "stall_s": 0.13457182005923535,
+      "idle_s": 0.18092979049549993,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 29,
+      "compute_s": 0.23035759765625013,
+      "stall_s": 0.1349155558672353,
+      "idle_s": 0.0,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 30,
+      "compute_s": 0.0,
+      "stall_s": 0.0,
+      "idle_s": 0.36527315352348544,
+      "steps": 0,
+      "unfinished": 0,
+      "free_blocks": 65535
+    },
+    {
+      "id": 31,
+      "compute_s": 0.049771542968750165,
+      "stall_s": 0.13672016885923508,
+      "idle_s": 0.1787814416955002,
+      "steps": 16,
+      "unfinished": 0,
+      "free_blocks": 65535
+    }
+  ],
+  "requests": {
+    "r0a000": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 16,
+      "first_token_s": 0.1406301305028999,
+      "finish_s": 0.14221772815915007,
+      "preemptions": 0,
+      "ttft_s": 0.1406301305028999,
+      "external_tokens": 130816
+    },
+    "r0a001": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 1,
+      "first_token_s": 0.07243294619570002,
+      "finish_s": 0.07402054385194998,
+      "preemptions": 0,
+      "ttft_s": 0.07243294619570002,
+      "external_tokens": 130816
+    },
+    "r0a002": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 2,
+      "first_token_s": 0.08563240122290006,
+      "finish_s": 0.08721999887915001,
+      "preemptions": 0,
+      "ttft_s": 0.08563240122290006,
+      "external_tokens": 130816
+    },
+    "r0a003": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 31,
+      "first_token_s": 0.18490411417173508,
+      "finish_s": 0.18649171182798524,
+      "preemptions": 0,
+      "ttft_s": 0.18490411417173508,
+      "external_tokens": 130816
+    },
+    "r0a004": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 22,
+      "first_token_s": 0.16039780392796646,
+      "finish_s": 0.16198540158421662,
+      "preemptions": 0,
+      "ttft_s": 0.16039780392796646,
+      "external_tokens": 130816
+    },
+    "r0a005": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 10,
+      "first_token_s": 0.11349791739143343,
+      "finish_s": 0.11508551504768338,
+      "preemptions": 0,
+      "ttft_s": 0.11349791739143343,
+      "external_tokens": 130816
+    },
+    "r0a006": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 28,
+      "first_token_s": 0.18275576537173535,
+      "finish_s": 0.1843433630279855,
+      "preemptions": 0,
+      "ttft_s": 0.18275576537173535,
+      "external_tokens": 130816
+    },
+    "r0a007": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 27,
+      "first_token_s": 0.1799735581935665,
+      "finish_s": 0.18156115584981666,
+      "preemptions": 0,
+      "ttft_s": 0.1799735581935665,
+      "external_tokens": 130816
+    },
+    "r0b000": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 23,
+      "first_token_s": 0.34386264600746647,
+      "finish_s": 0.3454502436637166,
+      "preemptions": 0,
+      "ttft_s": 0.34386264600746647,
+      "external_tokens": 28672
+    },
+    "r0b001": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 6,
+      "first_token_s": 0.27061827425280005,
+      "finish_s": 0.2722058719090502,
+      "preemptions": 0,
+      "ttft_s": 0.27061827425280005,
+      "external_tokens": 28672
+    },
+    "r0b002": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 29,
+      "first_token_s": 0.3636855558672353,
+      "finish_s": 0.36527315352348544,
+      "preemptions": 0,
+      "ttft_s": 0.3636855558672353,
+      "external_tokens": 28672
+    },
+    "r0b003": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 4,
+      "first_token_s": 0.26841836508160005,
+      "finish_s": 0.2700059627378502,
+      "preemptions": 0,
+      "ttft_s": 0.26841836508160005,
+      "external_tokens": 28672
+    },
+    "r0b004": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 7,
+      "first_token_s": 0.2742847895381334,
+      "finish_s": 0.27587238719438356,
+      "preemptions": 0,
+      "ttft_s": 0.2742847895381334,
+      "external_tokens": 28672
+    },
+    "r0b005": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 25,
+      "first_token_s": 0.3507516844927998,
+      "finish_s": 0.35233928214904997,
+      "preemptions": 0,
+      "ttft_s": 0.3507516844927998,
+      "external_tokens": 28672
+    },
+    "r0b006": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 19,
+      "first_token_s": 0.3292825188181332,
+      "finish_s": 0.33087011647438336,
+      "preemptions": 0,
+      "ttft_s": 0.3292825188181332,
+      "external_tokens": 28672
+    },
+    "r0b007": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 20,
+      "first_token_s": 0.33148242798933314,
+      "finish_s": 0.3330700256455833,
+      "preemptions": 0,
+      "ttft_s": 0.33148242798933314,
+      "external_tokens": 28672
+    },
+    "r0b008": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 17,
+      "first_token_s": 0.32414939741866655,
+      "finish_s": 0.3257369950749167,
+      "preemptions": 0,
+      "ttft_s": 0.32414939741866655,
+      "external_tokens": 28672
+    },
+    "r0b009": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 11,
+      "first_token_s": 0.29775048736426674,
+      "finish_s": 0.2993380850205169,
+      "preemptions": 0,
+      "ttft_s": 0.29775048736426674,
+      "external_tokens": 28672
+    },
+    "r0b010": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 13,
+      "first_token_s": 0.3021503057066667,
+      "finish_s": 0.30373790336291684,
+      "preemptions": 0,
+      "ttft_s": 0.3021503057066667,
+      "external_tokens": 28672
+    },
+    "r0b011": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 8,
+      "first_token_s": 0.27795130482346675,
+      "finish_s": 0.2795389024797169,
+      "preemptions": 0,
+      "ttft_s": 0.27795130482346675,
+      "external_tokens": 28672
+    },
+    "r0b012": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 15,
+      "first_token_s": 0.3050835179349334,
+      "finish_s": 0.30667111559118354,
+      "preemptions": 0,
+      "ttft_s": 0.3050835179349334,
+      "external_tokens": 28672
+    },
+    "r0b013": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 24,
+      "first_token_s": 0.3459823501567998,
+      "finish_s": 0.34756994781304995,
+      "preemptions": 0,
+      "ttft_s": 0.3459823501567998,
+      "external_tokens": 28672
+    },
+    "r0b014": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 12,
+      "first_token_s": 0.2992170934784001,
+      "finish_s": 0.30080469113465025,
+      "preemptions": 0,
+      "ttft_s": 0.2992170934784001,
+      "external_tokens": 28672
+    },
+    "r0b015": {
+      "arrival_s": 0.0,
+      "output_tokens": 16,
+      "worker": 18,
+      "first_token_s": 0.32781591270399985,
+      "finish_s": 0.32940351036025,
+      "preemptions": 0,
+      "ttft_s": 0.32781591270399985,
+      "external_tokens": 28672
+    }
+  },
+  "router_loads_after_finish": [
+    {
+      "model_name": "sim-model",
+      "routing_group": "default",
+      "loads": [
+        {
+          "worker_id": 0,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 23,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 13,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 3,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 26,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 16,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 6,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 29,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 19,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 9,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 22,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 12,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 2,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 25,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 15,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 5,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 28,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 18,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 8,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 31,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 21,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 11,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 1,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 24,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 14,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 4,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 27,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 7,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 17,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 30,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 20,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        },
+        {
+          "worker_id": 10,
+          "dp_rank": 0,
+          "potential_prefill_tokens": 0,
+          "potential_decode_blocks": 0,
+          "active_requests": 0
+        }
+      ],
+      "pending_count": 0,
+      "pending_isl_tokens": 0
+    }
+  ],
+  "limitations": [
+    "No numerical device execution or full EngineCore loop",
+    "Dynamo KV-event bridge disabled",
+    "Ascend BalanceScheduler only; single DP rank per worker",
+    "No layerwise overlap, PD, writeback, cancellation or load failures",
+    "Timing coefficients are examples, not NPU calibration",
+    "Native equal-cost routing tie can be random"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+ "workers": 32,
+ "scheduler": "ascend_default",
+ "policy": "fcfs",
+ "block_size": 16,
+ "num_blocks": 65536,
+ "max_model_len": 139264,
+ "max_num_seqs": 1,
+ "max_num_batched_tokens": 8192,
+ "enable_prefix_caching": true,
+ "storage": {
+  "disks": 2,
+  "paths_per_disk": 256,
+  "disk_Bps": 120000000000,
+  "shared_link_Bps": 120000000000,
+  "path_Bps": 2000000000,
+  "read_latency_s": 0.00005,
+  "kv_bytes_per_token": 10741.744
+ },
+ "compute": {
+  "step_overhead_s": 0.00005,
+  "prefill_token_s": 0.00005583984375,
+  "decode_token_s": 0.00005583984375
+ },
+ "ttft_slo_s": 1.0
+}
