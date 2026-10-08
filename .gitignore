@@ -21,3 +21,6 @@ upstream/
 
 # Generated A/B traces (reproducible via scripts/gen_ab_trace.py, ~100MB each)
 dynamo_vllm_cpu_sim/results/traces/
+
+# ZCode tool-local config
+.zcodeignore
