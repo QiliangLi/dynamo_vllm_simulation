@@ -14,7 +14,7 @@
 | [docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md](docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md) | 前序形式化分析（09-17 文档已修正其部分结论） |
 | [docs/ChatGPT-Ascend路径问题说明-20260924-1858.md](docs/ChatGPT-Ascend路径问题说明-20260924-1858.md) | 方案沟通与交付过程记录 |
 | [docs/AB双类带宽争抢实验设计-20261008.md](docs/AB双类带宽争抢实验设计-20261008.md) | A/B 双类带宽争抢实验设计：E26 工况映射、虚拟 token 标定、两到达序臂 |
-| [docs/存储带宽分配策略设计-maxmin-20261009.md](docs/存储带宽分配策略设计-maxmin-20261009.md) | 带需求上限的 max-min fair 带宽分配策略设计（`bandwidth_policy` 可选配置、不替换现行；**设计稿待实现**，五项决策已确认：需求=层传输/层计算自推导、仅盘内、迭代到不动点、块全 Path 可见+IO 请求独占 Path、active_split 逐字节保留） |
+| [docs/存储带宽分配策略设计-maxmin-20261009.md](docs/存储带宽分配策略设计-maxmin-20261009.md) | 带需求上限的 max-min fair 带宽分配策略设计（`bandwidth_policy` 可选配置；**设计稿待实现**，六项决策已确认：需求=层传输/层计算自推导、仅盘内、迭代到不动点、块全 Path 可见两策略共用、新策略取消 Path 排队、active_split 保留速率规则但历史基线须重跑） |
 | [AB双类带宽争抢实验结果-20261008.md](AB双类带宽争抢实验结果-20261008.md) | A/B 实验结果：分类甘特图+带宽时序图、错峰不迁移结论、复现性注记。**含图的结果文档放仓库根**，图片链接用 `docs/figures/` 前缀（GitHub 与本地预览均正确） |
 | [dynamo_vllm_cpu_sim/README.md](dynamo_vllm_cpu_sim/README.md) | 实现工程的启动方式、可复跑实验、输入输出格式、适用边界 |
 | [dynamo_vllm_cpu_sim/VALIDATION.md](dynamo_vllm_cpu_sim/VALIDATION.md) | 已通过的验收记录与数值 |
