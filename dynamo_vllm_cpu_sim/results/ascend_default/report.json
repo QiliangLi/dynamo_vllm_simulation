@@ -4,9 +4,27 @@
   "versions": {
     "ai-dynamo-runtime": "1.5.0",
     "vllm": "0.20.2+empty",
-    "torch": "2.11.0+cpu"
+    "torch": "2.11.0"
   },
-  "scheduler_file": "/workspace/scratch/d6236fc2f388/dynamo_vllm_cpu_sim/upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py",
+  "source_pins": {
+    "vllm": {
+      "repo": "vllm-project/vllm",
+      "tag": "v0.20.2",
+      "sha": "bc150f50299199599673614f80d12a196f377655"
+    },
+    "ascend": {
+      "repo": "vllm-project/vllm-ascend",
+      "tag": "v0.20.2rc1",
+      "sha": "367b8e62da799870a7476ce34f5f7658589a8aad"
+    },
+    "dynamo": {
+      "repo": "ai-dynamo/dynamo",
+      "tag": "v1.5.0",
+      "sha": "b83b1d9304ebfc624709ac46db32b1b6f1ff1615"
+    }
+  },
+  "workload_sha256": "78fd5719a63b9dff3b3d643dc0e2687c67e864320d84c46208bbe5dda668dea4",
+  "scheduler_file": "/Users/qiliangli/Documents/Coding/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py",
   "scheduler_sha256": "13e4407040d82ba29a35e12901551c94da0961439b23e507e73ccfe124e42ba5",
   "config": {
     "workers": 2,
@@ -35,28 +53,28 @@
     "ttft_slo_s": 0.02
   },
   "requests_completed": 12,
-  "makespan_s": 0.015164912000000004,
-  "throughput_req_s": 791.300338571038,
-  "mean_ttft_s": 0.005364061333333333,
-  "p95_ttft_s": 0.013674912000000001,
+  "makespan_s": 0.011234353066666668,
+  "throughput_req_s": 1068.1522940208347,
+  "mean_ttft_s": 0.005326135377777777,
+  "p95_ttft_s": 0.009644353066666667,
   "ttft_slo_attainment": 1.0,
-  "bytes_read": 50331648,
+  "bytes_read": 67108864,
   "workers": [
     {
       "id": 0,
-      "compute_s": 0.006541999999999999,
-      "stall_s": 0.0,
-      "idle_s": 0.008622912000000005,
-      "steps": 17,
+      "compute_s": 0.007291999999999999,
+      "stall_s": 0.0029223530666666647,
+      "idle_s": 0.0010200000000000035,
+      "steps": 32,
       "unfinished": 0,
       "free_blocks": 127
     },
     {
       "id": 1,
-      "compute_s": 0.009830000000000012,
-      "stall_s": 0.005334911999999992,
+      "compute_s": 0.00878,
+      "stall_s": 0.0024543530666666677,
       "idle_s": 0.0,
-      "steps": 49,
+      "steps": 28,
       "unfinished": 0,
       "free_blocks": 127
     }
@@ -76,20 +94,20 @@
       "arrival_s": 0.0,
       "output_tokens": 8,
       "worker": 0,
-      "first_token_s": 0.002826,
-      "finish_s": 0.006052,
+      "first_token_s": 0.003770753066666667,
+      "finish_s": 0.004508753066666666,
       "preemptions": 0,
-      "ttft_s": 0.002826,
+      "ttft_s": 0.003770753066666667,
       "external_tokens": 64
     },
     "r002": {
       "arrival_s": 0.0,
       "output_tokens": 8,
       "worker": 0,
-      "first_token_s": 0.005772,
-      "finish_s": 0.006541999999999999,
+      "first_token_s": 0.003968753066666667,
+      "finish_s": 0.004578753066666666,
       "preemptions": 0,
-      "ttft_s": 0.005772,
+      "ttft_s": 0.003968753066666667,
       "external_tokens": 64
     },
     "r003": {
@@ -97,7 +115,7 @@
       "output_tokens": 8,
       "worker": 0,
       "first_token_s": 0.002248,
-      "finish_s": 0.005922,
+      "finish_s": 0.0027380000000000013,
       "preemptions": 0,
       "ttft_s": 0.002248,
       "external_tokens": 0
@@ -106,20 +124,20 @@
       "arrival_s": 0.0005,
       "output_tokens": 8,
       "worker": 1,
-      "first_token_s": 0.007515456,
-      "finish_s": 0.008005456000000001,
+      "first_token_s": 0.007030353066666665,
+      "finish_s": 0.010644353066666666,
       "preemptions": 0,
-      "ttft_s": 0.007015456,
+      "ttft_s": 0.006530353066666664,
       "external_tokens": 64
     },
     "r005": {
       "arrival_s": 0.0005,
       "output_tokens": 8,
       "worker": 1,
-      "first_token_s": 0.008666608,
-      "finish_s": 0.009156608000000004,
+      "first_token_s": 0.007228353066666665,
+      "finish_s": 0.010754353066666666,
       "preemptions": 0,
-      "ttft_s": 0.008166607999999999,
+      "ttft_s": 0.006728353066666665,
       "external_tokens": 64
     },
     "r006": {
@@ -136,20 +154,20 @@
       "arrival_s": 0.0005,
       "output_tokens": 8,
       "worker": 0,
-      "first_token_s": 0.004608,
-      "finish_s": 0.006382,
+      "first_token_s": 0.009278353066666665,
+      "finish_s": 0.010144353066666664,
       "preemptions": 0,
-      "ttft_s": 0.0041080000000000005,
-      "external_tokens": 0
+      "ttft_s": 0.008778353066666664,
+      "external_tokens": 64
     },
     "r008": {
       "arrival_s": 0.001,
       "output_tokens": 8,
       "worker": 1,
-      "first_token_s": 0.01170976,
-      "finish_s": 0.012199760000000004,
+      "first_token_s": 0.009010353066666667,
+      "finish_s": 0.011024353066666666,
       "preemptions": 0,
-      "ttft_s": 0.010709759999999999,
+      "ttft_s": 0.008010353066666667,
       "external_tokens": 64
     },
     "r009": {
@@ -166,20 +184,20 @@
       "arrival_s": 0.001,
       "output_tokens": 8,
       "worker": 0,
-      "first_token_s": 0.005218,
-      "finish_s": 0.0064719999999999995,
+      "first_token_s": 0.009604353066666665,
+      "finish_s": 0.010214353066666664,
       "preemptions": 0,
-      "ttft_s": 0.004218,
-      "external_tokens": 0
+      "ttft_s": 0.008604353066666664,
+      "external_tokens": 64
     },
     "r011": {
       "arrival_s": 0.001,
       "output_tokens": 8,
       "worker": 1,
-      "first_token_s": 0.014674912,
-      "finish_s": 0.015164912000000004,
+      "first_token_s": 0.010644353066666666,
+      "finish_s": 0.011234353066666668,
       "preemptions": 0,
-      "ttft_s": 0.013674912000000001,
+      "ttft_s": 0.009644353066666667,
       "external_tokens": 64
     }
   },
@@ -189,14 +207,14 @@
       "routing_group": "default",
       "loads": [
         {
-          "worker_id": 0,
+          "worker_id": 1,
           "dp_rank": 0,
           "potential_prefill_tokens": 0,
           "potential_decode_blocks": 0,
           "active_requests": 0
         },
         {
-          "worker_id": 1,
+          "worker_id": 0,
           "dp_rank": 0,
           "potential_prefill_tokens": 0,
           "potential_decode_blocks": 0,

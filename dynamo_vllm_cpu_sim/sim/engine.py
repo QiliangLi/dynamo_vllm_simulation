@@ -159,8 +159,8 @@ class Engine:
         if self.c["scheduler"] == "ascend_balance":
             self.scheduler.balance_queue[0].fill_(len(self.scheduler.running))
         out = self.scheduler.schedule()
-        for rid, blocks in self.scheduler.connector.submissions:
-            self.store.submit(now, (self.id, rid), blocks)
+        for rid, blocks, demand in self.scheduler.connector.submissions:
+            self.store.submit(now, (self.id, rid), blocks, demand)
         self.scheduler.connector.submissions.clear()
         ids = list(out.num_scheduled_tokens)
         sampled = []

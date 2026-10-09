@@ -4,9 +4,27 @@
   "versions": {
     "ai-dynamo-runtime": "1.5.0",
     "vllm": "0.20.2+empty",
-    "torch": "2.11.0+cpu"
+    "torch": "2.11.0"
   },
-  "scheduler_file": "/workspace/scratch/d6236fc2f388/dynamo_vllm_cpu_sim/upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py",
+  "source_pins": {
+    "vllm": {
+      "repo": "vllm-project/vllm",
+      "tag": "v0.20.2",
+      "sha": "bc150f50299199599673614f80d12a196f377655"
+    },
+    "ascend": {
+      "repo": "vllm-project/vllm-ascend",
+      "tag": "v0.20.2rc1",
+      "sha": "367b8e62da799870a7476ce34f5f7658589a8aad"
+    },
+    "dynamo": {
+      "repo": "ai-dynamo/dynamo",
+      "tag": "v1.5.0",
+      "sha": "b83b1d9304ebfc624709ac46db32b1b6f1ff1615"
+    }
+  },
+  "workload_sha256": "78fd5719a63b9dff3b3d643dc0e2687c67e864320d84c46208bbe5dda668dea4",
+  "scheduler_file": "/Users/qiliangli/Documents/Coding/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py",
   "scheduler_sha256": "13e4407040d82ba29a35e12901551c94da0961439b23e507e73ccfe124e42ba5",
   "config": {
     "workers": 2,
@@ -35,28 +53,28 @@
     "ttft_slo_s": 0.02
   },
   "requests_completed": 12,
-  "makespan_s": 0.015164912000000004,
-  "throughput_req_s": 791.300338571038,
-  "mean_ttft_s": 0.005234561333333334,
-  "p95_ttft_s": 0.013674912000000001,
+  "makespan_s": 0.012045686400000003,
+  "throughput_req_s": 996.2072397966459,
+  "mean_ttft_s": 0.005110165422222222,
+  "p95_ttft_s": 0.0104556864,
   "ttft_slo_attainment": 1.0,
-  "bytes_read": 50331648,
+  "bytes_read": 67108864,
   "workers": [
     {
       "id": 0,
-      "compute_s": 0.006541999999999999,
-      "stall_s": 0.0,
-      "idle_s": 0.008622912000000005,
-      "steps": 17,
+      "compute_s": 0.009130000000000001,
+      "stall_s": 0.0029156864000000017,
+      "idle_s": 0.0,
+      "steps": 35,
       "unfinished": 0,
       "free_blocks": 127
     },
     {
       "id": 1,
-      "compute_s": 0.009830000000000012,
-      "stall_s": 0.005334911999999993,
-      "idle_s": 0.0,
-      "steps": 49,
+      "compute_s": 0.007092000000000002,
+      "stall_s": 0.0031180864,
+      "idle_s": 0.0018356000000000015,
+      "steps": 28,
       "unfinished": 0,
       "free_blocks": 127
     }
@@ -65,7 +83,7 @@
     "r000": {
       "arrival_s": 0.0,
       "output_tokens": 8,
-      "worker": 1,
+      "worker": 0,
       "first_token_s": 0.001686,
       "finish_s": 0.0032919999999999994,
       "preemptions": 0,
@@ -75,29 +93,29 @@
     "r001": {
       "arrival_s": 0.0,
       "output_tokens": 8,
-      "worker": 0,
-      "first_token_s": 0.002826,
-      "finish_s": 0.006092,
+      "worker": 1,
+      "first_token_s": 0.0030360000000000005,
+      "finish_s": 0.0038379999999999994,
       "preemptions": 0,
-      "ttft_s": 0.002826,
+      "ttft_s": 0.0030360000000000005,
       "external_tokens": 64
     },
     "r002": {
       "arrival_s": 0.0,
       "output_tokens": 8,
-      "worker": 0,
-      "first_token_s": 0.005812,
-      "finish_s": 0.006541999999999999,
+      "worker": 1,
+      "first_token_s": 0.0032580000000000005,
+      "finish_s": 0.003907999999999999,
       "preemptions": 0,
-      "ttft_s": 0.005812,
+      "ttft_s": 0.0032580000000000005,
       "external_tokens": 64
     },
     "r003": {
       "arrival_s": 0.0,
       "output_tokens": 8,
-      "worker": 0,
+      "worker": 1,
       "first_token_s": 0.002248,
-      "finish_s": 0.005962,
+      "finish_s": 0.003478,
       "preemptions": 0,
       "ttft_s": 0.002248,
       "external_tokens": 0
@@ -105,27 +123,27 @@
     "r004": {
       "arrival_s": 0.0005,
       "output_tokens": 8,
-      "worker": 1,
-      "first_token_s": 0.009612608,
-      "finish_s": 0.010102608000000004,
+      "worker": 0,
+      "first_token_s": 0.0081596864,
+      "finish_s": 0.011565686400000002,
       "preemptions": 0,
-      "ttft_s": 0.009112608,
+      "ttft_s": 0.007659686399999999,
       "external_tokens": 64
     },
     "r005": {
       "arrival_s": 0.0005,
       "output_tokens": 8,
-      "worker": 1,
-      "first_token_s": 0.006569456,
-      "finish_s": 0.007059455999999999,
+      "worker": 0,
+      "first_token_s": 0.005330753066666667,
+      "finish_s": 0.005820753066666665,
       "preemptions": 0,
-      "ttft_s": 0.006069456000000001,
+      "ttft_s": 0.004830753066666667,
       "external_tokens": 64
     },
     "r006": {
       "arrival_s": 0.0005,
       "output_tokens": 8,
-      "worker": 1,
+      "worker": 0,
       "first_token_s": 0.002742,
       "finish_s": 0.0034519999999999993,
       "preemptions": 0,
@@ -135,27 +153,27 @@
     "r007": {
       "arrival_s": 0.0005,
       "output_tokens": 8,
-      "worker": 0,
-      "first_token_s": 0.00525,
-      "finish_s": 0.0064719999999999995,
+      "worker": 1,
+      "first_token_s": 0.0096600864,
+      "finish_s": 0.010210086400000002,
       "preemptions": 0,
-      "ttft_s": 0.004750000000000001,
-      "external_tokens": 0
+      "ttft_s": 0.0091600864,
+      "external_tokens": 64
     },
     "r008": {
       "arrival_s": 0.001,
       "output_tokens": 8,
-      "worker": 1,
-      "first_token_s": 0.01170976,
-      "finish_s": 0.012199760000000004,
+      "worker": 0,
+      "first_token_s": 0.0098936864,
+      "finish_s": 0.011835686400000002,
       "preemptions": 0,
-      "ttft_s": 0.010709759999999999,
+      "ttft_s": 0.0088936864,
       "external_tokens": 64
     },
     "r009": {
       "arrival_s": 0.001,
       "output_tokens": 8,
-      "worker": 1,
+      "worker": 0,
       "first_token_s": 0.002264,
       "finish_s": 0.003381999999999999,
       "preemptions": 0,
@@ -165,21 +183,21 @@
     "r010": {
       "arrival_s": 0.001,
       "output_tokens": 8,
-      "worker": 0,
-      "first_token_s": 0.00342,
-      "finish_s": 0.006202,
+      "worker": 1,
+      "first_token_s": 0.007588086399999999,
+      "finish_s": 0.0099300864,
       "preemptions": 0,
-      "ttft_s": 0.00242,
-      "external_tokens": 0
+      "ttft_s": 0.006588086399999999,
+      "external_tokens": 64
     },
     "r011": {
       "arrival_s": 0.001,
       "output_tokens": 8,
-      "worker": 1,
-      "first_token_s": 0.014674912,
-      "finish_s": 0.015164912000000004,
+      "worker": 0,
+      "first_token_s": 0.011455686400000002,
+      "finish_s": 0.012045686400000003,
       "preemptions": 0,
-      "ttft_s": 0.013674912000000001,
+      "ttft_s": 0.0104556864,
       "external_tokens": 64
     }
   },

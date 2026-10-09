@@ -208,7 +208,9 @@ Dynamo 默认 picker 对完全相同代价的候选仍可能有随机平局选�
 
 默认模型有 2 个逻辑 disk，每 disk 256 个逻辑 path，disk 总预算 40 GB/s，单 path 上限 1 GB/s，全系统共享链路 10 GB/s，单次读启动延迟 100 μs。它们都是可改参数，不对应已校准设备规格。这里 GB 是十进制 bytes，Gb/s 必须先除以 8。
 
-block 用稳定 rendezvous hash 映射 disk，再映射 path；每 path FIFO。对所有已启动的队头读，先按 disk 的活跃路径数分带宽并施加单路径上限，再用全局链路上限等比例缩放：
+block 用稳定 rendezvous hash 映射到唯一 disk，对该盘全部 path 可见；path 不是放置属性而是访问通道——IO 请求发出时才按确定性最少占用规则指派 path（平局取最小下标，2026-10-10 起两策略共用，废除旧"块哈希到 (盘, path)"定位）。速率规则由 `storage.bandwidth_policy` 选择（设计文档 docs/存储带宽分配策略设计-maxmin-20261009.md）：
+
+`active_split`（默认，每 path FIFO，同盘并发读超过 paths_per_disk 才排队）：对所有已启动的队头读，先按 disk 的活跃路径数分带宽并施加单路径上限，再用全局链路上限等比例缩放：
 
 \[
 r_p^{(0)}=\min(B_{path}, B_{disk(p)}/N_{active,disk(p)})
@@ -217,7 +219,9 @@ r_p^{(0)}=\min(B_{path}, B_{disk(p)}/N_{active,disk(p)})
 r_p=r_p^{(0)}\min(1,B_{shared}/\sum_q r_q^{(0)})
 \]
 
-这是本实验明确选定的分配策略，不宣称是实际存储控制器的固件调度，也不是完整 max-min fair 分配。低速路径剩余 disk 容量如何再分配、读写隔离、cache tiers、介质服务时间分布，都可按目标系统扩展。
+`max_min_fair`（无排队）：每个 IO 请求独占一条 path、数量不限（paths_per_disk 仅为名义值），携带需求 \(d_i\)（= 一层传输数据量 ÷ 一层计算时间；聚合模型下即 kv_bytes_per_token / prefill_token_s，trace 行 demand_Bps 可覆盖）。每盘做带需求上限的水土填充：\(\sum_i d_i \le B_{disk}\) 时 \(a_i = d_i + (B_{disk}-\sum d)/N\)；否则迭代"均分→超额者截到需求→多余再均分"到不动点（标准 max-min fair）。随后同样施加全局链路等比例缩放；链路主导时盘内需求保证会被压缩破坏（设计文档 §3.5）。
+
+这是本实验明确选定的两条分配策略，不宣称是实际存储控制器的固件调度；max_min_fair 仍不含读写隔离、分类组份额（策略文档 09-17 的 B0/B1）、cache tiers、介质服务时间分布，都可按目标系统扩展。
 
 不能对每个读在提交时写一个固定 `size / peak_BW` 的完成时间然后不再更新。示例单元测试刻意在传输中途加入另一个读：原请求完成时间必须后移，另一个结束后剩余读再加速。这正是存储状态影响调度策略的基础。
 

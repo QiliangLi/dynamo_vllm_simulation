@@ -66,3 +66,23 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 **复现性注记**：同 trace 同 config 复跑一轮对照显示，Dynamo 原生 picker 平局随机使 ~185/192 请求 worker 落点变化——均值类指标漂 0.3~2.1%、最值类（makespan/p95）漂 1.2~10.9%，bytes_read 与 compute 合计逐位不变。12 请求 demo 中该随机表现为"worker 标签对调、汇总不变"；192 请求非对称负载下放大到汇总层。判读规则：均值类 ±2% 内视为同分布；makespan/p95 单次运行不足以下细粒度结论（正式对照需确定性 picker 或多种子，见检视报告 §2.3.4/§8）。
 
 结果解读（虚拟时间，非 NPU 实测）：E26d 的"块状→洪水、交错→天然错峰"不迁移——异步 KV 加载下两臂并发 A 峰值 32/36（4.1 条即打满链路，超订 ~7.8×），A 类 TTFT 均为读分摊主导（~360ms ≈ 1.405GB ÷ 120/32 GB/s）；到达序的实际作用点是每 worker 计算队列次序（块状臂 A 全部首位；交错臂 A 随队列深度 TTFT 345→1533ms 单调恶化）。含义：真实 vLLM 语义下读不受准入控制，错峰需 admission 类策略（对应检视报告 §4.1 P/B 层缺口）。
+
+## 追加：存储 Path 语义变更与 max_min_fair 策略（2026-10-10）
+
+依据 [docs/存储带宽分配策略设计-maxmin-20261009.md](../docs/存储带宽分配策略设计-maxmin-20261009.md) 实现（设计六项决策全部落地）：块哈希只落 ASU、对该盘全部 Path 可见，IO 请求发出时按确定性最少占用指派 Path——旧"块哈希 (盘, Path) 定位"废除，**两策略一致**。新增 `storage.bandwidth_policy = max_min_fair`（CLI `--bandwidth-policy`）：每个 IO 请求独占一条 Path、数量不限、无排队；每请求自携带需求 = kv_bytes_per_token / prefill_token_s（聚合模型下即一层传输量/一层计算时间，demo 配置推导值 32.768 GB/s/请求；trace 行 `demand_Bps` 可覆盖）；每盘带需求上限的水土填充迭代到不动点（供过于求：需求 + 剩余均分）；共享链路仍等比例压缩。`active_split` 保留"均分 × path_Bps 上限 × 链路"速率规则与每 Path FIFO。
+
+**上文 2026-09-24 五模式表与 2026-10-08 A/B 表的数值均对应旧哈希定位语义，仅作历史记录**（A/B 两臂未在新语义下重跑，其机制性结论不受影响）。以下为新基线（环境：macOS 26.6 Apple Silicon、同虚拟环境；同 trace 同 config）：
+
+| 模式 | 完成数 | 平均 TTFT (ms) | p95 TTFT (ms) | makespan (ms) | 读取量 (MiB) | 报告 |
+|---|---:|---:|---:|---:|---:|---|
+| Ascend 默认委托路径 | 12 | 5.326135 | 9.644353 | 11.234353 | 64 | results/ascend_default |
+| vLLM 原始调度器 | 12 | 5.326135 | 9.644353 | 11.234353 | 64 | results/upstream |
+| vLLM 原生 priority | 12 | 5.110165 | 10.455686 | 12.045686 | 64 | results/priority |
+| 慢共享链路 | 12 | 447.982371 | 673.797307 | 675.387307 | 64 | results/slow |
+| Ascend balance + 显式补丁 | 12 | 5.326135 | 9.644353 | 11.234353 | 64 | results/ascend_balance |
+| **max_min_fair（新策略）** | 12 | 5.074758 | 9.400330 | 10.990330 | 64 | results/max_min_fair |
+| 慢链路 × max_min_fair | 12 | 447.982371 | 673.797307 | 675.387307 | 64 | results/max_min_fair_slow |
+
+`check_results.py` 七目录全 PASS（生命周期/远端等待先于首 token/块回收 127/128/Dynamo 记账归零）。单元测试 26/26：waterfill 向量断言（[10,28,100,100]→[10,28,31,31] 不动点、供过于求剩余均分、均匀需求退化为均分、单请求拿整盘、d>盘容量不预截断、Σd=C 边界）；Path 指派（最少占用铺开、超 paths_per_disk 退化排队、确定性）；max_min_fair（无排队语义、时间线解析对拍、link_flux 区间守恒 ∫actual=bytes）；active_split 速率规则回归。同 session 复跑两种策略各两次汇总逐位一致（原生平局随机在 12 请求 demo 表现为 worker 标签对调、汇总不变，与历史行为一致）。
+
+判读（虚拟时间，非 NPU 实测）：demo 配置下 max_min_fair 比 active_split 快 2.2%（makespan 10.990 vs 11.234 ms）——差异来自取消 path_Bps=1 GB/s 单路径封顶（均匀推导需求 32.768 GB/s，两请求同盘即供不应求、各得 20 GB/s，链路压缩 0.25 后 5 GB/s，对 active_split 的 1 GB/s）。slow 配置（链路 0.1 GB/s 为唯一瓶颈）两策略汇总**逐位一致**：均匀需求下两策略同为均分、链路压缩后同为 0.1 GB/s 总量——印证设计文档 §3.5 的预期：链路主导时盘内分配策略对端到端不可见，B 层策略差异需在盘带宽为瓶颈的工况下观测。

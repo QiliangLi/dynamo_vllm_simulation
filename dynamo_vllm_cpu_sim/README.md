@@ -62,11 +62,24 @@ export PYTHONHASHSEED=0 VLLM_PLUGINS='' HF_HUB_OFFLINE=1
 .venv/bin/python scripts/apply_ascend_patch.py
 .venv/bin/python -m sim.run --scheduler ascend_balance --output results/ascend_balance
 
+# 存储带宽分配策略对照：max_min_fair（按需水土填充，无 Path 排队）
+.venv/bin/python -m sim.run --bandwidth-policy max_min_fair --output results/max_min_fair
+.venv/bin/python -m sim.run --config configs/slow_storage.json --bandwidth-policy max_min_fair --output results/max_min_fair_slow
+
 .venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python scripts/check_results.py results/ascend_default results/upstream results/slow
+.venv/bin/python scripts/check_results.py results/ascend_default results/upstream results/priority results/slow results/ascend_balance results/max_min_fair results/max_min_fair_slow
 ```
 
 `ascend_balance` 补丁只针对本工程复现的异步 KV 状态更新问题，未在 NPU 验证。脚本不改上游文件。该模式为每个 worker 一个 DP rank，不模拟真实 DP collectives。
+
+## 存储模型与带宽分配策略（2026-10-10 起）
+
+块经哈希只落到唯一 ASU（盘），对该盘全部 Path 可见；**Path 不是放置属性而是访问通道**——IO 请求发出时才指派（确定性最少占用、平局取最小下标）。`storage.bandwidth_policy`（CLI `--bandwidth-policy`）选择速率规则，设计文档见 [../docs/存储带宽分配策略设计-maxmin-20261009.md](../docs/存储带宽分配策略设计-maxmin-20261009.md)：
+
+- **`active_split`（默认）**：每 Path FIFO 排队（同盘并发读超过 `paths_per_disk` 才排队）；对活跃队首按 `min(path_Bps, disk_Bps/该盘活跃数)` 分速率，再按全局共享链路等比例缩放。
+- **`max_min_fair`**：**无排队**——每个 IO 请求独占一条 Path，数量不设上限（`paths_per_disk` 仅为名义值）；每个读请求携带需求 `d = kv_bytes_per_token / prefill_token_s`（即一层传输数据量/一层计算时间，聚合模型下层数相消；trace 行可选 `demand_Bps` 覆盖，供异质需求实验）。每盘做带需求上限的水土填充：Σd ≤ 盘容量时各得需求 + 剩余均分；否则迭代"均分→超额者截到需求→多余再均分"到不动点。随后同样按共享链路等比例缩放（链路主导时需求保证会被压缩破坏，设计文档 §3.5 有记录）。
+
+两策略的 `snapshot().path_rates_Bps` 键均为 `"盘:Path"`（max_min_fair 的 Path 序号可超过 256）；`storage_interval_log` 的 `queued_reads` 在 max_min_fair 下语义为"未过启动延迟的读请求数"（无排队概念）。2026-10-10 的这次 Path 语义变更（废除旧哈希 (盘, Path) 定位）同时作用于两策略，五模式基线已重跑，见 [VALIDATION.md](VALIDATION.md) 对应追记；此前数值（含 A/B 实验）对应旧定位语义。
 
 ## A/B 双类带宽争抢实验（2026-10-08）
 
@@ -101,7 +114,7 @@ export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1   # 模型 stub 的 max_position_embeddin
 | `sim/router.py` | 调用真实 Rust SelectionService；reserve / prefill complete / free 的记账同步 |
 | `sim/engine.py` | 构造真实 Scheduler、Request、KVCacheConfig；生成仿真 ModelRunnerOutput |
 | `sim/connector.py` | 真实 KVConnectorBase_V1 接口：命中、分配、异步完成 |
-| `sim/storage.py` | 共享 KV 池、磁盘与路径排队、动态链路带宽 |
+| `sim/storage.py` | 共享 KV 池、ASU 内带宽分配双策略（active_split / max_min_fair）、IO 请求发放时指派 Path、动态链路带宽 |
 | `sim/run.py` | 全局虚拟时间、事件推进、指标和 JSON 记录 |
 | `upstream/vllm/vllm/v1/core/sched/scheduler.py` | 你要修改的真实 vLLM 调度器 |
 | `upstream/ascend/vllm_ascend/patch/platform/patch_balance_schedule.py` | Ascend 调度适配源码 |
@@ -114,10 +127,10 @@ export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1   # 模型 stub 的 max_position_embeddin
 每行一个 JSON，请求时间单位为秒、吞吐单位为 bytes/s：
 
 ```json
-{"id":"request-1","arrival_s":0.0,"prompt_token_ids":[11,12,13,14],"output_tokens":8,"remote_prefix_tokens":0,"priority":0}
+{"id":"request-1","arrival_s":0.0,"prompt_token_ids":[11,12,13,14],"output_tokens":8,"remote_prefix_tokens":0,"priority":0,"demand_Bps":2000000000}
 ```
 
-`remote_prefix_tokens` 必须为 block_size 的整数倍，声明仿真开始前共享存储中已存在的前缀；同一个前缀对所有请求可见。不要把这字段用于声明一个未来才生成的缓存。真正的命中仍由 vLLM 的内容哈希和连续前缀规则决定。priority 数值越小优先级越高。
+`remote_prefix_tokens` 必须为 block_size 的整数倍，声明仿真开始前共享存储中已存在的前缀；同一个前缀对所有请求可见。不要把这字段用于声明一个未来才生成的缓存。真正的命中仍由 vLLM 的内容哈希和连续前缀规则决定。priority 数值越小优先级越高。`demand_Bps` 可选（正有限值），覆盖该请求的推导带宽需求，仅 `max_min_fair` 策略消费；`active_split` 下出现该字段不报错、不生效。
 
 `configs/demo.jsonl` 是合成冒烟负载。例子中的带宽、KV 字节数及计算系数都不是任何 NPU 型号的实测值。
 

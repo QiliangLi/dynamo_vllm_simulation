@@ -33,6 +33,9 @@ def validate(rows, c):
             raise ValueError("token ID out of range")
         if remote < 0 or remote > n or remote % c["block_size"]:
             raise ValueError("remote prefix must be block aligned")
+        demand = r.get("demand_Bps")
+        if demand is not None and (not math.isfinite(demand) or demand <= 0):
+            raise ValueError("demand_Bps must be positive and finite")
 
 
 async def simulate(c, rows, output_dir):
@@ -40,6 +43,12 @@ async def simulate(c, rows, output_dir):
     rows = sorted(rows, key=lambda r: (r["arrival_s"], r["id"]))
     store = Storage(c["storage"], c["block_size"])
     engines = [Engine(i, c, store) for i in range(c["workers"])]
+    # 每请求自携带需求：一层传输数据量 / 一层计算时间（聚合模型下层数相消），
+    # trace 行 demand_Bps 可覆盖；仅 max_min_fair 策略消费。
+    derived_demand = c["storage"]["kv_bytes_per_token"] / c["compute"]["prefill_token_s"]
+    demands = {r["id"]: r.get("demand_Bps", derived_demand) for r in rows}
+    for e in engines:
+        e.scheduler.connector.demands = demands
     reqs = {r["id"]: make_request(r, c["block_size"], c["policy"]) for r in rows}
     for r in rows:
         store.present.update(
@@ -252,12 +261,15 @@ def main():
         "--scheduler", choices=["upstream", "ascend_default", "ascend_balance"]
     )
     p.add_argument("--policy", choices=["fcfs", "priority"])
+    p.add_argument("--bandwidth-policy", choices=["active_split", "max_min_fair"])
     a = p.parse_args()
     c = json.loads(Path(a.config).read_text())
     if a.scheduler:
         c["scheduler"] = a.scheduler
     if a.policy:
         c["policy"] = a.policy
+    if a.bandwidth_policy:
+        c["storage"]["bandwidth_policy"] = a.bandwidth_policy
     rows = [json.loads(x) for x in Path(a.trace).read_text().splitlines() if x.strip()]
     asyncio.run(simulate(c, rows, a.output))
 

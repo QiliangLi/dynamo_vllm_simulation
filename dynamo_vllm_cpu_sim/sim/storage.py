@@ -1,8 +1,19 @@
-"""Read-only KV pool, SI bytes/s, FIFO per path, dynamic bandwidth sharing.
+"""Read-only KV pool, SI bytes/s, two bandwidth policies, dynamic sharing.
 
-Disk bandwidth is divided equally among active paths, capped per path, then
-proportionally limited by the shared link. This is an explicit policy, not a
-max-min-fair or firmware-accurate ASU model. No static size/bandwidth deadlines.
+Blocks are placed on a disk by content hash and are visible to every path of
+that disk; an IO request is dispatched to a path only when it is submitted
+(least-occupied path, ties to the lowest index).
+
+storage.bandwidth_policy selects the rate rule:
+- "active_split" (default): per-disk bandwidth split equally among active
+  path heads, capped per path. Paths are FIFO queues; with more concurrent
+  IO requests than paths, requests queue on the least-occupied path.
+- "max_min_fair": demand-capped water-filling per ASU. Every IO request
+  exclusively occupies its own path (paths are unbounded, no queueing) and
+  carries a demand rate. When demands fit the disk, each gets its demand
+  plus an equal share of the surplus; otherwise allocations are max-min
+  fair: equal split, cap over-demanded requests at their demand, iterate.
+Both policies then proportionally limit all rates by the shared link.
 """
 
 from collections import defaultdict, deque
@@ -16,6 +27,24 @@ class Read:
     key: tuple[int, str]
     remaining: float
     ready: float
+    demand: float = None
+
+
+def waterfill(capacity, demands):
+    """Max-min fair allocation with demand caps, iterated to a fixed point."""
+    n = len(demands)
+    total = sum(demands)
+    if total <= capacity:
+        bonus = (capacity - total) / n
+        return [d + bonus for d in demands]
+    alloc = [0.0] * n
+    cap = capacity
+    for i in sorted(range(n), key=lambda i: demands[i]):
+        share = cap / n
+        alloc[i] = min(demands[i], share)
+        cap -= alloc[i]
+        n -= 1
+    return alloc
 
 
 class Storage:
@@ -31,47 +60,80 @@ class Storage:
         ):
             if config[k] <= 0:
                 raise ValueError(f"storage.{k} must be positive")
+        self.policy = config.get("bandwidth_policy", "active_split")
+        if self.policy not in ("active_split", "max_min_fair"):
+            raise ValueError(
+                f"storage.bandwidth_policy must be active_split or max_min_fair,"
+                f" got {self.policy!r}"
+            )
         self.block_bytes = block_size * config["kv_bytes_per_token"]
         self.present = set()
         self.queues = defaultdict(deque)
+        self.path_seq = defaultdict(int)
         self.pending = {}
         self.now = 0.0
         self.bytes_transferred = 0.0
 
-    def location(self, block):
-        disk = max(
+    def disk_of(self, block):
+        return max(
             range(self.c["disks"]),
             key=lambda d: hashlib.sha256(block + d.to_bytes(4, "little")).digest(),
         )
-        path = (
-            int.from_bytes(hashlib.sha256(b"path" + block).digest()[:8], "little")
-            % self.c["paths_per_disk"]
-        )
-        return disk, path
 
-    def submit(self, now, key, blocks):
+    def _pick_path(self, disk):
+        lengths = {
+            p: len(q) for (d, p), q in self.queues.items() if d == disk and q
+        }
+        if len(lengths) < self.c["paths_per_disk"]:
+            for p in range(self.c["paths_per_disk"]):
+                if p not in lengths:
+                    return p
+        return min(lengths, key=lambda p: (lengths[p], p))
+
+    def submit(self, now, key, blocks, demand=None):
         assert abs(now - self.now) < 1e-9 and key not in self.pending and blocks
+        if self.policy == "max_min_fair":
+            assert demand and demand > 0, "max_min_fair requires a positive demand"
         self.pending[key] = len(blocks)
         for block in blocks:
             assert block in self.present
-            self.queues[self.location(block)].append(
-                Read(key, self.block_bytes, now + self.c["read_latency_s"])
+            disk = self.disk_of(block)
+            if self.policy == "max_min_fair":
+                path = self.path_seq[disk]
+                self.path_seq[disk] += 1
+            else:
+                path = self._pick_path(disk)
+            self.queues[(disk, path)].append(
+                Read(key, self.block_bytes, now + self.c["read_latency_s"], demand)
             )
 
-    def rates(self):
+    def _raw_rates(self):
+        """Per-path rates before the shared link is applied."""
         heads = {
             p: q[0]
             for p, q in self.queues.items()
             if q and q[0].ready <= self.now + 1e-12
         }
+        if self.policy == "max_min_fair":
+            by_disk = defaultdict(list)
+            for p, r in heads.items():
+                by_disk[p[0]].append((p, r.demand))
+            raw = {}
+            for disk, items in by_disk.items():
+                allocs = waterfill(self.c["disk_Bps"], [d for _, d in items])
+                raw.update(zip((p for p, _ in items), allocs))
+            return raw
         counts = defaultdict(int)
         for d, _ in heads:
             counts[d] += 1
-        rates = {
+        return {
             p: min(self.c["path_Bps"], self.c["disk_Bps"] / counts[p[0]]) for p in heads
         }
-        scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, sum(rates.values())))
-        return {p: b * scale for p, b in rates.items()}
+
+    def rates(self):
+        raw = self._raw_rates()
+        scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, sum(raw.values())))
+        return {p: b * scale for p, b in raw.items()}
 
     def link_flux(self):
         """(demand_Bps, actual_Bps)：施加共享链路缩放前/后的活跃读速率总和。
@@ -80,18 +142,7 @@ class Storage:
         实际速率；二者之差即链路瓶颈压掉的带宽。供 opt-in 区间日志与带宽
         时序图消费（run.py 的 storage_interval_log）。
         """
-        heads = {
-            p: q[0]
-            for p, q in self.queues.items()
-            if q and q[0].ready <= self.now + 1e-12
-        }
-        counts = defaultdict(int)
-        for d, _ in heads:
-            counts[d] += 1
-        raw = {
-            p: min(self.c["path_Bps"], self.c["disk_Bps"] / counts[p[0]]) for p in heads
-        }
-        demand = sum(raw.values())
+        demand = sum(self._raw_rates().values())
         scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, demand))
         return demand, demand * scale
 

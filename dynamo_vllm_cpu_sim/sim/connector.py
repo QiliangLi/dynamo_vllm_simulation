@@ -12,6 +12,7 @@ class SimConnector(KVConnectorBase_V1):
     def __init__(self, vllm_config, role, kv_cache_config=None):
         super().__init__(vllm_config, role, kv_cache_config)
         self.store = None
+        self.demands = None
         self.pending_blocks = {}
         self.submissions = []
         self.external_tokens = {}
@@ -35,7 +36,13 @@ class SimConnector(KVConnectorBase_V1):
                 len(wanted) * self._vllm_config.cache_config.block_size
                 == num_external_tokens
             )
-            self.submissions.append((request.request_id, wanted))
+            self.submissions.append(
+                (
+                    request.request_id,
+                    wanted,
+                    self.demands.get(request.request_id) if self.demands else None,
+                )
+            )
             self.external_tokens[request.request_id] = num_external_tokens
 
     def build_connector_meta(self, scheduler_output):
