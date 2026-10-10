@@ -68,6 +68,10 @@ export PYTHONHASHSEED=0 VLLM_PLUGINS='' HF_HUB_OFFLINE=1
 
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python scripts/check_results.py results/ascend_default results/upstream results/priority results/slow results/ascend_balance results/max_min_fair results/max_min_fair_slow
+
+# MPC 预测模型可行性验证：仿真世界（真实 vLLM Scheduler 对象 + Storage）可整体深拷贝，
+# 且拷贝世界在相同驱动下与原世界轨迹逐位一致——rollout-by-deepcopy 的前提断言
+.venv/bin/python scripts/verify_rollout_copy.py
 ```
 
 `ascend_balance` 补丁只针对本工程复现的异步 KV 状态更新问题，未在 NPU 验证。脚本不改上游文件。该模式为每个 worker 一个 DP rank，不模拟真实 DP collectives。

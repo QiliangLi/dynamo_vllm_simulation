@@ -86,3 +86,15 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 `check_results.py` 七目录全 PASS（生命周期/远端等待先于首 token/块回收 127/128/Dynamo 记账归零）。单元测试 26/26：waterfill 向量断言（[10,28,100,100]→[10,28,31,31] 不动点、供过于求剩余均分、均匀需求退化为均分、单请求拿整盘、d>盘容量不预截断、Σd=C 边界）；Path 指派（最少占用铺开、超 paths_per_disk 退化排队、确定性）；max_min_fair（无排队语义、时间线解析对拍、link_flux 区间守恒 ∫actual=bytes）；active_split 速率规则回归。同 session 复跑两种策略各两次汇总逐位一致（原生平局随机在 12 请求 demo 表现为 worker 标签对调、汇总不变，与历史行为一致）。
 
 判读（虚拟时间，非 NPU 实测）：demo 配置下 max_min_fair 比 active_split 快 2.2%（makespan 10.990 vs 11.234 ms）——差异来自取消 path_Bps=1 GB/s 单路径封顶（均匀推导需求 32.768 GB/s，两请求同盘即供不应求、各得 20 GB/s，链路压缩 0.25 后 5 GB/s，对 active_split 的 1 GB/s）。slow 配置（链路 0.1 GB/s 为唯一瓶颈）两策略汇总**逐位一致**：均匀需求下两策略同为均分、链路压缩后同为 0.1 GB/s 总量——印证设计文档 §3.5 的预期：链路主导时盘内分配策略对端到端不可见，B 层策略差异需在盘带宽为瓶颈的工况下观测。
+
+## 追加：rollout-by-deepcopy 可行性验证（2026-10-10，MPC 前提断言）
+
+依据 [docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](../docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md) §5.3：MPC 的预测模型计划采用"深拷贝整个仿真世界（各引擎真实 vLLM `Scheduler` 对象 + `Storage` + `Request`）成影子世界再推进"的 rollout。前提断言：**拷贝世界在相同驱动下必须与原世界轨迹逐位一致**，否则分支预测不成立。
+
+`scripts/verify_rollout_copy.py`（demo 配置 2 worker/12 请求，macOS 26.6 同虚拟环境）三阶段验证：
+
+1. **推进到中途分叉点**（30 轮贪婪驱动，8 请求在途、存储在传）后整体 `copy.deepcopy((store, engines, reqs))` 成功——真实 `Scheduler`（含 kv_cache_manager/block_pool/请求对象/等待远端 KV 状态）与 `Storage`（队列/在传读）全部可拷贝，拷贝点全状态指纹一致（waiting/running/远端等待组成、逐请求 chunk 进度、空闲块、inflight 批组成、队列余量、传输字节、步数）。
+2. **两世界用同一驱动函数继续推进**（空批立即 complete 以投递 finished_recving、inflight 到期 complete、advance 停在存储事件——与 `sim/run.py` 语义对齐），逐轮对比全状态指纹：**29 轮未来轨迹逐位一致直至完成**（t=0.014161s、bytes=67108864、steps=[23,32]）。
+3. **拷贝开销实测 18.45 ms/次**（20 次均值，墙钟；rollout 不占虚拟时间）。
+
+结论：rollout-by-deepcopy 是本实验台上可用的 MPC 预测模型（预测模型与被控对象同源，无模型化误差）；"零干预 rollout 复现真实轨迹"应作为 MPC 实现的常开回归断言。已知边界：对象图随请求/块数线性增长（正式实验前需做规模曲线）；驱动逻辑须与主循环共享单一 `advance` 实现以防两处漂移。
