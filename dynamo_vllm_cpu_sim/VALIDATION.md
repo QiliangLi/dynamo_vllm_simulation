@@ -87,9 +87,9 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 
 判读（虚拟时间，非 NPU 实测）：demo 配置下 max_min_fair 比 active_split 快 2.2%（makespan 10.990 vs 11.234 ms）——差异来自取消 path_Bps=1 GB/s 单路径封顶（均匀推导需求 32.768 GB/s，两请求同盘即供不应求、各得 20 GB/s，链路压缩 0.25 后 5 GB/s，对 active_split 的 1 GB/s）。slow 配置（链路 0.1 GB/s 为唯一瓶颈）两策略汇总**逐位一致**：均匀需求下两策略同为均分、链路压缩后同为 0.1 GB/s 总量——印证设计文档 §3.5 的预期：链路主导时盘内分配策略对端到端不可见，B 层策略差异需在盘带宽为瓶颈的工况下观测。
 
-## 追加：rollout-by-deepcopy 可行性验证（2026-10-10，MPC 前提断言）
+## 追加：rollout-by-deepcopy 可行性验证（2026-10-10，MPC 离线 Oracle 前提断言）
 
-依据 [docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](../docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md) §5.3：MPC 的预测模型计划采用"深拷贝整个仿真世界（各引擎真实 vLLM `Scheduler` 对象 + `Storage` + `Request`）成影子世界再推进"的 rollout。前提断言：**拷贝世界在相同驱动下必须与原世界轨迹逐位一致**，否则分支预测不成立。
+依据 [docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](../docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md) §5.4（同日二次修订后的定位）：深拷贝整个仿真世界（各引擎真实 vLLM `Scheduler` 对象 + `Storage` + `Request`）成影子世界再推进，定位为 MPC 的**离线 Oracle 上界与校准工具**——在线控制器的预测模型是轻量事件重放器（该文档 §5.0 四条在线硬约束：深拷贝依赖冻结世界/进程内全量状态/18ms×候选数墙钟，三者在线均不成立）。前提断言：**拷贝世界在相同驱动下必须与原世界轨迹逐位一致**，否则 Oracle 对照与 ground truth 校准不成立。
 
 `scripts/verify_rollout_copy.py`（demo 配置 2 worker/12 请求，macOS 26.6 同虚拟环境）三阶段验证：
 
@@ -97,4 +97,4 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 2. **两世界用同一驱动函数继续推进**（空批立即 complete 以投递 finished_recving、inflight 到期 complete、advance 停在存储事件——与 `sim/run.py` 语义对齐），逐轮对比全状态指纹：**29 轮未来轨迹逐位一致直至完成**（t=0.014161s、bytes=67108864、steps=[23,32]）。
 3. **拷贝开销实测 18.45 ms/次**（20 次均值，墙钟；rollout 不占虚拟时间）。
 
-结论：rollout-by-deepcopy 是本实验台上可用的 MPC 预测模型（预测模型与被控对象同源，无模型化误差）；"零干预 rollout 复现真实轨迹"应作为 MPC 实现的常开回归断言。已知边界：对象图随请求/块数线性增长（正式实验前需做规模曲线）；驱动逻辑须与主循环共享单一 `advance` 实现以防两处漂移。
+结论：rollout-by-deepcopy 在本实验台上可用作 MPC 的离线 Oracle 上界与 ground truth 校准器（与被控对象同源、无模型化误差）；"零干预 rollout 复现真实轨迹"应作为常开回归断言。已知边界：对象图随请求/块数线性增长（正式实验前需做规模曲线）；驱动逻辑须与主循环共享单一 `advance` 实现以防两处漂移。注意：它不满足在线运行的四条硬约束（文档 §5.0），在线形态的预测模型、观测面与 admission 接口见该文档 §5.2–§5.4。
