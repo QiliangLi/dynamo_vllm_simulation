@@ -3,13 +3,14 @@
 | | |
 |---|---|
 | 日期 | 2026-10-09 |
+| 修订 | 2026-10-14：**勘误**——原文"路由器与引擎之间没有任何查询路径"准确范围是**逐请求路由决策路径**；补充 Dynamo 的第三条通道 FPM 每步事件平面（§6），新增 llm-d、AIBrix 交互机制与三框架对照（§7–§9） |
 | 性质 | 讨论结论存档：路由层与推理引擎层之间是否存在状态查询路径、记账机制如何工作、排队情况如何被感知 |
 | 相关代码 | `dynamo_vllm_cpu_sim/sim/router.py`、`sim/run.py`、`sim/engine.py`；upstream Dynamo 网关源码（`deploy/inference-gateway/ext-proc/`）与接口声明（`lib/bindings/python/src/dynamo/_core.pyi`） |
-| 相关文档 | 设计文档 §5（真实/仿真边界表）、§6（调度闭环）、§17（KV 事件桥）；检视报告 §4.1（策略挂载点缺口）、§8（P1 路线） |
+| 相关文档 | 设计文档 §5（真实/仿真边界表）、§6（调度闭环）、§17（KV 事件桥）；检视报告 §4.1（策略挂载点缺口）、§8（P1 路线）；`vLLM组批规则与调度器并发推演可行性-20261010.md`（StepBatch 事件流需求，本文 §6/§10 的上游先例对照）；`MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md`（事件流观测四要素之一） |
 
 ## 0. 一句话结论
 
-**路由器与推理引擎之间没有任何查询路径——这一点真实 Dynamo 部署与我们的仿真一致，是刻意保真的边界。** 路由器手里的引擎"状态"是它对自己经手流量的记账投影（每 worker 两个聚合数字），不是引擎内部状态。真实部署比仿真多出 etcd 服务发现与 KV 事件流两条旁路通道；仿真有意关闭 KV 事件（cache-blind 基线）。策略文档 09-17 所需的"中央调度器看见排队/盘负载/逐层就绪"的状态输入，**在真实 Dynamo 里本来就不存在**——这是要在 P1 新建的能力，不是仿真偷懒省掉的东西。
+**逐请求路由决策路径上，路由器与推理引擎之间没有任何查询路径——这一点真实 Dynamo 部署与我们的仿真一致，是刻意保真的边界。** 路由器手里的引擎"状态"是它对自己经手流量的记账投影（每 worker 两个聚合数字），不是引擎内部状态。但 Dynamo 整体并非"与 vLLM 没有接口交互"：它另有两条**异步观测通道**——KV 事件流（缓存内容，喂路由打分）与 FPM 每步事件流（含 waiting 队列的每步指标，喂扩缩容 Planner，不进路由决策，见 §6）。llm-d 与 AIBrix 同样不做逐请求同步查询，都是"订阅/抓取 → 本地缓存 → 逐请求打分"模式（§7–§9）。策略文档 09-17 所需的"中央调度器看见排队/盘负载/逐层就绪"的状态输入，**在三个框架的逐请求路由路径里都不存在**——这是要在 P1 新建的能力，不是仿真偷懒省掉的东西。
 
 ## 1. 先分清三个角色
 
@@ -102,6 +103,7 @@
 | 负载记账 | 网关观察流事件，调 Rust 选择核心 | `run.py` 在虚拟时间点调同一套真实 Rust 核心 | **保留（真实代码）** |
 | 服务发现 | worker 经 etcd 注册、动态上下线 | 显式 `upsert_worker` 静态注册（`router.py:43-55`） | 替换（固定拓扑无需控制面） |
 | KV 事件流 | worker 侧发布 BlockStored/Removed，经 ZMQ 进路由器 indexer | 环境变量整体关闭（`router.py:7-10`） | 关闭（未桥接不能伪称 cache-aware） |
+| FPM 每步事件流 | InstrumentedScheduler 每步 forward 后 ZMQ PUB ForwardPassMetrics（含 waiting 队列）→ Planner 扩缩容（§6） | 未使用（仿真不含 Planner，也未接 FPM） | 未接（P1 观测通道的现成蓝本） |
 
 ## 5. 仿真中的等价实现：事件循环扮演响应流
 
@@ -134,13 +136,137 @@
 2. **`add_output_block()` 未接**：仿真没有增量上报 decode 输出块，首 token 后该请求的负载就不再增长。这是设计文档建议实验保持 `output_tokens < block_size` 的原因；研究长 decode 前要按块边界接反馈并验证原生 decode 记账语义。
 3. **引擎内部状态只进产物文件**：waiting/running/free blocks/`WAITING_FOR_REMOTE_KV` 由胶水层记录进 `report.json` 与 `events.jsonl`（`run.py:170-181`、`waiting_remote` 事件字段），供事后分析，不进任何路由决策——与真实部署一致。
 
-## 6. 对研究目标的含义
+## 6. 勘误与补充：Dynamo 的第三条通道——FPM 每步事件平面（2026-10-14）
 
-- 策略文档 09-17 的 S 层（中央组批/错峰/启动）要求调度器看得见"各盘预计负载、逐层 KV 就绪时间"，这类状态输入**在真实 Dynamo 的路由器里本来就不存在**（只有两个聚合数 + 可选 KV 事件）。做存储感知调度不是"打开一个现成开关"，而是新建观测链路。
+本文初版基于仿真所用的 SelectionService 路径，得出"Dynamo 与 vLLM 之间几乎只有记账"的印象，**这是不完整的**。复查 `upstream/dynamo/components/src/dynamo/vllm/` 后，完整图景是三条通道并存：
+
+```
+              Dynamo 1.5.0 与 vLLM 的三条通道（本地源码核实）
+
+┌────────────────────────────────────────────────────────────────┐
+│ 通道 1｜数据面 · 在途记账（§2 详述）                                │
+│   网关侧：reserve → prefill_complete → free_reservation           │
+│   消费者：逐请求路由打分（SelectionService）        [零滞后·投影]   │
+├────────────────────────────────────────────────────────────────┤
+│ 通道 2｜KV 事件流（缓存内容）                                      │
+│   vLLM BlockStored/Removed ──ZMQ──▶ 路由器 indexer                │
+│   消费者：逐请求路由打分（cache-aware 项）          [事件滞后·真实] │
+├────────────────────────────────────────────────────────────────┤
+│ 通道 3｜FPM 每步事件平面（本文初版遗漏）                            │
+│   InstrumentedScheduler（--scheduler-cls 注入进 vLLM）            │
+│   每个 forward 步完成 ──ZMQ PUB──▶ ForwardPassMetrics：           │
+│     · scheduled_requests（本批实际调度了哪些请求）                  │
+│     · queued_requests（发射时刻 self.waiting 的长度）              │
+│     · wall_time（本批 GPU 前向耗时）                              │
+│   消费者：Planner（SLA 驱动扩缩容控制器）            [每步级·真实]  │
+│   ✗ 不进逐请求路由决策                                             │
+└────────────────────────────────────────────────────────────────┘
+```
+
+关键事实：
+
+- `instrumented_scheduler.py` 的注入方式正是 vLLM 官方的 `--scheduler-cls` 扩展点——**在调度器内部、每个前向步完成后发布事件**；序列化与 ZMQ 发送走后台线程，不占调度热路径（文件头注释自述了 sync/async 两种引擎模式的发射点差异）。
+- Planner 用 FPM 做"负载驱动扩缩容"与在线回归（TTFT/ITL SLA 目标），支持 vLLM/SGLang/TRT-LLM 多引擎、含 attention-DP 每 rank 信号（`planner/README.md`）。
+- 因此"Dynamo 看不到 vLLM 排队情况"的准确表述是：**看得到（FPM 每步都有 waiting 队列长度），但只接到扩缩容，不接路由**。路由打分输入仍只有记账 + KV 事件两项。
+
+对本工程的直接意义：10-10 组批规则文档提出的"每步 StepBatch 事件流接口"，上游已有生产先例——注入方式（scheduler 子类）、传输（ZMQ PUB）、字段（每步调度集合/队列长度/批耗时）三者齐备。P1 观测通道可按此模式在虚拟时钟下重建（见 §10）。
+
+## 7. llm-d 的交互机制（K8s 原生，Gateway API Inference Extension）
+
+数据来源：llm-d 官方 Precise Prefix Cache Routing 指南（2026-10-14 检索）。
+
+```
+                        llm-d 逐请求路由路径
+
+client ──HTTP──▶ Envoy ──ext_proc──▶ EPP（Endpoint Picker，路由插件容器）
+                                      │
+                                      │ ① discoverPods=true：为每个就绪
+                                      │    pod 建 ZMQ 订阅器（端口 5556）
+                                      │ ② render 服务（调 vLLM /v1/*/render）
+                                      │    把 prompt 精确 tokenize 成块序列
+                                      │ ③ prefix-cache-affinity-filter：
+                                      │    候选收窄到"前缀块常驻"的 pod；
+                                      │    暖集吞吐饱和后回退低载 pod
+                                      │ ④ token-load-scorer：
+                                      │    在途 token 负载最小者胜出
+                                      │    （EPP 本进程记账，单副本部署）
+                                      ▼
+                              选定 pod（vLLM / SGLang）
+
+各 pod ──KV 事件（ZMQ 5556：BlockStored/Removed）──▶ 所有 EPP 副本
+         └─ 各自维护"常驻 KV 块索引"，多副本收敛到同一索引
+各 pod ──重放缓冲（ZMQ ROUTER 5559，约 1 万条批量）──▶ EPP 重启后重建索引
+```
+
+要点：
+
+- **缓存内容观测走 vLLM KV 事件**（与 Dynamo 通道 2 同源同模式），且带**重启重放缓冲**——这是"观测通道需要 watermark/重放"的一个工程先例。
+- **负载观测走 EPP 自身在途 token 记账**（与 Dynamo 通道 1 同构：路由器只信自己经手的流量）；指南明确因此该账本是每进程的，此模式下 EPP 单副本部署。
+- 不抓取引擎 Prometheus 指标进路由决策；放置层（K8s scheduler 插件）另行处理，不在逐请求路径。
+- 失败回退显式分层：前缀暖集饱和（超过标定的 peakPrefillThroughput）即退回低载 pod——"缓存优先、负载兜底"。
+
+## 8. AIBrix 的交互机制（Envoy Gateway + ext_proc 插件）
+
+数据来源：AIBrix 官方文档 gateway-plugins 与 prefix-cache-aware-routing 页（2026-10-14 检索）、AIBrix 论文（arXiv:2504.03648）。注：此前讨论中提及的"GGWP"名称在现行官方文档中已查无对应组件，本节以核实后的插件体系为准。
+
+```
+                        AIBrix 逐请求路由路径
+
+client ──HTTP──▶ Envoy Gateway ──ext_proc gRPC──▶ AIBrix 路由插件
+                                                │
+                                                │ 策略族（HTTPRoute 按
+                                                │ model 头匹配，逐请求选择）：
+                                                │  random / least-request /
+                                                │  least-kv-cache /
+                                                │  load-balance /
+                                                │  prefix-cache / slo-* /
+                                                │  pd / session-affinity …
+                                                ▼
+                                           选定 pod
+
+Prometheus ◀──（周期抓取 vLLM /metrics）── 各 pod
+    │
+    └─PromQL 查询（PROMETHEUS_ENDPOINT）──▶ 插件消费：running/queued
+                                            请求数、KV 占用等（多策略共用）
+网关自记账（在途请求、EWMA 输出 token 速率）──▶ load-balance 打分
+前缀索引（默认模式）＝ 网关自己的路由历史哈希表   ──▶ prefix-cache 策略
+前缀索引（KV 事件同步模式，可选）＝ 引擎 BlockStored/Removed 事件
+        （AIBRIX_PREFIX_CACHE_KV_EVENT_SYNC_ENABLED=true 时启用；
+          多网关副本间可用 Redis 共享索引 AIBRIX_STATESYNC_ENABLED）
+```
+
+要点：
+
+- **指标来源是"PromQL 抓取 + 网关自记账"双通道**：load-balance 打分 = (running + λ·queued) / EWMA(输出速率) × KV 空闲惩罚项，KV 占用低于 10% 空闲直接出局。KV 指标缺失按全空闲处理、token 速率缺失用他 pod 均值——大量"缺数据兜底"逻辑，说明抓取通道的覆盖与新鲜度是现实痛点（`slo-least-load-pulling` 策略更是专为"拉新鲜快照避免过期缓存"而设）。
+- **前缀索引默认模式是路由历史的投影，不是引擎真实缓存**——文档原话："索引反映网关把请求发去了哪，不反映引擎现在还缓存着什么"；LRU 上限 20 万块、20 分钟无刷新过期。要真相需打开 KV 事件同步模式。这与本文 §3"投影 ≠ 真相"的论断完全同构，且是已投产系统踩过并修正的坑。
+- 论文层（arXiv:2504.03648）：控制面含 LLM 专属 autoscaler（滑动窗指标聚合内置在 autoscaler、绕过 custom-metrics 链路）与 AI Runtime sidecar（指标标准化）；数据面网关按 KV 局部性/吞吐/异构性做逐请求路由。
+
+## 9. 三框架对照：同一模式，不同取舍
+
+**共同模式：没有任何框架在逐请求热路径上同步查询引擎。** 三者都是"异步订阅/周期抓取 → 汇入本地状态 → 逐请求打分"，差别只在喂给本地状态的通道及其新鲜度/精度：
+
+| 维度 | Dynamo 1.5.0 | llm-d | AIBrix |
+|---|---|---|---|
+| 在途负载来源 | 网关记账（reserve/free，零滞后） | EPP 在途 token 记账 | 网关自记账 + PromQL running/queued |
+| 缓存内容来源 | KV 事件（真实） | KV 事件（真实，含重启重放） | 默认=路由历史投影（失真）；可选 KV 事件同步（真实） |
+| 引擎排队指标进路由 | 否（FPM 只喂扩缩容） | 部分（暖集饱和阈值） | 是（queued/running/KV 占用进多策略打分） |
+| 每步级事件流 | 有（FPM：每步调度集合/队列长度/批耗时 → Planner） | 无 | 无 |
+| 抓取滞后处理 | 不适用（记账零滞后） | 不适用（事件+自记账） | 显式兜底：缺失默认值、pulling 拉新鲜、负载失衡前置门控 |
+| 扩缩容观测 | FPM 事件平面 | K8s 侧另行处理 | autoscaler 内置滑动窗聚合 |
+
+各自强处：Dynamo 记账零滞后、FPM 每步粒度最细；llm-d 的 KV 事件索引带重放缓冲、缓存路由生产验证充分（官方博客报告 57× TTFT 案例）；AIBrix 策略族最全（公平性 VTC、SLO 感知、P/D、会话亲和），且"投影索引失真 → 事件同步模式"的演化路径是最有价值的反面教材。vLLM 上游的 KV Events API 是三家共用的标准化观测接口。
+
+结论：**不存在单向的"Dynamo 不如 llm-d/AIBrix"**。三者在逐请求路由上的信息量同量级（记账/事件 + 缓存索引）；Dynamo 的差异化优势恰是 FPM 这种每步级事件流——但它目前只接到扩缩容，没接到路由。
+
+## 10. 对研究目标的含义
+
+- 策略文档 09-17 的 S 层（中央组批/错峰/启动）要求调度器看得见"各盘预计负载、逐层 KV 就绪时间"，这类状态输入**在三个框架的逐请求路由路径里都不存在**。三个框架的实践共同印证：先有观测通道，才有状态感知调度——不是"打开一个现成开关"。
+- **P1 观测通道有现成蓝本**：Dynamo 自带的 InstrumentedScheduler/FPM 证明"注入 scheduler 子类 → 每步发事件 → 控制器消费"在生产可行。10-10 组批规则文档提出的 StepBatch 事件流、10-10 MPC 文档"控制器只吃事件流不直读引擎对象"的约束，均可按此模式落地：`--scheduler-cls` 注入点（vLLM 官方扩展点，本仿真 `engine.py:38-56` 已按同机制加载 BalanceScheduler）→ 虚拟时钟下的每步事件 → 带 epoch/滞后的观测投影。
+- **观测滞后与投影失真是现实工程问题**：AIBrix 默认前缀索引的失真教训、`slo-least-load-pulling` 的"拉新鲜"设计、llm-d 的重放缓冲与 watermark，都是 09-17 文档"带 epoch/延迟/噪声的 StorageSnapshot"设计合理性的旁证。
 - 检视报告 §8 的 P1 第一优先级正是这条链路：vLLM 侧动态 admission（waiting 请求是否启动远端读取）→ `Storage.snapshot()` 升级为带 epoch/延迟的观测投影并接入 scorer 输入 → 编译第一个真实 Rust `StorageAwareScorer`。启用真实 KV 事件桥的步骤见设计文档 §17（五步：vLLM 侧取事件 → 配置 `kv_events_endpoint` → 虚拟完成事件与 ingestion watermark → 丢失/重放/重启处理 → 验收）。
 - 论文/报告表述边界：本仿真的路由行为可表述为"真实 Dynamo 选择核心 + cache-blind 配置 + 生命周期记账桥接"；不能表述为"完整 Dynamo 服务栈"或"缓存感知路由"。
 
-## 7. 代码位置索引
+## 11. 代码位置索引
 
 | 内容 | 位置 |
 |---|---|
@@ -154,3 +280,12 @@
 | 真实侧 prefill_complete 调用方（网关） | `upstream/dynamo/deploy/inference-gateway/ext-proc/src/{epp,selector,server,picker,epp_router}.rs` |
 | SelectionService 接口语义声明 | `upstream/dynamo/lib/bindings/python/src/dynamo/_core.pyi:736-826` |
 | 自定义 Rust 策略接口（后续 S 层挂载点） | `upstream/dynamo/lib/kv-router/src/scheduling/selector/policy.rs` |
+| Dynamo FPM 每步事件发射器（`--scheduler-cls` 注入点） | `upstream/dynamo/components/src/dynamo/vllm/instrumented_scheduler.py` |
+| Dynamo FPM 消费者（SLA 扩缩容 Planner） | `upstream/dynamo/components/src/dynamo/planner/`（`README.md`、`core/perf_model/engine_query.py`） |
+| Dynamo worker 侧 KV 事件发布 | `upstream/dynamo/components/src/dynamo/vllm/main.py`、`state_agent.py` |
+
+## 12. 外部资料（2026-10-14 检索）
+
+- llm-d：[Precise Prefix Cache Routing Guide](https://github.com/llm-d/llm-d/blob/main/guides/precise-prefix-cache-routing/README.md)（EPP 插件链、ZMQ 5556/5559、重放缓冲、回退逻辑）；[KV-Cache Wins You Can See](https://llm-d.ai/blog/kvcache-wins-you-can-see)（57× TTFT 案例）；[Red Hat: Master KV Cache Aware Routing with llm-d](https://developers.redhat.com/articles/2025/10/07/master-kv-cache-aware-routing-llm-d-efficient-ai-inference)
+- AIBrix：[Gateway Routing Plugins](https://aibrix.readthedocs.io/latest/features/gateway-routing/gateway-plugins.html)（策略族、PromQL 指标来源、兜底逻辑）；[Prefix-Cache Aware Routing](https://aibrix.readthedocs.io/latest/features/gateway-routing/prefix-cache-aware-routing.html)（默认索引=路由历史投影、KV 事件同步模式、Redis 状态同步）；[AIBrix 论文 arXiv:2504.03648](https://arxiv.org/html/2504.03648v1)（autoscaler 指标聚合、sidecar 指标标准化）
+- vLLM：[Metrics Design](https://docs.vllm.ai/en/stable/design/metrics)（/metrics gauge 族，AIBrix 等抓取通道的原始来源）

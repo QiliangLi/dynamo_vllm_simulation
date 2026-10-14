@@ -9,7 +9,7 @@
 | [docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md](docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md) | 总体设计：真实/仿真代码边界、版本固定、存储模型、扩展路线 P1–P3 |
 | [docs/CPU真实代码仿真环境检视报告-20260924.md](docs/CPU真实代码仿真环境检视报告-20260924.md) | 实现与需求/研究目标的差距分析、待决策项、后续路线。**改代码前先读** |
 | [docs/macOS原生运行验证报告-20260924.md](docs/macOS原生运行验证报告-20260924.md) | macOS Apple Silicon 原生运行的平台适配、复现步骤与验证数据 |
-| [docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md](docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md) | 路由↔引擎无查询路径的机制说明：真实部署记账投影 vs 仿真桥接，含 ASCII 全路径图与代码索引 |
+| [docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md](docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md) | 路由↔引擎状态交互机制：Dynamo 三通道（在途记账/KV 事件/FPM 每步事件流）+ llm-d、AIBrix 交互机制对照与三框架比较，真实部署 vs 仿真桥接，含 ASCII 全路径图与代码索引（2026-10-14 勘误扩充） |
 | [docs/vLLM组批规则与调度器并发推演可行性-20261010.md](docs/vLLM组批规则与调度器并发推演可行性-20261010.md) | vLLM V1（v0.20.2）逐步组批规则整理（两阶段调度、两上限、PD 门控）；外部调度器仅凭规则在线推演每实例并发执行集合不可行的原因（缺观测通道而非规则），及所需新增的每步 StepBatch 事件流接口 |
 | [docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md) | MPC（滚动优化）四要素对照：假设架构（中央队列+分批下发+整批执行）vs 实际 Dynamo 直通路由+vLLM 自治组批的八项挑战；**重点：在线 MPC 参考架构（最终目标是在线运行的算法）**——四个在线必需件：admission 控制接口（SchedulerQueue 升级为主动扣留/指令放行，仿真侧=胶水层投放点）、StepBatch 事件流观测（控制器只吃事件流不直读引擎对象）、轻量事件重放器预测模型（09-13 §10.5 蓝本+每步事件纠偏，毫秒预算）、预算化滚动优化与回退链；仿真实验台的三重角色（施加在线约束的开发场/ground truth 校准场/S0-vs-在线-vs-Oracle 三对照验收场）；深拷贝影子世界（`scripts/verify_rollout_copy.py` 验证轨迹逐位一致、18.45ms/拷贝）定位为**离线 Oracle 上界与校准工具而非在线方案**；让权分工（Dynamo 记账/vLLM 被控动力学/MPC 投放）与挑战逐条消解表 |
 | [docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md](docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md) | 调度策略研究目标：S/P/B 三层策略、ASU/Path/带宽模型、E26–E31 实验规划 |
