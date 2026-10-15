@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "llm-d（EPP）路由打分明细：公式 · 因子来源 · 公式外交互",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1330,
+      620
+    ],
+    "views": [
+      {
+        "id": "formula-path",
+        "label": "公式与因子",
+        "focus": [
+          "pipeline",
+          "kvindex",
+          "inflight",
+          "render"
+        ],
+        "note": "过滤+打分两段的因子从哪里来。"
+      },
+      {
+        "id": "non-formula",
+        "label": "公式外通道",
+        "focus": [
+          "k8s",
+          "pods"
+        ],
+        "note": "pod 发现与 Ready 门控不进公式。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "请求方",
+      "pos": [
+        20,
+        150
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "envoy",
+      "type": "frontend",
+      "label": "Envoy 网关",
+      "sublabel": "proxy · GAIE",
+      "pos": [
+        230,
+        142
+      ],
+      "size": [
+        140,
+        80
+      ]
+    },
+    {
+      "id": "epp",
+      "type": "backend",
+      "label": "EPP 决策插件",
+      "sublabel": "Endpoint Picker（Go 进程）",
+      "tag": "决策",
+      "pos": [
+        440,
+        134
+      ],
+      "size": [
+        220,
+        96
+      ]
+    },
+    {
+      "id": "pods",
+      "type": "backend",
+      "label": "vLLM / SGLang Pods",
+      "sublabel": "推理实例",
+      "tag": "数据面",
+      "pos": [
+        1120,
+        140
+      ],
+      "size": [
+        190,
+        90
+      ]
+    },
+    {
+      "id": "pipeline",
+      "type": "security",
+      "label": "过滤 + 打分（插件链）",
+      "sublabel": "② AffinityFilter → ③ argmin 负载",
+      "tag": "公式",
+      "pos": [
+        440,
+        316
+      ],
+      "size": [
+        220,
+        90
+      ]
+    },
+    {
+      "id": "k8s",
+      "type": "cloud",
+      "label": "K8s / GAIE 控制面",
+      "sublabel": "pod 发现 · Ready 门控",
+      "pos": [
+        30,
+        326
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "render",
+      "type": "backend",
+      "label": "Render 服务",
+      "sublabel": "精确 tokenize",
+      "pos": [
+        130,
+        452
+      ],
+      "size": [
+        190,
+        84
+      ]
+    },
+    {
+      "id": "kvindex",
+      "type": "database",
+      "label": "常驻 KV 块索引",
+      "sublabel": "每 EPP 副本独立构建",
+      "pos": [
+        410,
+        452
+      ],
+      "size": [
+        200,
+        84
+      ]
+    },
+    {
+      "id": "inflight",
+      "type": "database",
+      "label": "在途 token 账本",
+      "sublabel": "EPP 本进程自记账",
+      "pos": [
+        720,
+        452
+      ],
+      "size": [
+        190,
+        84
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "llm-d 路由面（proxy + 决策插件）",
+      "wraps": [
+        "envoy",
+        "epp",
+        "pipeline",
+        "kvindex",
+        "inflight"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-envoy",
+      "from": "client",
+      "to": "envoy",
+      "label": "HTTP 请求",
+      "variant": "emphasis",
+      "labelAt": [
+        168,
+        136
+      ]
+    },
+    {
+      "id": "envoy-epp",
+      "from": "envoy",
+      "to": "epp",
+      "label": "ext_proc",
+      "variant": "emphasis",
+      "labelAt": [
+        405,
+        205
+      ]
+    },
+    {
+      "id": "epp-pods",
+      "from": "epp",
+      "to": "pods",
+      "label": "转发（选中的 pod）",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pods-envoy",
+      "from": "pods",
+      "to": "envoy",
+      "label": "token 流回程（完成时释放记账）",
+      "fromSide": "top",
+      "toSide": "top",
+      "labelAt": [
+        1000,
+        100
+      ]
+    },
+    {
+      "id": "epp-render",
+      "from": "epp",
+      "to": "render",
+      "label": "① tokenize 调用 → token 块序列",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        330,
+        300
+      ]
+    },
+    {
+      "id": "render-pipeline",
+      "from": "render",
+      "to": "pipeline",
+      "label": "① token 块",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        380,
+        342
+      ]
+    },
+    {
+      "id": "kvindex-pipeline",
+      "from": "kvindex",
+      "to": "pipeline",
+      "label": "② 前缀常驻集合",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        480,
+        429
+      ]
+    },
+    {
+      "id": "inflight-pipeline",
+      "from": "inflight",
+      "to": "pipeline",
+      "label": "③ 在途 token 数",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        740,
+        429
+      ]
+    },
+    {
+      "id": "pods-kvindex",
+      "from": "pods",
+      "to": "kvindex",
+      "label": "KV 事件（ZMQ 5556）+ 重放缓冲（5559）",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [
+        [
+          1040,
+          185
+        ],
+        [
+          1040,
+          566
+        ],
+        [
+          660,
+          566
+        ],
+        [
+          660,
+          494
+        ]
+      ],
+      "labelAt": [
+        850,
+        552
+      ]
+    },
+    {
+      "id": "pipeline-epp",
+      "from": "pipeline",
+      "to": "epp",
+      "label": "选定 pod",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        640,
+        268
+      ]
+    },
+    {
+      "id": "k8s-epp",
+      "from": "k8s",
+      "to": "epp",
+      "label": "pod 发现 / Ready 门控",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelAt": [
+        100,
+        400
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "调度公式（EPP 插件链三步）",
+      "items": [
+        "① TokenProducer：调 Render 服务（vLLM /v1/*/render）精确 tokenize → token 块序列",
+        "② PrefillAffinityFilter：候选 = 前缀块常驻的 Ready pod；暖集吞吐饱和（> peakPrefillThroughput）回退低载",
+        "③ TokenLoadScorer：argmin 在途 token 负载（路由计入、完成释放）"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "公式因子怎么获取",
+      "items": [
+        "前缀常驻集合：KV 事件（ZMQ 5556）→ 每 EPP 副本独立索引；ROUTER 5559 重放缓冲供重启重建",
+        "在途 token：EPP 本进程自记账，零滞后——不是引擎内部队列（故此模式 EPP 单副本）",
+        "token 块：精确 tokenize（含工具渲染），非本地估算"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "公式外交互（图中虚线）",
+      "items": [
+        "discoverPods / Ready 门控：候选集合控制，不进打分",
+        "重放缓冲是恢复机制；索引本身才是公式因子",
+        "放置层（K8s scheduler 插件）不在逐请求路径；不抓引擎指标进路由"
+      ]
+    }
+  ]
+}

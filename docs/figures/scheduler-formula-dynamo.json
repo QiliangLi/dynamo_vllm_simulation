@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Dynamo 路由打分明细：公式 · 因子来源 · 公式外交互",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1330,
+      620
+    ],
+    "views": [
+      {
+        "id": "formula-path",
+        "label": "公式与因子",
+        "focus": [
+          "scorer",
+          "bookkeeping",
+          "kvindex",
+          "reqctx"
+        ],
+        "note": "打分公式的每一项从哪里来。"
+      },
+      {
+        "id": "non-formula",
+        "label": "公式外通道",
+        "focus": [
+          "etcd",
+          "planner",
+          "workers"
+        ],
+        "note": "服务发现与 FPM 事件不进打分公式。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "请求方",
+      "pos": [
+        20,
+        162
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "envoy",
+      "type": "frontend",
+      "label": "Envoy 网关",
+      "sublabel": "proxy",
+      "pos": [
+        230,
+        142
+      ],
+      "size": [
+        140,
+        80
+      ]
+    },
+    {
+      "id": "extproc",
+      "type": "backend",
+      "label": "ext-proc 决策处理器",
+      "sublabel": "内嵌 SelectionService（真实 Rust 核心）",
+      "tag": "决策",
+      "pos": [
+        440,
+        134
+      ],
+      "size": [
+        220,
+        96
+      ]
+    },
+    {
+      "id": "workers",
+      "type": "backend",
+      "label": "vLLM Workers ×N",
+      "sublabel": "推理实例",
+      "tag": "数据面",
+      "pos": [
+        1120,
+        140
+      ],
+      "size": [
+        190,
+        90
+      ]
+    },
+    {
+      "id": "scorer",
+      "type": "security",
+      "label": "默认打分器",
+      "sublabel": "logit = s·P′ + D + w·A → argmin",
+      "tag": "公式",
+      "pos": [
+        440,
+        316
+      ],
+      "size": [
+        220,
+        90
+      ]
+    },
+    {
+      "id": "etcd",
+      "type": "cloud",
+      "label": "etcd",
+      "sublabel": "worker 注册表",
+      "pos": [
+        30,
+        326
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "planner",
+      "type": "cloud",
+      "label": "Planner",
+      "sublabel": "SLA 扩缩容 · 消费 FPM",
+      "pos": [
+        1120,
+        316
+      ],
+      "size": [
+        190,
+        80
+      ]
+    },
+    {
+      "id": "bookkeeping",
+      "type": "database",
+      "label": "在途记账（每 worker）",
+      "sublabel": "A · P · D 三因子",
+      "pos": [
+        130,
+        452
+      ],
+      "size": [
+        190,
+        84
+      ]
+    },
+    {
+      "id": "kvindex",
+      "type": "database",
+      "label": "KV 事件索引器",
+      "sublabel": "device / host / disk 三层",
+      "pos": [
+        410,
+        452
+      ],
+      "size": [
+        200,
+        84
+      ]
+    },
+    {
+      "id": "reqctx",
+      "type": "backend",
+      "label": "请求字段",
+      "sublabel": "prompt 块数 · 期望输出",
+      "pos": [
+        720,
+        452
+      ],
+      "size": [
+        190,
+        84
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Dynamo 路由面（proxy + 决策插件）",
+      "wraps": [
+        "envoy",
+        "extproc",
+        "scorer",
+        "bookkeeping",
+        "kvindex"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-envoy",
+      "from": "client",
+      "to": "envoy",
+      "label": "HTTP 请求",
+      "variant": "emphasis",
+      "labelAt": [
+        168,
+        148
+      ]
+    },
+    {
+      "id": "envoy-extproc",
+      "from": "envoy",
+      "to": "extproc",
+      "label": "ext_proc",
+      "variant": "emphasis",
+      "labelAt": [
+        405,
+        205
+      ]
+    },
+    {
+      "id": "extproc-workers",
+      "from": "extproc",
+      "to": "workers",
+      "label": "转发（含预留 reserve）",
+      "variant": "emphasis"
+    },
+    {
+      "id": "workers-envoy",
+      "from": "workers",
+      "to": "envoy",
+      "label": "token 流回程（首 token / 流结束 → 网关记账）",
+      "fromSide": "top",
+      "toSide": "top",
+      "labelAt": [
+        1000,
+        100
+      ]
+    },
+    {
+      "id": "extproc-bookkeeping",
+      "from": "extproc",
+      "to": "bookkeeping",
+      "label": "记账写入（生命周期四调用）",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        295,
+        298
+      ]
+    },
+    {
+      "id": "bookkeeping-scorer",
+      "from": "bookkeeping",
+      "to": "scorer",
+      "label": "因子：A · P · D",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        380,
+        342
+      ]
+    },
+    {
+      "id": "kvindex-scorer",
+      "from": "kvindex",
+      "to": "scorer",
+      "label": "因子：overlap 折扣",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        480,
+        429
+      ]
+    },
+    {
+      "id": "reqctx-scorer",
+      "from": "reqctx",
+      "to": "scorer",
+      "label": "因子：prompt 块 · 期望输出",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        740,
+        429
+      ]
+    },
+    {
+      "id": "workers-kvindex",
+      "from": "workers",
+      "to": "kvindex",
+      "label": "KV 事件（ZMQ，三层）",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [
+        [
+          1040,
+          185
+        ],
+        [
+          1040,
+          566
+        ],
+        [
+          660,
+          566
+        ],
+        [
+          660,
+          494
+        ]
+      ],
+      "labelAt": [
+        850,
+        552
+      ]
+    },
+    {
+      "id": "scorer-extproc",
+      "from": "scorer",
+      "to": "extproc",
+      "label": "argmin logit（平局采样）",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        640,
+        268
+      ]
+    },
+    {
+      "id": "etcd-extproc",
+      "from": "etcd",
+      "to": "extproc",
+      "label": "服务发现（不进公式）",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelAt": [
+        100,
+        400
+      ]
+    },
+    {
+      "id": "workers-planner",
+      "from": "workers",
+      "to": "planner",
+      "label": "FPM 每步事件",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        1128,
+        282
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "调度公式（default.rs:282-388）",
+      "items": [
+        "logit = s·P′ + D + w·A；argmin logit，平局 softmax 采样",
+        "P′ = 投影 prefill 块 − overlap 折扣（device/host/disk 三层）；信用启用时改用 max(0, D−credit) + w·A",
+        "本仿真：credit=0、温度=0 → cache-blind 基线（仅 A、P）"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "公式因子怎么获取",
+      "items": [
+        "A / P / D：网关生命周期记账（reserve / prefill_complete / add_output_block / free），零滞后投影",
+        "overlap 折扣：KV 事件（ZMQ）→ 三层索引（事件滞后、引擎真相）；请求字段随请求携带，本仿真未接 add_output_block"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "公式外交互（图中虚线）",
+      "items": [
+        "etcd 服务发现：定候选集合，不进公式",
+        "FPM 每步事件 → Planner：含 waiting 队列，只喂 SLA 扩缩容",
+        "token 流回程是数据面；记账更新搭回程流的车"
+      ]
+    }
+  ]
+}
