@@ -6,8 +6,8 @@
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
-      1330,
-      620
+      1390,
+      720
     ],
     "views": [
       {
@@ -36,29 +36,29 @@
     {
       "id": "client",
       "type": "external",
-      "label": "Client",
-      "sublabel": "请求方",
+      "label": "Client（请求方）",
+      "sublabel": "发 HTTP 请求，收生成 token",
       "pos": [
         20,
-        150
+        157
       ],
       "size": [
-        130,
-        64
+        150,
+        70
       ]
     },
     {
       "id": "envoy",
       "type": "frontend",
-      "label": "Envoy 网关",
-      "sublabel": "proxy · GAIE",
+      "label": "Envoy 网关（proxy）",
+      "sublabel": "GAIE 标准，只转发",
       "pos": [
-        230,
-        142
+        240,
+        150
       ],
       "size": [
-        140,
-        80
+        160,
+        84
       ]
     },
     {
@@ -68,42 +68,42 @@
       "sublabel": "Endpoint Picker（Go 进程）",
       "tag": "决策",
       "pos": [
-        440,
-        134
+        460,
+        142
       ],
       "size": [
-        220,
-        96
+        240,
+        100
       ]
     },
     {
       "id": "pods",
       "type": "backend",
       "label": "vLLM / SGLang Pods",
-      "sublabel": "推理实例",
+      "sublabel": "推理实例（发布 KV 事件）",
       "tag": "数据面",
       "pos": [
-        1120,
-        140
+        1180,
+        146
       ],
       "size": [
         190,
-        90
+        96
       ]
     },
     {
       "id": "pipeline",
       "type": "security",
-      "label": "过滤 + 打分（插件链）",
-      "sublabel": "② AffinityFilter → ③ argmin 负载",
+      "label": "插件链：过滤 + 打分",
+      "sublabel": "AffinityFilter → TokenLoadScorer",
       "tag": "公式",
       "pos": [
-        440,
-        316
+        450,
+        340
       ],
       "size": [
-        220,
-        90
+        260,
+        96
       ]
     },
     {
@@ -113,53 +113,53 @@
       "sublabel": "pod 发现 · Ready 门控",
       "pos": [
         30,
-        326
+        348
       ],
       "size": [
         160,
-        60
+        66
       ]
     },
     {
       "id": "render",
       "type": "backend",
-      "label": "Render 服务",
-      "sublabel": "精确 tokenize",
+      "label": "Render 服务（精确分词）",
+      "sublabel": "调 vLLM /v1/*/render",
       "pos": [
-        130,
-        452
+        110,
+        500
       ],
       "size": [
-        190,
-        84
+        230,
+        90
       ]
     },
     {
       "id": "kvindex",
       "type": "database",
       "label": "常驻 KV 块索引",
-      "sublabel": "每 EPP 副本独立构建",
+      "sublabel": "记录哪个 pod 缓存哪些块",
       "pos": [
-        410,
-        452
+        420,
+        500
       ],
       "size": [
-        200,
-        84
+        210,
+        90
       ]
     },
     {
       "id": "inflight",
       "type": "database",
       "label": "在途 token 账本",
-      "sublabel": "EPP 本进程自记账",
+      "sublabel": "EPP 自己记的账，零滞后",
       "pos": [
-        720,
-        452
+        730,
+        500
       ],
       "size": [
-        190,
-        84
+        200,
+        90
       ]
     }
   ],
@@ -182,144 +182,144 @@
       "id": "c-envoy",
       "from": "client",
       "to": "envoy",
-      "label": "HTTP 请求",
+      "label": "① 发出 HTTP 请求",
       "variant": "emphasis",
       "labelAt": [
-        168,
-        136
+        188,
+        148
       ]
     },
     {
       "id": "envoy-epp",
       "from": "envoy",
       "to": "epp",
-      "label": "ext_proc",
+      "label": "② ext_proc",
       "variant": "emphasis",
       "labelAt": [
-        405,
-        205
+        432,
+        216
       ]
     },
     {
       "id": "epp-pods",
       "from": "epp",
       "to": "pods",
-      "label": "转发（选中的 pod）",
+      "label": "③ 转发到选中的 pod（记账计入 prompt token）",
       "variant": "emphasis"
     },
     {
       "id": "pods-envoy",
       "from": "pods",
       "to": "envoy",
-      "label": "token 流回程（完成时释放记账）",
+      "label": "④ token 流原路返回：请求完成时释放 token 记账",
       "fromSide": "top",
       "toSide": "top",
       "labelAt": [
-        1000,
-        100
+        940,
+        105
       ]
     },
     {
       "id": "epp-render",
       "from": "epp",
       "to": "render",
-      "label": "① tokenize 调用 → token 块序列",
+      "label": "① 先精确分词：拿到 token 块序列",
       "fromSide": "bottom",
       "toSide": "top",
       "labelAt": [
-        330,
-        300
+        300,
+        312
       ]
     },
     {
       "id": "render-pipeline",
       "from": "render",
       "to": "pipeline",
-      "label": "① token 块",
+      "label": "token 块序列",
       "fromSide": "right",
       "toSide": "left",
       "labelAt": [
-        380,
-        342
+        395,
+        366
       ]
     },
     {
       "id": "kvindex-pipeline",
       "from": "kvindex",
       "to": "pipeline",
-      "label": "② 前缀常驻集合",
+      "label": "因子：前缀常驻 pod 集合",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        480,
-        429
+        470,
+        472
       ]
     },
     {
       "id": "inflight-pipeline",
       "from": "inflight",
       "to": "pipeline",
-      "label": "③ 在途 token 数",
+      "label": "因子：在途 token 数",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        740,
-        429
+        745,
+        448
       ]
     },
     {
       "id": "pods-kvindex",
       "from": "pods",
       "to": "kvindex",
-      "label": "KV 事件（ZMQ 5556）+ 重放缓冲（5559）",
+      "label": "KV 事件：每存/淘汰一个缓存块就播报（ZMQ 5556）",
       "fromSide": "left",
       "toSide": "right",
       "via": [
         [
-          1040,
-          185
+          1100,
+          194
         ],
         [
-          1040,
-          566
+          1100,
+          630
         ],
         [
-          660,
-          566
+          700,
+          630
         ],
         [
-          660,
-          494
+          700,
+          545
         ]
       ],
       "labelAt": [
-        850,
-        552
+        900,
+        614
       ]
     },
     {
       "id": "pipeline-epp",
       "from": "pipeline",
       "to": "epp",
-      "label": "选定 pod",
+      "label": "过滤后取在途 token 最小者",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        640,
-        268
+        670,
+        288
       ]
     },
     {
       "id": "k8s-epp",
       "from": "k8s",
       "to": "epp",
-      "label": "pod 发现 / Ready 门控",
+      "label": "谁在线 / Ready（不进公式）",
       "variant": "dashed",
       "fromSide": "right",
       "toSide": "bottom",
       "labelAt": [
-        100,
-        400
+        110,
+        432
       ]
     }
   ],

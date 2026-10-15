@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>调度器 × 推理引擎：三框架路由打分明细（Dynamo / llm-d / AIBrix）</title>
+<style>
+html { --archify-nav-reserve: 0px; }
+/* ==========================================================
+       THEME VARIABLES — switch by toggling [data-theme] on <html>
+       ========================================================== */
+    :root,
+    [data-theme="dark"] { --bg: #020617;
+      --grid: #1e293b;
+      --text: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      /* UI chrome and menu hints need more contrast than SVG .t-dim accents */
+      --text-faint: #7d8da1;
+
+      --panel: rgba(15, 23, 42, 0.5);
+      --panel-border: #1e293b;
+      --lane-fill: rgba(15, 23, 42, 0.22);
+      --lane-stroke: #334155;
+
+      --arrow: #64748b;
+      --arrow-emphasis: #34d399;
+
+      /* Opaque mask color used behind semi-transparent component fills
+         so the arrows drawn underneath are properly hidden. */
+      --mask: #0f172a;
+
+      --frontend-fill:    rgba(8, 51, 68, 0.4);
+      --frontend-stroke:  #22d3ee;
+      --backend-fill:     rgba(6, 78, 59, 0.4);
+      --backend-stroke:   #34d399;
+      --database-fill:    rgba(76, 29, 149, 0.4);
+      --database-stroke:  #a78bfa;
+      --cloud-fill:       rgba(120, 53, 15, 0.3);
+      --cloud-stroke:     #fbbf24;
+      --security-fill:    rgba(136, 19, 55, 0.4);
+      --security-stroke:  #fb7185;
+      --messagebus-fill:  rgba(251, 146, 60, 0.3);
+      --messagebus-stroke:#fb923c;
+      --external-fill:    rgba(30, 41, 59, 0.5);
+      --external-stroke:  #94a3b8;
+
+      --toolbar-bg:       rgba(15, 23, 42, 0.8);
+      --toolbar-border:   #334155;
+      --toolbar-text:     #e2e8f0;
+      --toolbar-hover:    rgba(15, 23, 42, 0.95);
+      --toolbar-menu-bg:  #0f172a; }
+[data-theme="light"] { --bg: #f8fafc;
+      --grid: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --text-faint: #64748b;
+
+      --panel: #ffffff;
+      --panel-border: #e2e8f0;
+      --lane-fill: rgba(248, 250, 252, 0.65);
+      --lane-stroke: #cbd5e1;
+
+      --arrow: #94a3b8;
+      --arrow-emphasis: #059669;
+
+      --mask: #ffffff;
+
+      --frontend-fill:    rgba(34, 211, 238, 0.15);
+      --frontend-stroke:  #0891b2;
+      --backend-fill:     rgba(52, 211, 153, 0.18);
+      --backend-stroke:   #059669;
+      --database-fill:    rgba(167, 139, 250, 0.2);
+      --database-stroke:  #7c3aed;
+      --cloud-fill:       rgba(251, 191, 36, 0.18);
+      --cloud-stroke:     #d97706;
+      --security-fill:    rgba(251, 113, 133, 0.15);
+      --security-stroke:  #e11d48;
+      --messagebus-fill:  rgba(251, 146, 60, 0.15);
+      --messagebus-stroke:#ea580c;
+      --external-fill:    rgba(148, 163, 184, 0.18);
+      --external-stroke:  #64748b;
+
+      --toolbar-bg:       rgba(255, 255, 255, 0.92);
+      --toolbar-border:   #cbd5e1;
+      --toolbar-text:     #334155;
+      --toolbar-hover:    #ffffff;
+      --toolbar-menu-bg:  #ffffff; }
+/* ==========================================================
+       SIGNAL FLOW — an opt-in, motion-forward visual preset.
+       The variables also target a standalone exported SVG, whose
+       root carries data-preset and data-theme directly.
+       ========================================================== */
+    [data-preset="signal-flow"][data-theme="dark"] { --bg: #030711;
+      --grid: #15233a;
+      --panel: rgba(6, 14, 28, 0.78);
+      --panel-border: #1d3350;
+      --lane-fill: rgba(9, 22, 40, 0.5);
+      --lane-stroke: #2c4564;
+      --text: #f5fbff;
+      --text-muted: #9eb0c7;
+      --text-dim: #52667f;
+      --text-faint: #7890ad;
+      --mask: #07101e;
+      --frontend-fill: rgba(6, 182, 212, 0.14);
+      --frontend-stroke: #67e8f9;
+      --backend-fill: rgba(16, 185, 129, 0.14);
+      --backend-stroke: #5eead4;
+      --database-fill: rgba(139, 92, 246, 0.16);
+      --database-stroke: #c4b5fd;
+      --cloud-fill: rgba(245, 158, 11, 0.13);
+      --cloud-stroke: #fcd34d;
+      --security-fill: rgba(244, 63, 94, 0.13);
+      --security-stroke: #fda4af;
+      --messagebus-fill: rgba(249, 115, 22, 0.13);
+      --messagebus-stroke: #fdba74;
+      --external-fill: rgba(71, 85, 105, 0.24);
+      --external-stroke: #a5b4c7;
+      --arrow: #7890ad;
+      --arrow-emphasis: #2dd4bf;
+      --toolbar-bg: rgba(7, 16, 30, 0.86);
+      --toolbar-border: #29415f;
+      --toolbar-menu-bg: #07101e; }
+[data-preset="signal-flow"][data-theme="light"] { --bg: #f4f9fc;
+      --grid: #d4e5ee;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-border: #bfd5e2;
+      --lane-fill: rgba(232, 243, 248, 0.62);
+      --lane-stroke: #a9c5d5;
+      --text: #102638;
+      --text-muted: #587287;
+      --text-dim: #8aa2b4;
+      --text-faint: #668397;
+      --mask: #ffffff;
+      --frontend-fill: rgba(6, 182, 212, 0.09);
+      --frontend-stroke: #0789a1;
+      --backend-fill: rgba(5, 150, 105, 0.09);
+      --backend-stroke: #087f69;
+      --database-fill: rgba(124, 58, 237, 0.09);
+      --database-stroke: #7254c7;
+      --cloud-fill: rgba(217, 119, 6, 0.08);
+      --cloud-stroke: #b9670b;
+      --security-fill: rgba(225, 29, 72, 0.08);
+      --security-stroke: #c53a59;
+      --messagebus-fill: rgba(234, 88, 12, 0.08);
+      --messagebus-stroke: #c65f27;
+      --external-fill: rgba(100, 116, 139, 0.1);
+      --external-stroke: #607a8c;
+      --arrow: #7b97aa;
+      --arrow-emphasis: #0d9488; }
+/* ==========================================================
+       BLUEPRINT — a review-first drafting preset for deployment,
+       infrastructure, and technical design documentation. It keeps
+       the same semantic palette and geometry while trading glow for
+       precise grid contrast, squared materials, and drafting marks.
+       ========================================================== */
+    [data-preset="blueprint"][data-theme="dark"] { --bg: #06131f;
+      --grid: #17425a;
+      --panel: rgba(7, 27, 43, 0.9);
+      --panel-border: #27627f;
+      --lane-fill: rgba(10, 43, 66, 0.36);
+      --lane-stroke: #34799a;
+      --text: #e3f6ff;
+      --text-muted: #91b8ca;
+      --text-dim: #557e92;
+      --text-faint: #739caf;
+      --mask: #0a2031;
+      --frontend-fill: rgba(26, 157, 193, 0.14);
+      --frontend-stroke: #66d9ef;
+      --backend-fill: rgba(31, 155, 124, 0.13);
+      --backend-stroke: #69dfbd;
+      --database-fill: rgba(120, 105, 196, 0.14);
+      --database-stroke: #b4a8ff;
+      --cloud-fill: rgba(197, 145, 43, 0.13);
+      --cloud-stroke: #ffd166;
+      --security-fill: rgba(199, 76, 104, 0.13);
+      --security-stroke: #ff8da1;
+      --messagebus-fill: rgba(207, 112, 49, 0.13);
+      --messagebus-stroke: #ffad66;
+      --external-fill: rgba(84, 119, 139, 0.18);
+      --external-stroke: #a7cad9;
+      --arrow: #78a3b7;
+      --arrow-emphasis: #64dfc1;
+      --toolbar-bg: rgba(7, 28, 45, 0.92);
+      --toolbar-border: #34799a;
+      --toolbar-text: #d8f3ff;
+      --toolbar-hover: rgba(18, 58, 83, 0.95);
+      --toolbar-menu-bg: #0a2031; }
+[data-preset="blueprint"][data-theme="light"] { --bg: #edf7fa;
+      --grid: #b5d5e1;
+      --panel: rgba(249, 253, 255, 0.94);
+      --panel-border: #78aabd;
+      --lane-fill: rgba(210, 232, 240, 0.42);
+      --lane-stroke: #83b2c4;
+      --text: #123344;
+      --text-muted: #4e7486;
+      --text-dim: #86a6b4;
+      --text-faint: #668c9d;
+      --mask: #f9fdff;
+      --frontend-fill: rgba(8, 145, 178, 0.08);
+      --frontend-stroke: #087f9c;
+      --backend-fill: rgba(5, 128, 101, 0.08);
+      --backend-stroke: #08755f;
+      --database-fill: rgba(100, 75, 180, 0.08);
+      --database-stroke: #6757a8;
+      --cloud-fill: rgba(181, 120, 15, 0.08);
+      --cloud-stroke: #a86609;
+      --security-fill: rgba(190, 48, 80, 0.07);
+      --security-stroke: #b32f50;
+      --messagebus-fill: rgba(196, 81, 22, 0.07);
+      --messagebus-stroke: #b65120;
+      --external-fill: rgba(79, 112, 128, 0.08);
+      --external-stroke: #506f7e;
+      --arrow: #6d93a5;
+      --arrow-emphasis: #087f69;
+      --toolbar-bg: rgba(247, 252, 254, 0.94);
+      --toolbar-border: #8ab5c5;
+      --toolbar-text: #294f61;
+      --toolbar-hover: #ffffff;
+      --toolbar-menu-bg: #f9fdff; }
+/* ==========================================================
+       EDITORIAL — a warm, publication-minded preset for design
+       reviews, launch notes, and documentation. The diagram keeps
+       the same semantic palette and exact geometry, but trades
+       software chrome for paper, ink, ruled structure, and one
+       restrained vermilion accent.
+       ========================================================== */
+    [data-preset="editorial"][data-theme="dark"] { --bg: #181611;
+      --grid: #39342a;
+      --panel: rgba(35, 31, 24, 0.96);
+      --panel-border: #625a4a;
+      --lane-fill: rgba(52, 46, 35, 0.46);
+      --lane-stroke: #726957;
+      --text: #f4eddf;
+      --text-muted: #b9ae9b;
+      --text-dim: #776e60;
+      --text-faint: #9d917e;
+      --mask: #231f18;
+      --frontend-fill: rgba(43, 133, 142, 0.16);
+      --frontend-stroke: #7fc6c7;
+      --backend-fill: rgba(63, 132, 92, 0.16);
+      --backend-stroke: #8fc29e;
+      --database-fill: rgba(117, 91, 141, 0.17);
+      --database-stroke: #c0a4d0;
+      --cloud-fill: rgba(170, 119, 49, 0.16);
+      --cloud-stroke: #d8ad68;
+      --security-fill: rgba(157, 69, 65, 0.17);
+      --security-stroke: #df9085;
+      --messagebus-fill: rgba(174, 79, 42, 0.16);
+      --messagebus-stroke: #df946f;
+      --external-fill: rgba(126, 115, 96, 0.18);
+      --external-stroke: #b8ad99;
+      --arrow: #948978;
+      --arrow-emphasis: #dd6b3d;
+      --toolbar-bg: rgba(35, 31, 24, 0.92);
+      --toolbar-border: #625a4a;
+      --toolbar-text: #eee5d5;
+      --toolbar-hover: #302a20;
+      --toolbar-menu-bg: #231f18; }
+[data-preset="editorial"][data-theme="light"] { --bg: #f2eee5;
+      --grid: #d8d0c2;
+      --panel: rgba(251, 248, 241, 0.97);
+      --panel-border: #c4b9a6;
+      --lane-fill: rgba(229, 221, 207, 0.42);
+      --lane-stroke: #b8aa94;
+      --text: #242018;
+      --text-muted: #6f6658;
+      --text-dim: #a09788;
+      --text-faint: #817767;
+      --mask: #fbf8f1;
+      --frontend-fill: rgba(31, 117, 126, 0.09);
+      --frontend-stroke: #287e84;
+      --backend-fill: rgba(42, 119, 75, 0.09);
+      --backend-stroke: #397b53;
+      --database-fill: rgba(105, 75, 130, 0.09);
+      --database-stroke: #765d86;
+      --cloud-fill: rgba(157, 103, 31, 0.1);
+      --cloud-stroke: #9a671f;
+      --security-fill: rgba(153, 58, 52, 0.09);
+      --security-stroke: #9e463f;
+      --messagebus-fill: rgba(182, 70, 27, 0.09);
+      --messagebus-stroke: #ad4b25;
+      --external-fill: rgba(101, 91, 75, 0.09);
+      --external-stroke: #746b5e;
+      --arrow: #8a806f;
+      --arrow-emphasis: #bb4c23;
+      --toolbar-bg: rgba(251, 248, 241, 0.94);
+      --toolbar-border: #c4b9a6;
+      --toolbar-text: #40392f;
+      --toolbar-hover: #fffdf8;
+      --toolbar-menu-bg: #fbf8f1; }
+body { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem;
+      color: var(--text);
+      transition: background 0.2s ease, color 0.2s ease; }
+html[data-preset="blueprint"] body { background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+      background-attachment: fixed; }
+html[data-preset="editorial"] body { background-image:
+        linear-gradient(90deg, transparent 0, transparent 5.4rem, color-mix(in srgb, var(--security-stroke) 18%, transparent) 5.4rem, color-mix(in srgb, var(--security-stroke) 18%, transparent) calc(5.4rem + 1px), transparent calc(5.4rem + 1px)),
+        repeating-linear-gradient(0deg, transparent 0, transparent 31px, color-mix(in srgb, var(--grid) 36%, transparent) 31px, color-mix(in srgb, var(--grid) 36%, transparent) 32px);
+      background-attachment: fixed; }
+html[data-embed="true"][data-share-playback="true"] .share-chapter-cue:not([hidden]),
+    html[data-embed="true"][data-share-moment="true"] .share-chapter-cue:not([hidden]) { position: absolute;
+      z-index: 18;
+      top: 0.85rem;
+      left: 50%;
+      display: grid;
+      grid-template-columns: auto minmax(9rem, 13.5rem) minmax(0, 1fr);
+      align-items: center;
+      gap: 0.45rem 0.85rem;
+      width: min(52rem, calc(100% - 1.5rem));
+      min-height: 3.35rem;
+      padding: 0.55rem 0.75rem 0.65rem;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 42%, var(--toolbar-border));
+      border-radius: 0.75rem;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--frontend-fill) 52%, transparent), transparent 45%),
+        color-mix(in srgb, var(--toolbar-menu-bg) 92%, transparent);
+      color: var(--toolbar-text);
+      box-shadow: 0 14px 42px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      backdrop-filter: blur(16px);
+      pointer-events: none;
+      animation: archify-share-cue-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+html[data-preset="blueprint"] .share-chapter-cue { border-radius: 0.2rem;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--frontend-fill) 46%, transparent), transparent 36%),
+        var(--toolbar-menu-bg);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+      backdrop-filter: none; }
+html[data-preset="editorial"] .share-chapter-cue { border-color: var(--panel-border);
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--security-fill) 58%, transparent), transparent 42%),
+        var(--toolbar-menu-bg);
+      box-shadow: 0 10px 30px color-mix(in srgb, #000 18%, transparent);
+      backdrop-filter: none; }
+html[data-preset="editorial"] .share-chapter-state { color: var(--arrow-emphasis); }
+html[data-present="true"]:not([data-embed="true"]) .diagram-container { display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 0.75rem;
+      padding-bottom: calc(0.75rem + var(--archify-nav-reserve)); }
+html[data-present="true"]:not([data-embed="true"]) #btn-present { border-color: var(--frontend-stroke);
+      color: var(--frontend-stroke); }
+html[data-preset="signal-flow"] .header-row::after { content: attr(data-preset-badge-signal-flow);
+      margin-left: auto;
+      color: var(--frontend-stroke);
+      border: 1px solid var(--frontend-stroke);
+      border-radius: 999px;
+      padding: 0.28rem 0.6rem;
+      font-size: 0.625rem;
+      letter-spacing: 0.12em;
+      opacity: 0.82;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.12);
+      white-space: nowrap; }
+html[data-preset="blueprint"] .pulse-dot { width: 10px;
+      height: 10px;
+      border: 1px solid var(--frontend-stroke);
+      border-radius: 1px;
+      background: transparent;
+      box-shadow: inset 0 0 0 2px var(--bg);
+      transform: rotate(45deg);
+      animation: none; }
+html[data-preset="blueprint"] .header-row::after { content: attr(data-preset-badge-blueprint);
+      margin-left: auto;
+      padding: 0.28rem 0.55rem;
+      border-top: 1px solid var(--frontend-stroke);
+      border-bottom: 1px solid var(--frontend-stroke);
+      color: var(--frontend-stroke);
+      font-size: 0.5625rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      white-space: nowrap; }
+html[data-preset="editorial"] .pulse-dot { width: 9px;
+      height: 9px;
+      border: 1px solid var(--arrow-emphasis);
+      border-radius: 0;
+      background: var(--arrow-emphasis);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--arrow-emphasis) 14%, transparent);
+      transform: rotate(45deg);
+      animation: none; }
+html[data-preset="editorial"] .header-row::after { content: attr(data-preset-badge-editorial);
+      margin-left: auto;
+      padding: 0.32rem 0 0.24rem;
+      border-bottom: 2px solid var(--arrow-emphasis);
+      color: var(--arrow-emphasis);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 0.625rem;
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      white-space: nowrap; }
+html[data-preset="blueprint"] .diagram-container { border-color: var(--panel-border);
+      border-radius: 0.35rem;
+      background: var(--panel);
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--panel-border) 34%, transparent),
+        0 18px 48px rgba(0, 0, 0, 0.16); }
+html[data-preset="blueprint"] .diagram-container::after { content: "";
+      position: absolute;
+      z-index: 10;
+      inset: 0.7rem;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left top / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left top / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right top / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right top / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left bottom / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left bottom / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right bottom / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right bottom / 1px 1.35rem no-repeat;
+      opacity: 0.58; }
+html[data-preset="editorial"] .diagram-container { overflow: hidden;
+      border-color: var(--panel-border);
+      border-radius: 0.38rem;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--security-fill) 58%, transparent), transparent 12%),
+        var(--panel);
+      box-shadow:
+        0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
+        0 18px 48px color-mix(in srgb, #000 19%, transparent); }
+html[data-preset="editorial"] .diagram-container::after { position: absolute;
+      z-index: 10;
+      top: 0.72rem;
+      right: 1.25rem;
+      padding: 0.2rem 0.52rem;
+      border: 1px solid var(--panel-border);
+      background: var(--panel);
+      color: var(--arrow-emphasis);
+      content: attr(data-preset-badge-editorial-plate);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 0.52rem;
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      pointer-events: none; }
+html[data-preset="blueprint"] .guided-views { border-color: var(--panel-border);
+      border-radius: 0.35rem;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--frontend-fill) 36%, transparent), transparent 24%),
+        var(--toolbar-bg);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12); }
+html[data-preset="signal-flow"] .guided-view-chapter[data-chapter-position="current"] { box-shadow: inset 3px 0 0 var(--frontend-stroke), 0 0 18px color-mix(in srgb, var(--frontend-stroke) 18%, transparent); }
+html[data-preset="blueprint"] .card { position: relative;
+      border-color: var(--panel-border);
+      border-radius: 0.3rem;
+      background: var(--panel);
+      box-shadow: none; }
+html[data-preset="blueprint"] .card::before { content: "";
+      position: absolute;
+      top: -1px;
+      left: 1rem;
+      width: 2.5rem;
+      border-top: 2px solid var(--frontend-stroke); }
+html[data-preset="editorial"] .card { position: relative;
+      border-radius: 0.28rem;
+      background: var(--panel);
+      box-shadow: 0 10px 28px color-mix(in srgb, #000 10%, transparent); }
+html[data-preset="editorial"] .card::before { position: absolute;
+      top: -1px;
+      left: 1.25rem;
+      width: 3.25rem;
+      border-top: 3px solid var(--arrow-emphasis);
+      content: ""; }
+html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .diagram-nav,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .overview-map,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .focus-chip,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .route-probe,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .semantic-lens,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .diagram-guide,
+      html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .node-finder { transform: translateX(var(--archify-scroll-x, 0px)); }
+/* ==========================================================
+       SVG SEMANTIC CLASSES — use these instead of inline fill/stroke
+       ========================================================== */
+    .c-grid { stroke: var(--grid); fill: none; }
+.c-mask { fill: var(--mask); stroke: none; }
+.c-frontend { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
+.c-backend { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
+.c-database { fill: var(--database-fill);   stroke: var(--database-stroke); }
+.c-cloud { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
+.c-security { fill: var(--security-fill);   stroke: var(--security-stroke); }
+.c-external { fill: var(--external-fill);   stroke: var(--external-stroke); }
+/* Text helpers */
+    .t-primary { fill: var(--text); }
+.t-muted { fill: var(--text-muted); }
+.t-backend { fill: var(--backend-stroke); }
+.t-cloud { fill: var(--cloud-stroke); }
+.t-security { fill: var(--security-stroke); }
+.t-messagebus { fill: var(--messagebus-stroke); }
+/* Semantic Sigils are small authored role stamps, not icons from a brand
+       pack and not viewer controls. Prefix selectors with svg so the canonical
+       export's SVG-only stylesheet collector keeps them automatically. */
+    svg .semantic-sigil { fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.76;
+      pointer-events: none; }
+svg .semantic-sigil > * { vector-effect: non-scaling-stroke; }
+svg .semantic-sigil .sigil-fill { fill: currentColor; stroke: none; }
+svg .s-frontend { color: var(--frontend-stroke); }
+svg .s-backend { color: var(--backend-stroke); }
+svg .s-database { color: var(--database-stroke); }
+svg .s-cloud { color: var(--cloud-stroke); }
+svg .s-security { color: var(--security-stroke); }
+svg .s-external { color: var(--external-stroke); }
+/* Arrows */
+    .a-default { stroke: var(--arrow); fill: none; }
+.a-emphasis { stroke: var(--arrow-emphasis); fill: none; }
+.a-dashed { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4,4; }
+/* Arrowhead markers reference these */
+    .m-default { fill: var(--arrow); }
+.m-emphasis { fill: var(--arrow-emphasis); }
+.m-security { fill: var(--security-stroke); }
+.m-dashed { fill: var(--database-stroke); }
+svg[data-preset="editorial"] .c-grid { stroke-dasharray: 1 4;
+      opacity: 0.48; }
+svg[data-preset="editorial"] .c-region { fill: color-mix(in srgb, var(--cloud-fill) 48%, transparent);
+      stroke-dasharray: 9 4; }
+svg[data-preset="blueprint"] .c-grid { stroke-dasharray: 1 3;
+      opacity: 0.78; }
+svg[data-preset="blueprint"] .c-region { fill: color-mix(in srgb, var(--cloud-fill) 58%, transparent);
+      stroke-dasharray: 12 4 2 4; }
+.c-region { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+html[data-ambient-motion="running"] svg[data-animation="trace"] [data-animate="node"] { transform-box: fill-box;
+      transform-origin: center;
+      animation: archify-node-pulse 3.6s ease-in-out 1;
+      animation-delay: calc(var(--step, 0) * 160ms); }
+:root {
+  --page-bg: #f7f8fa; --page-fg: #1c2330; --card: #ffffff; --line: #d9dee7;
+  --accent: #2563eb; --muted: #5b6572;
+}
+body { margin: 0; background: var(--page-bg); color: var(--page-fg);
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  line-height: 1.65; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 28px 28px 80px; }
+header.top h1 { font-size: 26px; margin: 8px 0 4px; }
+header.top p.sub { color: var(--muted); margin: 4px 0 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; font-size: 14px; }
+.legend b { font-weight: 600; }
+nav.toc { margin: 18px 0 6px; font-size: 15px; }
+nav.toc a { color: var(--accent); text-decoration: none; margin-right: 18px; }
+section { margin-top: 46px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 22px 26px 26px; }
+section h2 { font-size: 21px; margin: 2px 0 10px; border-bottom: 2px solid var(--line); padding-bottom: 8px; }
+section p.guide { background: #f2f6ff; border-left: 4px solid var(--accent); padding: 10px 14px;
+  border-radius: 6px; font-size: 14.5px; }
+figure { margin: 18px 0 6px; }
+figure svg { width: 100%; height: auto; display: block; }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: #eef1f6; font-weight: 600; white-space: nowrap; }
+td:first-child { white-space: nowrap; font-weight: 500; }
+ul.notes { font-size: 14px; margin: 6px 0 0; padding-left: 20px; }
+ul.notes li { margin: 6px 0; }
+code { background: #eef1f6; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>调度器 × 推理引擎：三框架路由打分明细</h1>
+  <p class="sub">Dynamo 1.5.0 · llm-d（EPP）· AIBrix —— 每张图回答三个问题：调度公式是什么？公式里每个因子怎么得到？哪些调度器↔引擎的交互不进公式？</p>
+  <div class="legend">
+    <span><b>粗实线 ①→④</b>：请求主路径（发请求 → 转交决策 → 转发 → token 原路返回）</span>
+    <span><b>细实线</b>：公式因子 / 数据流</span>
+    <span><b>虚线</b>：系统里存在、但不进打分公式的交互</span>
+  </div>
+  <div class="legend" style="margin-top:8px">
+    <span>三个框架的路由器<b>同构</b>：Envoy（proxy，只转发）＋ 决策插件（ext-proc / EPP / 路由插件，真正打分）；<b>没有任何框架在请求热路径上同步查询引擎</b>，因子全部来自"事件订阅 / 周期抓取 / 网关自记账"。</span>
+  </div>
+  <nav class="toc">
+    <a href="#dynamo">① Dynamo</a><a href="#llmd">② llm-d</a><a href="#aibrix">③ AIBrix</a>
+  </nav>
+</header>
+
+<section id="dynamo">
+  <h2>① Dynamo：加性 logit 代价打分</h2>
+  <p class="guide"><b>怎么读这张图：</b>最上一行是主路径——请求经 Envoy（只转发）进入 ext-proc 决策处理器（内嵌真实 Rust 选择核心），被转发到某个 vLLM worker；生成的 token 沿顶部弧线<b>原路返回</b>，网关在回程上顺手更新记账。中间的<b>默认打分器</b>是决策核心：对每个候选 worker 算一个代价 logit，<b>谁小选谁</b>。下面一排是打分器的三类输入：左＝网关自己记的账（零滞后）、中＝KV 事件索引（本仿真关闭，虚线）、右＝请求自带字段。左下、右下两个虚线通道"存在于系统、但不参与打分"。</p>
+  <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+        <title id="archify-diagram-title">Dynamo 路由打分明细：公式 · 因子来源 · 公式外交互</title>
+        <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="Dynamo 路由面（proxy + 决策插件）" x="86" y="118" width="648" height="492" rx="12" class="c-region" stroke-width="1"/>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy" data-composition-points="170,197;194,197;194,213;216,213;216,192;240,192" d="M 170 197 L 186 197 Q 194 197 194 205 L 194 205 Q 194 213 202 213 L 208 213 Q 216 213 216 205 L 216 200 Q 216 192 224 192 L 240 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="envoy" data-edge-to="extproc" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-extproc" data-composition-points="400,192;460,192" d="M 400 192 L 460 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="extproc" data-edge-to="workers" data-edge-label="③ 转发到选中的 worker（记账 +1 请求 / +P prefill）" data-edge-key="2" data-edge-id="extproc-workers" data-composition-points="700,192;1180,192" d="M 700 192 L 1180 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="workers" data-edge-to="envoy" data-edge-label="④ token 流原路返回：首 token → P 清零；流结束 → 释放请求" data-edge-key="3" data-edge-id="workers-envoy" data-composition-points="1275,146;1275,122;320,122;320,150" d="M 1275 146 L 1275 130 Q 1275 122 1267 122 L 328 122 Q 320 122 320 130 L 320 150" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="extproc" data-edge-to="bookkeeping" data-edge-label="记账写入：四个生命周期调用" data-edge-key="4" data-edge-id="extproc-bookkeeping" data-composition-points="580,242;580,266;225,266;225,500" d="M 580 242 L 580 258 Q 580 266 572 266 L 233 266 Q 225 266 225 274 L 225 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="bookkeeping" data-edge-to="scorer" data-edge-label="因子 A·P·D" data-edge-key="5" data-edge-id="bookkeeping-scorer" data-composition-points="340,545;395,545;395,388;450,388" d="M 340 545 L 387 545 Q 395 545 395 537 L 395 396 Q 395 388 403 388 L 450 388" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="kvindex" data-edge-to="scorer" data-edge-label="因子 overlap（前缀重叠）" data-edge-key="6" data-edge-id="kvindex-scorer" data-composition-points="525,500;525,468;580,468;580,436" d="M 525 500 L 525 476 Q 525 468 533 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="reqctx" data-edge-to="scorer" data-edge-label="因子：请求长度字段" data-edge-key="7" data-edge-id="reqctx-scorer" data-composition-points="830,500;830,468;580,468;580,436" d="M 830 500 L 830 476 Q 830 468 822 468 L 588 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="workers" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）" data-edge-key="8" data-edge-id="workers-kvindex" data-composition-points="1180,194;1100,194;1100,630;700,630;700,545;630,545" d="M 1180 194 L 1108 194 Q 1100 194 1100 202 L 1100 622 Q 1100 630 1092 630 L 708 630 Q 700 630 700 622 L 700 553 Q 700 545 692 545 L 630 545" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="scorer" data-edge-to="extproc" data-edge-label="取 logit 最小的 worker；平局 softmax 采样" data-edge-key="9" data-edge-id="scorer-extproc" data-composition-points="580,340;580,242" d="M 580 340 L 580 242" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="etcd" data-edge-to="extproc" data-edge-label="谁在线（不进公式）" data-edge-key="10" data-edge-id="etcd-extproc" data-composition-points="190,381;214,381;214,266;580,266;580,242" d="M 190 381 L 206 381 Q 214 381 214 373 L 214 274 Q 214 266 222 266 L 572 266 Q 580 266 580 258 L 580 242" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="workers" data-edge-to="planner" data-edge-label="FPM 每步事件" data-edge-key="11" data-edge-id="workers-planner" data-composition-points="1275,242;1275,340" d="M 1275 242 L 1275 340" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Components -->
+        <g id="node-client" data-node-id="client" data-node-label="Client（请求方）" tabindex="0" role="button" aria-label="聚焦Client（请求方），发 HTTP 请求，收生成 token, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="发 HTTP 请求，收生成 token" data-node-context="架构组件">
+          <title>Client（请求方） · 发 HTTP 请求，收生成 token · 架构组件</title>
+          <rect x="20" y="162" width="150" height="70" rx="6" class="c-mask"/>
+          <rect x="20" y="162" width="150" height="70" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(26 168) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="95" y="195" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Client（请求方）</text>
+        <text data-detail="context" x="95" y="211" class="t-muted" font-size="9" text-anchor="middle">发 HTTP 请求，收生成 token</text>
+        </g>
+
+        <g id="node-envoy" data-node-id="envoy" data-node-label="Envoy 网关（proxy）" tabindex="0" role="button" aria-label="聚焦Envoy 网关（proxy），只转发流量，不做决策, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="只转发流量，不做决策" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>Envoy 网关（proxy） · 只转发流量，不做决策 · Dynamo 路由面（proxy + 决策插件）</title>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-mask"/>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(246 156) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="320" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Envoy 网关（proxy）</text>
+        <text data-detail="context" x="320" y="206" class="t-muted" font-size="9" text-anchor="middle">只转发流量，不做决策</text>
+        </g>
+
+        <g id="node-extproc" data-node-id="extproc" data-node-label="ext-proc 决策处理器" tabindex="0" role="button" aria-label="聚焦ext-proc 决策处理器，决策插件，内嵌 SelectionService, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="决策插件，内嵌 SelectionService" data-node-tag="决策" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>ext-proc 决策处理器 · 决策插件，内嵌 SelectionService · Dynamo 路由面（proxy + 决策插件） · 决策</title>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-mask"/>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(466 148) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">ext-proc 决策处理器</text>
+        <text data-detail="context" x="580" y="206" class="t-muted" font-size="9" text-anchor="middle">决策插件，内嵌 SelectionService</text>
+        <text data-detail="fine" x="580" y="234" class="t-backend" font-size="7" text-anchor="middle">决策</text>
+        </g>
+
+        <g id="node-workers" data-node-id="workers" data-node-label="vLLM Workers ×N" tabindex="0" role="button" aria-label="聚焦vLLM Workers ×N，推理实例（真实 vLLM 引擎）, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="推理实例（真实 vLLM 引擎）" data-node-tag="数据面" data-node-context="架构组件">
+          <title>vLLM Workers ×N · 推理实例（真实 vLLM 引擎） · 架构组件 · 数据面</title>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-mask"/>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1186 152) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1275" y="192" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">vLLM Workers ×N</text>
+        <text data-detail="context" x="1275" y="208" class="t-muted" font-size="9" text-anchor="middle">推理实例（真实 vLLM 引擎）</text>
+        <text data-detail="fine" x="1275" y="234" class="t-backend" font-size="7" text-anchor="middle">数据面</text>
+        </g>
+
+        <g id="node-scorer" data-node-id="scorer" data-node-label="默认打分器 DefaultWorkerScorer" tabindex="0" role="button" aria-label="聚焦默认打分器 DefaultWorkerScorer，每个 worker 算一个 logit 代价, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="security" data-node-sublabel="每个 worker 算一个 logit 代价" data-node-tag="公式" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>默认打分器 DefaultWorkerScorer · 每个 worker 算一个 logit 代价 · Dynamo 路由面（proxy + 决策插件） · 公式</title>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-mask"/>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(456 346) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="386" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">默认打分器 DefaultWorkerScorer</text>
+        <text data-detail="context" x="580" y="402" class="t-muted" font-size="9" text-anchor="middle">每个 worker 算一个 logit 代价</text>
+        <text data-detail="fine" x="580" y="428" class="t-security" font-size="7" text-anchor="middle">公式</text>
+        </g>
+
+        <g id="node-etcd" data-node-id="etcd" data-node-label="etcd（服务发现）" tabindex="0" role="button" aria-label="聚焦etcd（服务发现），谁在线、能力如何, 架构组件" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="谁在线、能力如何" data-node-context="架构组件">
+          <title>etcd（服务发现） · 谁在线、能力如何 · 架构组件</title>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-mask"/>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(36 354) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="110" y="379" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">etcd（服务发现）</text>
+        <text data-detail="context" x="110" y="395" class="t-muted" font-size="9" text-anchor="middle">谁在线、能力如何</text>
+        </g>
+
+        <g id="node-planner" data-node-id="planner" data-node-label="Planner（SLA 扩缩容）" tabindex="0" role="button" aria-label="聚焦Planner（SLA 扩缩容），只管副本数，不参与路由, 架构组件" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="只管副本数，不参与路由" data-node-context="架构组件">
+          <title>Planner（SLA 扩缩容） · 只管副本数，不参与路由 · 架构组件</title>
+          <rect x="1180" y="340" width="190" height="84" rx="6" class="c-mask"/>
+          <rect x="1180" y="340" width="190" height="84" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(1186 346) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1275" y="380" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Planner（SLA 扩缩容）</text>
+        <text data-detail="context" x="1275" y="396" class="t-muted" font-size="9" text-anchor="middle">只管副本数，不参与路由</text>
+        </g>
+
+        <g id="node-bookkeeping" data-node-id="bookkeeping" data-node-label="在途记账（每 worker 一份）" tabindex="0" role="button" aria-label="聚焦在途记账（每 worker 一份），A 请求数 · P prefill · D decode, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="A 请求数 · P prefill · D decode" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>在途记账（每 worker 一份） · A 请求数 · P prefill · D decode · Dynamo 路由面（proxy + 决策插件）</title>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-mask"/>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(116 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="225" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">在途记账（每 worker 一份）</text>
+        <text data-detail="context" x="225" y="559" class="t-muted" font-size="9" text-anchor="middle">A 请求数 · P prefill · D decode</text>
+        </g>
+
+        <g id="node-kvindex" data-node-id="kvindex" data-node-label="KV 事件索引器" tabindex="0" role="button" aria-label="聚焦KV 事件索引器，三层累计各 worker 已缓存前缀, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="三层累计各 worker 已缓存前缀" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>KV 事件索引器 · 三层累计各 worker 已缓存前缀 · Dynamo 路由面（proxy + 决策插件）</title>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-mask"/>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(426 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="525" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">KV 事件索引器</text>
+        <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">三层累计各 worker 已缓存前缀</text>
+        </g>
+
+        <g id="node-reqctx" data-node-id="reqctx" data-node-label="请求自带字段" tabindex="0" role="button" aria-label="聚焦请求自带字段，prompt 块数 · 期望输出长度, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="prompt 块数 · 期望输出长度" data-node-context="架构组件">
+          <title>请求自带字段 · prompt 块数 · 期望输出长度 · 架构组件</title>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(736 506) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">请求自带字段</text>
+        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">prompt 块数 · 期望输出长度</text>
+        </g>
+
+        <!-- Connection labels -->
+        <g data-detail="context" data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy">
+          <rect x="144.6" y="138" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="188" y="148" class="t-backend" font-size="8" text-anchor="middle">① 发出 HTTP 请求</text>
+        </g>
+        <g data-detail="context" data-edge-from="envoy" data-edge-to="extproc" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-extproc">
+          <rect x="403" y="206" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="432" y="216" class="t-backend" font-size="8" text-anchor="middle">② ext_proc</text>
+        </g>
+        <g data-detail="context" data-edge-from="extproc" data-edge-to="workers" data-edge-label="③ 转发到选中的 worker（记账 +1 请求 / +P prefill）" data-edge-key="2" data-edge-id="extproc-workers">
+          <rect x="815" y="172" width="250" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="182" class="t-backend" font-size="8" text-anchor="middle">③ 转发到选中的 worker（记账 +1 请求 / +P prefill）</text>
+        </g>
+        <g data-detail="context" data-edge-from="workers" data-edge-to="envoy" data-edge-label="④ token 流原路返回：首 token → P 清零；流结束 → 释放请求" data-edge-key="3" data-edge-id="workers-envoy">
+          <rect x="800.6" y="95" width="278.8" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="105" class="t-muted" font-size="8" text-anchor="middle">④ token 流原路返回：首 token → P 清零；流结束 → 释放请求</text>
+        </g>
+        <g data-detail="context" data-edge-from="extproc" data-edge-to="bookkeeping" data-edge-label="记账写入：四个生命周期调用" data-edge-key="4" data-edge-id="extproc-bookkeeping">
+          <rect x="232.6" y="302" width="134.8" height="14" rx="3" class="c-mask"/>
+          <text x="300" y="312" class="t-muted" font-size="8" text-anchor="middle">记账写入：四个生命周期调用</text>
+        </g>
+        <g data-detail="context" data-edge-from="bookkeeping" data-edge-to="scorer" data-edge-label="因子 A·P·D" data-edge-key="5" data-edge-id="bookkeeping-scorer">
+          <rect x="366" y="356" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="395" y="366" class="t-muted" font-size="8" text-anchor="middle">因子 A·P·D</text>
+        </g>
+        <g data-detail="context" data-edge-from="kvindex" data-edge-to="scorer" data-edge-label="因子 overlap（前缀重叠）" data-edge-key="6" data-edge-id="kvindex-scorer">
+          <rect x="407.4" y="462" width="125.19999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="472" class="t-messagebus" font-size="8" text-anchor="middle">因子 overlap（前缀重叠）</text>
+        </g>
+        <g data-detail="context" data-edge-from="reqctx" data-edge-to="scorer" data-edge-label="因子：请求长度字段" data-edge-key="7" data-edge-id="reqctx-scorer">
+          <rect x="696.8" y="438" width="96.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="745" y="448" class="t-muted" font-size="8" text-anchor="middle">因子：请求长度字段</text>
+        </g>
+        <g data-detail="context" data-edge-from="workers" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）" data-edge-key="8" data-edge-id="workers-kvindex">
+          <rect x="787" y="604" width="226" height="14" rx="3" class="c-mask"/>
+          <text x="900" y="614" class="t-muted" font-size="8" text-anchor="middle">KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）</text>
+        </g>
+        <g data-detail="context" data-edge-from="scorer" data-edge-to="extproc" data-edge-label="取 logit 最小的 worker；平局 softmax 采样" data-edge-key="9" data-edge-id="scorer-extproc">
+          <rect x="566.6" y="278" width="206.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="670" y="288" class="t-muted" font-size="8" text-anchor="middle">取 logit 最小的 worker；平局 softmax 采样</text>
+        </g>
+        <g data-detail="context" data-edge-from="etcd" data-edge-to="extproc" data-edge-label="谁在线（不进公式）" data-edge-key="10" data-edge-id="etcd-extproc">
+          <rect x="61.800000000000004" y="422" width="96.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="110" y="432" class="t-messagebus" font-size="8" text-anchor="middle">谁在线（不进公式）</text>
+        </g>
+        <g data-detail="context" data-edge-from="workers" data-edge-to="planner" data-edge-label="FPM 每步事件" data-edge-key="11" data-edge-id="workers-planner">
+          <rect x="1149.2" y="290" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="1183" y="300" class="t-messagebus" font-size="8" text-anchor="middle">FPM 每步事件</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
+        <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="Dynamo 路由面（proxy + 决策插件）">
+          <rect data-graph-role="structural-frame-label-mask" x="90" y="122" width="188.2" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="94" y="135" class="t-cloud" font-size="9" font-weight="600">Dynamo 路由面（proxy + 决策插件）</text>
+        </g>
+
+        <!-- Legend -->
+        <g data-legend="" data-legend-bridge="">
+          <text x="40" y="684" class="t-primary" font-size="12" font-weight="650">图例</text>
+          <g data-legend-semantic-kind="frontend" data-legend-kind="frontend" data-legend-label="前端" data-legend-x="40" data-legend-baseline="704" data-legend-width="63">
+            <rect x="40" y="695" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
+            <text x="62" y="704" class="t-muted" font-size="10" font-weight="500">前端</text>
+          </g>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="后端" data-legend-x="125" data-legend-baseline="704" data-legend-width="63">
+            <rect x="125" y="695" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="147" y="704" class="t-muted" font-size="10" font-weight="500">后端</text>
+          </g>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="数据库" data-legend-x="210" data-legend-baseline="704" data-legend-width="73">
+            <rect x="210" y="695" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="232" y="704" class="t-muted" font-size="10" font-weight="500">数据库</text>
+          </g>
+          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="云服务" data-legend-x="305" data-legend-baseline="704" data-legend-width="73">
+            <rect x="305" y="695" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="327" y="704" class="t-muted" font-size="10" font-weight="500">云服务</text>
+          </g>
+          <g data-legend-semantic-kind="security" data-legend-kind="security" data-legend-label="安全" data-legend-x="400" data-legend-baseline="704" data-legend-width="63">
+            <rect x="400" y="695" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="422" y="704" class="t-muted" font-size="10" font-weight="500">安全</text>
+          </g>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="外部系统" data-legend-x="485" data-legend-baseline="704" data-legend-width="83">
+            <rect x="485" y="695" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="507" y="704" class="t-muted" font-size="10" font-weight="500">外部系统</text>
+          </g>
+        </g>
+      </svg></figure>
+  <h3>公式与符号对照（源码 default.rs:282-388）</h3>
+  <table>
+    <tr><th>记号</th><th>是什么</th><th>怎么得到</th></tr>
+    <tr><td>logit</td><td>每个 worker 的总代价分数，越小越优先被选中；平局 softmax 采样（本仿真温度=0，确定性）</td><td>打分器对每个候选 worker 各算一个</td></tr>
+    <tr><td>s（prefill_load_scale）</td><td>prefill 负载的缩放系数</td><td>配置项</td></tr>
+    <tr><td>P′（调整后 prefill 块）</td><td>折算成块的 prefill 负载：排队中的 prefill ＋ 新请求要算的 prefill − 缓存能省掉的部分</td><td>网关记账的 P ＋ 请求 prompt 块数 − overlap 折扣</td></tr>
+    <tr><td>D（decode 块）</td><td>decode 负载折算成块</td><td><code>add_output_block</code> 按输出块增量累计（本仿真未接，故建议 output_tokens &lt; block_size）</td></tr>
+    <tr><td>w · A</td><td>在途请求数的加权项</td><td>记账：reserve ＋1 / free −1</td></tr>
+    <tr><td>overlap 折扣</td><td>请求前缀与 worker 已缓存内容重叠、可省下的计算量（device/host/disk 三层 ＋ shared 乘子）</td><td>KV 事件（ZMQ）→ 索引器三层累计；<b>本仿真关闭 → cache-blind</b></td></tr>
+  </table>
+  <h3>公式外交互（图中虚线）</h3>
+  <ul class="notes">
+    <li><b>etcd 服务发现</b>：决定"有哪些 worker 可选"（候选集合），本身不产生分数。</li>
+    <li><b>FPM 每步事件 → Planner</b>：worker 每个前向步发一条指标（含 waiting 队列长度、本批耗时），只喂自动扩缩容，不进路由公式——这就是"队列信息出得来、但路由听不到"的原因。</li>
+    <li><b>token 流回程</b>：它是数据面本身；记账的四个更新（reserve / prefill_complete / add_output_block / free）全部"搭"在这条回程流上，没有独立上报通道。</li>
+  </ul>
+</section>
+
+<section id="llmd">
+  <h2>② llm-d：过滤 ＋ 负载打分的插件链</h2>
+  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy（proxy）＋ EPP 决策插件。EPP 内部是一条三步链：先调 <b>Render 服务</b>把 prompt 精确切成 token 块（①）；再用<b>常驻 KV 块索引</b>把候选收窄到"缓存了这些块的 Ready pod"（②）；最后在候选里挑<b>在途 token 负载最小</b>的（③）。索引靠各 pod 主动播报的 KV 事件维护；在途 token 是 EPP 自己记的账——<b>不是引擎内部队列</b>。</p>
+  <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+        <title id="archify-diagram-title">llm-d（EPP）路由打分明细：公式 · 因子来源 · 公式外交互</title>
+        <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="llm-d 路由面（proxy + 决策插件）" x="216" y="118" width="738" height="492" rx="12" class="c-region" stroke-width="1"/>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy" data-composition-points="170,192;240,192" d="M 170 192 L 240 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="envoy" data-edge-to="epp" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-epp" data-composition-points="400,192;460,192" d="M 400 192 L 460 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="epp" data-edge-to="pods" data-edge-label="③ 转发到选中的 pod（记账计入 prompt token）" data-edge-key="2" data-edge-id="epp-pods" data-composition-points="700,192;1180,192" d="M 700 192 L 1180 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="pods" data-edge-to="envoy" data-edge-label="④ token 流原路返回：请求完成时释放 token 记账" data-edge-key="3" data-edge-id="pods-envoy" data-composition-points="1275,146;1275,122;320,122;320,150" d="M 1275 146 L 1275 130 Q 1275 122 1267 122 L 328 122 Q 320 122 320 130 L 320 150" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="epp" data-edge-to="render" data-edge-label="① 先精确分词：拿到 token 块序列" data-edge-key="4" data-edge-id="epp-render" data-composition-points="580,242;580,266;225,266;225,500" d="M 580 242 L 580 258 Q 580 266 572 266 L 233 266 Q 225 266 225 274 L 225 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="render" data-edge-to="pipeline" data-edge-label="token 块序列" data-edge-key="5" data-edge-id="render-pipeline" data-composition-points="340,545;395,545;395,388;450,388" d="M 340 545 L 387 545 Q 395 545 395 537 L 395 396 Q 395 388 403 388 L 450 388" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="kvindex" data-edge-to="pipeline" data-edge-label="因子：前缀常驻 pod 集合" data-edge-key="6" data-edge-id="kvindex-pipeline" data-composition-points="525,500;525,468;580,468;580,436" d="M 525 500 L 525 476 Q 525 468 533 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="inflight" data-edge-to="pipeline" data-edge-label="因子：在途 token 数" data-edge-key="7" data-edge-id="inflight-pipeline" data-composition-points="830,500;830,468;580,468;580,436" d="M 830 500 L 830 476 Q 830 468 822 468 L 588 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="pods" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报（ZMQ 5556）" data-edge-key="8" data-edge-id="pods-kvindex" data-composition-points="1180,194;1100,194;1100,630;700,630;700,545;630,545" d="M 1180 194 L 1108 194 Q 1100 194 1100 202 L 1100 622 Q 1100 630 1092 630 L 708 630 Q 700 630 700 622 L 700 553 Q 700 545 692 545 L 630 545" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="pipeline" data-edge-to="epp" data-edge-label="过滤后取在途 token 最小者" data-edge-key="9" data-edge-id="pipeline-epp" data-composition-points="580,340;580,242" d="M 580 340 L 580 242" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="k8s" data-edge-to="epp" data-edge-label="谁在线 / Ready（不进公式）" data-edge-key="10" data-edge-id="k8s-epp" data-composition-points="190,381;214,381;214,266;580,266;580,242" d="M 190 381 L 206 381 Q 214 381 214 373 L 214 274 Q 214 266 222 266 L 572 266 Q 580 266 580 258 L 580 242" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Components -->
+        <g id="node-client" data-node-id="client" data-node-label="Client（请求方）" tabindex="0" role="button" aria-label="聚焦Client（请求方），发 HTTP 请求，收生成 token, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="发 HTTP 请求，收生成 token" data-node-context="架构组件">
+          <title>Client（请求方） · 发 HTTP 请求，收生成 token · 架构组件</title>
+          <rect x="20" y="157" width="150" height="70" rx="6" class="c-mask"/>
+          <rect x="20" y="157" width="150" height="70" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(26 163) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="95" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Client（请求方）</text>
+        <text data-detail="context" x="95" y="206" class="t-muted" font-size="9" text-anchor="middle">发 HTTP 请求，收生成 token</text>
+        </g>
+
+        <g id="node-envoy" data-node-id="envoy" data-node-label="Envoy 网关（proxy）" tabindex="0" role="button" aria-label="聚焦Envoy 网关（proxy），GAIE 标准，只转发, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="GAIE 标准，只转发" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>Envoy 网关（proxy） · GAIE 标准，只转发 · llm-d 路由面（proxy + 决策插件）</title>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-mask"/>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(246 156) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="320" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Envoy 网关（proxy）</text>
+        <text data-detail="context" x="320" y="206" class="t-muted" font-size="9" text-anchor="middle">GAIE 标准，只转发</text>
+        </g>
+
+        <g id="node-epp" data-node-id="epp" data-node-label="EPP 决策插件" tabindex="0" role="button" aria-label="聚焦EPP 决策插件，Endpoint Picker（Go 进程）, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Endpoint Picker（Go 进程）" data-node-tag="决策" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>EPP 决策插件 · Endpoint Picker（Go 进程） · llm-d 路由面（proxy + 决策插件） · 决策</title>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-mask"/>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(466 148) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">EPP 决策插件</text>
+        <text data-detail="context" x="580" y="206" class="t-muted" font-size="9" text-anchor="middle">Endpoint Picker（Go 进程）</text>
+        <text data-detail="fine" x="580" y="234" class="t-backend" font-size="7" text-anchor="middle">决策</text>
+        </g>
+
+        <g id="node-pods" data-node-id="pods" data-node-label="vLLM / SGLang Pods" tabindex="0" role="button" aria-label="聚焦vLLM / SGLang Pods，推理实例（发布 KV 事件）, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="推理实例（发布 KV 事件）" data-node-tag="数据面" data-node-context="架构组件">
+          <title>vLLM / SGLang Pods · 推理实例（发布 KV 事件） · 架构组件 · 数据面</title>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-mask"/>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1186 152) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1275" y="192" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">vLLM / SGLang Pods</text>
+        <text data-detail="context" x="1275" y="208" class="t-muted" font-size="9" text-anchor="middle">推理实例（发布 KV 事件）</text>
+        <text data-detail="fine" x="1275" y="234" class="t-backend" font-size="7" text-anchor="middle">数据面</text>
+        </g>
+
+        <g id="node-pipeline" data-node-id="pipeline" data-node-label="插件链：过滤 + 打分" tabindex="0" role="button" aria-label="聚焦插件链：过滤 + 打分，AffinityFilter → TokenLoadScorer, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="security" data-node-sublabel="AffinityFilter → TokenLoadScorer" data-node-tag="公式" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>插件链：过滤 + 打分 · AffinityFilter → TokenLoadScorer · llm-d 路由面（proxy + 决策插件） · 公式</title>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-mask"/>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(456 346) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="386" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">插件链：过滤 + 打分</text>
+        <text data-detail="context" x="580" y="402" class="t-muted" font-size="9" text-anchor="middle">AffinityFilter → TokenLoadScorer</text>
+        <text data-detail="fine" x="580" y="428" class="t-security" font-size="7" text-anchor="middle">公式</text>
+        </g>
+
+        <g id="node-k8s" data-node-id="k8s" data-node-label="K8s / GAIE 控制面" tabindex="0" role="button" aria-label="聚焦K8s / GAIE 控制面，pod 发现 · Ready 门控, 架构组件" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="pod 发现 · Ready 门控" data-node-context="架构组件">
+          <title>K8s / GAIE 控制面 · pod 发现 · Ready 门控 · 架构组件</title>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-mask"/>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(36 354) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="110" y="379" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">K8s / GAIE 控制面</text>
+        <text data-detail="context" x="110" y="395" class="t-muted" font-size="9" text-anchor="middle">pod 发现 · Ready 门控</text>
+        </g>
+
+        <g id="node-render" data-node-id="render" data-node-label="Render 服务（精确分词）" tabindex="0" role="button" aria-label="聚焦Render 服务（精确分词），调 vLLM /v1/*/render, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="调 vLLM /v1/*/render" data-node-context="架构组件">
+          <title>Render 服务（精确分词） · 调 vLLM /v1/*/render · 架构组件</title>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-mask"/>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(116 506) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="225" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Render 服务（精确分词）</text>
+        <text data-detail="context" x="225" y="559" class="t-muted" font-size="9" text-anchor="middle">调 vLLM /v1/*/render</text>
+        </g>
+
+        <g id="node-kvindex" data-node-id="kvindex" data-node-label="常驻 KV 块索引" tabindex="0" role="button" aria-label="聚焦常驻 KV 块索引，记录哪个 pod 缓存哪些块, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="记录哪个 pod 缓存哪些块" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>常驻 KV 块索引 · 记录哪个 pod 缓存哪些块 · llm-d 路由面（proxy + 决策插件）</title>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-mask"/>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(426 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="525" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">常驻 KV 块索引</text>
+        <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">记录哪个 pod 缓存哪些块</text>
+        </g>
+
+        <g id="node-inflight" data-node-id="inflight" data-node-label="在途 token 账本" tabindex="0" role="button" aria-label="聚焦在途 token 账本，EPP 自己记的账，零滞后, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="EPP 自己记的账，零滞后" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>在途 token 账本 · EPP 自己记的账，零滞后 · llm-d 路由面（proxy + 决策插件）</title>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(736 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">在途 token 账本</text>
+        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">EPP 自己记的账，零滞后</text>
+        </g>
+
+        <!-- Connection labels -->
+        <g data-detail="context" data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy">
+          <rect x="144.6" y="138" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="188" y="148" class="t-backend" font-size="8" text-anchor="middle">① 发出 HTTP 请求</text>
+        </g>
+        <g data-detail="context" data-edge-from="envoy" data-edge-to="epp" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-epp">
+          <rect x="403" y="206" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="432" y="216" class="t-backend" font-size="8" text-anchor="middle">② ext_proc</text>
+        </g>
+        <g data-detail="context" data-edge-from="epp" data-edge-to="pods" data-edge-label="③ 转发到选中的 pod（记账计入 prompt token）" data-edge-key="2" data-edge-id="epp-pods">
+          <rect x="831.8" y="172" width="216.4" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="182" class="t-backend" font-size="8" text-anchor="middle">③ 转发到选中的 pod（记账计入 prompt token）</text>
+        </g>
+        <g data-detail="context" data-edge-from="pods" data-edge-to="envoy" data-edge-label="④ token 流原路返回：请求完成时释放 token 记账" data-edge-key="3" data-edge-id="pods-envoy">
+          <rect x="827" y="95" width="226" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="105" class="t-muted" font-size="8" text-anchor="middle">④ token 流原路返回：请求完成时释放 token 记账</text>
+        </g>
+        <g data-detail="context" data-edge-from="epp" data-edge-to="render" data-edge-label="① 先精确分词：拿到 token 块序列" data-edge-key="4" data-edge-id="epp-render">
+          <rect x="220.60000000000002" y="302" width="158.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="300" y="312" class="t-muted" font-size="8" text-anchor="middle">① 先精确分词：拿到 token 块序列</text>
+        </g>
+        <g data-detail="context" data-edge-from="render" data-edge-to="pipeline" data-edge-label="token 块序列" data-edge-key="5" data-edge-id="render-pipeline">
+          <rect x="361.2" y="356" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="395" y="366" class="t-muted" font-size="8" text-anchor="middle">token 块序列</text>
+        </g>
+        <g data-detail="context" data-edge-from="kvindex" data-edge-to="pipeline" data-edge-label="因子：前缀常驻 pod 集合" data-edge-key="6" data-edge-id="kvindex-pipeline">
+          <rect x="409.8" y="462" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="472" class="t-muted" font-size="8" text-anchor="middle">因子：前缀常驻 pod 集合</text>
+        </g>
+        <g data-detail="context" data-edge-from="inflight" data-edge-to="pipeline" data-edge-label="因子：在途 token 数" data-edge-key="7" data-edge-id="inflight-pipeline">
+          <rect x="694.4" y="438" width="101.2" height="14" rx="3" class="c-mask"/>
+          <text x="745" y="448" class="t-muted" font-size="8" text-anchor="middle">因子：在途 token 数</text>
+        </g>
+        <g data-detail="context" data-edge-from="pods" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报（ZMQ 5556）" data-edge-key="8" data-edge-id="pods-kvindex">
+          <rect x="784.6" y="604" width="230.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="900" y="614" class="t-muted" font-size="8" text-anchor="middle">KV 事件：每存/淘汰一个缓存块就播报（ZMQ 5556）</text>
+        </g>
+        <g data-detail="context" data-edge-from="pipeline" data-edge-to="epp" data-edge-label="过滤后取在途 token 最小者" data-edge-key="9" data-edge-id="pipeline-epp">
+          <rect x="605" y="278" width="130" height="14" rx="3" class="c-mask"/>
+          <text x="670" y="288" class="t-muted" font-size="8" text-anchor="middle">过滤后取在途 token 最小者</text>
+        </g>
+        <g data-detail="context" data-edge-from="k8s" data-edge-to="epp" data-edge-label="谁在线 / Ready（不进公式）" data-edge-key="10" data-edge-id="k8s-epp">
+          <rect x="42.599999999999994" y="422" width="134.8" height="14" rx="3" class="c-mask"/>
+          <text x="110" y="432" class="t-messagebus" font-size="8" text-anchor="middle">谁在线 / Ready（不进公式）</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
+        <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="llm-d 路由面（proxy + 决策插件）">
+          <rect data-graph-role="structural-frame-label-mask" x="220" y="122" width="182.79999999999998" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="224" y="135" class="t-cloud" font-size="9" font-weight="600">llm-d 路由面（proxy + 决策插件）</text>
+        </g>
+
+        <!-- Legend -->
+        <g data-legend="" data-legend-bridge="">
+          <text x="40" y="684" class="t-primary" font-size="12" font-weight="650">图例</text>
+          <g data-legend-semantic-kind="frontend" data-legend-kind="frontend" data-legend-label="前端" data-legend-x="40" data-legend-baseline="704" data-legend-width="63">
+            <rect x="40" y="695" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
+            <text x="62" y="704" class="t-muted" font-size="10" font-weight="500">前端</text>
+          </g>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="后端" data-legend-x="125" data-legend-baseline="704" data-legend-width="63">
+            <rect x="125" y="695" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="147" y="704" class="t-muted" font-size="10" font-weight="500">后端</text>
+          </g>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="数据库" data-legend-x="210" data-legend-baseline="704" data-legend-width="73">
+            <rect x="210" y="695" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="232" y="704" class="t-muted" font-size="10" font-weight="500">数据库</text>
+          </g>
+          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="云服务" data-legend-x="305" data-legend-baseline="704" data-legend-width="73">
+            <rect x="305" y="695" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="327" y="704" class="t-muted" font-size="10" font-weight="500">云服务</text>
+          </g>
+          <g data-legend-semantic-kind="security" data-legend-kind="security" data-legend-label="安全" data-legend-x="400" data-legend-baseline="704" data-legend-width="63">
+            <rect x="400" y="695" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="422" y="704" class="t-muted" font-size="10" font-weight="500">安全</text>
+          </g>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="外部系统" data-legend-x="485" data-legend-baseline="704" data-legend-width="83">
+            <rect x="485" y="695" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="507" y="704" class="t-muted" font-size="10" font-weight="500">外部系统</text>
+          </g>
+        </g>
+      </svg></figure>
+  <h3>三步与因子对照</h3>
+  <table>
+    <tr><th>步骤 / 记号</th><th>是什么</th><th>怎么得到</th></tr>
+    <tr><td>① token 块序列</td><td>prompt 精确分词后的块哈希链（前缀须整段一致才算命中）</td><td>调 vLLM <code>/v1/*/render</code>（含工具渲染），非本地估算</td></tr>
+    <tr><td>② 前缀常驻集合</td><td>候选 ＝ 缓存了请求前缀块的 Ready pod</td><td>各 pod KV 事件（ZMQ 5556）→ 每 EPP 副本独立索引，多副本收敛</td></tr>
+    <tr><td>② 暖集饱和回退</td><td>缓存暖集吞吐超过标定值时放弃亲和、回退低载 pod（缓存优先、负载兜底）</td><td>部署时标定 <code>peakPrefillThroughput</code></td></tr>
+    <tr><td>③ 在途 token 负载</td><td>每 pod 已发入、未完成的 token 量；argmin 者胜出</td><td>EPP 自记账：路由计入 prompt token、完成时释放（零滞后；因此该模式 EPP 单副本部署）</td></tr>
+  </table>
+  <h3>公式外交互（图中虚线）</h3>
+  <ul class="notes">
+    <li><b>discoverPods / Ready 门控</b>：决定装哪些订阅器、哪些 pod 可进候选，不产生分数。</li>
+    <li><b>ROUTER 5559 重放缓冲</b>：路由器重启后回放约 1 万条事件重建索引——恢复机制，不是因子。</li>
+    <li><b>放置层（K8s scheduler 插件）</b>另行工作，不在逐请求路径；llm-d 不抓引擎 Prometheus 指标进路由。</li>
+  </ul>
+</section>
+
+<section id="aibrix">
+  <h2>③ AIBrix：可换策略族，load-balance 为代表</h2>
+  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy Gateway（proxy）＋ ext_proc 路由插件，打分是一族可换策略。最典型的 <b>load-balance</b>：分子衡量"还有多少活"（running＋λ·queued），分母衡量"干得多快"（EWMA 吐出速率），再乘 KV 空闲惩罚。三个因子来自三个不同渠道：<b>running / queued / kv_free 走 Prometheus 周期抓取（有滞后）</b>；<b>EWMA 吐出速率是网关自记账（零滞后）</b>；<b>prefix_match 默认来自网关自己的路由历史——是投影不是真相</b>，要真相需打开 KV 事件同步（图中虚线）。</p>
+  <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+        <title id="archify-diagram-title">AIBrix 路由打分明细：公式 · 因子来源 · 公式外交互</title>
+        <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="AIBrix 路由面（proxy + 决策插件）" x="86" y="118" width="868" height="492" rx="12" class="c-region" stroke-width="1"/>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy" data-composition-points="170,197;194,197;194,213;216,213;216,192;240,192" d="M 170 197 L 186 197 Q 194 197 194 205 L 194 205 Q 194 213 202 213 L 208 213 Q 216 213 216 205 L 216 200 Q 216 192 224 192 L 240 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="envoy" data-edge-to="plugin" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-plugin" data-composition-points="400,192;460,192" d="M 400 192 L 460 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="plugin" data-edge-to="pods" data-edge-label="③ 转发到策略选定的 pod" data-edge-key="2" data-edge-id="plugin-pods" data-composition-points="700,192;1180,192" d="M 700 192 L 1180 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="pods" data-edge-to="envoy" data-edge-label="④ token 流原路返回（更新网关自记账）" data-edge-key="3" data-edge-id="pods-envoy" data-composition-points="1275,146;1275,122;320,122;320,150" d="M 1275 146 L 1275 130 Q 1275 122 1267 122 L 328 122 Q 320 122 320 130 L 320 150" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="plugin" data-edge-to="prefix-index" data-edge-label="路由历史写入（默认模式）" data-edge-key="4" data-edge-id="plugin-prefix-index" data-composition-points="580,242;580,266;225,266;225,500" d="M 580 242 L 580 258 Q 580 266 572 266 L 233 266 Q 225 266 225 274 L 225 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="prefix-index" data-edge-to="strategy" data-edge-label="因子 prefix_match" data-edge-key="5" data-edge-id="prefix-index-strategy" data-composition-points="225,500;225,468;580,468;580,436" d="M 225 500 L 225 476 Q 225 468 233 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="prom" data-edge-to="strategy" data-edge-label="因子：running · queued · kv_free" data-edge-key="6" data-edge-id="prom-strategy" data-composition-points="525,500;525,468;580,468;580,436" d="M 525 500 L 525 476 Q 525 468 533 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="selfacc" data-edge-to="strategy" data-edge-label="因子：EWMA 吐出 · 在途" data-edge-key="7" data-edge-id="selfacc-strategy" data-composition-points="830,500;830,468;580,468;580,436" d="M 830 500 L 830 476 Q 830 468 822 468 L 588 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="pods" data-edge-to="prom" data-edge-label="被周期抓取 /metrics（有抓取间隔滞后）" data-edge-key="8" data-edge-id="pods-prom" data-composition-points="1180,194;1100,194;1100,630;700,630;700,545;630,545" d="M 1180 194 L 1108 194 Q 1100 194 1100 202 L 1100 622 Q 1100 630 1092 630 L 708 630 Q 700 630 700 622 L 700 553 Q 700 545 692 545 L 630 545" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="pods" data-edge-to="prefix-index" data-edge-label="KV 事件同步（可选，引擎真相）" data-edge-key="9" data-edge-id="pods-index" data-composition-points="1180,194;1070,194;1070,648;380,648;380,545;340,545" d="M 1180 194 L 1078 194 Q 1070 194 1070 202 L 1070 640 Q 1070 648 1062 648 L 388 648 Q 380 648 380 640 L 380 553 Q 380 545 372 545 L 340 545" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="strategy" data-edge-to="plugin" data-edge-label="取 score 最小者（auto-blend 叠加）" data-edge-key="10" data-edge-id="strategy-plugin" data-composition-points="580,340;580,242" d="M 580 340 L 580 242" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="control" data-edge-to="plugin" data-edge-label="不进公式" data-edge-key="11" data-edge-id="control-plugin" data-composition-points="190,381;214,381;214,266;580,266;580,242" d="M 190 381 L 206 381 Q 214 381 214 373 L 214 274 Q 214 266 222 266 L 572 266 Q 580 266 580 258 L 580 242" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Components -->
+        <g id="node-client" data-node-id="client" data-node-label="Client（请求方）" tabindex="0" role="button" aria-label="聚焦Client（请求方），发 HTTP 请求，收生成 token, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="发 HTTP 请求，收生成 token" data-node-context="架构组件">
+          <title>Client（请求方） · 发 HTTP 请求，收生成 token · 架构组件</title>
+          <rect x="20" y="162" width="150" height="70" rx="6" class="c-mask"/>
+          <rect x="20" y="162" width="150" height="70" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(26 168) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="95" y="195" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Client（请求方）</text>
+        <text data-detail="context" x="95" y="211" class="t-muted" font-size="9" text-anchor="middle">发 HTTP 请求，收生成 token</text>
+        </g>
+
+        <g id="node-envoy" data-node-id="envoy" data-node-label="Envoy Gateway" tabindex="0" role="button" aria-label="聚焦Envoy Gateway，proxy，只转发流量, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="proxy，只转发流量" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>Envoy Gateway · proxy，只转发流量 · AIBrix 路由面（proxy + 决策插件）</title>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-mask"/>
+          <rect x="240" y="150" width="160" height="84" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(246 156) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="320" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Envoy Gateway</text>
+        <text data-detail="context" x="320" y="206" class="t-muted" font-size="9" text-anchor="middle">proxy，只转发流量</text>
+        </g>
+
+        <g id="node-plugin" data-node-id="plugin" data-node-label="ext_proc 路由插件" tabindex="0" role="button" aria-label="聚焦ext_proc 路由插件，策略族（Go 进程），按请求选策略, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="策略族（Go 进程），按请求选策略" data-node-tag="决策" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>ext_proc 路由插件 · 策略族（Go 进程），按请求选策略 · AIBrix 路由面（proxy + 决策插件） · 决策</title>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-mask"/>
+          <rect x="460" y="142" width="240" height="100" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(466 148) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="190" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">ext_proc 路由插件</text>
+        <text data-detail="context" x="580" y="206" class="t-muted" font-size="9" text-anchor="middle">策略族（Go 进程），按请求选策略</text>
+        <text data-detail="fine" x="580" y="234" class="t-backend" font-size="7" text-anchor="middle">决策</text>
+        </g>
+
+        <g id="node-pods" data-node-id="pods" data-node-label="vLLM Pods" tabindex="0" role="button" aria-label="聚焦vLLM Pods，推理实例，暴露 /metrics, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="推理实例，暴露 /metrics" data-node-tag="数据面" data-node-context="架构组件">
+          <title>vLLM Pods · 推理实例，暴露 /metrics · 架构组件 · 数据面</title>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-mask"/>
+          <rect x="1180" y="146" width="190" height="96" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1186 152) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1275" y="192" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">vLLM Pods</text>
+        <text data-detail="context" x="1275" y="208" class="t-muted" font-size="9" text-anchor="middle">推理实例，暴露 /metrics</text>
+        <text data-detail="fine" x="1275" y="234" class="t-backend" font-size="7" text-anchor="middle">数据面</text>
+        </g>
+
+        <g id="node-strategy" data-node-id="strategy" data-node-label="策略打分（load-balance 等）" tabindex="0" role="button" aria-label="聚焦策略打分（load-balance 等），每个 pod 算一个 score，越小越优, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="security" data-node-sublabel="每个 pod 算一个 score，越小越优" data-node-tag="公式" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>策略打分（load-balance 等） · 每个 pod 算一个 score，越小越优 · AIBrix 路由面（proxy + 决策插件） · 公式</title>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-mask"/>
+          <rect x="450" y="340" width="260" height="96" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(456 346) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="386" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">策略打分（load-balance 等）</text>
+        <text data-detail="context" x="580" y="402" class="t-muted" font-size="9" text-anchor="middle">每个 pod 算一个 score，越小越优</text>
+        <text data-detail="fine" x="580" y="428" class="t-security" font-size="7" text-anchor="middle">公式</text>
+        </g>
+
+        <g id="node-control" data-node-id="control" data-node-label="控制面" tabindex="0" role="button" aria-label="聚焦控制面，autoscaler · Redis 索引同步, 架构组件" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="autoscaler · Redis 索引同步" data-node-context="架构组件">
+          <title>控制面 · autoscaler · Redis 索引同步 · 架构组件</title>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-mask"/>
+          <rect x="30" y="348" width="160" height="66" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(36 354) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="110" y="379" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">控制面</text>
+        <text data-detail="context" x="110" y="395" class="t-muted" font-size="9" text-anchor="middle">autoscaler · Redis 索引同步</text>
+        </g>
+
+        <g id="node-prefix-index" data-node-id="prefix-index" data-node-label="前缀索引" tabindex="0" role="button" aria-label="聚焦前缀索引，默认=网关路由历史（投影）, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="默认=网关路由历史（投影）" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>前缀索引 · 默认=网关路由历史（投影） · AIBrix 路由面（proxy + 决策插件）</title>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-mask"/>
+          <rect x="110" y="500" width="230" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(116 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="225" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">前缀索引</text>
+        <text data-detail="context" x="225" y="559" class="t-muted" font-size="9" text-anchor="middle">默认=网关路由历史（投影）</text>
+        </g>
+
+        <g id="node-prom" data-node-id="prom" data-node-label="Prometheus（指标库）" tabindex="0" role="button" aria-label="聚焦Prometheus（指标库），周期抓各 pod 的 /metrics, 架构组件, Prometheus" aria-pressed="false" data-node-kind="database" data-node-sublabel="周期抓各 pod 的 /metrics" data-node-context="架构组件" data-node-brand="Prometheus" data-node-brand-id="prometheus" data-node-brand-status="preset" data-node-brand-source="https://prometheus.io">
+          <title>Prometheus（指标库） · 周期抓各 pod 的 /metrics · 架构组件 · Prometheus</title>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-mask"/>
+          <rect x="420" y="500" width="210" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(426 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <g aria-hidden="true" data-brand-mark="prometheus" data-brand-title="Prometheus" data-brand-status="preset" data-brand-source="https://prometheus.io" class="brand-mark" transform="translate(608 506)">
+            <rect width="16" height="16" rx="4" class="brand-mark-badge"/>
+            <path d="M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z" transform="translate(3 3) scale(0.4166666666666667)" fill="#E6522C"/>
+            <rect width="16" height="16" rx="4" class="brand-mark-frame"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="525" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Prometheus（指标库）</text>
+        <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">周期抓各 pod 的 /metrics</text>
+        </g>
+
+        <g id="node-selfacc" data-node-id="selfacc" data-node-label="网关自记账" tabindex="0" role="button" aria-label="聚焦网关自记账，在途请求 · EWMA 吐出速率, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="在途请求 · EWMA 吐出速率" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>网关自记账 · 在途请求 · EWMA 吐出速率 · AIBrix 路由面（proxy + 决策插件）</title>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
+          <rect x="730" y="500" width="200" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(736 506) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">网关自记账</text>
+        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">在途请求 · EWMA 吐出速率</text>
+        </g>
+
+        <!-- Connection labels -->
+        <g data-detail="context" data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy">
+          <rect x="144.6" y="138" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="188" y="148" class="t-backend" font-size="8" text-anchor="middle">① 发出 HTTP 请求</text>
+        </g>
+        <g data-detail="context" data-edge-from="envoy" data-edge-to="plugin" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-plugin">
+          <rect x="403" y="206" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="432" y="216" class="t-backend" font-size="8" text-anchor="middle">② ext_proc</text>
+        </g>
+        <g data-detail="context" data-edge-from="plugin" data-edge-to="pods" data-edge-label="③ 转发到策略选定的 pod" data-edge-key="2" data-edge-id="plugin-pods">
+          <rect x="882.2" y="172" width="115.6" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="182" class="t-backend" font-size="8" text-anchor="middle">③ 转发到策略选定的 pod</text>
+        </g>
+        <g data-detail="context" data-edge-from="pods" data-edge-to="envoy" data-edge-label="④ token 流原路返回（更新网关自记账）" data-edge-key="3" data-edge-id="pods-envoy">
+          <rect x="848.6" y="95" width="182.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="940" y="105" class="t-muted" font-size="8" text-anchor="middle">④ token 流原路返回（更新网关自记账）</text>
+        </g>
+        <g data-detail="context" data-edge-from="plugin" data-edge-to="prefix-index" data-edge-label="路由历史写入（默认模式）" data-edge-key="4" data-edge-id="plugin-prefix-index">
+          <rect x="237.4" y="302" width="125.19999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="300" y="312" class="t-muted" font-size="8" text-anchor="middle">路由历史写入（默认模式）</text>
+        </g>
+        <g data-detail="context" data-edge-from="prefix-index" data-edge-to="strategy" data-edge-label="因子 prefix_match" data-edge-key="5" data-edge-id="prefix-index-strategy">
+          <rect x="314.2" y="438" width="91.6" height="14" rx="3" class="c-mask"/>
+          <text x="360" y="448" class="t-muted" font-size="8" text-anchor="middle">因子 prefix_match</text>
+        </g>
+        <g data-detail="context" data-edge-from="prom" data-edge-to="strategy" data-edge-label="因子：running · queued · kv_free" data-edge-key="6" data-edge-id="prom-strategy">
+          <rect x="443.2" y="476" width="163.6" height="14" rx="3" class="c-mask"/>
+          <text x="525" y="486" class="t-muted" font-size="8" text-anchor="middle">因子：running · queued · kv_free</text>
+        </g>
+        <g data-detail="context" data-edge-from="selfacc" data-edge-to="strategy" data-edge-label="因子：EWMA 吐出 · 在途" data-edge-key="7" data-edge-id="selfacc-strategy">
+          <rect x="687.2" y="438" width="115.6" height="14" rx="3" class="c-mask"/>
+          <text x="745" y="448" class="t-muted" font-size="8" text-anchor="middle">因子：EWMA 吐出 · 在途</text>
+        </g>
+        <g data-detail="context" data-edge-from="pods" data-edge-to="prom" data-edge-label="被周期抓取 /metrics（有抓取间隔滞后）" data-edge-key="8" data-edge-id="pods-prom">
+          <rect x="806.2" y="604" width="187.6" height="14" rx="3" class="c-mask"/>
+          <text x="900" y="614" class="t-muted" font-size="8" text-anchor="middle">被周期抓取 /metrics（有抓取间隔滞后）</text>
+        </g>
+        <g data-detail="context" data-edge-from="pods" data-edge-to="prefix-index" data-edge-label="KV 事件同步（可选，引擎真相）" data-edge-key="9" data-edge-id="pods-index">
+          <rect x="655.4" y="654" width="149.2" height="14" rx="3" class="c-mask"/>
+          <text x="730" y="664" class="t-messagebus" font-size="8" text-anchor="middle">KV 事件同步（可选，引擎真相）</text>
+        </g>
+        <g data-detail="context" data-edge-from="strategy" data-edge-to="plugin" data-edge-label="取 score 最小者（auto-blend 叠加）" data-edge-key="10" data-edge-id="strategy-plugin">
+          <rect x="583.4" y="278" width="173.2" height="14" rx="3" class="c-mask"/>
+          <text x="670" y="288" class="t-muted" font-size="8" text-anchor="middle">取 score 最小者（auto-blend 叠加）</text>
+        </g>
+        <g data-detail="context" data-edge-from="control" data-edge-to="plugin" data-edge-label="不进公式" data-edge-key="11" data-edge-id="control-plugin">
+          <rect x="85.8" y="422" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="110" y="432" class="t-messagebus" font-size="8" text-anchor="middle">不进公式</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
+        <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="AIBrix 路由面（proxy + 决策插件）">
+          <rect data-graph-role="structural-frame-label-mask" x="90" y="122" width="188.2" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="94" y="135" class="t-cloud" font-size="9" font-weight="600">AIBrix 路由面（proxy + 决策插件）</text>
+        </g>
+
+        <!-- Legend -->
+        <g data-legend="" data-legend-bridge="">
+          <text x="40" y="684" class="t-primary" font-size="12" font-weight="650">图例</text>
+          <g data-legend-semantic-kind="frontend" data-legend-kind="frontend" data-legend-label="前端" data-legend-x="40" data-legend-baseline="704" data-legend-width="63">
+            <rect x="40" y="695" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
+            <text x="62" y="704" class="t-muted" font-size="10" font-weight="500">前端</text>
+          </g>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="后端" data-legend-x="125" data-legend-baseline="704" data-legend-width="63">
+            <rect x="125" y="695" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="147" y="704" class="t-muted" font-size="10" font-weight="500">后端</text>
+          </g>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="数据库" data-legend-x="210" data-legend-baseline="704" data-legend-width="73">
+            <rect x="210" y="695" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="232" y="704" class="t-muted" font-size="10" font-weight="500">数据库</text>
+          </g>
+          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="云服务" data-legend-x="305" data-legend-baseline="704" data-legend-width="73">
+            <rect x="305" y="695" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="327" y="704" class="t-muted" font-size="10" font-weight="500">云服务</text>
+          </g>
+          <g data-legend-semantic-kind="security" data-legend-kind="security" data-legend-label="安全" data-legend-x="400" data-legend-baseline="704" data-legend-width="63">
+            <rect x="400" y="695" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="422" y="704" class="t-muted" font-size="10" font-weight="500">安全</text>
+          </g>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="外部系统" data-legend-x="485" data-legend-baseline="704" data-legend-width="83">
+            <rect x="485" y="695" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="507" y="704" class="t-muted" font-size="10" font-weight="500">外部系统</text>
+          </g>
+        </g>
+      </svg></figure>
+  <h3>公式与符号对照（load-balance 策略）</h3>
+  <table>
+    <tr><th>记号</th><th>是什么</th><th>怎么得到</th></tr>
+    <tr><td>running / queued</td><td>每 pod 在跑 / 排队的请求数（分子）</td><td>Prometheus 周期抓 vLLM <code>/metrics</code>，插件 PromQL 查询——<b>有抓取间隔滞后</b></td></tr>
+    <tr><td>EWMA(输出 tps)</td><td>吐出速率的指数滑动平均（分母）</td><td>网关自记账，token 回程流更新（零滞后）</td></tr>
+    <tr><td>kv_free</td><td>KV 缓存空闲比例；惩罚项 (1+α·(1−kv_free)²)，&lt;10% 直接出局</td><td>同 Prometheus；缺失 / NaN 时按全空闲兜底</td></tr>
+    <tr><td>λ · α</td><td>排队权重 / KV 惩罚系数</td><td>配置项</td></tr>
+    <tr><td>5 : 4</td><td>prefix_match 与 load_balance 的归一混合权重（auto-blend 默认开）</td><td>配置项</td></tr>
+    <tr><td>prefix_match</td><td>请求前缀与 pod 索引的命中比例</td><td>默认＝网关路由历史哈希表（LRU 20 万块、20 分钟过期，<b>投影</b>）；可选＝引擎 KV 事件同步（<b>真相</b>）</td></tr>
+  </table>
+  <h3>公式外交互（图中虚线）</h3>
+  <ul class="notes">
+    <li><b>Redis 跨网关副本共享前缀索引</b>（<code>AIBRIX_STATESYNC</code>）；autoscaler 滑动窗指标聚合在控制面——都不在逐请求路径。</li>
+    <li><b>session-affinity / P/D 分离 / SLO 策略族</b>：按请求另行选择，不改基础打分；slo-least-load-pulling 会现拉新鲜快照避免过期缓存。</li>
+    <li><b>负载失衡前置门控</b>：在所有策略之前统一收窄候选集合。</li>
+  </ul>
+</section>
+
+<footer>
+  生成方式：三张架构图各自由 Archify 规格源文件 <code>scheduler-formula-{dynamo,llmd,aibrix}.json</code> 渲染（validate 9/9 通过），SVG 抽取后组成本页；导读、符号表与注记为人工整理。<br>
+  事实来源：Dynamo 公式核实自本地 upstream 源码 <code>lib/kv-router/src/scheduling/selector/default.rs</code>；llm-d 来自官方 Precise Prefix Cache Routing 指南；AIBrix 来自官方 gateway-plugins 与 prefix-cache-aware-routing 文档。详见《Dynamo路由与vLLM引擎的状态交互机制-20261009》§7–§9、§12。生成日期 2026-10-15。
+</footer>
+</div>
+</body>
+</html>

@@ -8,7 +8,7 @@
 | 相关代码 | `dynamo_vllm_cpu_sim/sim/router.py`、`sim/run.py`、`sim/engine.py`；upstream Dynamo 网关源码（`deploy/inference-gateway/ext-proc/`）与接口声明（`lib/bindings/python/src/dynamo/_core.pyi`） |
 | 相关文档 | 设计文档 §5（真实/仿真边界表）、§6（调度闭环）、§17（KV 事件桥）；检视报告 §4.1（策略挂载点缺口）、§8（P1 路线）；`vLLM组批规则与调度器并发推演可行性-20261010.md`（StepBatch 事件流需求，本文 §6/§10 的上游先例对照）；`MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md`（事件流观测四要素之一） |
 | 交互接口全景图 | [docs/figures/orchestrator-vllm-interfaces.html](../figures/orchestrator-vllm-interfaces.html)（交互式架构图，2026-10-15 生成：三框架组件与全部接口连线，含 Dynamo 三通道、插件挂载点与 llm-d/AIBrix 对照组；规格源文件同目录 `.json`） |
-| 调度打分明细图（三张） | [Dynamo](../figures/scheduler-formula-dynamo.html) · [llm-d](../figures/scheduler-formula-llmd.html) · [AIBrix](../figures/scheduler-formula-aibrix.html)（2026-10-15 生成）。每张按统一结构画出：① proxy+决策插件结构（三框架同构：Envoy + ext_proc）；② 调度公式本体——Dynamo 为 kv-router `default.rs:282-388` 的 logit 加性公式（s·P′+D+w·A，argmin+平局 softmax 采样）、llm-d 为 EPP 三步插件链（tokenize→亲和过滤→argmin 在途 token）、AIBrix 为 load-balance 容量感知加权等策略族；③ 公式每个因子的获取通道（记账/KV 事件/PromQL/自记账/render）；④ 公式外交互以虚线画出（etcd/FPM→Planner、pod 发现与 Ready 门控、Redis 同步等） |
+| 调度打分明细图（单页三图） | [docs/figures/scheduler-formula-all.html](../figures/scheduler-formula-all.html)（2026-10-15 生成，单页含三张独立架构图，每图配导读、"符号×含义×来源"对照表与公式外注记）。三框架统一按四层呈现：① proxy+决策插件同构结构（Envoy + ext_proc/EPP/路由插件）；② 调度公式本体——Dynamo 为 kv-router `default.rs:282-388` 的 logit 加性公式（s·P′+D+w·A，argmin+平局 softmax 采样）、llm-d 为 EPP 三步插件链（tokenize→亲和过滤→argmin 在途 token）、AIBrix 为 load-balance 容量感知加权等策略族；③ 公式每个因子的获取通道（记账/KV 事件/PromQL/自记账/render）；④ 公式外交互以虚线画出（etcd/FPM→Planner、pod 发现与 Ready 门控、Redis 同步等）。图规格源文件同目录 `scheduler-formula-{dynamo,llmd,aibrix}.json`（archify validate 9/9 通过） |
 
 ## 0. 一句话结论
 

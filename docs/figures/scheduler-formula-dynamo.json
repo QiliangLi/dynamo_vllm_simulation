@@ -6,8 +6,8 @@
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
-      1330,
-      620
+      1390,
+      720
     ],
     "views": [
       {
@@ -37,144 +37,144 @@
     {
       "id": "client",
       "type": "external",
-      "label": "Client",
-      "sublabel": "请求方",
+      "label": "Client（请求方）",
+      "sublabel": "发 HTTP 请求，收生成 token",
       "pos": [
         20,
         162
       ],
       "size": [
-        130,
-        64
+        150,
+        70
       ]
     },
     {
       "id": "envoy",
       "type": "frontend",
-      "label": "Envoy 网关",
-      "sublabel": "proxy",
+      "label": "Envoy 网关（proxy）",
+      "sublabel": "只转发流量，不做决策",
       "pos": [
-        230,
-        142
+        240,
+        150
       ],
       "size": [
-        140,
-        80
+        160,
+        84
       ]
     },
     {
       "id": "extproc",
       "type": "backend",
       "label": "ext-proc 决策处理器",
-      "sublabel": "内嵌 SelectionService（真实 Rust 核心）",
+      "sublabel": "决策插件，内嵌 SelectionService",
       "tag": "决策",
       "pos": [
-        440,
-        134
+        460,
+        142
       ],
       "size": [
-        220,
-        96
+        240,
+        100
       ]
     },
     {
       "id": "workers",
       "type": "backend",
       "label": "vLLM Workers ×N",
-      "sublabel": "推理实例",
+      "sublabel": "推理实例（真实 vLLM 引擎）",
       "tag": "数据面",
       "pos": [
-        1120,
-        140
+        1180,
+        146
       ],
       "size": [
         190,
-        90
+        96
       ]
     },
     {
       "id": "scorer",
       "type": "security",
-      "label": "默认打分器",
-      "sublabel": "logit = s·P′ + D + w·A → argmin",
+      "label": "默认打分器 DefaultWorkerScorer",
+      "sublabel": "每个 worker 算一个 logit 代价",
       "tag": "公式",
       "pos": [
-        440,
-        316
+        450,
+        340
       ],
       "size": [
-        220,
-        90
+        260,
+        96
       ]
     },
     {
       "id": "etcd",
       "type": "cloud",
-      "label": "etcd",
-      "sublabel": "worker 注册表",
+      "label": "etcd（服务发现）",
+      "sublabel": "谁在线、能力如何",
       "pos": [
         30,
-        326
+        348
       ],
       "size": [
-        140,
-        60
+        160,
+        66
       ]
     },
     {
       "id": "planner",
       "type": "cloud",
-      "label": "Planner",
-      "sublabel": "SLA 扩缩容 · 消费 FPM",
+      "label": "Planner（SLA 扩缩容）",
+      "sublabel": "只管副本数，不参与路由",
       "pos": [
-        1120,
-        316
+        1180,
+        340
       ],
       "size": [
         190,
-        80
+        84
       ]
     },
     {
       "id": "bookkeeping",
       "type": "database",
-      "label": "在途记账（每 worker）",
-      "sublabel": "A · P · D 三因子",
+      "label": "在途记账（每 worker 一份）",
+      "sublabel": "A 请求数 · P prefill · D decode",
       "pos": [
-        130,
-        452
+        110,
+        500
       ],
       "size": [
-        190,
-        84
+        230,
+        90
       ]
     },
     {
       "id": "kvindex",
       "type": "database",
       "label": "KV 事件索引器",
-      "sublabel": "device / host / disk 三层",
+      "sublabel": "三层累计各 worker 已缓存前缀",
       "pos": [
-        410,
-        452
+        420,
+        500
       ],
       "size": [
-        200,
-        84
+        210,
+        90
       ]
     },
     {
       "id": "reqctx",
       "type": "backend",
-      "label": "请求字段",
-      "sublabel": "prompt 块数 · 期望输出",
+      "label": "请求自带字段",
+      "sublabel": "prompt 块数 · 期望输出长度",
       "pos": [
-        720,
-        452
+        730,
+        500
       ],
       "size": [
-        190,
-        84
+        200,
+        90
       ]
     }
   ],
@@ -197,10 +197,10 @@
       "id": "c-envoy",
       "from": "client",
       "to": "envoy",
-      "label": "HTTP 请求",
+      "label": "① 发出 HTTP 请求",
       "variant": "emphasis",
       "labelAt": [
-        168,
+        188,
         148
       ]
     },
@@ -208,134 +208,134 @@
       "id": "envoy-extproc",
       "from": "envoy",
       "to": "extproc",
-      "label": "ext_proc",
+      "label": "② ext_proc",
       "variant": "emphasis",
       "labelAt": [
-        405,
-        205
+        432,
+        216
       ]
     },
     {
       "id": "extproc-workers",
       "from": "extproc",
       "to": "workers",
-      "label": "转发（含预留 reserve）",
+      "label": "③ 转发到选中的 worker（记账 +1 请求 / +P prefill）",
       "variant": "emphasis"
     },
     {
       "id": "workers-envoy",
       "from": "workers",
       "to": "envoy",
-      "label": "token 流回程（首 token / 流结束 → 网关记账）",
+      "label": "④ token 流原路返回：首 token → P 清零；流结束 → 释放请求",
       "fromSide": "top",
       "toSide": "top",
       "labelAt": [
-        1000,
-        100
+        940,
+        105
       ]
     },
     {
       "id": "extproc-bookkeeping",
       "from": "extproc",
       "to": "bookkeeping",
-      "label": "记账写入（生命周期四调用）",
+      "label": "记账写入：四个生命周期调用",
       "fromSide": "bottom",
       "toSide": "top",
       "labelAt": [
-        295,
-        298
+        300,
+        312
       ]
     },
     {
       "id": "bookkeeping-scorer",
       "from": "bookkeeping",
       "to": "scorer",
-      "label": "因子：A · P · D",
+      "label": "因子 A·P·D",
       "fromSide": "right",
       "toSide": "left",
       "labelAt": [
-        380,
-        342
+        395,
+        366
       ]
     },
     {
       "id": "kvindex-scorer",
       "from": "kvindex",
       "to": "scorer",
-      "label": "因子：overlap 折扣",
+      "label": "因子 overlap（前缀重叠）",
       "variant": "dashed",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        480,
-        429
+        470,
+        472
       ]
     },
     {
       "id": "reqctx-scorer",
       "from": "reqctx",
       "to": "scorer",
-      "label": "因子：prompt 块 · 期望输出",
+      "label": "因子：请求长度字段",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        740,
-        429
+        745,
+        448
       ]
     },
     {
       "id": "workers-kvindex",
       "from": "workers",
       "to": "kvindex",
-      "label": "KV 事件（ZMQ，三层）",
+      "label": "KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）",
       "fromSide": "left",
       "toSide": "right",
       "via": [
         [
-          1040,
-          185
+          1100,
+          194
         ],
         [
-          1040,
-          566
+          1100,
+          630
         ],
         [
-          660,
-          566
+          700,
+          630
         ],
         [
-          660,
-          494
+          700,
+          545
         ]
       ],
       "labelAt": [
-        850,
-        552
+        900,
+        614
       ]
     },
     {
       "id": "scorer-extproc",
       "from": "scorer",
       "to": "extproc",
-      "label": "argmin logit（平局采样）",
+      "label": "取 logit 最小的 worker；平局 softmax 采样",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        640,
-        268
+        670,
+        288
       ]
     },
     {
       "id": "etcd-extproc",
       "from": "etcd",
       "to": "extproc",
-      "label": "服务发现（不进公式）",
+      "label": "谁在线（不进公式）",
       "variant": "dashed",
       "fromSide": "right",
       "toSide": "bottom",
       "labelAt": [
-        100,
-        400
+        110,
+        432
       ]
     },
     {
@@ -347,8 +347,8 @@
       "fromSide": "bottom",
       "toSide": "top",
       "labelAt": [
-        1128,
-        282
+        1183,
+        300
       ]
     }
   ],

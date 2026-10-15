@@ -6,8 +6,8 @@
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
-      1330,
-      620
+      1390,
+      720
     ],
     "views": [
       {
@@ -36,74 +36,74 @@
     {
       "id": "client",
       "type": "external",
-      "label": "Client",
-      "sublabel": "请求方",
+      "label": "Client（请求方）",
+      "sublabel": "发 HTTP 请求，收生成 token",
       "pos": [
         20,
         162
       ],
       "size": [
-        130,
-        64
+        150,
+        70
       ]
     },
     {
       "id": "envoy",
       "type": "frontend",
       "label": "Envoy Gateway",
-      "sublabel": "proxy",
+      "sublabel": "proxy，只转发流量",
       "pos": [
-        230,
-        142
+        240,
+        150
       ],
       "size": [
-        140,
-        80
+        160,
+        84
       ]
     },
     {
       "id": "plugin",
       "type": "backend",
       "label": "ext_proc 路由插件",
-      "sublabel": "策略族（Go 进程）",
+      "sublabel": "策略族（Go 进程），按请求选策略",
       "tag": "决策",
       "pos": [
-        440,
-        134
+        460,
+        142
       ],
       "size": [
-        220,
-        96
+        240,
+        100
       ]
     },
     {
       "id": "pods",
       "type": "backend",
       "label": "vLLM Pods",
-      "sublabel": "推理实例",
+      "sublabel": "推理实例，暴露 /metrics",
       "tag": "数据面",
       "pos": [
-        1120,
-        140
+        1180,
+        146
       ],
       "size": [
         190,
-        90
+        96
       ]
     },
     {
       "id": "strategy",
       "type": "security",
-      "label": "策略打分",
-      "sublabel": "load-balance / prefix-cache / slo…",
+      "label": "策略打分（load-balance 等）",
+      "sublabel": "每个 pod 算一个 score，越小越优",
       "tag": "公式",
       "pos": [
-        440,
-        316
+        450,
+        340
       ],
       "size": [
-        220,
-        90
+        260,
+        96
       ]
     },
     {
@@ -113,54 +113,54 @@
       "sublabel": "autoscaler · Redis 索引同步",
       "pos": [
         30,
-        326
+        348
       ],
       "size": [
-        170,
-        60
+        160,
+        66
       ]
     },
     {
       "id": "prefix-index",
       "type": "database",
       "label": "前缀索引",
-      "sublabel": "默认=路由历史 / 可选=KV 同步",
+      "sublabel": "默认=网关路由历史（投影）",
       "pos": [
-        130,
-        452
+        110,
+        500
       ],
       "size": [
-        190,
-        84
+        230,
+        90
       ]
     },
     {
       "id": "prom",
       "type": "database",
-      "label": "Prometheus",
-      "sublabel": "指标 TSDB",
+      "label": "Prometheus（指标库）",
+      "sublabel": "周期抓各 pod 的 /metrics",
       "brand": "prometheus",
       "pos": [
-        410,
-        452
+        420,
+        500
       ],
       "size": [
-        200,
-        84
+        210,
+        90
       ]
     },
     {
       "id": "selfacc",
       "type": "database",
       "label": "网关自记账",
-      "sublabel": "EWMA 吐出 · 在途请求",
+      "sublabel": "在途请求 · EWMA 吐出速率",
       "pos": [
-        720,
-        452
+        730,
+        500
       ],
       "size": [
-        190,
-        84
+        200,
+        90
       ]
     }
   ],
@@ -183,10 +183,10 @@
       "id": "c-envoy",
       "from": "client",
       "to": "envoy",
-      "label": "HTTP 请求",
+      "label": "① 发出 HTTP 请求",
       "variant": "emphasis",
       "labelAt": [
-        168,
+        188,
         148
       ]
     },
@@ -194,30 +194,30 @@
       "id": "envoy-plugin",
       "from": "envoy",
       "to": "plugin",
-      "label": "ext_proc",
+      "label": "② ext_proc",
       "variant": "emphasis",
       "labelAt": [
-        405,
-        205
+        432,
+        216
       ]
     },
     {
       "id": "plugin-pods",
       "from": "plugin",
       "to": "pods",
-      "label": "转发（策略选定 pod）",
+      "label": "③ 转发到策略选定的 pod",
       "variant": "emphasis"
     },
     {
       "id": "pods-envoy",
       "from": "pods",
       "to": "envoy",
-      "label": "token 流回程（更新自记账）",
+      "label": "④ token 流原路返回（更新网关自记账）",
       "fromSide": "top",
       "toSide": "top",
       "labelAt": [
-        1000,
-        100
+        940,
+        105
       ]
     },
     {
@@ -229,19 +229,19 @@
       "toSide": "top",
       "labelAt": [
         300,
-        298
+        312
       ]
     },
     {
       "id": "prefix-index-strategy",
       "from": "prefix-index",
       "to": "strategy",
-      "label": "因子：prefix_match",
-      "fromSide": "right",
-      "toSide": "left",
+      "label": "因子 prefix_match",
+      "fromSide": "top",
+      "toSide": "bottom",
       "labelAt": [
-        380,
-        342
+        360,
+        448
       ]
     },
     {
@@ -252,93 +252,93 @@
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        550,
-        429
+        525,
+        486
       ]
     },
     {
       "id": "selfacc-strategy",
       "from": "selfacc",
       "to": "strategy",
-      "label": "因子：EWMA · 在途",
+      "label": "因子：EWMA 吐出 · 在途",
       "fromSide": "top",
-      "toSide": "right",
+      "toSide": "bottom",
       "labelAt": [
-        740,
-        342
+        745,
+        448
       ]
     },
     {
       "id": "pods-prom",
       "from": "pods",
       "to": "prom",
-      "label": "被周期抓取 /metrics（抓取滞后）",
+      "label": "被周期抓取 /metrics（有抓取间隔滞后）",
       "fromSide": "left",
       "toSide": "right",
       "via": [
         [
-          1040,
-          185
+          1100,
+          194
         ],
         [
-          1040,
-          566
+          1100,
+          630
         ],
         [
-          660,
-          566
+          700,
+          630
         ],
         [
-          660,
-          494
+          700,
+          545
         ]
       ],
       "labelAt": [
-        850,
-        552
+        900,
+        614
       ]
     },
     {
       "id": "pods-index",
       "from": "pods",
       "to": "prefix-index",
-      "label": "KV 事件同步（可选模式）",
+      "label": "KV 事件同步（可选，引擎真相）",
       "variant": "dashed",
       "fromSide": "left",
       "toSide": "right",
       "via": [
         [
-          1010,
-          185
+          1070,
+          194
         ],
         [
-          1010,
-          582
+          1070,
+          648
         ],
         [
-          360,
-          582
+          380,
+          648
         ],
         [
-          360,
-          494
+          380,
+          545
         ]
       ],
       "labelAt": [
-        690,
-        598
+        730,
+        664
       ]
     },
     {
       "id": "strategy-plugin",
       "from": "strategy",
       "to": "plugin",
-      "label": "argmin score（auto-blend 默认叠加）",
+      "label": "取 score 最小者（auto-blend 叠加）",
       "fromSide": "top",
       "toSide": "bottom",
       "labelAt": [
-        640,
-        268
+        670,
+        288
       ]
     },
     {
@@ -350,8 +350,8 @@
       "fromSide": "right",
       "toSide": "bottom",
       "labelAt": [
-        100,
-        400
+        110,
+        432
       ]
     }
   ],
