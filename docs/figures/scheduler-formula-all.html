@@ -537,60 +537,51 @@ html[data-ambient-motion="running"] svg[data-animation="trace"] [data-animate="n
       transform-origin: center;
       animation: archify-node-pulse 3.6s ease-in-out 1;
       animation-delay: calc(var(--step, 0) * 160ms); }
-:root {
-  --page-bg: #f7f8fa; --page-fg: #1c2330; --card: #ffffff; --line: #d9dee7;
-  --accent: #2563eb; --muted: #5b6572;
-}
-body { margin: 0; background: var(--page-bg); color: var(--page-fg);
-  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  line-height: 1.65; }
-.wrap { max-width: 1240px; margin: 0 auto; padding: 28px 28px 80px; }
-header.top h1 { font-size: 26px; margin: 8px 0 4px; }
-header.top p.sub { color: var(--muted); margin: 4px 0 14px; }
-.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; background: var(--card);
-  border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; font-size: 14px; }
-.legend b { font-weight: 600; }
-nav.toc { margin: 18px 0 6px; font-size: 15px; }
-nav.toc a { color: var(--accent); text-decoration: none; margin-right: 18px; }
-section { margin-top: 46px; background: var(--card); border: 1px solid var(--line);
-  border-radius: 12px; padding: 22px 26px 26px; }
-section h2 { font-size: 21px; margin: 2px 0 10px; border-bottom: 2px solid var(--line); padding-bottom: 8px; }
-section p.guide { background: #f2f6ff; border-left: 4px solid var(--accent); padding: 10px 14px;
-  border-radius: 6px; font-size: 14.5px; }
-figure { margin: 18px 0 6px; }
-figure svg { width: 100%; height: auto; display: block; }
-h3 { font-size: 16px; margin: 20px 0 8px; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
-th { background: #eef1f6; font-weight: 600; white-space: nowrap; }
-td:first-child { white-space: nowrap; font-weight: 500; }
-ul.notes { font-size: 14px; margin: 6px 0 0; padding-left: 20px; }
-ul.notes li { margin: 6px 0; }
-code { background: #eef1f6; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
-footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+:root { --page-bg:#f7f8fa; --page-fg:#1c2330; --card:#fff; --line:#d9dee7; --accent:#2563eb; --muted:#5b6572; }
+body { margin:0; background:var(--page-bg); color:var(--page-fg); font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; line-height:1.65; }
+.wrap { max-width:1240px; margin:0 auto; padding:28px 28px 80px; }
+header.top h1 { font-size:26px; margin:8px 0 4px; }
+header.top p.sub { color:var(--muted); margin:4px 0 14px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 22px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 16px; font-size:14px; }
+nav.toc { margin:18px 0 6px; font-size:15px; }
+nav.toc a { color:var(--accent); text-decoration:none; margin-right:18px; }
+section { margin-top:46px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px 26px 26px; }
+section h2 { font-size:21px; margin:2px 0 10px; border-bottom:2px solid var(--line); padding-bottom:8px; }
+section p.guide { background:#f2f6ff; border-left:4px solid var(--accent); padding:10px 14px; border-radius:6px; font-size:14.5px; }
+figure { margin:18px 0 6px; }
+figure svg { width:100%; height:auto; display:block; }
+h3 { font-size:16px; margin:22px 0 8px; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+th { background:#eef1f6; font-weight:600; white-space:nowrap; }
+td.el { white-space:nowrap; font-weight:600; }
+td ul { margin:0; padding-left:16px; }
+td li { margin:4px 0; }
+.tag-formula { color:#047857; font-weight:600; }
+.tag-external { color:#b45309; font-weight:600; }
+code { background:#eef1f6; border-radius:4px; padding:1px 5px; font-size:13px; }
+footer { margin-top:44px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top">
   <h1>调度器 × 推理引擎：三框架路由打分明细</h1>
-  <p class="sub">Dynamo 1.5.0 · llm-d（EPP）· AIBrix —— 每张图回答三个问题：调度公式是什么？公式里每个因子怎么得到？哪些调度器↔引擎的交互不进公式？</p>
+  <p class="sub">本页自足：每张图配"怎么读"导读、逐框说明（每个框统计什么、数据怎么来）、逐线说明（每条线传什么、进不进公式）、公式符号表。不需要外部文档即可读懂全部内容。</p>
   <div class="legend">
     <span><b>粗实线 ①→④</b>：请求主路径（发请求 → 转交决策 → 转发 → token 原路返回）</span>
     <span><b>细实线</b>：公式因子 / 数据流</span>
     <span><b>虚线</b>：系统里存在、但不进打分公式的交互</span>
   </div>
   <div class="legend" style="margin-top:8px">
-    <span>三个框架的路由器<b>同构</b>：Envoy（proxy，只转发）＋ 决策插件（ext-proc / EPP / 路由插件，真正打分）；<b>没有任何框架在请求热路径上同步查询引擎</b>，因子全部来自"事件订阅 / 周期抓取 / 网关自记账"。</span>
+    <span>三个框架的路由器<b>同构</b>：Envoy（proxy，只转发）＋ 决策插件（ext-proc / EPP / 路由插件，真正打分）。<b>没有任何框架在请求热路径上同步查询引擎</b>——所有因子来自三种异步渠道之一：事件订阅（KV 事件）、周期抓取（Prometheus）、网关自记账（回程流）。</span>
   </div>
-  <nav class="toc">
-    <a href="#dynamo">① Dynamo</a><a href="#llmd">② llm-d</a><a href="#aibrix">③ AIBrix</a>
-  </nav>
+  <nav class="toc"><a href="#dynamo">① Dynamo</a><a href="#llmd">② llm-d</a><a href="#aibrix">③ AIBrix</a></nav>
 </header>
 
 <section id="dynamo">
   <h2>① Dynamo：加性 logit 代价打分</h2>
-  <p class="guide"><b>怎么读这张图：</b>最上一行是主路径——请求经 Envoy（只转发）进入 ext-proc 决策处理器（内嵌真实 Rust 选择核心），被转发到某个 vLLM worker；生成的 token 沿顶部弧线<b>原路返回</b>，网关在回程上顺手更新记账。中间的<b>默认打分器</b>是决策核心：对每个候选 worker 算一个代价 logit，<b>谁小选谁</b>。下面一排是打分器的三类输入：左＝网关自己记的账（零滞后）、中＝KV 事件索引（本仿真关闭，虚线）、右＝请求自带字段。左下、右下两个虚线通道"存在于系统、但不参与打分"。</p>
+  <p class="guide"><b>怎么读这张图：</b>最上一行是主路径——请求经 Envoy（只转发）进入 ext-proc 决策处理器，被转发到某个 vLLM worker；生成的 token 沿顶部弧线<b>原路返回</b>，网关在回程上顺手更新记账。中间的<b>默认打分器</b>对每个候选 worker 算一个代价 logit，<b>谁小选谁</b>。下面一排是打分器的三类输入：左＝网关自己记的账（零滞后）、中＝KV 事件索引（本仿真关闭，虚线）、右＝请求自带字段。左下、右下两个虚线通道"存在于系统、但不参与打分"。</p>
   <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
         <title id="archify-diagram-title">Dynamo 路由打分明细：公式 · 因子来源 · 公式外交互</title>
         <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
@@ -617,18 +608,18 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="Dynamo 路由面（proxy + 决策插件）" x="86" y="118" width="648" height="492" rx="12" class="c-region" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="Dynamo 路由面（proxy + 决策插件）" x="36" y="118" width="698" height="492" rx="12" class="c-region" stroke-width="1"/>
 
         <!-- Connection paths (before components for correct z-order) -->
         <path data-edge-from="client" data-edge-to="envoy" data-edge-label="① 发出 HTTP 请求" data-edge-key="0" data-edge-id="c-envoy" data-composition-points="170,197;194,197;194,213;216,213;216,192;240,192" d="M 170 197 L 186 197 Q 194 197 194 205 L 194 205 Q 194 213 202 213 L 208 213 Q 216 213 216 205 L 216 200 Q 216 192 224 192 L 240 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="envoy" data-edge-to="extproc" data-edge-label="② ext_proc" data-edge-key="1" data-edge-id="envoy-extproc" data-composition-points="400,192;460,192" d="M 400 192 L 460 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="extproc" data-edge-to="workers" data-edge-label="③ 转发到选中的 worker（记账 +1 请求 / +P prefill）" data-edge-key="2" data-edge-id="extproc-workers" data-composition-points="700,192;1180,192" d="M 700 192 L 1180 192" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="workers" data-edge-to="envoy" data-edge-label="④ token 流原路返回：首 token → P 清零；流结束 → 释放请求" data-edge-key="3" data-edge-id="workers-envoy" data-composition-points="1275,146;1275,122;320,122;320,150" d="M 1275 146 L 1275 130 Q 1275 122 1267 122 L 328 122 Q 320 122 320 130 L 320 150" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="extproc" data-edge-to="bookkeeping" data-edge-label="记账写入：四个生命周期调用" data-edge-key="4" data-edge-id="extproc-bookkeeping" data-composition-points="580,242;580,266;225,266;225,500" d="M 580 242 L 580 258 Q 580 266 572 266 L 233 266 Q 225 266 225 274 L 225 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="extproc" data-edge-to="bookkeeping" data-edge-label="记账写入：四个生命周期调用" data-edge-key="4" data-edge-id="extproc-bookkeeping" data-composition-points="580,242;580,266;200,266;200,500" d="M 580 242 L 580 258 Q 580 266 572 266 L 208 266 Q 200 266 200 274 L 200 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path data-edge-from="bookkeeping" data-edge-to="scorer" data-edge-label="因子 A·P·D" data-edge-key="5" data-edge-id="bookkeeping-scorer" data-composition-points="340,545;395,545;395,388;450,388" d="M 340 545 L 387 545 Q 395 545 395 537 L 395 396 Q 395 388 403 388 L 450 388" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="kvindex" data-edge-to="scorer" data-edge-label="因子 overlap（前缀重叠）" data-edge-key="6" data-edge-id="kvindex-scorer" data-composition-points="525,500;525,468;580,468;580,436" d="M 525 500 L 525 476 Q 525 468 533 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="reqctx" data-edge-to="scorer" data-edge-label="因子：请求长度字段" data-edge-key="7" data-edge-id="reqctx-scorer" data-composition-points="830,500;830,468;580,468;580,436" d="M 830 500 L 830 476 Q 830 468 822 468 L 588 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="workers" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）" data-edge-key="8" data-edge-id="workers-kvindex" data-composition-points="1180,194;1100,194;1100,630;700,630;700,545;630,545" d="M 1180 194 L 1108 194 Q 1100 194 1100 202 L 1100 622 Q 1100 630 1092 630 L 708 630 Q 700 630 700 622 L 700 553 Q 700 545 692 545 L 630 545" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="kvindex" data-edge-to="scorer" data-edge-label="因子 overlap（前缀重叠）" data-edge-key="6" data-edge-id="kvindex-scorer" data-composition-points="520,500;520,468;580,468;580,436" d="M 520 500 L 520 476 Q 520 468 528 468 L 572 468 Q 580 468 580 460 L 580 436" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="reqctx" data-edge-to="scorer" data-edge-label="因子：请求长度字段" data-edge-key="7" data-edge-id="reqctx-scorer" data-composition-points="840,500;840,468;580,468;580,436" d="M 840 500 L 840 476 Q 840 468 832 468 L 588 468 Q 580 468 580 460 L 580 436" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="workers" data-edge-to="kvindex" data-edge-label="KV 事件：每存/淘汰一个缓存块就播报一条（ZMQ）" data-edge-key="8" data-edge-id="workers-kvindex" data-composition-points="1180,194;1100,194;1100,630;700,630;700,545;640,545" d="M 1180 194 L 1108 194 Q 1100 194 1100 202 L 1100 622 Q 1100 630 1092 630 L 708 630 Q 700 630 700 622 L 700 553 Q 700 545 692 545 L 640 545" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path data-edge-from="scorer" data-edge-to="extproc" data-edge-label="取 logit 最小的 worker；平局 softmax 采样" data-edge-key="9" data-edge-id="scorer-extproc" data-composition-points="580,340;580,242" d="M 580 340 L 580 242" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path data-edge-from="etcd" data-edge-to="extproc" data-edge-label="谁在线（不进公式）" data-edge-key="10" data-edge-id="etcd-extproc" data-composition-points="190,381;214,381;214,266;580,266;580,242" d="M 190 381 L 206 381 Q 214 381 214 373 L 214 274 Q 214 266 222 266 L 572 266 Q 580 266 580 258 L 580 242" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="workers" data-edge-to="planner" data-edge-label="FPM 每步事件" data-edge-key="11" data-edge-id="workers-planner" data-composition-points="1275,242;1275,340" d="M 1275 242 L 1275 340" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
@@ -719,39 +710,39 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
         <text data-detail="context" x="1275" y="396" class="t-muted" font-size="9" text-anchor="middle">只管副本数，不参与路由</text>
         </g>
 
-        <g id="node-bookkeeping" data-node-id="bookkeeping" data-node-label="在途记账（每 worker 一份）" tabindex="0" role="button" aria-label="聚焦在途记账（每 worker 一份），A 请求数 · P prefill · D decode, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="A 请求数 · P prefill · D decode" data-node-context="Dynamo 路由面（proxy + 决策插件）">
-          <title>在途记账（每 worker 一份） · A 请求数 · P prefill · D decode · Dynamo 路由面（proxy + 决策插件）</title>
-          <rect x="110" y="500" width="230" height="90" rx="6" class="c-mask"/>
-          <rect x="110" y="500" width="230" height="90" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(116 506) scale(0.6875)">
+        <g id="node-bookkeeping" data-node-id="bookkeeping" data-node-label="在途记账（每 worker 一份）" tabindex="0" role="button" aria-label="聚焦在途记账（每 worker 一份），A=未完成请求数 · P=未出首token量 · D=decode块, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="A=未完成请求数 · P=未出首token量 · D=decode块" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>在途记账（每 worker 一份） · A=未完成请求数 · P=未出首token量 · D=decode块 · Dynamo 路由面（proxy + 决策插件）</title>
+          <rect x="60" y="500" width="280" height="90" rx="6" class="c-mask"/>
+          <rect x="60" y="500" width="280" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(66 506) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="225" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">在途记账（每 worker 一份）</text>
-        <text data-detail="context" x="225" y="559" class="t-muted" font-size="9" text-anchor="middle">A 请求数 · P prefill · D decode</text>
+          <text data-node-label="" data-detail-anchor="" x="200" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">在途记账（每 worker 一份）</text>
+        <text data-detail="context" x="200" y="559" class="t-muted" font-size="9" text-anchor="middle">A=未完成请求数 · P=未出首token量 · D=decode块</text>
         </g>
 
-        <g id="node-kvindex" data-node-id="kvindex" data-node-label="KV 事件索引器" tabindex="0" role="button" aria-label="聚焦KV 事件索引器，三层累计各 worker 已缓存前缀, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="三层累计各 worker 已缓存前缀" data-node-context="Dynamo 路由面（proxy + 决策插件）">
-          <title>KV 事件索引器 · 三层累计各 worker 已缓存前缀 · Dynamo 路由面（proxy + 决策插件）</title>
-          <rect x="420" y="500" width="210" height="90" rx="6" class="c-mask"/>
-          <rect x="420" y="500" width="210" height="90" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(426 506) scale(0.6875)">
+        <g id="node-kvindex" data-node-id="kvindex" data-node-label="KV 事件索引器" tabindex="0" role="button" aria-label="聚焦KV 事件索引器，device 显存 · host 内存 · disk 磁盘, Dynamo 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="device 显存 · host 内存 · disk 磁盘" data-node-context="Dynamo 路由面（proxy + 决策插件）">
+          <title>KV 事件索引器 · device 显存 · host 内存 · disk 磁盘 · Dynamo 路由面（proxy + 决策插件）</title>
+          <rect x="400" y="500" width="240" height="90" rx="6" class="c-mask"/>
+          <rect x="400" y="500" width="240" height="90" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(406 506) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="525" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">KV 事件索引器</text>
-        <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">三层累计各 worker 已缓存前缀</text>
+          <text data-node-label="" data-detail-anchor="" x="520" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">KV 事件索引器</text>
+        <text data-detail="context" x="520" y="559" class="t-muted" font-size="9" text-anchor="middle">device 显存 · host 内存 · disk 磁盘</text>
         </g>
 
         <g id="node-reqctx" data-node-id="reqctx" data-node-label="请求自带字段" tabindex="0" role="button" aria-label="聚焦请求自带字段，prompt 块数 · 期望输出长度, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="prompt 块数 · 期望输出长度" data-node-context="架构组件">
           <title>请求自带字段 · prompt 块数 · 期望输出长度 · 架构组件</title>
-          <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
-          <rect x="730" y="500" width="200" height="90" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(736 506) scale(0.6875)">
+          <rect x="740" y="500" width="200" height="90" rx="6" class="c-mask"/>
+          <rect x="740" y="500" width="200" height="90" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(746 506) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">请求自带字段</text>
-        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">prompt 块数 · 期望输出长度</text>
+          <text data-node-label="" data-detail-anchor="" x="840" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">请求自带字段</text>
+        <text data-detail="context" x="840" y="559" class="t-muted" font-size="9" text-anchor="middle">prompt 块数 · 期望输出长度</text>
         </g>
 
         <!-- Connection labels -->
@@ -806,8 +797,8 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
         <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="Dynamo 路由面（proxy + 决策插件）">
-          <rect data-graph-role="structural-frame-label-mask" x="90" y="122" width="188.2" height="16" rx="3" class="c-mask"/>
-          <text data-boundary-label="" x="94" y="135" class="t-cloud" font-size="9" font-weight="600">Dynamo 路由面（proxy + 决策插件）</text>
+          <rect data-graph-role="structural-frame-label-mask" x="40" y="122" width="188.2" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="44" y="135" class="t-cloud" font-size="9" font-weight="600">Dynamo 路由面（proxy + 决策插件）</text>
         </g>
 
         <!-- Legend -->
@@ -839,27 +830,19 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
           </g>
         </g>
       </svg></figure>
-  <h3>公式与符号对照（源码 default.rs:282-388）</h3>
-  <table>
-    <tr><th>记号</th><th>是什么</th><th>怎么得到</th></tr>
-    <tr><td>logit</td><td>每个 worker 的总代价分数，越小越优先被选中；平局 softmax 采样（本仿真温度=0，确定性）</td><td>打分器对每个候选 worker 各算一个</td></tr>
-    <tr><td>s（prefill_load_scale）</td><td>prefill 负载的缩放系数</td><td>配置项</td></tr>
-    <tr><td>P′（调整后 prefill 块）</td><td>折算成块的 prefill 负载：排队中的 prefill ＋ 新请求要算的 prefill − 缓存能省掉的部分</td><td>网关记账的 P ＋ 请求 prompt 块数 − overlap 折扣</td></tr>
-    <tr><td>D（decode 块）</td><td>decode 负载折算成块</td><td><code>add_output_block</code> 按输出块增量累计（本仿真未接，故建议 output_tokens &lt; block_size）</td></tr>
-    <tr><td>w · A</td><td>在途请求数的加权项</td><td>记账：reserve ＋1 / free −1</td></tr>
-    <tr><td>overlap 折扣</td><td>请求前缀与 worker 已缓存内容重叠、可省下的计算量（device/host/disk 三层 ＋ shared 乘子）</td><td>KV 事件（ZMQ）→ 索引器三层累计；<b>本仿真关闭 → cache-blind</b></td></tr>
+  <h3>逐框说明：每个框统计什么、数据怎么来</h3>
+  <table><tr><th>图中的框</th><th>它是什么 / 统计什么</th><th>数据怎么来、怎么更新</th></tr><tr><td class="el">Client（请求方）</td><td>请求的发起者。只和 Envoy 打交道，完全感知不到后面的路由决策。</td><td>—</td></tr><tr><td class="el">Envoy 网关（proxy）</td><td>流量入口，<b>只转发、不做决策</b>。请求和生成的 token 都从它经过——正因为回程也走它，它才能"顺路"看到首 token 和流结束这两个记账时点。</td><td>—</td></tr><tr><td class="el">ext-proc 决策处理器</td><td>Envoy 的<b>决策插件</b>，Dynamo 的 Rust 选择核心（SelectionService）嵌在这里。算分、选 worker、记账都在这一侧。</td><td>—</td></tr><tr><td class="el">vLLM Workers ×N</td><td>推理实例（真实 vLLM 引擎）。请求在这里完成 prefill（把 prompt 算成 KV）和 decode（逐 token 生成）。</td><td>—</td></tr><tr><td class="el">默认打分器 DefaultWorkerScorer</td><td>决策核心：给每个候选 worker 算一个代价 logit = s·P′ + D + w·A，<b>谁小选谁</b>；平局 softmax 采样。</td><td>输入来自下面三个框（记账 / 索引 / 请求字段）</td></tr><tr><td class="el">在途记账（每 worker 一份）</td><td>网关自己的账本，回答"<b>我发到这个 worker 的请求，现在各处于什么阶段</b>"。三个统计量：<ul><li><b>A＝在途请求数</b>：已路由过去、还没跑完的请求个数；</li><li><b>P＝未完成 prefill</b>：其中<b>还没产出首 token</b> 的请求的 prompt token 总量——衡量"prefill 计算还欠多少"；</li><li><b>D＝decode 块</b>：已进入 decode 的请求按<b>输出块数</b>折算的占用——衡量 decode 在占多少资源。</li></ul></td><td>全部由网关在请求生命周期写入：转发时 <code>reserve</code>（A+1，P+prompt 长度）；首 token 回来时 <code>prefill_complete</code>（P 清零）；此后每产出一个输出块 <code>add_output_block</code>（D+1 块）；流结束 <code>free</code>（A−1）。零滞后，因为是网关自己记的账。</td></tr><tr><td class="el">KV 事件索引器</td><td>路由器侧维护的"<b>每个 worker 当前缓存了哪些前缀块</b>"的副本。<b>"三层"指同一个前缀块在 worker 侧可能存在于三个存储层级</b>：<ul><li><b>device</b>＝GPU 显存（HBM）里的 KV 缓存；</li><li><b>host</b>＝主机内存（DRAM）；</li><li><b>disk</b>＝磁盘 / 共享存储层。</li></ul>打分时，请求前缀与某 worker 缓存的<b>重叠块数按层加权求和</b>（device 命中最值钱、host/disk 各带配置权重，跨出 device 的共享块另乘 shared 乘子），构成公式里的 overlap 折扣——"这个 worker 已经有我的前缀，能省多少 prefill"。</td><td>worker 每存入 / 淘汰一个 KV 块就播报一条事件（BlockStored / BlockRemoved），索引器收事件增删。事件有滞后但是引擎真相。<b>本仿真整体关闭该通道 → cache-blind。</b></td></tr><tr><td class="el">请求自带字段</td><td>两个随请求进来的数：<b>prompt 块数</b>（这单 prefill 有多大）和 <b>expected_output_tokens</b>（期望输出多长，用于 decode 投影）。</td><td>随请求 HTTP 携带。</td></tr><tr><td class="el">etcd（服务发现）</td><td>worker 注册表："现在有哪些 worker 在线"。只决定<b>候选集合</b>，不产生任何分数。</td><td>worker 启动/退出时注册/注销。</td></tr><tr><td class="el">Planner（SLA 扩缩容）</td><td>自动扩缩容控制器：按 TTFT/ITL 目标调整 worker 副本数。<b>不参与逐请求路由。</b></td><td>消费 FPM 每步事件做在线回归。</td></tr></table>
+  <h3>逐线说明：每条线传什么、进不进公式</h3>
+  <table><tr><th>图中的线</th><th>传的是什么</th><th>性质 / 更新时点</th></tr><tr><td class="el">① 发出 HTTP 请求</td><td>Client → Envoy</td><td>主路径</td></tr><tr><td class="el">② ext_proc</td><td>Envoy 经 gRPC 把"选哪个 worker"交给决策插件</td><td>主路径；同步调用</td></tr><tr><td class="el">③ 转发（含预留）</td><td>请求发到选中的 worker；网关同时记账 A+1、P+prompt。"预留"＝这笔账立即生效，下一个请求打分时立刻看得见</td><td>主路径</td></tr><tr><td class="el">④ token 流原路返回</td><td>生成的 token 流经过网关回到 Client；网关在回程上看到两个时点：<b>首 token</b> → P 清零（prefill 完成）；<b>流结束</b> → A−1（释放）</td><td>主路径；记账更新的唯一载体</td></tr><tr><td class="el">因子 A·P·D</td><td>记账 → 打分器</td><td><span class='tag-formula'>进公式</span>（logit 的三个来源项）</td></tr><tr><td class="el">因子 overlap</td><td>索引 → 打分器：前缀重叠块数（三层加权）</td><td><span class='tag-formula'>进公式</span>（P′ 的折扣项）；仿真关闭（虚线）</td></tr><tr><td class="el">因子：请求长度字段</td><td>请求字段 → 打分器</td><td><span class='tag-formula'>进公式</span>（prefill/decode 投影）</td></tr><tr><td class="el">KV 事件（ZMQ）</td><td>worker → 索引器：每存/淘汰一个缓存块播报一条</td><td>索引的更新通道；事件滞后</td></tr><tr><td class="el">取 logit 最小者</td><td>打分器 → 决策器；平局 softmax 采样（本仿真温度=0，确定性）</td><td>决策输出</td></tr><tr><td class="el">谁在线（虚线）</td><td>etcd → 决策器：候选 worker 集合</td><td><span class='tag-external'>不进公式</span></td></tr><tr><td class="el">FPM 每步事件（虚线）</td><td>worker 每个前向步发一条：本批调度了谁、<b>waiting 队列多长</b>、本批耗时 → 只喂 Planner 扩缩容</td><td><span class='tag-external'>不进公式</span>——这就是"队列信息出得来、路由听不到"的原因</td></tr></table>
+  <h3>公式符号对照（源码 default.rs:282-388）</h3>
+  <table><tr><th>记号</th><th>是什么</th><th>怎么得到</th></tr>
+  <tr><td class="el">logit</td><td>每个 worker 的总代价，越小越优先；平局 softmax 采样</td><td>打分器对每个候选各算一个</td></tr><tr><td class="el">s（prefill_load_scale）</td><td>prefill 负载的缩放系数</td><td>配置项</td></tr><tr><td class="el">P′（调整后 prefill 块）</td><td>折算成块的 prefill 负载：排队中的 prefill ＋ 新请求要算的 prefill − 缓存能省掉的部分</td><td>记账的 P ＋ 请求 prompt 块数 − overlap 折扣</td></tr><tr><td class="el">D（decode 块）</td><td>decode 占用折算成块</td><td><code>add_output_block</code> 按输出块累计（本仿真未接，故建议 output_tokens &lt; block_size）</td></tr><tr><td class="el">w · A</td><td>在途请求数加权项</td><td>reserve +1 / free −1</td></tr><tr><td class="el">overlap 折扣</td><td>前缀重叠可省的计算量（device/host/disk 三层加权 ＋ shared 乘子）</td><td>KV 事件 → 索引器；本仿真关闭 → cache-blind</td></tr>
   </table>
-  <h3>公式外交互（图中虚线）</h3>
-  <ul class="notes">
-    <li><b>etcd 服务发现</b>：决定"有哪些 worker 可选"（候选集合），本身不产生分数。</li>
-    <li><b>FPM 每步事件 → Planner</b>：worker 每个前向步发一条指标（含 waiting 队列长度、本批耗时），只喂自动扩缩容，不进路由公式——这就是"队列信息出得来、但路由听不到"的原因。</li>
-    <li><b>token 流回程</b>：它是数据面本身；记账的四个更新（reserve / prefill_complete / add_output_block / free）全部"搭"在这条回程流上，没有独立上报通道。</li>
-  </ul>
 </section>
 
 <section id="llmd">
   <h2>② llm-d：过滤 ＋ 负载打分的插件链</h2>
-  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy（proxy）＋ EPP 决策插件。EPP 内部是一条三步链：先调 <b>Render 服务</b>把 prompt 精确切成 token 块（①）；再用<b>常驻 KV 块索引</b>把候选收窄到"缓存了这些块的 Ready pod"（②）；最后在候选里挑<b>在途 token 负载最小</b>的（③）。索引靠各 pod 主动播报的 KV 事件维护；在途 token 是 EPP 自己记的账——<b>不是引擎内部队列</b>。</p>
+  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy（proxy）＋ EPP 决策插件。EPP 内部三步链：先调 Render 服务把 prompt 精确切块（①）；再用常驻 KV 块索引把候选收窄到"缓存了这些块的 Ready pod"（②）；最后挑在途 token 负载最小的（③）。索引靠 pod 主动播报的 KV 事件维护；在途 token 是 EPP 自己记的账——<b>不是引擎内部队列</b>。</p>
   <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
         <title id="archify-diagram-title">llm-d（EPP）路由打分明细：公式 · 因子来源 · 公式外交互</title>
         <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
@@ -999,8 +982,8 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
         <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">记录哪个 pod 缓存哪些块</text>
         </g>
 
-        <g id="node-inflight" data-node-id="inflight" data-node-label="在途 token 账本" tabindex="0" role="button" aria-label="聚焦在途 token 账本，EPP 自己记的账，零滞后, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="EPP 自己记的账，零滞后" data-node-context="llm-d 路由面（proxy + 决策插件）">
-          <title>在途 token 账本 · EPP 自己记的账，零滞后 · llm-d 路由面（proxy + 决策插件）</title>
+        <g id="node-inflight" data-node-id="inflight" data-node-label="在途 token 账本" tabindex="0" role="button" aria-label="聚焦在途 token 账本，已发入未完成的 prompt token, llm-d 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="已发入未完成的 prompt token" data-node-context="llm-d 路由面（proxy + 决策插件）">
+          <title>在途 token 账本 · 已发入未完成的 prompt token · llm-d 路由面（proxy + 决策插件）</title>
           <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
           <rect x="730" y="500" width="200" height="90" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(736 506) scale(0.6875)">
@@ -1008,7 +991,7 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">在途 token 账本</text>
-        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">EPP 自己记的账，零滞后</text>
+        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">已发入未完成的 prompt token</text>
         </g>
 
         <!-- Connection labels -->
@@ -1092,25 +1075,15 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
           </g>
         </g>
       </svg></figure>
-  <h3>三步与因子对照</h3>
-  <table>
-    <tr><th>步骤 / 记号</th><th>是什么</th><th>怎么得到</th></tr>
-    <tr><td>① token 块序列</td><td>prompt 精确分词后的块哈希链（前缀须整段一致才算命中）</td><td>调 vLLM <code>/v1/*/render</code>（含工具渲染），非本地估算</td></tr>
-    <tr><td>② 前缀常驻集合</td><td>候选 ＝ 缓存了请求前缀块的 Ready pod</td><td>各 pod KV 事件（ZMQ 5556）→ 每 EPP 副本独立索引，多副本收敛</td></tr>
-    <tr><td>② 暖集饱和回退</td><td>缓存暖集吞吐超过标定值时放弃亲和、回退低载 pod（缓存优先、负载兜底）</td><td>部署时标定 <code>peakPrefillThroughput</code></td></tr>
-    <tr><td>③ 在途 token 负载</td><td>每 pod 已发入、未完成的 token 量；argmin 者胜出</td><td>EPP 自记账：路由计入 prompt token、完成时释放（零滞后；因此该模式 EPP 单副本部署）</td></tr>
-  </table>
-  <h3>公式外交互（图中虚线）</h3>
-  <ul class="notes">
-    <li><b>discoverPods / Ready 门控</b>：决定装哪些订阅器、哪些 pod 可进候选，不产生分数。</li>
-    <li><b>ROUTER 5559 重放缓冲</b>：路由器重启后回放约 1 万条事件重建索引——恢复机制，不是因子。</li>
-    <li><b>放置层（K8s scheduler 插件）</b>另行工作，不在逐请求路径；llm-d 不抓引擎 Prometheus 指标进路由。</li>
-  </ul>
+  <h3>逐框说明</h3>
+  <table><tr><th>图中的框</th><th>它是什么 / 统计什么</th><th>数据怎么来、怎么更新</th></tr><tr><td class="el">Client（请求方）</td><td>同 Dynamo 图。</td><td>—</td></tr><tr><td class="el">Envoy 网关（proxy）</td><td>只转发。GAIE＝Kubernetes Gateway API Inference Extension，是 Envoy 与决策插件之间的标准接口。</td><td>—</td></tr><tr><td class="el">EPP 决策插件</td><td>Endpoint Picker，独立 Go 进程；内含三步插件链（分词 → 过滤 → 打分），选出 pod。</td><td>—</td></tr><tr><td class="el">vLLM / SGLang Pods</td><td>推理实例。除推理外，还<b>主动发布 KV 事件</b>（缓存块存入/淘汰时各发一条）。</td><td>—</td></tr><tr><td class="el">插件链（过滤＋打分）</td><td>公式本体三步：① TokenProducer 拿 token 块序列；② PrefillAffinityFilter 把候选收窄到"缓存了这些前缀块的 Ready pod"；③ TokenLoadScorer 在候选里挑在途 token 负载最小的。</td><td>输入来自下面三个框</td></tr><tr><td class="el">Render 服务（精确分词）</td><td>把 prompt（含工具渲染）切成<b>精确 token 块序列</b>。块哈希必须与引擎内部完全一致才能正确判命中，所以不能本地估算，要调 vLLM 的 <code>/v1/*/render</code> 端点。</td><td>路由时按需调用</td></tr><tr><td class="el">常驻 KV 块索引</td><td>"<b>哪个 pod 当前缓存着哪些前缀块</b>"的本地副本：pod 每存/淘汰一个块就播报（ZMQ 5556），每个 EPP 副本独立订阅、各自维护一份，多副本最终一致。</td><td>事件流持续更新；EPP 重启后从 ROUTER 5559 的约 1 万条重放缓冲回放重建</td></tr><tr><td class="el">在途 token 账本</td><td>EPP 自己记的账：<b>发给每个 pod 的、还没算完的 prompt token 量</b>。注意它统计的是"我发过去的 token"，<b>不是引擎内部队列长度</b>——因此账本是每进程私有的，该部署模式下 EPP 只能单副本。</td><td>路由时计入 prompt token；请求完成时释放。零滞后。</td></tr><tr><td class="el">K8s / GAIE 控制面</td><td>pod 发现（给每个就绪 pod 装 ZMQ 订阅器）与 Ready 门控（只有就绪 pod 进候选）。</td><td><span class='tag-external'>不进公式</span></td></tr></table>
+  <h3>逐线说明</h3>
+  <table><tr><th>图中的线</th><th>传的是什么</th><th>性质 / 更新时点</th></tr><tr><td class="el">① 先精确分词</td><td>EPP → Render 服务 → 返回 token 块序列（前缀哈希链式：须整段前缀一致才算命中）</td><td>打分前置步骤</td></tr><tr><td class="el">② 亲和过滤的因子：前缀常驻 pod 集合</td><td>索引 → 过滤器：候选＝缓存了请求前缀块的 Ready pod；<b>若缓存暖集吞吐超过标定阈值 peakPrefillThroughput，放弃亲和、回退全体低载 pod</b>（缓存优先、负载兜底）</td><td><span class='tag-formula'>进公式</span>（过滤段）</td></tr><tr><td class="el">③ 负载打分的因子：在途 token 数</td><td>账本 → 打分器：argmin 者胜出</td><td><span class='tag-formula'>进公式</span>（打分段）</td></tr><tr><td class="el">①–④ 主路径</td><td>与 Dynamo 图同构：发请求 → Envoy → EPP 决策 → 转发到选中 pod（记账计入 prompt token）→ token 原路返回（完成时释放记账）</td><td>主路径</td></tr><tr><td class="el">KV 事件（ZMQ 5556）</td><td>pod → 各 EPP 副本的索引：每存/淘汰一个缓存块播报一条；另有 ROUTER 5559 重放缓冲（虚线性质：恢复机制，不是因子）</td><td>索引更新通道</td></tr><tr><td class="el">谁在线 / Ready（虚线）</td><td>控制面 → EPP：候选集合</td><td><span class='tag-external'>不进公式</span></td></tr></table>
 </section>
 
 <section id="aibrix">
   <h2>③ AIBrix：可换策略族，load-balance 为代表</h2>
-  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy Gateway（proxy）＋ ext_proc 路由插件，打分是一族可换策略。最典型的 <b>load-balance</b>：分子衡量"还有多少活"（running＋λ·queued），分母衡量"干得多快"（EWMA 吐出速率），再乘 KV 空闲惩罚。三个因子来自三个不同渠道：<b>running / queued / kv_free 走 Prometheus 周期抓取（有滞后）</b>；<b>EWMA 吐出速率是网关自记账（零滞后）</b>；<b>prefix_match 默认来自网关自己的路由历史——是投影不是真相</b>，要真相需打开 KV 事件同步（图中虚线）。</p>
+  <p class="guide"><b>怎么读这张图：</b>路由器 ＝ Envoy Gateway（proxy）＋ ext_proc 路由插件，打分是一族可换策略。load-balance 的分子衡量"还有多少活"，分母衡量"干得多快"，再乘 KV 空闲惩罚。三个因子来自三个渠道：running/queued/kv_free 走 Prometheus 周期抓取（有滞后）；EWMA 吐出速率是网关自记账（零滞后）；prefix_match 默认来自网关路由历史——<b>是投影不是真相</b>，要真相需打开 KV 事件同步（虚线）。</p>
   <figure><svg viewBox="0 0 1390 720" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
         <title id="archify-diagram-title">AIBrix 路由打分明细：公式 · 因子来源 · 公式外交互</title>
         <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
@@ -1257,8 +1230,8 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
         <text data-detail="context" x="525" y="559" class="t-muted" font-size="9" text-anchor="middle">周期抓各 pod 的 /metrics</text>
         </g>
 
-        <g id="node-selfacc" data-node-id="selfacc" data-node-label="网关自记账" tabindex="0" role="button" aria-label="聚焦网关自记账，在途请求 · EWMA 吐出速率, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="在途请求 · EWMA 吐出速率" data-node-context="AIBrix 路由面（proxy + 决策插件）">
-          <title>网关自记账 · 在途请求 · EWMA 吐出速率 · AIBrix 路由面（proxy + 决策插件）</title>
+        <g id="node-selfacc" data-node-id="selfacc" data-node-label="网关自记账" tabindex="0" role="button" aria-label="聚焦网关自记账，在途请求数 · 每秒输出token均值, AIBrix 路由面（proxy + 决策插件）" aria-pressed="false" data-node-kind="database" data-node-sublabel="在途请求数 · 每秒输出token均值" data-node-context="AIBrix 路由面（proxy + 决策插件）">
+          <title>网关自记账 · 在途请求数 · 每秒输出token均值 · AIBrix 路由面（proxy + 决策插件）</title>
           <rect x="730" y="500" width="200" height="90" rx="6" class="c-mask"/>
           <rect x="730" y="500" width="200" height="90" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(736 506) scale(0.6875)">
@@ -1266,7 +1239,7 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="830" y="543" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">网关自记账</text>
-        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">在途请求 · EWMA 吐出速率</text>
+        <text data-detail="context" x="830" y="559" class="t-muted" font-size="9" text-anchor="middle">在途请求数 · 每秒输出token均值</text>
         </g>
 
         <!-- Connection labels -->
@@ -1354,26 +1327,14 @@ footer { margin-top: 44px; color: var(--muted); font-size: 13px; border-top: 1px
           </g>
         </g>
       </svg></figure>
-  <h3>公式与符号对照（load-balance 策略）</h3>
-  <table>
-    <tr><th>记号</th><th>是什么</th><th>怎么得到</th></tr>
-    <tr><td>running / queued</td><td>每 pod 在跑 / 排队的请求数（分子）</td><td>Prometheus 周期抓 vLLM <code>/metrics</code>，插件 PromQL 查询——<b>有抓取间隔滞后</b></td></tr>
-    <tr><td>EWMA(输出 tps)</td><td>吐出速率的指数滑动平均（分母）</td><td>网关自记账，token 回程流更新（零滞后）</td></tr>
-    <tr><td>kv_free</td><td>KV 缓存空闲比例；惩罚项 (1+α·(1−kv_free)²)，&lt;10% 直接出局</td><td>同 Prometheus；缺失 / NaN 时按全空闲兜底</td></tr>
-    <tr><td>λ · α</td><td>排队权重 / KV 惩罚系数</td><td>配置项</td></tr>
-    <tr><td>5 : 4</td><td>prefix_match 与 load_balance 的归一混合权重（auto-blend 默认开）</td><td>配置项</td></tr>
-    <tr><td>prefix_match</td><td>请求前缀与 pod 索引的命中比例</td><td>默认＝网关路由历史哈希表（LRU 20 万块、20 分钟过期，<b>投影</b>）；可选＝引擎 KV 事件同步（<b>真相</b>）</td></tr>
-  </table>
-  <h3>公式外交互（图中虚线）</h3>
-  <ul class="notes">
-    <li><b>Redis 跨网关副本共享前缀索引</b>（<code>AIBRIX_STATESYNC</code>）；autoscaler 滑动窗指标聚合在控制面——都不在逐请求路径。</li>
-    <li><b>session-affinity / P/D 分离 / SLO 策略族</b>：按请求另行选择，不改基础打分；slo-least-load-pulling 会现拉新鲜快照避免过期缓存。</li>
-    <li><b>负载失衡前置门控</b>：在所有策略之前统一收窄候选集合。</li>
-  </ul>
+  <h3>逐框说明</h3>
+  <table><tr><th>图中的框</th><th>它是什么 / 统计什么</th><th>数据怎么来、怎么更新</th></tr><tr><td class="el">Client（请求方）</td><td>同 Dynamo 图。</td><td>—</td></tr><tr><td class="el">Envoy Gateway（proxy）</td><td>只转发。</td><td>—</td></tr><tr><td class="el">ext_proc 路由插件</td><td>策略族容器（Go 进程），按请求选策略：load-balance、prefix-cache、least-request、slo-*、pd、session-affinity 等；auto-blend 默认把 load-balance 分数混入多数策略。</td><td>—</td></tr><tr><td class="el">vLLM Pods</td><td>推理实例；暴露 <code>/metrics</code>（Prometheus 指标端点），可选发布 KV 事件。</td><td>—</td></tr><tr><td class="el">策略打分（load-balance 为例）</td><td>score = (running + λ·queued) / EWMA(输出 tps) × (1 + α·(1−kv_free)²)，取最小者。分子衡量"还有多少活"，分母衡量"干得多快"，惩罚项压制 KV 快满的 pod。</td><td>输入来自下面三个框</td></tr><tr><td class="el">前缀索引</td><td>"哪个 pod 缓存哪些前缀块"的记录，<b>两种来源天差地别</b>：<ul><li><b>默认＝网关路由历史</b>：网关把"我把含某前缀的请求发给了谁"记成哈希表——它<b>不知道引擎后来有没有淘汰这些块</b>，所以是投影不是真相（LRU 上限 20 万块、20 分钟不刷新即过期）；</li><li><b>可选＝KV 事件同步</b>：引擎主动播报 BlockStored/Removed，才是引擎真相。</li></ul></td><td>默认：每次转发后写入；可选：事件流更新；多网关副本间可用 Redis 共享（AIBRIX_STATESYNC）</td></tr><tr><td class="el">Prometheus（指标库）</td><td>时序指标库，<b>周期抓取</b>各 pod 的 /metrics，聚合出 running（在跑请求数）、queued（排队请求数）、kv_free（KV 缓存空闲比例）等指标。</td><td>抓取间隔决定滞后——插件查到的是"上一次抓取时刻"的值，不是当下。</td></tr><tr><td class="el">网关自记账</td><td>网关自己观察回程流记的两个量：<b>在途请求数</b>、<b>EWMA 吐出速率</b>（每秒输出 token 数的指数滑动平均——越近期的样本权重越大）。零滞后。</td><td>token 回程流实时更新。</td></tr><tr><td class="el">控制面</td><td>autoscaler（自带滑动窗指标聚合的扩缩器）与 Redis 索引同步。</td><td><span class='tag-external'>不进公式</span>；不在逐请求路径</td></tr></table>
+  <h3>逐线说明</h3>
+  <table><tr><th>图中的线</th><th>传的是什么</th><th>性质 / 更新时点</th></tr><tr><td class="el">①–④ 主路径</td><td>与 Dynamo 图同构：发请求 → Envoy Gateway → 插件决策 → 转发到策略选定的 pod → token 原路返回（回程更新网关自记账）</td><td>主路径</td></tr><tr><td class="el">因子 running · queued · kv_free</td><td>Prometheus → 策略打分（PromQL 查询）</td><td><span class='tag-formula'>进公式</span>；有抓取间隔滞后</td></tr><tr><td class="el">因子 EWMA 吐出 · 在途</td><td>自记账 → 策略打分</td><td><span class='tag-formula'>进公式</span>；零滞后</td></tr><tr><td class="el">因子 prefix_match</td><td>前缀索引 → 策略打分：请求前缀与索引的命中比例（混合权重 5:4）</td><td><span class='tag-formula'>进公式</span>；默认来源是投影</td></tr><tr><td class="el">路由历史写入（默认模式）</td><td>插件 → 前缀索引：转发决定本身被记进索引（投影的来源）</td><td>索引默认更新通道</td></tr><tr><td class="el">被周期抓取 /metrics</td><td>pod → Prometheus：running/queued/kv_free 的原始来源</td><td>抓取通道（滞后）</td></tr><tr><td class="el">KV 事件同步（虚线，可选）</td><td>pod → 前缀索引：引擎主动播报，索引从投影变真相</td><td><span class='tag-external'>可选通道</span>；默认关闭</td></tr><tr><td class="el">取 score 最小者</td><td>策略 → 插件；auto-blend 默认叠加负载分</td><td>决策输出</td></tr><tr><td class="el">不进公式（虚线）</td><td>控制面：autoscaler 扩缩、Redis 副本间索引同步</td><td><span class='tag-external'>不进公式</span></td></tr></table>
 </section>
 
 <footer>
-  生成方式：三张架构图各自由 Archify 规格源文件 <code>scheduler-formula-{dynamo,llmd,aibrix}.json</code> 渲染（validate 9/9 通过），SVG 抽取后组成本页；导读、符号表与注记为人工整理。<br>
+  生成方式：三张架构图各自由 Archify 规格源文件 <code>scheduler-formula-{dynamo,llmd,aibrix}.json</code> 渲染（validate 9/9 通过），SVG 抽取后组成本页；导读、逐框/逐线表、符号表为人工整理。<br>
   事实来源：Dynamo 公式核实自本地 upstream 源码 <code>lib/kv-router/src/scheduling/selector/default.rs</code>；llm-d 来自官方 Precise Prefix Cache Routing 指南；AIBrix 来自官方 gateway-plugins 与 prefix-cache-aware-routing 文档。详见《Dynamo路由与vLLM引擎的状态交互机制-20261009》§7–§9、§12。生成日期 2026-10-15。
 </footer>
 </div>

@@ -153,7 +153,7 @@
       "id": "selfacc",
       "type": "database",
       "label": "网关自记账",
-      "sublabel": "在途请求 · EWMA 吐出速率",
+      "sublabel": "在途请求数 · 每秒输出token均值",
       "pos": [
         730,
         500

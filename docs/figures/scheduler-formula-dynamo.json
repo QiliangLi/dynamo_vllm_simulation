@@ -139,13 +139,13 @@
       "id": "bookkeeping",
       "type": "database",
       "label": "在途记账（每 worker 一份）",
-      "sublabel": "A 请求数 · P prefill · D decode",
+      "sublabel": "A=未完成请求数 · P=未出首token量 · D=decode块",
       "pos": [
-        110,
+        60,
         500
       ],
       "size": [
-        230,
+        280,
         90
       ]
     },
@@ -153,13 +153,13 @@
       "id": "kvindex",
       "type": "database",
       "label": "KV 事件索引器",
-      "sublabel": "三层累计各 worker 已缓存前缀",
+      "sublabel": "device 显存 · host 内存 · disk 磁盘",
       "pos": [
-        420,
+        400,
         500
       ],
       "size": [
-        210,
+        240,
         90
       ]
     },
@@ -169,7 +169,7 @@
       "label": "请求自带字段",
       "sublabel": "prompt 块数 · 期望输出长度",
       "pos": [
-        730,
+        740,
         500
       ],
       "size": [

@@ -152,7 +152,7 @@
       "id": "inflight",
       "type": "database",
       "label": "在途 token 账本",
-      "sublabel": "EPP 自己记的账，零滞后",
+      "sublabel": "已发入未完成的 prompt token",
       "pos": [
         730,
         500
