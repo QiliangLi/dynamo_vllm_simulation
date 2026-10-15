@@ -7,6 +7,7 @@
 | 性质 | 讨论结论存档：路由层与推理引擎层之间是否存在状态查询路径、记账机制如何工作、排队情况如何被感知 |
 | 相关代码 | `dynamo_vllm_cpu_sim/sim/router.py`、`sim/run.py`、`sim/engine.py`；upstream Dynamo 网关源码（`deploy/inference-gateway/ext-proc/`）与接口声明（`lib/bindings/python/src/dynamo/_core.pyi`） |
 | 相关文档 | 设计文档 §5（真实/仿真边界表）、§6（调度闭环）、§17（KV 事件桥）；检视报告 §4.1（策略挂载点缺口）、§8（P1 路线）；`vLLM组批规则与调度器并发推演可行性-20261010.md`（StepBatch 事件流需求，本文 §6/§10 的上游先例对照）；`MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md`（事件流观测四要素之一） |
+| 交互接口全景图 | [docs/figures/orchestrator-vllm-interfaces.html](../figures/orchestrator-vllm-interfaces.html)（交互式架构图，2026-10-15 生成：三框架组件与全部接口连线，含 Dynamo 三通道、插件挂载点与 llm-d/AIBrix 对照组；规格源文件同目录 `.json`） |
 
 ## 0. 一句话结论
 

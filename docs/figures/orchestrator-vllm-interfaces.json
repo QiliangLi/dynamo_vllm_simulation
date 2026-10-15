@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "编排框架 × vLLM：交互接口全景（Dynamo / llm-d / AIBrix）",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1370,
+      726
+    ],
+    "views": [
+      {
+        "id": "dynamo-channels",
+        "label": "Dynamo 三通道",
+        "focus": [
+          "gw",
+          "worker",
+          "planner",
+          "policy-crate",
+          "etcd"
+        ],
+        "note": "数据面记账、KV 事件、FPM 每步事件三条通道各连到谁。"
+      },
+      {
+        "id": "llmd",
+        "label": "llm-d 对照",
+        "focus": [
+          "epp",
+          "render",
+          "llmd-pod"
+        ],
+        "note": "KV 事件（ZMQ）+ 重放缓冲建索引，负载用 EPP 自记账。"
+      },
+      {
+        "id": "aibrix",
+        "label": "AIBrix 对照",
+        "focus": [
+          "ab-plugin",
+          "prom",
+          "ab-pod"
+        ],
+        "note": "PromQL 抓取 running/queued/KV 占用进路由打分。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "请求方",
+      "pos": [
+        30,
+        114
+      ],
+      "size": [
+        140,
+        70
+      ]
+    },
+    {
+      "id": "gw",
+      "type": "backend",
+      "label": "Dynamo 网关 / 选择核心",
+      "sublabel": "SelectionService：记账 · 打分 · 预留",
+      "tag": "数据面",
+      "pos": [
+        280,
+        100
+      ],
+      "size": [
+        220,
+        94
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "vLLM Worker（推理实例）",
+      "sublabel": "真实 vLLM 引擎 · FPM 发射器",
+      "tag": "数据面",
+      "pos": [
+        620,
+        100
+      ],
+      "size": [
+        210,
+        94
+      ]
+    },
+    {
+      "id": "etcd",
+      "type": "database",
+      "label": "etcd",
+      "sublabel": "worker 注册表",
+      "tag": "控制面",
+      "pos": [
+        280,
+        266
+      ],
+      "size": [
+        150,
+        58
+      ]
+    },
+    {
+      "id": "policy-crate",
+      "type": "backend",
+      "label": "自定义 Rust 策略",
+      "sublabel": "Filter / Scorer / Picker",
+      "tag": "扩展",
+      "pos": [
+        490,
+        266
+      ],
+      "size": [
+        185,
+        58
+      ]
+    },
+    {
+      "id": "planner",
+      "type": "cloud",
+      "label": "Planner",
+      "sublabel": "SLA 扩缩容 · 消费 FPM",
+      "tag": "控制面",
+      "pos": [
+        720,
+        260
+      ],
+      "size": [
+        170,
+        68
+      ]
+    },
+    {
+      "id": "render",
+      "type": "backend",
+      "label": "Render 服务",
+      "sublabel": "/v1/*/render",
+      "pos": [
+        60,
+        424
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "epp",
+      "type": "backend",
+      "label": "EPP 路由器",
+      "sublabel": "GAIE · 亲和过滤 → 负载打分",
+      "pos": [
+        300,
+        416
+      ],
+      "size": [
+        195,
+        84
+      ]
+    },
+    {
+      "id": "llmd-pod",
+      "type": "backend",
+      "label": "vLLM / SGLang Pod",
+      "sublabel": "发布 KV 事件（ZMQ）",
+      "pos": [
+        600,
+        422
+      ],
+      "size": [
+        180,
+        72
+      ]
+    },
+    {
+      "id": "prom",
+      "type": "database",
+      "label": "Prometheus",
+      "sublabel": "指标 TSDB",
+      "brand": "prometheus",
+      "pos": [
+        615,
+        597
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "ab-plugin",
+      "type": "backend",
+      "label": "AIBrix 路由插件",
+      "sublabel": "Envoy ext_proc · 网关自记账",
+      "pos": [
+        330,
+        588
+      ],
+      "size": [
+        205,
+        78
+      ]
+    },
+    {
+      "id": "ab-pod",
+      "type": "backend",
+      "label": "vLLM Pod",
+      "sublabel": "暴露 /metrics · KV 事件（可选）",
+      "pos": [
+        865,
+        596
+      ],
+      "size": [
+        180,
+        62
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Dynamo 1.5.0（本仿真所用核心）",
+      "wraps": [
+        "gw",
+        "worker",
+        "etcd",
+        "policy-crate",
+        "planner"
+      ],
+      "pad": 40
+    },
+    {
+      "kind": "region",
+      "label": "llm-d（K8s 原生）",
+      "wraps": [
+        "epp",
+        "render",
+        "llmd-pod"
+      ],
+      "pad": 40
+    },
+    {
+      "kind": "region",
+      "label": "AIBrix（Envoy Gateway）",
+      "wraps": [
+        "ab-plugin",
+        "prom",
+        "ab-pod"
+      ],
+      "pad": 40
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-gw",
+      "from": "client",
+      "to": "gw",
+      "label": "HTTP 请求",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [
+        225,
+        146
+      ]
+    },
+    {
+      "id": "gw-c",
+      "from": "gw",
+      "to": "client",
+      "label": "token 流回程（首 token / 流结束触发记账）",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    {
+      "id": "gw-worker",
+      "from": "gw",
+      "to": "worker",
+      "label": "请求转发",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "worker-gw-kv",
+      "from": "worker",
+      "to": "gw",
+      "label": "KV 事件 BlockStored/Removed（ZMQ → 索引器）",
+      "fromSide": "top",
+      "toSide": "top"
+    },
+    {
+      "id": "etcd-gw",
+      "from": "etcd",
+      "to": "gw",
+      "label": "服务发现（worker 注册）",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        330,
+        252
+      ]
+    },
+    {
+      "id": "policy-gw",
+      "from": "policy-crate",
+      "to": "gw",
+      "label": "编译挂载（Filter/Scorer/Picker）",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "worker-planner",
+      "from": "worker",
+      "to": "planner",
+      "label": "FPM 每步事件（ZMQ PUB）",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "epp-render",
+      "from": "epp",
+      "to": "render",
+      "label": "tokenize",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "epp-llmdpod",
+      "from": "epp",
+      "to": "llmd-pod",
+      "label": "请求转发",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "llmdpod-epp-kv",
+      "from": "llmd-pod",
+      "to": "epp",
+      "label": "KV 事件（ZMQ 5556）+ 重放缓冲（5559）",
+      "fromSide": "top",
+      "toSide": "top"
+    },
+    {
+      "id": "abplugin-prom",
+      "from": "ab-plugin",
+      "to": "prom",
+      "label": "PromQL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "abpod-prom",
+      "from": "ab-pod",
+      "to": "prom",
+      "label": "抓取 /metrics",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "abpod-plugin-kv",
+      "from": "ab-pod",
+      "to": "ab-plugin",
+      "label": "KV 事件同步（可选模式）",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "top",
+      "labelAt": [
+        693,
+        566
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "三条通道，没有同步查询",
+      "items": [
+        "逐请求路由打分只吃：网关在途记账 + KV 事件索引；FPM（含 waiting 队列）只喂扩缩容不进路由",
+        "三家都没有热路径查询：都是订阅/抓取 → 本地缓存 → 打分"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "对照：llm-d 与 AIBrix",
+      "items": [
+        "llm-d：KV 事件（ZMQ）+ 重放缓冲；AIBrix：PromQL 抓 running/queued/KV 进路由打分",
+        "AIBrix 默认前缀索引 = 路由历史投影；KV 事件同步模式才是引擎真相"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "对仿真工程的意义",
+      "items": [
+        "P1 StepBatch 事件流 = FPM 模式（scheduler-cls 注入 → 每步发布 → 控制器消费）在虚拟时钟下的重建",
+        "观测通道要带 epoch / 滞后语义：AIBrix 失真教训与 llm-d 重放缓冲是旁证"
+      ]
+    }
+  ]
+}
