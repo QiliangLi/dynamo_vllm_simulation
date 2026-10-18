@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FPM 与 Metric 统计 · 学习笔记</title><style>
+:root{--bg:#f3f6f8;--paper:#fff;--ink:#20333f;--muted:#546b7b;--line:#d8e2e8;--accent:#185d85;--soft:#e8f2f8;--code:#edf2f5;--other:#466a57;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#131d24;--paper:#1a2832;--ink:#e0e9ee;--muted:#a8bbc8;--line:#354956;--accent:#8bc7ed;--soft:#243f50;--code:#14212b;--other:#a8ceb7;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#131d24;--paper:#1a2832;--ink:#e0e9ee;--muted:#a8bbc8;--line:#354956;--accent:#8bc7ed;--soft:#243f50;--code:#14212b;--other:#a8ceb7;color-scheme:dark}
+:root[data-theme="light"]{--bg:#f3f6f8;--paper:#fff;--ink:#20333f;--muted:#546b7b;--line:#d8e2e8;--accent:#185d85;--soft:#e8f2f8;--code:#edf2f5;--other:#466a57;color-scheme:light}
+*{box-sizing:border-box}html{scroll-padding-top:28px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}a{color:var(--accent);text-underline-offset:4px}button,input{font:inherit}button{background:var(--paper);color:var(--ink);border:1px solid var(--line);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px}button:hover{background:var(--soft)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.layout{max-width:1390px;margin:auto;display:grid;grid-template-columns:238px minmax(0,1fr);gap:50px;padding:36px 40px}.sidebar{position:sticky;top:32px;align-self:start;max-height:calc(100vh - 64px);overflow:auto}.brand{font:600 13px/1.5 ui-monospace,monospace;letter-spacing:.08em;color:var(--accent);margin-bottom:12px}.sidebar .title{font-weight:700;font-size:20px;margin-bottom:24px}.sidebar nav{display:grid;gap:3px;border-top:1px solid var(--line);padding-top:18px}.sidebar nav a{font-size:14px;text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:4px}.sidebar nav a:hover,.sidebar nav a.active{background:var(--soft);color:var(--accent)}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.sidebar .hint{font-size:12px;color:var(--muted);margin-top:18px}main{min-width:0;background:var(--paper);padding:44px 48px 64px;border:1px solid var(--line)}header{padding-bottom:32px;border-bottom:1px solid var(--line)}.eyebrow,.section-top{color:var(--muted);font-size:12px;letter-spacing:.08em}h1{font-size:38px;line-height:1.3;letter-spacing:-.03em;margin:14px 0 18px;text-wrap:balance}h1 small{font-size:20px;display:block;font-weight:400;color:var(--muted);margin-top:12px}h2{font-size:26px;line-height:1.4;margin:8px 0 24px;text-wrap:balance}h3{font-size:20px;line-height:1.6;margin:30px 0 14px}.lead{font-size:18px;line-height:1.9;max-width:42em}.meta{display:flex;gap:8px 20px;flex-wrap:wrap;font-size:12px;color:var(--muted)}p{margin:0 0 18px;overflow-wrap:anywhere}strong{font-weight:650}code{font: .88em/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-wrap:anywhere;color:var(--accent)}p code,li code{background:var(--soft);padding:2px 4px;border-radius:3px}pre{background:var(--code);padding:22px 24px;overflow:auto;border:1px solid var(--line);border-radius:5px;line-height:1.7;margin:18px 0 24px;tab-size:4}pre code{color:var(--ink);font-size:12px;white-space:pre;overflow-wrap:normal}.comment{color:var(--other)}.chapter{padding-top:48px;margin-top:42px;border-top:1px solid var(--line)}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:26px 0}.comparison article{border-top:3px solid var(--accent);padding-top:14px}.comparison article:last-child{border-color:var(--other)}.comparison h3{margin:0 0 8px;font:600 19px/1.5 ui-monospace,monospace}.comparison p{font-size:15px;color:var(--muted)}.path{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;font-weight:600}.path span{background:var(--soft);padding:4px 8px}.takeaway{background:var(--soft);padding:22px 24px;margin:24px 0}.takeaway h3{margin:0 0 10px;font-size:17px}.takeaway ul{margin:0;padding-left:22px}.takeaway li+li{margin-top:10px}.table-block{margin:28px 0 32px;min-width:0}figcaption{font-size:14px;font-weight:650;margin-bottom:10px}.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px}table{border-collapse:collapse;width:100%;min-width:590px;font-size:14px;line-height:1.75;table-layout:fixed}th,td{padding:13px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}thead th{background:var(--soft);font-weight:650}tbody th{font-weight:550;width:29%}tbody tr:nth-child(even){background:var(--bg)}tbody tr:last-child>*{border-bottom:0}.definition{border:1px solid var(--line);border-radius:5px;margin:22px 0}.definition summary{padding:12px 16px;cursor:pointer;overflow-wrap:anywhere;font:600 14px/1.7 ui-monospace,monospace}.definition summary span{float:right;font:12px/1.8 sans-serif;color:var(--muted);margin-left:8px}.definition pre{border:0;border-top:1px solid var(--line);border-radius:0;margin:0}footer{border-top:1px solid var(--line);margin-top:42px;padding-top:24px;font-size:12px;color:var(--muted)}.skip{position:absolute;left:-999px}.skip:focus{left:10px;top:10px;background:var(--paper);padding:10px;z-index:10}.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:10}body.focus .sidebar{display:none}body.focus .layout{display:block;max-width:1000px}.exit-focus{display:none;position:fixed;right:16px;bottom:16px}body.focus .exit-focus{display:block}#filter{width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:10px 12px;border-radius:4px;margin-bottom:8px;font-size:14px}#results{font-size:12px;color:var(--muted)}[hidden]{display:none!important}
+@media(max-width:1050px){.layout{gap:26px;padding:24px;grid-template-columns:200px minmax(0,1fr)}main{padding:32px 28px}h1{font-size:32px}}
+@media(max-width:760px){.layout{display:block;padding:16px}.sidebar{position:static;max-height:none;margin-bottom:24px}.sidebar .title{margin-bottom:12px}.sidebar nav{display:flex;overflow:auto;gap:6px;padding:12px 0}.sidebar nav a{white-space:nowrap}.tools{margin-top:10px}.sidebar .hint{display:none}main{padding:26px 20px}h1{font-size:29px}h2{font-size:23px}.comparison{grid-template-columns:1fr;gap:14px}pre{padding:16px}.chapter{padding-top:32px;margin-top:32px}.definition summary span{float:none;display:block;margin:3px 0 0}}
+@media print{.sidebar,.tools,.progress,.exit-focus,.filter-wrap{display:none!important}.layout{display:block;padding:0;max-width:none}main{border:0;padding:0;background:white;color:black}pre{white-space:pre-wrap;overflow-wrap:anywhere}pre code{white-space:pre-wrap}table{min-width:0;font-size:10px}th,td{padding:6px}h2,h3{break-after:avoid}.chapter{break-before:auto}.table-scroll{overflow:visible}body{background:white;font-size:11px}.definition{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body><a class="skip" href="#overview">跳到正文</a><div class="progress" aria-hidden="true"></div><div class="layout"><aside class="sidebar"><div class="brand">INFERENCE / NOTES</div><div class="title">FPM 与 Metrics</div><nav aria-label="笔记目录"><a href="#overview">阅读起点</a><a href="#s0">产生与发布时机</a><a href="#s1">顶层数据结构</a><a href="#s2">FPM：调度与队列</a><a href="#s3">Metrics：三个统计入口</a><a href="#s4">嵌套字段与后端统计</a><a href="#s5">对外输出与信息损失</a><a href="#s6">能力对照速查</a></nav><div class="tools"><button id="theme">切换主题</button><button id="fold">折叠字段</button><button id="focus">专注阅读</button></div><p class="hint">逐轮消息 · 累计指标<br>在相同统计口径下比较。</p></aside><main><section id="overview"><header><div class="eyebrow">推理系统 · 观测与统计 / 阅读笔记</div><h1>FPM 与 Metric 统计<small>从逐轮工作量，到对外可见的指标</small></h1><p class="lead">FPM 保留一轮计算中的工作量、队列画像与耗时关联；原生 <code>/metrics</code> 提供状态、累计计数和统计分布。比较两者时，先对齐统计对象、记录时机与导出方式。</p><div class="meta"><span>整理于 2026-10-16</span><span>来源版本 137 · 含 6 张原文对照表</span><a href="https://xcn9ffozy7j4.feishu.cn/wiki/LXOtwA5HsipjNZk7oMVcyGtznAc" target="_blank" rel="noopener">查看飞书原文 ↗</a></div></header><div class="comparison"><article><h3>FPM / 主动推送</h3><p>一条消息对应一轮工作画像。统计形成与消息到达之间可能存在排队和传输延迟。</p><div class="path"><span>调度快照</span> → <span>输出后汇总</span> → <span>消息推送</span></div></article><article><h3>/metrics / 外部拉取</h3><p>先更新内存注册表，再等待外部抓取。两次抓取之间的逐轮关联不会完整保留。</p><div class="path"><span>统计输入</span> → <span>注册表</span> → <span>HTTP 抓取</span></div></article></div><aside class="takeaway"><h3>先记住三个边界</h3><ul><li><strong>已有上下文 ≠ 缓存命中。</strong>此前 Chunk 的计算结果会成为下一轮上下文，但不会因此新增一次缓存命中。</li><li><strong>内部能拿到 ≠ 原生指标已导出。</strong><code>SchedulerIterationDetails</code> 等内部结构不能直接算作 <code>/metrics</code> 的公开能力。</li><li><strong>上下文 Token 数 ≠ 实际网络传输量。</strong>传输耗时、字节数和失败信息应看相应 Connector 统计。</li></ul></aside><p class="eyebrow">阅读方式：先看结论，再沿目录逐层展开。字段定义可折叠，末尾对照表可按关键词筛选。</p></section><section id="s0" class="chapter"><div class="section-top">01 / 深入阅读</div><h2>产生与发布时机</h2><p>相同点：都是forward粒度的信息</p><p><strong>两者很多数据都在每轮执行完成后更新，主要区别在于：FPM 主动推送消息，</strong><strong><code>/metrics</code></strong><strong> 等外部来读取。</strong></p><p>FPM 的路径是：</p><pre><code>schedule()
+    留下本轮调度结果，记录时间
+        ↓
+update_from_output()
+    非空计算轮完成后，汇总本轮工作量、当前等待队列、耗时
+        ↓
+放入后台发布队列
+        ↓
+后台线程序列化 → ZMQ → Dynamo 事件通道 → 消费者</code></pre><p>因此，<strong>FPM 的统计形成与实际发出不是同一时刻</strong>：调度线程生成统计，后台线程随后发送，中间可能有排队和传输延迟。</p><p>原生 <code>/metrics</code> 的路径是：</p><pre><code>update_from_output()
+    生成 SchedulerStats 等调度统计
+        ↓
+vLLM 前端处理输出
+    计算 Token、TTFT、ITL、完成请求等统计
+        ↓
+PrometheusStatLogger.record()
+    更新内存中的 Gauge / Counter / Histogram
+        ↓
+外部请求 GET /metrics
+    返回此时注册表中的指标值</code></pre><p>所以，<strong>指标内部更新不需要等待下一次 HTTP 抓取</strong>；但消费者要发起读取，才能拿到更新后的值。</p><figure class="table-block"><figcaption>数据形成、更新与消费时机</figcaption><div class="table-scroll" tabindex="0" aria-label="数据形成、更新与消费时机，可横向滚动"><table><thead><tr><th scope="col">时机</th><th scope="col">FPM</th><th scope="col">/metrics</th></tr></thead><tbody><tr><th scope="row">数据形成</th><td>每个非空计算轮完成后汇总</td><td>调度输出、请求输出和生命周期事件发生时统计</td></tr><tr><th scope="row">内部更新后</th><td>将消息交给后台线程发送</td><td>更新指标注册表</td></tr><tr><th scope="row">消费者获得</th><td>等消息推送到达</td><td>主动 HTTP 抓取</td></tr><tr><th scope="row">两次接收之间发生多轮</th><td>通常对应多条 FPM，但可能丢消息</td><td>看到最新 Gauge 和累计 Counter/Histogram，无法完整还原中间各轮</td></tr></tbody></table></div></figure></section><section id="s1" class="chapter"><div class="section-top">02 / 深入阅读</div><h2>顶层数据结构</h2><p>FPM 对外发送的是一个完整的 <code>ForwardPassMetrics</code> 对象：</p><details class="definition" open><summary>ForwardPassMetrics<span>字段定义</span></summary><pre><code>class ForwardPassMetrics:
+<span class="comment">    # 消息身份</span>
+    version: int                  <span class="comment"># FPM 数据格式版本</span>
+    worker_id: str                <span class="comment"># Dynamo Worker 标识</span>
+    dp_rank: int                  <span class="comment"># 数据并行 Rank</span>
+    counter_id: int               <span class="comment"># 发布消息的递增序号</span>
+
+<span class="comment">    # 本轮时间</span>
+    wall_time: float              <span class="comment"># 本轮耗时估计，单位秒</span>
+
+<span class="comment">    # 两组业务数据，下一层展开</span>
+    scheduled_requests: ScheduledRequestMetrics
+    queued_requests: QueuedRequestMetrics</code></pre></details><p>可以先把它读成：</p><pre><code>一条 FPM
+├── 谁发的、哪一条
+├── 这一轮用了多久
+├── 这一轮调度了什么工作
+└── 输出处理时，还有什么工作在排队</code></pre><p>vLLM 这边，<strong>没有一个与之对称、直接发给 </strong><strong><code>/metrics</code></strong><strong> 的统一 </strong><strong><code>Metrics</code></strong><strong> 对象</strong>。原生 Prometheus 统计入口接收三个统计对象：</p><pre><code><span class="comment"># PrometheusStatLogger 的实际入口签名</span>
+def record(
+    self,
+    scheduler_stats: SchedulerStats | None,
+    iteration_stats: IterationStats | None,
+    mm_cache_stats: MultiModalCacheStats | None = None,
+    engine_idx: int = 0,
+):
+    ...</code></pre><p>它的顶层组织方式是：</p><pre><code>PrometheusStatLogger.record(...)
+├── engine_idx
+│   └── 这些统计属于哪个 Engine
+│
+├── SchedulerStats
+│   └── 调度状态、资源状态、缓存和后端统计
+│
+├── IterationStats
+│   └── 本次输出处理中的 Token、请求延迟、完成请求统计
+│
+└── MultiModalCacheStats
+    └── 多模态缓存查询和命中统计</code></pre><p><code>record()</code> 用这些数据更新 Prometheus 注册表，HTTP <code>/metrics</code> 再读取注册表。因此，<strong>这三个对象是指标的输入，不是 HTTP 返回的数据结构</strong>。</p><p>只比较顶层，可以先得到：</p><figure class="table-block"><figcaption>顶层结构对照</figcaption><div class="table-scroll" tabindex="0" aria-label="顶层结构对照，可横向滚动"><table><thead><tr><th scope="col">比较项</th><th scope="col">FPM</th><th scope="col">vLLM Metrics</th></tr></thead><tbody><tr><th scope="row">顶层组织单位</th><td>一条 Forward Pass 消息</td><td>三类统计输入，汇入指标注册表</td></tr><tr><th scope="row">主要分类方式</th><td>已调度工作 / 排队工作</td><td>调度状态 / 输出与请求统计 / 多模态缓存</td></tr><tr><th scope="row">是否直接携带本轮耗时</th><td>wall_time</td><td>没有顶层同口径字段</td></tr><tr><th scope="row">对外是否保留原对象</th><td>FPM 对象序列化后发送</td><td>选择部分字段，转换为 Gauge、Counter、Histogram</td></tr><tr><th scope="row">核心关注对象</th><td>某轮计算的工作量和队列</td><td>引擎状态、处理产出、请求体验及后端状态</td></tr></tbody></table></div></figure></section><section id="s2" class="chapter"><div class="section-top">03 / 深入阅读</div><h2>FPM：调度与队列</h2><p>FPM 的 <code>scheduled_requests</code> 展开后，全部是数值字段：</p><details class="definition" open><summary>ScheduledRequestMetrics<span>字段定义</span></summary><pre><code>class ScheduledRequestMetrics:
+<span class="comment">    # 本轮 Prefill 工作</span>
+    num_prefill_requests: int      <span class="comment"># 本轮 Prefill 请求数</span>
+    sum_prefill_tokens: int        <span class="comment"># 本轮新计算的 Prefill Token 总数</span>
+    var_prefill_length: float      <span class="comment"># 这些请求的完整 Prompt 长度总体方差</span>
+    sum_prefill_kv_tokens: int     <span class="comment"># 这些请求在本轮计算前已有的上下文 Token 总数（前缀存+前面已经完成的chunk）</span>
+
+<span class="comment">    # 本轮 Decode 工作</span>
+    num_decode_requests: int       <span class="comment"># 本轮 Decode 请求数</span>
+    sum_decode_kv_tokens: int      <span class="comment"># 这些请求已有的上下文 Token 总数</span>
+    var_decode_kv_tokens: float    <span class="comment"># 这些请求上下文长度的总体方差（直接读取num_computed_tokens）</span></code></pre></details><p>FPM 的另一组 <code>queued_requests</code>：</p><details class="definition" open><summary>QueuedRequestMetrics<span>字段定义</span></summary><pre><code>class QueuedRequestMetrics:
+<span class="comment">    # 被归入 Prefill 类的等待请求</span>
+    num_prefill_requests: int      <span class="comment"># 等待请求数</span>
+    sum_prefill_tokens: int        <span class="comment"># request.num_tokens 总和</span>
+    var_prefill_length: float      <span class="comment"># 上述请求长度的总体方差</span>
+
+<span class="comment">    # 被归入 Decode 类的等待请求</span>
+    num_decode_requests: int       <span class="comment"># 等待请求数</span>
+    sum_decode_kv_tokens: int      <span class="comment"># request.num_computed_tokens 总和</span>
+    var_decode_kv_tokens: float    <span class="comment"># 上述数值的总体方差</span></code></pre></details><p>当前 Dynamo 实现按以下规则分类：</p><pre><code>waiting 队列：
+    PREEMPTED                         → queued Decode
+    其他                              → queued Prefill
+
+skipped_waiting 队列：
+    WAITING_FOR_REMOTE_KVS            → queued Decode
+    其他                              → queued Prefill</code></pre><h3>FPM 的数据来源</h3><figure class="table-block"><figcaption>FPM 的数据来源</figcaption><div class="table-scroll" tabindex="0" aria-label="FPM 的数据来源，可横向滚动"><table><thead><tr><th scope="col">FPM 信息</th><th scope="col">vLLM 已有的基础数据</th><th scope="col">Dynamo 做了什么</th></tr></thead><tbody><tr><th scope="row">本轮 Prefill/Decode 请求数</th><td>本轮调度的请求及阶段判断信息</td><td>分类、计数</td></tr><tr><th scope="row">本轮 Prefill 新计算 Token 数</th><td>每个请求的 num_scheduled_tokens</td><td>按 Prefill 请求求和</td></tr><tr><th scope="row">本轮 Prefill/Decode 上下文长度总和</th><td>每个请求的 num_computed_tokens</td><td>分类、求和</td></tr><tr><th scope="row">Prompt 长度、上下文长度方差</th><td>每个请求的对应长度</td><td>额外计算总体方差</td></tr><tr><th scope="row">排队请求的数量、长度统计</th><td>等待队列中的请求对象</td><td>遍历队列、分类、求和、计算方差</td></tr><tr><th scope="row">wall_time</th><td>vLLM 的调度和输出处理执行点</td><td>额外记录时间，计算间隔</td></tr><tr><th scope="row">worker_id、counter_id</th><td>不全属于 vLLM 的推理统计</td><td>Dynamo 填入 Worker 身份和发布消息序号</td></tr></tbody></table></div></figure></section><section id="s3" class="chapter"><div class="section-top">04 / 深入阅读</div><h2>Metrics：三个统计入口</h2><h3> <code>SchedulerStats</code>：</h3><details class="definition" open><summary>SchedulerStats<span>字段定义</span></summary><pre><code>class SchedulerStats:
+<span class="comment">    # 当前调度状态</span>
+    num_running_reqs: int                  <span class="comment"># 当前 Running 请求数</span>
+    num_waiting_reqs: int                  <span class="comment"># 等待但未被归入 deferred 的请求数</span>
+    num_skipped_waiting_reqs: int          <span class="comment"># 因约束或阻塞而 deferred 的请求数</span>
+    kv_cache_usage: float                  <span class="comment"># KV Cache 使用率，0～1</span>
+
+<span class="comment">    # 内部 DP 协调信息：不是直接导出的 Prometheus 指标</span>
+    step_counter: int
+    current_wave: int
+
+<span class="comment">    # 缓存统计</span>
+    prefix_cache_stats: PrefixCacheStats
+    connector_prefix_cache_stats: PrefixCacheStats | None
+    kv_cache_eviction_events: list[KVCacheEvictionEvent]
+
+<span class="comment">    # 后端功能统计</span>
+    spec_decoding_stats: SpecDecodingStats | None
+    kv_connector_stats: dict[str, Any] | None
+    ec_connector_stats: dict[str, Any] | None
+    perf_stats: PerfStats | None
+
+<span class="comment">    # LoRA 状态：适配器名称 → 请求数</span>
+    waiting_lora_adapters: dict[str, int]
+    running_lora_adapters: dict[str, int]
+
+<span class="comment">    # 内部详细统计：当前原生 Prometheus logger 不直接导出</span>
+    iteration_details: SchedulerIterationDetails | None
+    cudagraph_stats: CUDAGraphStat | None</code></pre></details><p>这个对象把<strong>当前状态</strong>和<strong>本次上报的统计增量</strong>放在一起。例如：</p><ul><li><code>num_running_reqs</code>、<code>kv_cache_usage</code> 是状态快照。</li><li><code>prefix_cache_stats.queries/hits</code> 是本次更新带来的缓存统计，后续累加到 Counter。</li><li><code>kv_cache_eviction_events</code> 是本次收集到的事件，后续进入 Histogram。</li></ul><h3> <code>IterationStats</code>：</h3><details class="definition" open><summary>IterationStats<span>字段定义</span></summary><pre><code>class IterationStats:
+<span class="comment">    # 本次输出处理的时间</span>
+    iteration_timestamp: float
+
+<span class="comment">    # 本次输出中观察到的 Token 和事件</span>
+    num_generation_tokens: int                 <span class="comment"># 本次新增的输出 Token 数</span>
+    prompt_token_stats: PromptTokenStats       <span class="comment"># Prompt Token 来源统计</span>
+    num_preempted_reqs: int                    <span class="comment"># 本次观察到的抢占事件数</span>
+    num_corrupted_reqs: int                    <span class="comment"># 本次计入的异常请求数</span>
+
+<span class="comment">    # 本次得到的延迟样本</span>
+    time_to_first_tokens_iter: list[float]     <span class="comment"># 首 Token 延迟样本</span>
+    inter_token_latencies_iter: list[float]    <span class="comment"># 相邻输出间隔样本</span>
+
+<span class="comment">    # 本次收集到的请求参数样本</span>
+    max_num_generation_tokens_iter: list[int]
+    n_params_iter: list[int]
+
+<span class="comment">    # 本次完成的请求</span>
+    finished_requests: list[FinishedRequestStats]
+
+<span class="comment">    # 只读属性，不是另一份独立计数</span>
+<span class="comment">    # num_prompt_tokens == prompt_token_stats.total</span></code></pre></details><p><strong>这里的 Iteration 指一次 </strong><strong><code>EngineCoreOutputs</code></strong><strong> 的输出统计，不要直接把它理解成 FPM 的逐轮计算工作量。</strong></p><p>比如：</p><pre><code>FPM.sum_prefill_tokens
+    这一轮实际调度了多少 Prefill Token
+
+IterationStats.prompt_token_stats.computed
+    本次输出处理中收到的请求级 Prefill 统计，
+    其中有多少 Token 被归为本地计算</code></pre><p>在 Chunked Prefill 下，这两者的记录时机和粒度不同。</p><h3><code>MultiModalCacheStats</code> ：</h3><details class="definition" open><summary>MultiModalCacheStats<span>字段定义</span></summary><pre><code>class MultiModalCacheStats:
+    reset: bool       <span class="comment"># 是否发生缓存重置</span>
+    requests: int     <span class="comment"># 本次统计涉及的请求数</span>
+    queries: int      <span class="comment"># 查询的多模态数据项数</span>
+    hits: int         <span class="comment"># 命中的多模态数据项数</span></code></pre></details><p>注意这里按<strong>多模态数据项</strong>计数，不是按文本 Token 计数。原生 Prometheus logger 使用其中的 <code>queries</code> 和 <code>hits</code> 更新相应 Counter。</p><p>这一层的对应关系可以先整理为：</p><figure class="table-block"><figcaption>结构相关，但统计口径不同</figcaption><div class="table-scroll" tabindex="0" aria-label="结构相关，但统计口径不同，可横向滚动"><table><thead><tr><th scope="col">FPM 子结构</th><th scope="col">Metrics 中最相关的结构</th><th scope="col">为什么不能直接画等号</th></tr></thead><tbody><tr><th scope="row">scheduled_requests</th><td>SchedulerStats + IterationStats</td><td>前者记录本轮调度工作；后两者分别包含状态和输出统计</td></tr><tr><th scope="row">queued_requests</th><td>SchedulerStats 的等待请求计数</td><td>Metrics 按等待原因拆分；FPM 按阶段分类，并额外统计长度和方差</td></tr><tr><th scope="row">wall_time</th><td>内部 SchedulerIterationDetails.elapsed_ms、各种请求延迟样本</td><td>测量区间和统计对象不同；elapsed_ms 当前也没有直接导出到原生 /metrics</td></tr></tbody></table></div></figure></section><section id="s4" class="chapter"><div class="section-top">05 / 深入阅读</div><h2>嵌套字段与后端统计</h2><h3> <code>IterationStats</code> 的两个子对象</h3><p><code>PromptTokenStats</code> 回答的是：<strong>这些 Prompt Token 从哪里来？</strong></p><details class="definition" open><summary>PromptTokenStats<span>字段定义</span></summary><pre><code>class PromptTokenStats:
+    computed: int                 <span class="comment"># 本地新计算的 Prompt Token</span>
+    local_cache_hit: int          <span class="comment"># 本地前缀缓存命中的 Prompt Token</span>
+    external_kv_transfer: int     <span class="comment"># 从外部 KV 传输得到的 Prompt Token</span>
+
+    cached_tokens: int            <span class="comment"># local_cache_hit + external_kv_transfer</span>
+    total: int                    <span class="comment"># computed + cached_tokens</span></code></pre></details><p>它与 FPM 的差别是：</p><pre><code>PromptTokenStats：
+    新计算 / 本地缓存 / 外部 KV
+    → 按来源分类
+
+FPM ScheduledRequestMetrics：
+    本轮新计算量 / 本轮已有上下文
+    → 按本轮计算工作分类</code></pre><p>例如，前一个 Chunk 刚计算好的 2048 个 Token，在下一轮会进入 FPM 的 <code>sum_prefill_kv_tokens</code>，但不会因此成为一次新的 <code>local_cache_hit</code>。</p><p><code>FinishedRequestStats</code> 回答的是：<strong>某个已完成请求一共经历了什么？</strong></p><details class="definition" open><summary>FinishedRequestStats<span>字段定义</span></summary><pre><code>class FinishedRequestStats:
+<span class="comment">    # 身份与结束情况</span>
+    request_id: str | None
+    finish_reason: FinishReason
+    is_corrupted: bool
+
+<span class="comment">    # 请求规模</span>
+    num_prompt_tokens: int
+    num_generation_tokens: int
+    num_cached_tokens: int
+    max_tokens_param: int | None
+    num_preemptions: int
+
+<span class="comment">    # 请求生命周期耗时，单位秒</span>
+    e2e_latency: float                  <span class="comment"># 到达 → 请求结束</span>
+    queued_time: float                  <span class="comment"># 首次排队 → 首次调度</span>
+    prefill_time: float                 <span class="comment"># 首次调度 → 首 Token</span>
+    decode_time: float                  <span class="comment"># 首 Token → 末 Token</span>
+    inference_time: float               <span class="comment"># 首次调度 → 末 Token</span>
+    mean_time_per_output_token: float   <span class="comment"># Decode 时间 / 首 Token 之后的输出数</span></code></pre></details><p>这些是请求级数据，可能跨越很多个 Forward Pass。原生 Prometheus logger 将它们汇入计数器和直方图，<strong>并不会把 </strong><strong><code>request_id</code></strong><strong> 作为这些指标的标签逐请求导出</strong>。</p><h3> <code>SchedulerStats</code> 的缓存部分</h3><details class="definition" open><summary>PrefixCacheStats / KVCacheEvictionEvent<span>字段定义</span></summary><pre><code>class PrefixCacheStats:
+<span class="comment">    # 继承自 BaseCacheStats</span>
+    reset: bool
+    requests: int                <span class="comment"># 本次普通请求数</span>
+    queries: int                 <span class="comment"># 本次查询的 Token 数</span>
+    hits: int                    <span class="comment"># 本次命中的 Token 数</span>
+
+<span class="comment">    # 对曾被抢占的请求单独统计</span>
+    preempted_requests: int
+    preempted_queries: int
+    preempted_hits: int
+
+
+class KVCacheEvictionEvent:
+    lifetime_seconds: float            <span class="comment"># Block 生命周期</span>
+    idle_seconds: float                <span class="comment"># 淘汰前的空闲时长</span>
+    reuse_gaps_seconds: tuple[float, ...]  <span class="comment"># 各次复用之间的时间间隔</span></code></pre></details><p>其中：</p><pre><code>SchedulerStats.prefix_cache_stats
+    → 本地前缀缓存统计
+
+SchedulerStats.connector_prefix_cache_stats
+    → 外部 KV Connector 的前缀缓存统计
+
+SchedulerStats.kv_cache_eviction_events
+    → 被采集到的 KV Block 淘汰事件列表</code></pre><p>原生 Prometheus logger 对 <code>PrefixCacheStats</code> 直接读取的是 <code>queries</code>、<code>hits</code>；并不是结构里的每个字段都会变成一个公开指标。后端功能相关的子结构如下：</p><details class="definition" open><summary>SpecDecodingStats / PerfStats / DebugPerfStats<span>字段定义</span></summary><pre><code>class SpecDecodingStats:
+    num_spec_tokens: int                  <span class="comment"># 配置的投机 Token 数</span>
+    num_drafts: int                       <span class="comment"># 草稿批次计数</span>
+    num_draft_tokens: int                 <span class="comment"># 提出的草稿 Token 数</span>
+    num_accepted_tokens: int              <span class="comment"># 被接受的草稿 Token 数</span>
+    num_accepted_tokens_per_pos: list[int] <span class="comment"># 各草稿位置的接受计数</span>
+    num_draft_tokens_per_pos: list[int]    <span class="comment"># 各草稿位置的提出计数</span>
+
+
+class PerfStats:
+    num_flops_per_gpu: int                <span class="comment"># 每 GPU 的 FLOPs 估计</span>
+    num_read_bytes_per_gpu: int           <span class="comment"># 每 GPU 的内存读取字节估计</span>
+    num_write_bytes_per_gpu: int          <span class="comment"># 每 GPU 的内存写入字节估计</span>
+    debug_stats: DebugPerfStats | None    <span class="comment"># 内部计算细节，不直接导出</span>
+
+
+class DebugPerfStats:
+    calc_duration: float
+    num_prefill_requests: int
+    num_decode_requests: int
+    context_breakdown: dict[str, int] | None
+    num_flops_per_gpu_breakdown: dict[str, int] | None
+    num_read_bytes_per_gpu_breakdown: dict[str, int] | None
+    num_write_bytes_per_gpu_breakdown: dict[str, int] | None</code></pre></details><p>这些功能需要相应配置才能产生有效数据。特别是 <code>PerfStats</code> 的字节数是<strong>内存访问估计</strong>，不能当成网络传输字节数。</p><p>Connector 统计使用字典，字段由具体后端决定：</p><pre><code><span class="comment"># SchedulerStats 中：</span>
+kv_connector_stats: dict[str, Any] | None  <span class="comment"># KV 传输/缓存后端统计</span>
+ec_connector_stats: dict[str, Any] | None  <span class="comment"># Encoder Cache 传输后端统计</span></code></pre><p>以 NIXL 的统计数据部分为例：</p><pre><code>NixlKVConnectorStats.data
+├── transfer_duration          <span class="comment"># 传输时间样本</span>
+├── post_duration              <span class="comment"># 提交传输的时间样本</span>
+├── bytes_transferred          <span class="comment"># 传输字节数样本</span>
+├── num_descriptors            <span class="comment"># 描述符数量样本</span>
+├── num_failed_transfers       <span class="comment"># 失败统计</span>
+├── num_failed_notifications
+├── num_failed_handshakes
+└── num_kv_expired_reqs</code></pre><p>这才是与<strong>实际 KV 传输时间、传输量、传输失败</strong>直接相关的统计。FPM 中的 <code>sum_decode_kv_tokens</code> 并不包含这些信息。最后，<code>SchedulerStats</code> 中还有两组<strong>内部有、但当前原生 Prometheus logger 不直接导出</strong>的结构：</p><details class="definition" open><summary>SchedulerIterationDetails / CUDAGraphStat<span>字段定义</span></summary><pre><code>class SchedulerIterationDetails:
+    iteration_index: int
+    num_ctx_requests: int          <span class="comment"># 本轮 Context/Prefill 请求数</span>
+    num_ctx_tokens: int            <span class="comment"># 本轮 Context/Prefill 调度 Token 数</span>
+    num_generation_requests: int   <span class="comment"># 本轮 Generation/Decode 请求数</span>
+    num_generation_tokens: int     <span class="comment"># 本轮 Generation 调度 Token 数</span>
+    elapsed_ms: float              <span class="comment"># 该计时区间的 CPU 侧耗时</span>
+    num_encoder_inputs: int
+    num_encoder_output_tokens: int
+    is_dummy: bool                 <span class="comment"># 是否为 DP dummy iteration</span>
+
+
+class CUDAGraphStat:
+    num_unpadded_tokens: int
+    num_padded_tokens: int
+    num_paddings: int
+    runtime_mode: str</code></pre></details><p>这部分很关键：<strong>如果比较的是“vLLM 内部能拿到什么”，它已有部分与 FPM 接近的逐轮数据；如果比较的是“原生 </strong><strong><code>/metrics</code></strong><strong> 对外提供什么”，这些内部字段不能算作已经提供。</strong> 它们目前主要走详细日志等路径。</p></section><section id="s5" class="chapter"><div class="section-top">06 / 深入阅读</div><h2>对外输出与信息损失</h2><p>FPM 基本保留消息中的数值和结构：</p><pre><code>ForwardPassMetrics
+    │
+    ├── scheduled_requests
+    ├── queued_requests
+    └── wall_time 等顶层字段
+    │
+    ▼
+序列化为一条消息
+    │
+    ▼
+后台发布 → ZMQ → Dynamo 事件通道
+    │
+    ▼
+消费者解码回 ForwardPassMetrics</code></pre><p>Metrics 会进行字段选择和统计转换。下面是对应实际代码的简化表示：</p><pre><code><span class="comment"># Gauge：用最新状态覆盖</span>
+num_requests_running.set(
+    scheduler_stats.num_running_reqs
+)
+
+num_requests_waiting.set(
+    scheduler_stats.num_waiting_reqs
+    + scheduler_stats.num_skipped_waiting_reqs
+)
+
+kv_cache_usage_perc.set(
+    scheduler_stats.kv_cache_usage
+)
+
+<span class="comment"># Counter：把本次增量加到累计值</span>
+generation_tokens.inc(
+    iteration_stats.num_generation_tokens
+)
+
+prefix_cache_hits.inc(
+    scheduler_stats.prefix_cache_stats.hits
+)
+
+<span class="comment"># Histogram：把样本加入桶、总和、样本数</span>
+for ttft in iteration_stats.time_to_first_tokens_iter:
+    time_to_first_token_seconds.observe(ttft)
+
+for req in iteration_stats.finished_requests:
+    e2e_request_latency_seconds.observe(req.e2e_latency)</code></pre><p>对外就变成这种形式，而不是返回 <code>SchedulerStats</code> 对象。下面数值只是格式示意：</p><pre><code>vllm:num_requests_running{model_name=&quot;...&quot;,engine=&quot;0&quot;} 8
+
+vllm:generation_tokens_total{model_name=&quot;...&quot;,engine=&quot;0&quot;} 12345
+
+vllm:time_to_first_token_seconds_bucket{...,le=&quot;0.1&quot;} 20
+vllm:time_to_first_token_seconds_sum{...} 12.5
+vllm:time_to_first_token_seconds_count{...} 100</code></pre><p>所以，字段经过这一层转换后：</p><figure class="table-block"><figcaption>统计转换保留与丢失的信息</figcaption><div class="table-scroll" tabindex="0" aria-label="统计转换保留与丢失的信息，可横向滚动"><table><thead><tr><th scope="col">转换方式</th><th scope="col">保留什么</th><th scope="col">不再直接保留什么</th></tr></thead><tbody><tr><th scope="row">Gauge .set()</th><td>最近一次状态</td><td>两次抓取之间的所有中间状态</td></tr><tr><th scope="row">Counter .inc()</th><td>累计量</td><td>每轮各贡献多少，以及发生顺序</td></tr><tr><th scope="row">Histogram .observe()</th><td>分桶计数、样本总和、样本数</td><td>每条原始样本及其与具体 Batch 的对应关系</td></tr><tr><th scope="row">FPM 消息</th><td>同一条消息中的工作量、长度统计和耗时关联</td><td>本来就未采集的请求级细节</td></tr></tbody></table></div></figure><p>FPM 也不是无损日志：当前实现可能因队列满而丢消息；<code>wall_time</code> 是输出到达间隔等方式得到的估计；全零心跳是发布线程超时后构造的消息，不能当成重新采样得到的真实空队列。</p><p>另外，本地两份代码的等待队列接口不完全配套：Dynamo 仍读取 <code>skipped_waiting</code>，本地 vLLM 已使用新的队列结构。因此，实际联调前需要适配，不能直接假设两边等待总数一致。</p></section><section id="s6" class="chapter"><div class="section-top">07 / 深入阅读</div><h2>能力对照速查</h2><figure class="table-block"><figcaption>外部实际可获得的数据</figcaption><div class="table-scroll" tabindex="0" aria-label="外部实际可获得的数据，可横向滚动"><table><thead><tr><th scope="col">想知道什么</th><th scope="col">FPM</th><th scope="col">原生 /metrics</th></tr></thead><tbody><tr><th scope="row">某轮调度了几个 Prefill、几个 Decode</th><td>直接提供</td><td>没有直接导出的同口径字段</td></tr><tr><th scope="row">某轮新计算多少 Prefill Token</th><td>直接提供，逐 Chunk/逐轮</td><td>有本地计算 Token 累计值，但统计时机和粒度不同</td></tr><tr><th scope="row">某轮 Prefill 已有多少上下文</th><td>直接提供</td><td>缓存命中计数不能替代</td></tr><tr><th scope="row">某轮 Decode 上下文长度总和、方差</th><td>直接提供</td><td>没有直接对应项</td></tr><tr><th scope="row">当前排队请求的阶段、长度总和、方差</th><td>提供，受实现分类与队列适配限制</td><td>有等待人数和原因，没有完整长度画像</td></tr><tr><th scope="row">同轮工作量与耗时的对应关系</th><td>保留在同一条消息里</td><td>不能从现有累计指标完整还原</td></tr><tr><th scope="row">当前 Running/Waiting 状态</th><td>有调度与队列相关计数，但口径不同</td><td>直接提供状态 Gauge</td></tr><tr><th scope="row">KV Cache 使用率</th><td>无</td><td>有</td></tr><tr><th scope="row">前缀缓存命中、Prompt Token 来源</th><td>不做完整来源拆分</td><td>有</td></tr><tr><th scope="row">实际生成 Token 累计数</th><td>无独立字段</td><td>有</td></tr><tr><th scope="row">请求 TTFT、ITL、端到端和各阶段耗时</th><td>无请求生命周期结构</td><td>有对应分布统计</td></tr><tr><th scope="row">请求完成数、结束原因、抢占次数</th><td>无完整事件统计</td><td>有</td></tr><tr><th scope="row">投机解码接受情况</th><td>无</td><td>有，依配置启用</td></tr><tr><th scope="row">实际 KV 传输量、耗时、失败</th><td>无</td><td>Connector 可提供</td></tr><tr><th scope="row">FLOPs、内存访问量估计</th><td>只有可用于建模的工作量特征</td><td>有性能估算指标，依配置启用</td></tr><tr><th scope="row">单条请求的完整原始记录</th><td>无</td><td>内部有部分请求记录，但原生指标会聚合，并不逐请求导出</td></tr><tr><th scope="row">数据组织方式</th><td>逐轮计算消息</td><td>当前状态＋累计计数＋统计分布</td></tr></tbody></table></div></figure></section><footer>根据飞书《FPM 与 Metric 统计》整理，保留正文中的字段定义及 6 张内嵌表格。开头速览为整理摘要；技术结论沿用原文，本页未重新核验源码或适用版本。原文提到的队列接口适配、消息丢失和计时估计等限制仍需保留。<br>此文件可离线打开；原文链接需要网络与相应访问权限。</footer></main></div><button class="exit-focus">退出专注阅读</button><script>
+const root=document.documentElement;const theme=document.getElementById('theme');
+theme.onclick=()=>{const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;root.dataset.theme=dark?'light':'dark';theme.textContent=dark?'切换深色':'切换浅色'};
+document.getElementById('fold').onclick=e=>{let items=[...document.querySelectorAll('.definition')];let open=items.some(x=>x.open);items.forEach(x=>x.open=!open);e.target.textContent=open?'展开字段':'折叠字段'};
+function focusMode(){document.body.classList.toggle('focus')}document.getElementById('focus').onclick=focusMode;document.querySelector('.exit-focus').onclick=focusMode;
+const final=document.querySelector('#s6');if(final){const f=document.createElement('div');f.className='filter-wrap';f.innerHTML='<label for="filter">查找观测能力</label><input id="filter" type="search" placeholder="如：KV、延迟、队列、Token"><div id="results" role="status"></div>';final.querySelector('figure').before(f);const rows=[...final.querySelectorAll('tbody tr')];const update=()=>{const q=document.getElementById('filter').value.trim().toLowerCase();rows.forEach(r=>r.hidden=!r.textContent.toLowerCase().includes(q));document.getElementById('results').textContent='显示 '+rows.filter(r=>!r.hidden).length+' / '+rows.length+' 项'};document.getElementById('filter').oninput=update;update()}
+const links=[...document.querySelectorAll('nav a')];const sections=[...document.querySelectorAll('main section')];function scrollState(){const y=scrollY+100;let active=sections[0];sections.forEach(s=>{if(s.offsetTop<=y)active=s});links.forEach(a=>{const yes=a.hash==='#'+active.id;a.classList.toggle('active',yes);if(yes)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')});const total=document.documentElement.scrollHeight-innerHeight;document.querySelector('.progress').style.width=(total?scrollY/total*100:100)+'%'}addEventListener('scroll',scrollState,{passive:true});scrollState();
+let prior=[];addEventListener('beforeprint',()=>{prior=[...document.querySelectorAll('details')].map(d=>d.open);document.querySelectorAll('details').forEach(d=>d.open=true);document.querySelectorAll('tr[hidden]').forEach(r=>{r.dataset.printHidden='1';r.hidden=false})});addEventListener('afterprint',()=>{document.querySelectorAll('details').forEach((d,i)=>d.open=prior[i]);document.querySelectorAll('[data-print-hidden]').forEach(r=>{r.hidden=true;delete r.dataset.printHidden})});
+</script></body></html>
