@@ -70,9 +70,11 @@ flowchart TD
 
 多个逻辑 worker 各自有真实 scheduler 和 KV block pool，共享一个存储系统和虚拟时间。Dynamo 的 selection/reservation 状态是真实 Rust 对象。仿真没有 HTTP/IPC 转发成本；需要研究它们时，应建立独立延迟模型或第二类运行形态。
 
-### 3.2 后续：完整服务闭环
+### 3.2 后续：完整服务闭环（2026-10-21 追记：壁钟模式已实现）
 
 让真实 Dynamo frontend、发现机制和 worker 接口运行；每个 worker 是真实 vLLM EngineCore + SimExecutor，底层存储/计算仍由模型完成。它适合验证 API、取消、跨进程协议、服务发现、PD 交接等完整行为。
+
+**2026-10-21**：壁钟缩放模式（file 发现/tcp 请求面/ZMQ 事件面，免 etcd/NATS）已在 macOS 本机实现并验收——frontend + N×`dynamo.vllm` worker（各含 EngineCore 子进程）+ storage-sim 服务全部为真实进程，SimExecutor 经 `Executor` 限定名注入（vLLM/Dynamo 源码零修改）。实现细节、实测修正与验收数值见 [多进程真实Dynamo-vLLM仿真栈设计-20261020.md](../docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md) §13 追记与包内 README 的进程栈小节；高速离散事件推进（跨进程虚拟时间协调）仍为后续。
 
 可以先用壁钟缩放模式验证服务协议；若要高速离散事件推进，必须让跨进程 participants 在各自事件边界上暂停/恢复，统一协调虚拟时间。只给 Python 打补丁替换 `time.time()` 无法控制 Rust/Tokio 定时器、IPC、native 线程或真实进程超时。
 

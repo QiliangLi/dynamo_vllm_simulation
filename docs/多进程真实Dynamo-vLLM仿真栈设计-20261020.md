@@ -3,8 +3,8 @@
 | 项目 | 说明 |
 |---|---|
 | 日期 | 2026-10-20 |
-| 性质 | 设计文档（**未实现**）。给出把现有单进程 DES 实验台扩展为"本机多进程、原始 Dynamo/vLLM 代码、mock 模型执行与存储"的架构、决策、工作量与验收标准 |
-| 状态 | 设计稿。标注【实测】的条目均于 2026-10-20 在本机（macOS 26.6 ARM）对固定 SHA 源码验证；标注【待验证】的留给实现阶段 |
+| 性质 | 设计文档。给出把现有单进程 DES 实验台扩展为"本机多进程、原始 Dynamo/vLLM 代码、mock 模型执行与存储"的架构、决策、工作量与验收标准 |
+| 状态 | **模式 1（壁钟）已于 2026-10-21 实现并通过验收（W0–W6）**；模式 2（虚拟时钟服务，W7）未实现。实现摘要与实测修正见 §13 追记 |
 | 相关文档 | [Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md](Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md)（§3.2 完整服务闭环、§18.1 SimExecutor、§21 P3——本设计是它们的实施细化，下称"总设计"）；[CPU真实代码仿真环境检视报告-20260924.md](CPU真实代码仿真环境检视报告-20260924.md) §5/§8（语义决策与路线）；[MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md)（§5.0 在线必需件——本栈是其落地验收场）；[Dynamo路由与vLLM引擎的状态交互机制-20261009.md](Dynamo路由与vLLM引擎的状态交互机制-20261009.md)（真实部署三通道）；[AB双类带宽争抢实验结果-20261008.md](../AB双类带宽争抢实验结果-20261008.md) §6（picker 随机性判读方法） |
 
 文中源码路径相对于 `dynamo_vllm_cpu_sim/`（如 `upstream/vllm/...`）。
@@ -220,3 +220,20 @@ macOS 注意：`CpuPlatform` 自动设 `VLLM_WORKER_MULTIPROC_METHOD=spawn`（F3
 | ai-dynamo 打包 | `upstream/dynamo/pyproject.toml:5,16,64,165-166,235` |
 | mocker（W1 用） | `upstream/dynamo/components/src/dynamo/mocker/` |
 | 现有 DES 复用来源 | `sim/engine.py`（时间模型/合成输出）、`sim/connector.py`（KVConnectorBase_V1 语义）、`sim/storage.py`（两带宽策略）、`scripts/apply_ascend_patch.py`（补丁落地模式） |
+
+## 13. 追记（2026-10-21）：模式 1 实现与实测修正
+
+W0–W6 全部完成并验收（macOS 26.6 ARM 本机）：frontend + 2×`dynamo.vllm` worker（各含 EngineCore 子进程）+ storage-sim 共 5+ 真实进程；`stack_smoke` 12/12、`stack_remote` 8/8（含远端 KV 命中：首步 prefill=68−32）、慢存储对照 TTFT 9.2×；既有 26 项 DES 测试无回归，新增 storage-sim 服务 3 项；DES 默认模式复跑通过。交付物：`sim/stack/{executor,storage_service,storage_client,connector_rpc}.py`、`scripts/{stack_vllm_worker,replay_http,launch_stack.sh,check_stack,gen_stack_trace,bootstrap_stack.sh,stack_llm_smoke}`、`configs/{stack_smoke,stack_remote,stack_slow}.{jsonl,json}`、`results/stack_*`。
+
+与设计的偏差与实测修正（全部已固化在代码注释中）：
+
+1. **零源码补丁，比设计更干净**：§5.2 的 patched/ 副本方案未启用——3 个缺失符号中 2 个异常类是 `handlers.py` **请求路径上的延迟 import**（静态探测不触发），连同 0.28 的 `EngineCore.get_kv_cache_group_metadata` 工具方法，全部在 `scripts/stack_vllm_worker.py` 包装层的运行期 monkeypatch 中补齐（异常定义为 0.20.2 无人抛出的新 `Exception` 子类；元数据取自 SimExecutor 持有的真实 KVCacheConfig）。Dynamo 与 vLLM 源码零修改（D2 的严格形式）。
+2. **executor 请求表语义修正**：实测 0.20.2 的 `SchedulerOutput.scheduled_cached_reqs.num_computed_tokens`（及 `scheduled_new_reqs` 的初始值）是**本步推进前**的值，`computed_after = before + count`；且每请求恰一个 sampled 条目（未到采样点为 `[]`）。
+3. **`vllm serve`/worker 的 argparse choices 限制**：`--distributed-executor-backend` 只收 `mp/ray/uni/external_launcher`，限定名注入须在 CLI 解析后程序内赋值（包装层实现）。
+4. **跨进程块哈希要求统一 `PYTHONHASHSEED`**：vLLM 前缀缓存块哈希依赖 Python 内建 `hash()`（DES 单进程 seed=0 掩盖了这一点）；storage-sim 预置池与 worker 命中查询必须同 seed，`launch_stack.sh` 固定 0。**这是真实多进程部署同样成立的事实**（单机多 worker 共享缓存感知路由的前提）。
+5. **纪元秒不可作虚拟时间**：storage-sim 若以 `time.time()`（1.8e9 量级）为 `Storage.now`，double 分辨率（~0.4µs）使每个读的最后若干字节永远扣不完，`advance` 死循环。改为"服务启动后流逝秒"（DES 同量级），并加 10 万步推进保险。
+6. **token 精确实验必须走 `/v1/completions`**：chat 路径套 chat 模板会改变 token 序列，远端前缀永不命中；`replay_http.py` 默认 completions 并做 decode→encode 往返校验（损失行跳过并计数）。
+7. **真实 vLLM 容量准入门生效**：`num_blocks×block_size ≥ max_model_len` 必须成立（DES 手工构造 KVCacheConfig 绕过了该检查）；栈默认 2048/128。
+8. **依赖补充**（`bootstrap_stack.sh` 固化）：`watchfiles`、`prometheus-fastapi-instrumentator`、`torchvision==0.26.0 --no-deps`（匹配 torch 2.11.0，仅为 dynamo.vllm 多模态工具链的模块级导入）；tokenizer 资产（GPT-2，固定 revision）见 `configs/model/tokenizer_provenance.json`，worker 侧需 `DYN_SYSTEM_PORT` 自托管模型卡元数据。
+
+未实现（与设计一致）：W7 虚拟时钟服务（模式 2 的确定性与时间压缩）、KV 事件→router 索引的 cache-aware 对照、admission/StepBatch 在线必需件挂载。

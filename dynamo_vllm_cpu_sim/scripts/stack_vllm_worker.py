@@ -37,6 +37,15 @@ EXECUTOR_QUALNAME = os.environ.get(
 # 提前 import 一次，尽早暴露限定名拼写错误，而不是等到 EngineCoreProc 里。
 from sim.stack.executor import SimExecutor  # noqa: F401,E402
 
+# 远端 KV 模式（W5）：以 DES 同名注册 RPC 版 SimConnector；未设置
+# SIM_STACK_STORAGE_SOCKET 时 worker 不应传 --kv-transfer-config。
+if os.environ.get("SIM_STACK_STORAGE_SOCKET"):
+    from vllm.distributed.kv_transfer.kv_connector.factory import KVConnectorFactory
+
+    KVConnectorFactory.register_connector(
+        "SimConnector", "sim.stack.connector_rpc", "SimConnectorRpc"
+    )
+
 # ---------------------------------------------------------------- 兼容层 1：异常符号
 import vllm.exceptions as _ve  # noqa: E402
 

@@ -27,16 +27,38 @@ NUM_BLOCKS="${STACK_NUM_BLOCKS:-128}"
 LOG_DIR="${STACK_LOG_DIR:-/tmp/stack_logs/stack}"
 FILE_KV="${STACK_FILE_KV:-/tmp/dyn_stack_kv}"
 BASE_SYS_PORT="${STACK_BASE_SYS_PORT:-9111}"
+# 远端 KV 模式（W5）：=1 时先起 storage-sim，worker 挂 SimConnectorRpc。
+# STACK_TRACE 同时用于共享池预置（与 DES run.py 相同的 remote_prefix_tokens 语义）。
+REMOTE_KV="${STACK_REMOTE_KV:-0}"
+TRACE="${STACK_TRACE:-configs/stack_remote.jsonl}"
 
 COMMON_ENV=(
   DYN_DISCOVERY_BACKEND=file "DYN_FILE_KV=$FILE_KV" DYN_REQUEST_PLANE=tcp
-  VLLM_PLUGINS='' HF_HUB_OFFLINE=1 "PYTHONPATH=$PWD"
+  VLLM_PLUGINS='' HF_HUB_OFFLINE=1 PYTHONHASHSEED=0 "PYTHONPATH=$PWD"
 )
+# 注意：vLLM 前缀缓存块哈希依赖 Python 内建 hash()（受 PYTHONHASHSEED 影响），
+# 跨进程共享池（storage-sim 预置、worker 命中查询）必须统一 seed；DES 单进程
+# 固定 0，这里同样固定 0。
+
+KV_FLAGS=()
+if [ "$REMOTE_KV" = "1" ]; then
+  KV_FLAGS=(--kv-transfer-config '{"kv_connector":"SimConnector","kv_role":"kv_both"}')
+fi
 
 case "${1:-}" in
 up)
   N="${2:-2}"
   mkdir -p "$LOG_DIR" "$FILE_KV"
+  if [ "$REMOTE_KV" = "1" ]; then
+    env "${COMMON_ENV[@]}" "SIM_STACK_CONFIG=${STACK_SIM_CONFIG:-$PWD/configs/demo.json}" \
+      nohup "$PY" -m sim.stack.storage_service \
+      --config "${STACK_SIM_CONFIG:-$PWD/configs/demo.json}" --trace "$TRACE" \
+      --socket "$LOG_DIR/storage.sock" \
+      > "$LOG_DIR/storage.log" 2>&1 &
+    echo $! > "$LOG_DIR/storage.pid"
+    for _ in $(seq 1 20); do [ -S "$LOG_DIR/storage.sock" ] && break; sleep 0.5; done
+    echo "storage-sim pid $(cat "$LOG_DIR/storage.pid") ($LOG_DIR/storage.sock, pool from $TRACE)"
+  fi
   env "${COMMON_ENV[@]}" nohup "$PY" -m dynamo.frontend \
     --http-port "$HTTP_PORT" --router-mode round-robin \
     > "$LOG_DIR/frontend.log" 2>&1 &
@@ -44,16 +66,19 @@ up)
   echo "frontend pid $(cat "$LOG_DIR/frontend.pid") (http :$HTTP_PORT)"
   sleep 3
   for W in $(seq 0 $((N - 1))); do
-    env "${COMMON_ENV[@]}" "SIM_STACK_WORKER_ID=$W" "SIM_STACK_TOKEN_ID=290" \
+    WORKER_ENV=("${COMMON_ENV[@]}" "SIM_STACK_WORKER_ID=$W" "SIM_STACK_TOKEN_ID=290" \
       "DYN_SYSTEM_PORT=$((BASE_SYS_PORT + W))" \
       "SIM_STACK_CONFIG=${STACK_SIM_CONFIG:-$PWD/configs/demo.json}" \
-      "SIM_STACK_STEP_LOG=$LOG_DIR/worker$W.steps.jsonl" \
-      nohup "$PY" scripts/stack_vllm_worker.py \
+      "SIM_STACK_STEP_LOG=$LOG_DIR/worker$W.steps.jsonl")
+    if [ "$REMOTE_KV" = "1" ]; then
+      WORKER_ENV+=("SIM_STACK_STORAGE_SOCKET=$LOG_DIR/storage.sock")
+    fi
+    env "${WORKER_ENV[@]}" nohup "$PY" scripts/stack_vllm_worker.py \
       --model "$MODEL_DIR" --served-model-name "$MODEL_NAME" \
       --endpoint dyn://dynamo.backend.generate \
       --dtype float32 --max-model-len "$MAX_MODEL_LEN" --block-size 16 \
       --num-gpu-blocks-override "$NUM_BLOCKS" --max-num-seqs 8 \
-      --max-num-batched-tokens 128 --enforce-eager --seed 0 \
+      --max-num-batched-tokens 128 --enforce-eager --seed 0 "${KV_FLAGS[@]}" \
       > "$LOG_DIR/worker$W.log" 2>&1 &
     echo $! > "$LOG_DIR/worker$W.pid"
     echo "worker$W pid $(cat "$LOG_DIR/worker$W.pid") (metadata :$((BASE_SYS_PORT + W)))"

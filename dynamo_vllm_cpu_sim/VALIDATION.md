@@ -98,3 +98,17 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 3. **拷贝开销实测 18.45 ms/次**（20 次均值，墙钟；rollout 不占虚拟时间）。
 
 结论：rollout-by-deepcopy 在本实验台上可用作 MPC 的离线 Oracle 上界与 ground truth 校准器（与被控对象同源、无模型化误差）；"零干预 rollout 复现真实轨迹"应作为常开回归断言。已知边界：对象图随请求/块数线性增长（正式实验前需做规模曲线）；驱动逻辑须与主循环共享单一 `advance` 实现以防两处漂移。注意：它不满足在线运行的四条硬约束（文档 §5.0），在线形态的预测模型、观测面与 admission 接口见该文档 §5.2–§5.4。
+
+## 追加：进程化仿真栈（模式 1 壁钟）验收（2026-10-21）
+
+依据 [docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md](../docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md) §13 追记实现（W0–W6）：真实 Dynamo frontend + 2×`dynamo.vllm` worker（各含真实 EngineCore 子进程）+ storage-sim 服务，`file` 发现/tcp 请求面/ZMQ 事件面（免 etcd/NATS），SimExecutor 经 vLLM `Executor` 限定名注入，**vLLM/Dynamo 源码零修改**（0.20.2↔0.28 两处运行期漂移在包装层 `scripts/stack_vllm_worker.py` 补齐）。环境：macOS 26.6 ARM、同虚拟环境 + `bootstrap_stack.sh` 增量。
+
+| 实验 | 请求数 | TTFT 均值 | 说明 | 报告 |
+|---|---:|---:|---|---|
+| stack_smoke（无远端 KV，chat 流量经真实 frontend/router） | 12/12 | 26.3 ms（壁钟，含 HTTP/tokenizer/路由 IPC） | 请求 2/1 分布于两 worker | results/stack_smoke |
+| stack_remote（远端 KV 命中，completions 精确 token） | 8/8 | 37.5 ms | 池预置 2 块/请求；命中请求首步 prefill=36=68−32（`WAITING_FOR_REMOTE_KVS→kv_received→恢复` 全链路），kv_received 事件 4 | results/stack_remote |
+| stack_slow（链路 10→0.1 GB/s 对照，A2） | 8/8 | 345.7 ms | 慢/快 TTFT 比 9.2×（>3× 断言），kv_received 5 | results/stack_slow |
+
+`check_stack.py` 三目录全 PASS（全请求 ok、finish=length、remote 无损失跳过、慢/快比>3×）。单元测试 29/29（新增 storage-sim 服务 3 项：pool 预置与 present 命中、submit 壁钟完成与 finished 领取、64 块大读不超时；进程起真实服务子进程）。既有 26 项 DES 测试与 DES 默认模式复跑（check_results PASS）确认无回归。
+
+关键实测事实（详见设计文档 §13）：vLLM 前缀缓存块哈希依赖内建 `hash()`，跨进程共享池必须统一 `PYTHONHASHSEED`（launch_stack 固定 0）；纪元秒作虚拟时间会在 Storage.advance 上死循环（服务用启动后流逝秒）；chat 模板改变 token 序列，token 精确实验必须走 `/v1/completions`；`num_blocks×block_size ≥ max_model_len` 的真实容量准入门在进程栈生效。局限：壁钟模式无确定性/CRN，µs 级时序（如 100µs 读启动延迟）被 ms 级 IPC 抖动淹没——定量对照仍由单进程 DES 承担。

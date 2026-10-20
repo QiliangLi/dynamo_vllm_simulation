@@ -29,15 +29,21 @@ import httpx  # noqa: E402
 
 
 async def one_request(
-    client: httpx.AsyncClient, url: str, model: str, rid: str, text: str, max_tokens: int, record: dict
+    client: httpx.AsyncClient, url: str, model: str, rid: str, text: str,
+    max_tokens: int, record: dict, api: str,
 ) -> None:
-    payload = {
-        "model": model,
-        "messages": [{"role": "user", "content": text}],
-        "max_tokens": max_tokens,
-        "stream": True,
-        "temperature": 0,
-    }
+    if api == "completions":
+        payload = {"model": model, "prompt": text, "max_tokens": max_tokens,
+                   "stream": True, "temperature": 0}
+        url = url.replace("/v1/chat/completions", "/v1/completions")
+    else:
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": text}],
+            "max_tokens": max_tokens,
+            "stream": True,
+            "temperature": 0,
+        }
     t_send = time.perf_counter()
     ttft = None
     finish = None
@@ -49,8 +55,9 @@ async def one_request(
                 if not line.startswith("data: ") or line.strip() == "data: [DONE]":
                     continue
                 chunk = json.loads(line[len("data: ") :])
+                delta = chunk["choices"][0].get("delta", {}) if chunk.get("choices") else {}
                 if ttft is None and chunk.get("choices") and (
-                    chunk["choices"][0].get("delta", {}).get("content") or chunk["choices"][0].get("delta", {}).get("role")
+                    delta.get("content") or delta.get("role") or chunk["choices"][0].get("text")
                 ):
                     ttft = time.perf_counter() - t_send
                 if chunk.get("usage"):
@@ -69,9 +76,11 @@ async def one_request(
 
 
 async def replay(
-    trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool
+    trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool, api: str
 ) -> int:
-    chat_url = url.rstrip("/") + "/v1/chat/completions"
+    chat_url = url.rstrip("/") + (
+        "/v1/completions" if api == "completions" else "/v1/chat/completions"
+    )
     from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(str(ROOT / "configs/model"))
@@ -96,7 +105,7 @@ async def replay(
         for delay, rid, text, out_tokens in jobs:
             await asyncio.sleep(max(0.0, delay - (time.perf_counter() - t0)))
             tasks.append(
-                asyncio.create_task(one_request(client, chat_url, model, rid, text, out_tokens, records))
+                asyncio.create_task(one_request(client, chat_url, model, rid, text, out_tokens, records, api))
             )
         await asyncio.gather(*tasks)
 
@@ -131,8 +140,10 @@ def main() -> int:
     ap.add_argument("--model", default="sim-opt")
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--allow-lossy", action="store_true", help="跳过 decode→encode 往返校验")
+    ap.add_argument("--api", choices=["chat", "completions"], default="completions",
+                    help="completions=裸 prompt（token 精确，远端 KV 实验用）；chat=套模板")
     args = ap.parse_args()
-    return asyncio.run(replay(args.trace, args.url, args.model, args.output, args.allow_lossy))
+    return asyncio.run(replay(args.trace, args.url, args.model, args.output, args.allow_lossy, args.api))
 
 
 if __name__ == "__main__":

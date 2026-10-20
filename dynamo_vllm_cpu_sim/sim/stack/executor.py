@@ -77,6 +77,11 @@ class SimExecutor(Executor):
         self._step_log = None
         if self._step_log_path:
             self._step_log = open(self._step_log_path, "w", buffering=1)
+        # 远端 KV 模式（W5）：SIM_STACK_STORAGE_SOCKET 设置时轮询 storage-sim
+        # 的完成事件，经真实 update_from_output(finished_recving=...) 回传。
+        from sim.stack.storage_client import client_from_env
+
+        self._storage = client_from_env()
         CURRENT = self
 
     # ------------------------------------------------------------------
@@ -189,22 +194,36 @@ class SimExecutor(Executor):
             time.sleep(duration)
             self.sleep_s += duration
             self.steps += 1
-            if self._step_log is not None:
-                self._step_log.write(
-                    json.dumps(
-                        {
-                            "step": self.steps,
-                            "t_wall": time.time(),
-                            "req_ids": ids,
-                            "num_scheduled_tokens": dict(out.num_scheduled_tokens),
-                            "sampled": [bool(s) for s in sampled],
-                            "prefill": prefill,
-                            "decode": decode,
-                        },
-                        ensure_ascii=False,
-                    )
-                    + "\n"
+        if self._storage is not None:
+            # 与 DES Engine.complete 相同：完成事件（含空步）把已到达的远端
+            # KV 接收完成附在 ModelRunnerOutput 上，走真实 update_from_output。
+            rids = self._storage.finished(self.worker_id)
+            if rids:
+                from vllm.v1.outputs import KVConnectorOutput
+
+                model_output.kv_connector_output = KVConnectorOutput(
+                    finished_recving=set(rids)
                 )
+                if self._step_log is not None:
+                    self._step_log.write(
+                        json.dumps({"event": "kv_received", "rids": rids}) + "\n"
+                    )
+        if ids and self._step_log is not None:
+            self._step_log.write(
+                json.dumps(
+                    {
+                        "step": self.steps,
+                        "t_wall": time.time(),
+                        "req_ids": ids,
+                        "num_scheduled_tokens": dict(out.num_scheduled_tokens),
+                        "sampled": [bool(s) for s in sampled],
+                        "prefill": prefill,
+                        "decode": decode,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
 
         future: Future = Future()
         future.set_result(model_output)
