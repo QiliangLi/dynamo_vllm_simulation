@@ -1,0 +1,7 @@
+{
+  "model_max_length": 4096,
+  "tokenizer_class": "GPT2Tokenizer",
+  "bos_token": "<|endoftext|>",
+  "eos_token": "<|endoftext|>",
+  "chat_template": "{% for message in messages %}{{ message['role'] }}: {{ message['content'] }}\n{% endfor %}assistant:"
+}

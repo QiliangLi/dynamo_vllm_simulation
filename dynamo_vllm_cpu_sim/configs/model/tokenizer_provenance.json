@@ -1,0 +1,16 @@
+{
+  "source_repo": "openai-community/gpt2",
+  "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+  "files": {
+    "tokenizer.json": {
+      "sha256": "8414cab924d8b9b33013f0d221c5862f365ee9be39c5c2bfae8a5a9e970478a6",
+      "bytes": 1355256
+    },
+    "tokenizer_config.json": {
+      "sha256": "3d18f7b3a2f07b7432b21b5bb3eb629f9a77224aec922230b8c3e79a1af95961",
+      "bytes": 256,
+      "note": "locally authored stub (GPT-2 base + minimal chat_template for Dynamo chat path); tokenizer.json is verbatim upstream"
+    }
+  },
+  "note": "tokenizer only (no weights); paired with OPT-style config.json stub for scheduler metadata"
+}
