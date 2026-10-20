@@ -1,0 +1,79 @@
+{
+  "trace": "configs/demo.jsonl",
+  "url": "http://127.0.0.1:8765",
+  "model": "sim-opt",
+  "n_total": 12,
+  "n_ok": 3,
+  "n_skipped": 9,
+  "ttft_mean_s": 0.08758469466799094,
+  "ttft_max_s": 0.09824575000311597,
+  "requests": {
+    "r001": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r002": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r003": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r004": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r005": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r007": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r008": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r010": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r011": {
+      "ok": false,
+      "error": "lossy-token-roundtrip",
+      "skipped": true
+    },
+    "r006": {
+      "ttft_s": 0.08223949999955948,
+      "e2e_s": 0.08250329099973897,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "r009": {
+      "ttft_s": 0.08226883400129736,
+      "e2e_s": 0.08250604199929512,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "r000": {
+      "ttft_s": 0.09824575000311597,
+      "e2e_s": 0.09846312500303611,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    }
+  },
+  "wall_clock_s": 0.09873112500281422
+}

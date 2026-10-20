@@ -1,0 +1,12 @@
+{"id": "s000", "arrival_s": 0.0, "prompt_text": "the quick brown fox jumps over the lazy dog", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s001", "arrival_s": 0.004, "prompt_text": "a scheduling experiment on real processes", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s002", "arrival_s": 0.008, "prompt_text": "dynamo routes this request to a worker", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s003", "arrival_s": 0.012, "prompt_text": "the scheduler builds a batch of tokens", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s004", "arrival_s": 0.016, "prompt_text": "prefix caching reuses earlier blocks", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s005", "arrival_s": 0.02, "prompt_text": "storage simulation queues the reads", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s006", "arrival_s": 0.024, "prompt_text": "round robin picks workers in order", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s007", "arrival_s": 0.028, "prompt_text": "chunked prefill splits long prompts", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s008", "arrival_s": 0.032, "prompt_text": "decode steps emit one token each", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s009", "arrival_s": 0.036, "prompt_text": "the router tracks active requests", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s010", "arrival_s": 0.04, "prompt_text": "kv events flow over the zmq plane", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}
+{"id": "s011", "arrival_s": 0.044, "prompt_text": "the mock executor sleeps and returns", "output_tokens": 8, "remote_prefix_tokens": 0, "priority": 0}

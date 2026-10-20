@@ -72,6 +72,11 @@ class SimExecutor(Executor):
         self._base_computed: dict[str, int] = {}
         self.steps = 0
         self.sleep_s = 0.0
+        # 可选逐步日志（A1 与 DES 对拍、观测）：SIM_STACK_STEP_LOG=<path>
+        self._step_log_path = os.environ.get("SIM_STACK_STEP_LOG")
+        self._step_log = None
+        if self._step_log_path:
+            self._step_log = open(self._step_log_path, "w", buffering=1)
         CURRENT = self
 
     # ------------------------------------------------------------------
@@ -184,6 +189,22 @@ class SimExecutor(Executor):
             time.sleep(duration)
             self.sleep_s += duration
             self.steps += 1
+            if self._step_log is not None:
+                self._step_log.write(
+                    json.dumps(
+                        {
+                            "step": self.steps,
+                            "t_wall": time.time(),
+                            "req_ids": ids,
+                            "num_scheduled_tokens": dict(out.num_scheduled_tokens),
+                            "sampled": [bool(s) for s in sampled],
+                            "prefill": prefill,
+                            "decode": decode,
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
 
         future: Future = Future()
         future.set_result(model_output)
@@ -208,6 +229,9 @@ class SimExecutor(Executor):
         return None
 
     def shutdown(self) -> None:
+        if self._step_log is not None:
+            self._step_log.close()
+            self._step_log = None
         if self.worker_id == 0:
             print(
                 f"[SimExecutor] worker {self.worker_id} steps={self.steps} "
