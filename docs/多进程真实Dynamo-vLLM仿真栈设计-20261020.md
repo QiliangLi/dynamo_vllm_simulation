@@ -237,3 +237,5 @@ W0–W6 全部完成并验收（macOS 26.6 ARM 本机）：frontend + 2×`dynamo
 8. **依赖补充**（`bootstrap_stack.sh` 固化）：`watchfiles`、`prometheus-fastapi-instrumentator`、`torchvision==0.26.0 --no-deps`（匹配 torch 2.11.0，仅为 dynamo.vllm 多模态工具链的模块级导入）；tokenizer 资产（GPT-2，固定 revision）见 `configs/model/tokenizer_provenance.json`，worker 侧需 `DYN_SYSTEM_PORT` 自托管模型卡元数据。
 
 未实现（与设计一致）：W7 虚拟时钟服务（模式 2 的确定性与时间压缩）、KV 事件→router 索引的 cache-aware 对照、admission/StepBatch 在线必需件挂载。
+
+**运维闭环补记（同日）**：标准实验流程固化为一条命令 `scripts/run_stack_experiment.sh`（起栈→就绪→回放→验收→**必定停栈**，trap 覆盖失败/中断；每次实验独立 LOG_DIR/FILE_KV）。`launch_stack.sh stop` 增加跨运行登记表（`/tmp/stack_logs/.registry`）兜底回收不同 LOG_DIR 的历史残留（修复实测中慢存储实验进程漏杀的问题），并等待进程组退出后才返回。两项脚本实测修正：bash 3.2（macOS 自带）在 `set -u` 下展开空数组 `"${arr[@]}"` 报 unbound variable，需 `${arr[@]+"${arr[@]}"}` 写法；`$VAR` 后紧跟全角标点会被并入变量名解析。资源占用实测：空闲全栈 ~0 CPU、~0.3–0.5GB RSS（每 Python 进程固定 import torch/vLLM 40–90MB）；8 请求一轮全栈 CPU 增量 ≈0.09s（≈11ms/请求）；EngineCore 空闲不忙转。

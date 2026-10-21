@@ -115,19 +115,21 @@ export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1   # 模型 stub 的 max_position_embeddin
 
 设计文档见 [../docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md](../docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md)（含 2026-10-21 模式 1 实现追记）。单进程 DES 保持原样（两形态分工：DES 管定量对照，进程栈管协议正确与在线路径）。
 
+**标准流程是一条命令**：起栈 → 等就绪 → 回放 → 验收断言 → 自动停栈（`trap` 保证失败/中断也停；每次实验独立的日志目录 `/tmp/stack_logs/<name>` 与发现目录，不互相污染）：
+
 ```bash
-bash scripts/bootstrap_stack.sh        # 一次性：装 ai-dynamo 组件包(--no-deps)+watchfiles+torchvision 0.26 等
-bash scripts/launch_stack.sh up 2      # 起真实进程栈：frontend + 2×dynamo.vllm worker（各含 EngineCore 子进程）
-STACK_REMOTE_KV=1 bash scripts/launch_stack.sh up 2   # 加 storage-sim 服务，worker 挂 SimConnectorRpc（远端 KV）
-# 等待就绪后回放（token 精确实验走 /v1/completions，默认对 prompt 做 decode→encode 往返校验）
-.venv/bin/python scripts/replay_http.py configs/stack_smoke.jsonl  --output results/stack_smoke
-STACK_REMOTE_KV=1 ... && .venv/bin/python scripts/replay_http.py configs/stack_remote.jsonl --output results/stack_remote
-STACK_SIM_CONFIG="$PWD/configs/stack_slow.json" STACK_LOG_DIR=/tmp/stack_logs/slow STACK_REMOTE_KV=1 bash scripts/launch_stack.sh up 2   # 慢存储对照
-.venv/bin/python scripts/check_stack.py results/stack_smoke results/stack_remote results/stack_slow
-bash scripts/launch_stack.sh stop
+bash scripts/bootstrap_stack.sh                 # 一次性：装 ai-dynamo 组件包(--no-deps)+watchfiles+torchvision 0.26 等
+bash scripts/run_stack_experiment.sh --name stack_remote                                    # 远端 KV 命中（8 请求）
+bash scripts/run_stack_experiment.sh --name stack_smoke --no-remote-kv --trace configs/stack_smoke.jsonl   # 纯本地（12 请求）
+bash scripts/run_stack_experiment.sh --name stack_slow --sim-config configs/stack_slow.json                 # 慢存储对照
+.venv/bin/python scripts/check_stack.py results/stack_smoke results/stack_remote results/stack_slow        # 跨实验断言（慢/快比>3×）
 ```
 
-要点与边界：vLLM/Dynamo 源码零修改——SimExecutor 经 vLLM `Executor` 限定名注入（`scripts/stack_vllm_worker.py` 包装层同时补齐 0.20.2↔0.28 的两处运行期 API 漂移）；`PYTHONHASHSEED=0` 必须统一（前缀缓存块哈希依赖内建 hash()，跨进程共享池的前提）；token 精确实验必须走 completions（chat 模板会改变 token 序列）；真实 vLLM 容量准入门要求 `num_blocks×block_size ≥ max_model_len`；时间为壁钟（模式 1），µs 级时序保真与确定性由 DES 形态承担；`vllm serve` 单进程冒烟用 `scripts/stack_llm_smoke.py`。2026-10-21 验收数值见 VALIDATION.md 追记。
+产物 `results/<name>/report.json`；逐步调度记录 `/tmp/stack_logs/<name>/worker*.steps.jsonl`。需要手动保持栈运行调试时才用底层命令：`STACK_REMOTE_KV=1 bash scripts/launch_stack.sh up 2`（`stop` 收尾；stop 同时按跨运行登记表回收任何 LOG_DIR 不同的历史残留进程）。`vllm serve` 单进程冒烟用 `scripts/stack_llm_smoke.py`。
+
+资源占用（2026-10-21 实测，2 worker 共 6 进程）：空闲全栈 ~0 CPU、RSS 合计 ~0.3–0.5GB（大头是每 Python 进程固定 import 的 torch/vLLM ~40–90MB，而非计算）；mock 执行为 `time.sleep`，无 GPU/NPU 占用；一轮 8 请求全栈 CPU 时间增量 ≈0.09s（≈11ms/请求）。跑完即停（标准流程自动完成）。
+
+要点与边界：vLLM/Dynamo 源码零修改——SimExecutor 经 vLLM `Executor` 限定名注入（`scripts/stack_vllm_worker.py` 包装层同时补齐 0.20.2↔0.28 的两处运行期 API 漂移）；`PYTHONHASHSEED=0` 必须统一（前缀缓存块哈希依赖内建 hash()，跨进程共享池的前提）；token 精确实验必须走 completions（chat 模板会改变 token 序列）；真实 vLLM 容量准入门要求 `num_blocks×block_size ≥ max_model_len`；时间为壁钟（模式 1），µs 级时序保真与确定性由 DES 形态承担。2026-10-21 验收数值见 VALIDATION.md 追记。
 
 ## 代码入口
 
