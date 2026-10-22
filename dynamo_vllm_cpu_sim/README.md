@@ -20,6 +20,19 @@ bash scripts/bootstrap.sh
 
 若环境使用代理，按当地网络要求设置 `HTTPS_PROXY` / `HTTP_PROXY` 后运行；项目不会自行修改系统网络设置。启动后不需要联网获取模型。
 
+### 在 Windows 上通过 WSL2 运行
+
+Windows 可直接克隆仓库并编辑代码。仿真在 WSL2 / Ubuntu 24.04 的独立 Linux 工作目录执行。从仓库根目录的 PowerShell 运行：
+
+```powershell
+python dynamo_vllm_cpu_sim/scripts/wsl.py setup --stack
+python dynamo_vllm_cpu_sim/scripts/wsl.py doctor
+python dynamo_vllm_cpu_sim/scripts/wsl.py run
+python dynamo_vllm_cpu_sim/scripts/wsl.py stack --name windows_remote
+```
+
+系统准备、测试、路径和代理说明见 [Windows + WSL2 运行说明](../docs/Windows-WSL2运行说明.md)。入口每次同步 Windows 中编辑的代码，保留 Linux `.venv/upstream/results`；不改变原有调度策略或时间模型。Linux empty-device 的仿真 worker 在解析配置前选择 CpuPlatform，多进程增量安装使用 CPU torchvision，原有 Linux/macOS 入口保留。
+
 ### 在 macOS（Apple Silicon）上运行
 
 bootstrap.sh 的固定安装路径在 macOS 上有三处不适用，需手动适配（2026-09-24 在 macOS 26.6 / ARM 验证，五模式全部跑通，指标与 Linux 逐位一致）：

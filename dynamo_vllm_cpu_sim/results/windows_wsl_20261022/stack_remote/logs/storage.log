@@ -1,0 +1,6 @@
+WARNING 10-22 19:53:35 [cpu.py:423] Failed to import from vllm._C_AVX2: ModuleNotFoundError("No module named 'vllm._C_AVX2'")
+INFO 10-22 19:53:35 [importing.py:68] Triton not installed or not compatible; certain GPU-related functions will not be available.
+INFO 10-22 19:53:35 [nixl_utils.py:20] Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+WARNING 10-22 19:53:35 [nixl_utils.py:34] NIXL is not available
+WARNING 10-22 19:53:35 [nixl_utils.py:44] NIXL agent config is not available
+{"storage_service": "listening", "socket": "/tmp/stack_logs/stack_remote/storage.sock", "pool_blocks": 2, "bandwidth_policy": "active_split", "t0_epoch_s": 1792670015.9661384}

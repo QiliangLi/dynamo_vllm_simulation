@@ -112,3 +112,34 @@ Ascend balance 使用 scripts/apply_ascend_patch.py 产生的显式副本，原�
 `check_stack.py` 三目录全 PASS（全请求 ok、finish=length、remote 无损失跳过、慢/快比>3×）。单元测试 29/29（新增 storage-sim 服务 3 项：pool 预置与 present 命中、submit 壁钟完成与 finished 领取、64 块大读不超时；进程起真实服务子进程）。既有 26 项 DES 测试与 DES 默认模式复跑（check_results PASS）确认无回归。
 
 关键实测事实（详见设计文档 §13）：vLLM 前缀缓存块哈希依赖内建 `hash()`，跨进程共享池必须统一 `PYTHONHASHSEED`（launch_stack 固定 0）；纪元秒作虚拟时间会在 Storage.advance 上死循环（服务用启动后流逝秒）；chat 模板改变 token 序列，token 精确实验必须走 `/v1/completions`；`num_blocks×block_size ≥ max_model_len` 的真实容量准入门在进程栈生效。局限：壁钟模式无确定性/CRN，µs 级时序（如 100µs 读启动延迟）被 ms 级 IPC 抖动淹没——定量对照仍由单进程 DES 承担。
+
+
+## 追加：Windows / WSL2 入口验收（2026-10-22）
+
+环境为 Windows 11 x86_64、WSL2 / Ubuntu 24.04、Linux Python 3.12.3。代码在 Windows 克隆中编辑，通过新 `scripts/wsl.py` 入口同步到独立 Linux 工作目录。实际运行 `setup --stack` 创建全新虚拟环境，并安装原 `versions.json` 指定的源码；没有复用个人 TFS 环境。
+
+- doctor 通过，`edited_sources=[]`。
+- 原 `requirements.lock` 的 133 个依赖全部匹配；torch 为 `2.11.0+cpu`，vLLM 为 `0.20.2+empty`，Dynamo/runtime 为 `1.5.0`，torchvision 为 `0.26.0+cpu`。
+- 完整单元测试 **35/35 通过**：原 29 项与新增 6 项 WSL 同步 / 路径 / 日志保护测试。另测试了来源不明目录、过时代码删除、运行环境目录及符号链接排除、中文空格路径、日志持久保存。
+- `stack_llm_smoke.py` 实际启动 EngineCore，4 个请求各返回 8 个合成 token，均按 length 停止。
+
+| 运行 | 完成数 | 平均 TTFT |
+|---|---:|---:|
+| 全新 setup 的 DES 冒烟 | 12/12 | 5.326 ms（虚拟） |
+| Windows 默认 DES | 12/12 | 5.326 ms（虚拟） |
+| Windows 原始 vLLM Scheduler | 12/12 | 5.326 ms（虚拟） |
+| Windows 慢存储 DES | 12/12 | 447.982 ms（虚拟） |
+| 带空格的输出目录 | 12/12 | 5.326 ms（虚拟） |
+| 多进程本地 | 12/12 | 22.9 ms（壁钟） |
+| 多进程远端 KV | 8/8 | 11.1 ms（壁钟） |
+| 多进程慢存储 | 8/8 | 303.7 ms（壁钟） |
+
+DES 的生命周期、远端 KV 等待、块回收和原生预留检查均通过。多进程的 `check_stack.py` 三目录检查通过：全部 HTTP 成功、按 length 停止、没有 token 往返跳过，慢 / 快 TTFT 比值约 27.4 倍，满足原 >3 倍检查。该比值只作为原冒烟断言，不代表硬件性能结论。
+
+现场发现 WSL 停止后 `/tmp` 日志可能被清除。入口现在在多进程命令返回前把日志保存到 `results/<name>/logs`，排除 socket / PID 文件；额外运行远端 KV 案例和完整 35 项测试，核对该路径。保存的远端进程日志位于本轮结果目录的 `stack_remote/logs/`。
+
+原始 `report.json/events.jsonl`、命令返回码、测试日志、软件版本和摘要见 [results/windows_wsl_20261022](results/windows_wsl_20261022/)。其中 `commands.json` 记录各检查的最终一次执行。运行时仍有 CPU 仿真的 `_C_AVX2` / Triton / NIXL 提示及既有 ResourceWarning，不声称零警告。
+
+本次保持 Scheduler、KV 分配、计算时间公式、存储模型与三个上游 SHA 不变。未运行 GPU/NPU 数值计算、GDS/H2D 或原生 Windows 推理；macOS 没有重新验收。多进程入口仍使用原 round-robin，不引入个人 TFS 改造。
+
+多进程短案例沿用原脚本的模型可见就绪条件，未断言每个 worker 都处理请求。因此不据此证明多实例负载均衡效果。

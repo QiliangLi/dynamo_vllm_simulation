@@ -442,3 +442,10 @@ CPU/Gloo 可帮助运行控制协议，但测得的 Gloo 时间不是 HCCL 时�
 - [vLLM Executor](https://github.com/vllm-project/vllm/blob/bc150f50299199599673614f80d12a196f377655/vllm/v1/executor/abstract.py)。
 - [Ascend 0.20.2rc1 BalanceScheduler](https://github.com/vllm-project/vllm-ascend/blob/367b8e62da799870a7476ce34f5f7658589a8aad/vllm_ascend/patch/platform/patch_balance_schedule.py)。
 - [Ascend 存储后端接口](https://github.com/vllm-project/vllm-ascend/blob/367b8e62da799870a7476ce34f5f7658589a8aad/vllm_ascend/distributed/kv_transfer/kv_pool/ascend_store/backend/backend.py)。
+
+
+## Windows / WSL2 启动适配（2026-10-22）
+
+Windows 入口 scripts/wsl.py 把当前工程同步到每个克隆独立的 Linux 工作目录，再调用原有 bootstrap、DES 或多进程脚本。Linux 环境、固定上游源码与运行结果保留在镜像中；不从 Windows 复制运行环境，不删除已有结果。Windows 原生 vLLM / 设备推理不在本适配范围内。
+
+Linux empty-device 的仿真 worker / smoke 入口在参数解析前选择与 DES 相同的 CpuPlatform，解决设备识别问题。多进程环境在 Linux 使用 CPU torchvision，增量包通过 --no-deps 安装以保留已有锁定依赖。运行子进程绕过外部 HTTP 代理，安装阶段保留下载代理。调度器、KV 分配、时间公式与存储模型均不变。详细操作见 [Windows + WSL2 运行说明](../docs/Windows-WSL2运行说明.md)。

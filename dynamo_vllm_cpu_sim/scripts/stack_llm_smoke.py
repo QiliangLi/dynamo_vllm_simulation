@@ -13,6 +13,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+if sys.platform == "linux":
+    import vllm.platforms
+    from vllm.platforms.cpu import CpuPlatform
+
+    vllm.platforms._current_platform = CpuPlatform()
+
 from vllm import LLM, SamplingParams
 
 

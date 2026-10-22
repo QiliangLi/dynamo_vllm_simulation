@@ -1,0 +1,16 @@
+Linux 工作目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4
+结果目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/results
+==> 起栈: workers=2 remote_kv=1 trace=configs/stack_remote.jsonl sim_config=configs/stack_slow.json
+    storage-sim pid 4710 (/tmp/stack_logs/stack_slow/storage.sock, pool from configs/stack_remote.jsonl)
+    frontend pid 4725 (http :8765)
+    worker0 pid 4778 (metadata :9111)
+    worker1 pid 4842 (metadata :9112)
+    logs: /tmp/stack_logs/stack_slow   (bash scripts/launch_stack.sh stop 可停止)
+==> 等待 frontend 就绪
+==> 回放 configs/stack_remote.jsonl -> results/stack_slow
+replayed 8: ok=8 skipped=0 ttft_mean=0.3037s -> results/stack_slow/report.json
+==> 验收断言
+stack_slow: ok=8/8 skipped=0 ttft_mean=303.7ms
+stack checks passed
+==> 停栈（trap 兜底，此处显式执行）
+完成：results/stack_slow/report.json；日志 /tmp/stack_logs/stack_slow

@@ -28,8 +28,14 @@ fi
 
 # 代理环境按需自行 export HTTPS_PROXY/HTTP_PROXY
 uv pip install --python .venv/bin/python --no-deps ./upstream/dynamo
-uv pip install --python .venv/bin/python watchfiles prometheus-fastapi-instrumentator
-uv pip install --python .venv/bin/python --no-deps 'torchvision==0.26.0' pillow
+uv pip install --python .venv/bin/python --no-deps watchfiles prometheus-fastapi-instrumentator
+if [ "$(uname -s)" = "Linux" ]; then
+  # The PyPI Linux wheel expects CUDA; this stack uses the pinned CPU torch wheel.
+  uv pip install --python .venv/bin/python --no-deps --index-url https://download.pytorch.org/whl/cpu 'torchvision==0.26.0'
+else
+  uv pip install --python .venv/bin/python --no-deps 'torchvision==0.26.0'
+fi
+uv pip install --python .venv/bin/python --no-deps pillow
 
 # 自检：入口可导入 + SimExecutor 限定名可解析
 .venv/bin/python -c "

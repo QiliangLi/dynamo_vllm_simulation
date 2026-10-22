@@ -1,0 +1,15 @@
+Linux 工作目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4
+结果目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/results
+==> 起栈: workers=2 remote_kv=0 trace=configs/stack_smoke.jsonl sim_config=demo
+    frontend pid 3875 (http :8765)
+    worker0 pid 3928 (metadata :9111)
+    worker1 pid 3994 (metadata :9112)
+    logs: /tmp/stack_logs/stack_smoke   (bash scripts/launch_stack.sh stop 可停止)
+==> 等待 frontend 就绪
+==> 回放 configs/stack_smoke.jsonl -> results/stack_smoke
+replayed 12: ok=12 skipped=0 ttft_mean=0.0229s -> results/stack_smoke/report.json
+==> 验收断言
+stack_smoke: ok=12/12 skipped=0 ttft_mean=22.9ms
+stack checks passed
+==> 停栈（trap 兜底，此处显式执行）
+完成：results/stack_smoke/report.json；日志 /tmp/stack_logs/stack_smoke
