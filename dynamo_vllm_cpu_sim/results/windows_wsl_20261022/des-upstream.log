@@ -1,0 +1,9 @@
+Linux 工作目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4
+结果目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/results
+{
+  "status": "completed",
+  "requests_completed": 12,
+  "makespan_s": 0.011234353066666668,
+  "mean_ttft_s": 0.005326135377777777,
+  "bytes_read": 67108864
+}

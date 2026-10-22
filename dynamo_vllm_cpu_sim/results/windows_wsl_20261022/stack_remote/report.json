@@ -1,0 +1,69 @@
+{
+  "trace": "configs/stack_remote.jsonl",
+  "url": "http://127.0.0.1:8765",
+  "model": "sim-opt",
+  "n_total": 8,
+  "n_ok": 8,
+  "n_skipped": 0,
+  "ttft_mean_s": 0.011074621874997526,
+  "ttft_max_s": 0.031292928999995695,
+  "requests": {
+    "k000": {
+      "ttft_s": 0.031292928999995695,
+      "e2e_s": 0.03609781599999451,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k001": {
+      "ttft_s": 0.018370787999998583,
+      "e2e_s": 0.02305270200000109,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k002": {
+      "ttft_s": 0.012161380999998528,
+      "e2e_s": 0.016999881000003825,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k003": {
+      "ttft_s": 0.00646276599999851,
+      "e2e_s": 0.008114550999998471,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k004": {
+      "ttft_s": 0.004979392999999277,
+      "e2e_s": 0.047605968999995696,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k005": {
+      "ttft_s": 0.005537556999996696,
+      "e2e_s": 0.049260106999994946,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k006": {
+      "ttft_s": 0.004840015999995728,
+      "e2e_s": 0.0474502120000011,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "k007": {
+      "ttft_s": 0.004952144999997188,
+      "e2e_s": 0.04933085799999759,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    }
+  },
+  "wall_clock_s": 0.1203613029999957
+}

@@ -1,0 +1,7 @@
+# Keep Linux entry points and reproducible inputs unchanged on Windows clones.
+*.py text eol=lf
+*.sh text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+# Preserve raw runtime output, including trailing blanks emitted by dependencies.
+*.log -whitespace

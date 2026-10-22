@@ -30,6 +30,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+# Linux's empty-device build is not auto-detected as CPU (macOS is).
+# Select the same simulation platform as sim.engine before parsing engine args.
+if sys.platform == "linux":
+    import vllm.platforms
+    from vllm.platforms.cpu import CpuPlatform
+
+    vllm.platforms._current_platform = CpuPlatform()
+
 EXECUTOR_QUALNAME = os.environ.get(
     "SIM_STACK_EXECUTOR", "sim.stack.executor.SimExecutor"
 )

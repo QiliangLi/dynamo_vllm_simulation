@@ -22,6 +22,7 @@
 | [AB双类带宽争抢实验结果-20261008.md](AB双类带宽争抢实验结果-20261008.md) | A/B 实验结果：分类甘特图+带宽时序图、错峰不迁移结论、复现性注记。**含图的结果文档放仓库根**，图片链接用 `docs/figures/` 前缀（GitHub 与本地预览均正确） |
 | [dynamo_vllm_cpu_sim/README.md](dynamo_vllm_cpu_sim/README.md) | 实现工程的启动方式、可复跑实验、输入输出格式、适用边界 |
 | [dynamo_vllm_cpu_sim/VALIDATION.md](dynamo_vllm_cpu_sim/VALIDATION.md) | 已通过的验收记录与数值 |
+| [docs/Windows-WSL2运行说明.md](docs/Windows-WSL2运行说明.md) | Windows 编辑与 WSL2 执行；独立 Linux 环境、代码同步、原有 DES / 多进程入口 |
 | `dynamo_vllm_cpu_sim/{sim,scripts,tests,configs,results,patched}/` | 实现代码、引导脚本、测试、配置与验证产物 |
 
 `upstream/`（bootstrap 按 SHA 下载的上游源码）与 `.venv/` 为本地运行产物，已 gitignore，不提交。
@@ -36,7 +37,7 @@
    - 目录结构、工作规则、版本变化 → 更新本文件。
 3. **不伪造结果**：`results/` 与 `VALIDATION.md` 只记录真实运行的输出，禁止手写仿真数值或"预期通过"。上游源码被有意修改后，用 `scripts/doctor.py --allow-edited` 记录，不得假装指纹未变。
 4. **版本固定**：三个上游仓库按 `versions.json` 的 SHA 获取并受 `source-fingerprints.json` 校验；升级版本必须同步更新这两个文件、相关文档章节，并在 Linux 环境重跑验收。
-5. **平台**：Linux x86_64 为基准验证平台（bootstrap.sh 全自动）；macOS Apple Silicon 已验证可原生运行（2026-09-24，五模式指标与 Linux 逐位一致），但需按 `dynamo_vllm_cpu_sim/README.md` 的 macOS 小节手动适配（torch 无 `+cpu` 后缀、maturin `--features select-service` 自编译 dynamo、vLLM `setup.py` 允许 darwin 显式 `empty` 的一行修改），`scripts/doctor.py` 的 torch 精确版本检查在 mac 上按预期失败。Windows 不可用。
+5. **平台**：Linux x86_64 为基准验证平台（bootstrap.sh 全自动）；macOS Apple Silicon 已验证可原生运行（2026-09-24，五模式指标与 Linux 逐位一致），但需按 `dynamo_vllm_cpu_sim/README.md` 的 macOS 小节手动适配（torch 无 `+cpu` 后缀、maturin `--features select-service` 自编译 dynamo、vLLM `setup.py` 允许 darwin 显式 `empty` 的一行修改），`scripts/doctor.py` 的 torch 精确版本检查在 mac 上按预期失败。Windows 使用 `scripts/wsl.py` 在 WSL2 / Ubuntu 24.04 的独立 Linux 镜像运行，Windows 原生推理不在支持范围内。不得提交 `.venv/upstream`、WSL 缓存或机器凭据。
 
 ## 常用命令
 

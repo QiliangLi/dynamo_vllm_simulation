@@ -1,0 +1,7 @@
+Linux 工作目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4
+结果目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/results
+stack_smoke: ok=12/12 skipped=0 ttft_mean=22.9ms
+stack_remote: ok=8/8 skipped=0 ttft_mean=11.1ms
+stack_slow: ok=8/8 skipped=0 ttft_mean=303.7ms
+A2 slow/fast ttft ratio = 27.4x (>3x required)
+stack checks passed

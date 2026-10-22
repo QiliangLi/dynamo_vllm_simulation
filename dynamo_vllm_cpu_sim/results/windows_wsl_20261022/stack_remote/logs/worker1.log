@@ -1,0 +1,157 @@
+[2m2026-10-22T11:53:47.454046Z[0m [33mWARNING[0m [2mcpu.import_kernels[0m[2m:[0m Failed to import from vllm._C_AVX2: ModuleNotFoundError("No module named 'vllm._C_AVX2'")
+[2m2026-10-22T11:53:47.455126Z[0m [32m INFO[0m [2mimporting[0m[2m:[0m Triton not installed or not compatible; certain GPU-related functions will not be available.
+[2m2026-10-22T11:53:48.069989Z[0m [32m INFO[0m [2mnixl_utils[0m[2m:[0m Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+[2m2026-10-22T11:53:48.070120Z[0m [33mWARNING[0m [2mnixl_utils[0m[2m:[0m NIXL is not available
+[2m2026-10-22T11:53:48.070189Z[0m [33mWARNING[0m [2mnixl_utils[0m[2m:[0m NIXL agent config is not available
+[2m2026-10-22T11:53:48.093779Z[0m [33m WARN[0m [2m__init__[0m[2m:[0m dynamo.nixl_connect: Failed to load CuPy for GPU acceleration, utilizing numpy to provide CPU based operations.
+[2m2026-10-22T11:53:48.117857Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: None (use_kv_events=False)
+[2m2026-10-22T11:53:48.118041Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=28, max_blocking_threads=28, system_host=0.0.0.0, system_port=9112, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-10-22T11:53:48.120697Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/tmp/dyn_kv_stack_remote)
+[2m2026-10-22T11:53:48.121443Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m100.125.14.54 [3mport[0m[2m=[0mOS-assigned
+[2m2026-10-22T11:53:48.121846Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:9112
+[2m2026-10-22T11:53:48.125207Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:9112
+[2m2026-10-22T11:53:48.125237Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System status server started successfully on 0.0.0.0:9112
+[2m2026-10-22T11:53:48.125347Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[2m2026-10-22T11:53:48.125616Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[2m2026-10-22T11:53:48.130728Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: OPTForCausalLM
+[2m2026-10-22T11:53:48.130923Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 2048
+[2m2026-10-22T11:53:48.132501Z[0m [32m INFO[0m [2mscheduler.__post_init__[0m[2m:[0m Chunked prefill is enabled with max_num_batched_tokens=128.
+[2m2026-10-22T11:53:48.132753Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Asynchronous scheduling is enabled.
+[2m2026-10-22T11:53:48.132784Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[2m2026-10-22T11:53:48.132805Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[2m2026-10-22T11:53:48.132839Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+[2m2026-10-22T11:53:48.132983Z[0m [33mWARNING[0m [2mcpu.check_and_update_config[0m[2m:[0m CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+[2m2026-10-22T11:53:48.133313Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+[2m2026-10-22T11:53:48.133353Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-10-22T11:53:51.497269Z[0m [33mWARNING[0m [2mcpu.import_kernels[0m[2m:[0m Failed to import from vllm._C_AVX2: ModuleNotFoundError("No module named 'vllm._C_AVX2'")
+[2m2026-10-22T11:53:51.498452Z[0m [32m INFO[0m [2mimporting[0m[2m:[0m Triton not installed or not compatible; certain GPU-related functions will not be available.
+[2m2026-10-22T11:53:52.123483Z[0m [33mWARNING[0m [2mnixl_utils[0m[2m:[0m NIXL is not available
+[2m2026-10-22T11:53:52.123595Z[0m [33mWARNING[0m [2mnixl_utils[0m[2m:[0m NIXL agent config is not available
+[2m2026-10-22T11:53:52.149272Z[0m [33m WARN[0m [2m__init__[0m[2m:[0m dynamo.nixl_connect: Failed to load CuPy for GPU acceleration, utilizing numpy to provide CPU based operations.
+(EngineCore pid=738) [2m2026-10-22T11:53:52.168832Z[0m [32m INFO[0m [2mcore.__init__[0m[2m:[0m Initializing a V1 LLM engine (v0.20.2) with config: model='configs/model', speculative_config=None, tokenizer='configs/model', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float32, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cpu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=sim-opt, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': None, 'compile_ranges_endpoints': [128], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False}, 'max_cudagraph_capture_size': None, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native']), enable_flashinfer_autotune=True, moe_backend='auto')
+(EngineCore pid=738) [2m2026-10-22T11:53:52.169651Z[0m [31mERROR[0m [2mcore.run_engine_core[0m[2m:[0m EngineCore failed to start.
+(EngineCore pid=738) Traceback (most recent call last):
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 1110, in run_engine_core
+(EngineCore pid=738)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=738)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=738)     return func(*args, **kwargs)
+(EngineCore pid=738)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 876, in __init__
+(EngineCore pid=738)     super().__init__(
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 118, in __init__
+(EngineCore pid=738)     self.model_executor = executor_class(vllm_config)
+(EngineCore pid=738)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=738)     return func(*args, **kwargs)
+(EngineCore pid=738)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/executor/abstract.py", line 109, in __init__
+(EngineCore pid=738)     self._init_executor()
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/executor.py", line 84, in _init_executor
+(EngineCore pid=738)     self._storage = client_from_env()
+(EngineCore pid=738)                     ^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/storage_client.py", line 70, in client_from_env
+(EngineCore pid=738)     client = StorageClient(path)
+(EngineCore pid=738)              ^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/storage_client.py", line 24, in __init__
+(EngineCore pid=738)     self.sock.connect(path)
+(EngineCore pid=738) ConnectionRefusedError: [Errno 111] Connection refused
+(EngineCore pid=738) Process EngineCore:
+(EngineCore pid=738) Traceback (most recent call last):
+(EngineCore pid=738)   File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+(EngineCore pid=738)     self.run()
+(EngineCore pid=738)   File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+(EngineCore pid=738)     self._target(*self._args, **self._kwargs)
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 1140, in run_engine_core
+(EngineCore pid=738)     raise e
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 1110, in run_engine_core
+(EngineCore pid=738)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=738)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=738)     return func(*args, **kwargs)
+(EngineCore pid=738)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 876, in __init__
+(EngineCore pid=738)     super().__init__(
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core.py", line 118, in __init__
+(EngineCore pid=738)     self.model_executor = executor_class(vllm_config)
+(EngineCore pid=738)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=738)     return func(*args, **kwargs)
+(EngineCore pid=738)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/executor/abstract.py", line 109, in __init__
+(EngineCore pid=738)     self._init_executor()
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/executor.py", line 84, in _init_executor
+(EngineCore pid=738)     self._storage = client_from_env()
+(EngineCore pid=738)                     ^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/storage_client.py", line 70, in client_from_env
+(EngineCore pid=738)     client = StorageClient(path)
+(EngineCore pid=738)              ^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=738)   File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/sim/stack/storage_client.py", line 24, in __init__
+(EngineCore pid=738)     self.sock.connect(path)
+(EngineCore pid=738) ConnectionRefusedError: [Errno 111] Connection refused
+[2m2026-10-22T11:53:52.783333Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Received shutdown signal; unregistering endpoints from discovery
+[2m2026-10-22T11:53:52.783756Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m100.125.14.54:0 [3mport_source[0m[2m=[0m"OS-assigned"
+[2m2026-10-22T11:53:52.783774Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[2m2026-10-22T11:53:52.783789Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+[2m2026-10-22T11:53:52.783797Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 100.125.14.54:0
+[2m2026-10-22T11:53:52.783797Z[0m [32m INFO[0m [2mgraceful_shutdown._on_shutdown_done[0m[2m:[0m Graceful shutdown task cancelled
+Traceback (most recent call last):
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/scripts/stack_vllm_worker.py", line 115, in <module>
+    main()
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 1012, in main
+    uvloop.run(worker())
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+    return __asyncio.run(
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+    return await main
+           ^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 256, in worker
+    await factory.create(
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 702, in create
+    await self._create_decode_worker(
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 1116, in _create_decode_worker
+    await self._run_decode_worker(
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 1211, in _run_decode_worker
+    ) = self.setup_vllm_engine(config, factory, fpm_worker_id=fpm_worker_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/.venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 746, in setup_vllm_engine
+    engine_client = AsyncLLM.from_vllm_config(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/async_llm.py", line 217, in from_vllm_config
+    return cls(
+           ^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/async_llm.py", line 146, in __init__
+    self.engine_core = EngineCoreClient.make_async_mp_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core_client.py", line 130, in make_async_mp_client
+    return AsyncMPClient(*client_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core_client.py", line 900, in __init__
+    super().__init__(
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/core_client.py", line 535, in __init__
+    with launch_core_engines(
+  File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/utils.py", line 1119, in launch_core_engines
+    wait_for_engine_startup(
+  File "/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/upstream/vllm/vllm/v1/engine/utils.py", line 1178, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {'EngineCore': -15}
+[2m2026-10-22T11:53:52.795481Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m100.125.14.54:0 [3mactual[0m[2m=[0m100.125.14.54:46629
+[2m2026-10-22T11:53:52.795522Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m100.125.14.54:46629 [3mactual_port[0m[2m=[0m46629
+[2m2026-10-22T11:53:52.796029Z[0m [31mERROR[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Unable to unregister endpoint instance from discovery [3mendpoint_id[0m[2m=[0mdynamo/backend/clear_kv_blocks [3merror[0m[2m=[0mCould not find key '/tmp/dyn_kv_stack_remote/v1/instances/dynamo%2Fbackend%2Fclear%5Fkv%5Fblocks%2F212debdd1f00cfa6'
+FATAL: exception not rethrown

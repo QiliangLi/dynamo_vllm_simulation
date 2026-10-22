@@ -1,0 +1,5 @@
+Linux 工作目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4
+结果目录：/home/zed/.local/share/dynamo-vllm-simulation/7375d03681a4/results
+results/windows_wsl_20261022/des-default: lifecycle / KV wait / block reclamation / native reservations PASS
+results/windows_wsl_20261022/des-upstream: lifecycle / KV wait / block reclamation / native reservations PASS
+results/windows_wsl_20261022/des-slow: lifecycle / KV wait / block reclamation / native reservations PASS

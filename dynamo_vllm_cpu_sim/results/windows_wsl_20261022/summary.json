@@ -1,0 +1,50 @@
+{
+  "des-bootstrap": {
+    "requests_completed": 12,
+    "mean_ttft_s": 0.005326135377777777,
+    "makespan_s": 0.011234353066666668,
+    "bytes_read": 67108864
+  },
+  "des-default": {
+    "requests_completed": 12,
+    "mean_ttft_s": 0.005326135377777777,
+    "makespan_s": 0.011234353066666668,
+    "bytes_read": 67108864
+  },
+  "des-upstream": {
+    "requests_completed": 12,
+    "mean_ttft_s": 0.005326135377777777,
+    "makespan_s": 0.011234353066666668,
+    "bytes_read": 67108864
+  },
+  "des-slow": {
+    "requests_completed": 12,
+    "mean_ttft_s": 0.44798237111111106,
+    "makespan_s": 0.6753873066666668,
+    "bytes_read": 67108864
+  },
+  "stack_smoke": {
+    "n_total": 12,
+    "n_ok": 12,
+    "ttft_mean_s": 0.022875719583349035,
+    "wall_clock_s": 0.08708024000009118
+  },
+  "stack_remote": {
+    "n_total": 8,
+    "n_ok": 8,
+    "ttft_mean_s": 0.011074621874997526,
+    "wall_clock_s": 0.1203613029999957
+  },
+  "stack_slow": {
+    "n_total": 8,
+    "n_ok": 8,
+    "ttft_mean_s": 0.30373650137498487,
+    "wall_clock_s": 0.36187838599994393
+  },
+  "path with spaces": {
+    "requests_completed": 12,
+    "mean_ttft_s": 0.005326135377777777,
+    "makespan_s": 0.011234353066666668,
+    "bytes_read": 67108864
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "trace": "configs/stack_smoke.jsonl",
+  "url": "http://127.0.0.1:8765",
+  "model": "sim-opt",
+  "n_total": 12,
+  "n_ok": 12,
+  "n_skipped": 0,
+  "ttft_mean_s": 0.022875719583349035,
+  "ttft_max_s": 0.05343611000000692,
+  "requests": {
+    "s005": {
+      "ttft_s": 0.0184194869999601,
+      "e2e_s": 0.026056182000047556,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s010": {
+      "ttft_s": 0.01265342800002145,
+      "e2e_s": 0.01692321300004096,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s001": {
+      "ttft_s": 0.01992484900006275,
+      "e2e_s": 0.02743240600000263,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s009": {
+      "ttft_s": 0.013009483000018918,
+      "e2e_s": 0.02055095599996548,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s007": {
+      "ttft_s": 0.017953612000042085,
+      "e2e_s": 0.025460552000026837,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s002": {
+      "ttft_s": 0.01968259099999159,
+      "e2e_s": 0.027435899000010977,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s004": {
+      "ttft_s": 0.01911619999998493,
+      "e2e_s": 0.026940703000036592,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s006": {
+      "ttft_s": 0.018190253000057055,
+      "e2e_s": 0.0263917910000373,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s003": {
+      "ttft_s": 0.019349315999988903,
+      "e2e_s": 0.02750750399991375,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s000": {
+      "ttft_s": 0.05343611000000692,
+      "e2e_s": 0.058090020000008735,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s008": {
+      "ttft_s": 0.020624184000098467,
+      "e2e_s": 0.025072286000067834,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    },
+    "s011": {
+      "ttft_s": 0.04214912199995524,
+      "e2e_s": 0.04241420799996831,
+      "finish": "length",
+      "usage": null,
+      "ok": true
+    }
+  },
+  "wall_clock_s": 0.08708024000009118
+}

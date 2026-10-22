@@ -1,0 +1,130 @@
+[
+  {
+    "name": "doctor",
+    "arguments": [
+      "doctor"
+    ],
+    "returncode": 0,
+    "wall_s": 4.2960000000020955
+  },
+  {
+    "name": "des-default",
+    "arguments": [
+      "run",
+      "--output",
+      "results/windows_wsl_20261022/des-default"
+    ],
+    "returncode": 0,
+    "wall_s": 4.5
+  },
+  {
+    "name": "des-upstream",
+    "arguments": [
+      "run",
+      "--scheduler",
+      "upstream",
+      "--output",
+      "results/windows_wsl_20261022/des-upstream"
+    ],
+    "returncode": 0,
+    "wall_s": 4.4689999999973224
+  },
+  {
+    "name": "des-slow",
+    "arguments": [
+      "run",
+      "--config",
+      "configs/slow_storage.json",
+      "--output",
+      "results/windows_wsl_20261022/des-slow"
+    ],
+    "returncode": 0,
+    "wall_s": 4.4060000000026776
+  },
+  {
+    "name": "des-check",
+    "arguments": [
+      "python",
+      "scripts/check_results.py",
+      "results/windows_wsl_20261022/des-default",
+      "results/windows_wsl_20261022/des-upstream",
+      "results/windows_wsl_20261022/des-slow"
+    ],
+    "returncode": 0,
+    "wall_s": 0.35899999999674037
+  },
+  {
+    "name": "enginecore-smoke",
+    "arguments": [
+      "python",
+      "scripts/stack_llm_smoke.py"
+    ],
+    "returncode": 0,
+    "wall_s": 9.594000000011874
+  },
+  {
+    "name": "stack-local",
+    "arguments": [
+      "stack",
+      "--name",
+      "stack_smoke",
+      "--no-remote-kv",
+      "--trace",
+      "configs/stack_smoke.jsonl"
+    ],
+    "returncode": 0,
+    "wall_s": 20.343999999997322
+  },
+  {
+    "name": "stack-slow",
+    "arguments": [
+      "stack",
+      "--name",
+      "stack_slow",
+      "--sim-config",
+      "configs/stack_slow.json"
+    ],
+    "returncode": 0,
+    "wall_s": 23.702999999994063
+  },
+  {
+    "name": "spaces",
+    "arguments": [
+      "run",
+      "--output",
+      "results/windows_wsl_20261022/path with spaces"
+    ],
+    "returncode": 0,
+    "wall_s": 4.484000000011292
+  },
+  {
+    "name": "tests",
+    "arguments": [
+      "test"
+    ],
+    "returncode": 0,
+    "wall_s": 28.718999999997322
+  },
+  {
+    "name": "stack-remote",
+    "arguments": [
+      "stack",
+      "--name",
+      "stack_remote"
+    ],
+    "returncode": 0,
+    "wall_s": 23.781999999991967
+  },
+  {
+    "name": "stack-check",
+    "arguments": [
+      "python",
+      "scripts/check_stack.py",
+      "results/stack_smoke",
+      "results/stack_remote",
+      "results/stack_slow"
+    ],
+    "returncode": 0,
+    "wall_s": 0.40600000000267755
+  }
+]
