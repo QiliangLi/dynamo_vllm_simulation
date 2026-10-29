@@ -1,0 +1,162 @@
+{
+  "status": "passed",
+  "unit_tests": {
+    "status": "passed",
+    "count": 261,
+    "clean_checkout": true,
+    "log_sha256": "dee5ca8968a87b101e8811805624cf78f2666461101f4a0226c71d337a8f1930"
+  },
+  "runs": [
+    {
+      "status": "passed",
+      "case": "global4_abc",
+      "arm": "tfs-a01",
+      "smoke": true,
+      "requests": 6,
+      "warmup_requests": 0,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 961.3914374882976,
+      "p95_ttft_ms": 1359.0281249489635,
+      "slo_pct": 50.0,
+      "completion_ms": 1366.2927089608274,
+      "measured_read_bytes": 13980155904,
+      "evidence_sha256": {
+        "benchmark.check.json": "3022de78d1f86ed6e7afb4f4c7e5a27e3fd50c09b9dabd4b45f022e19bf8aac4",
+        "check.json": "0316117eea684f0781f6f4f2d7d53e0d5d58555e19db8387c2285aeae286a226",
+        "formula_check.json": "abc75ca5c9ea30c6410a8900472249cc7a63c82aa2ec4b14a9de8d738c63dce3",
+        "layer_check.json": "1b89ba745ffe91a110c07bf898cf789dae25cb252feea847044ad22c9c3cd78a",
+        "hit_check.json": "86cd96461b84fdda12ec454c1c7ae76ec628a229835af11a73492c8a1cb99d8e"
+      },
+      "driver_status": "passed"
+    },
+    {
+      "status": "passed",
+      "case": "global4_abcd",
+      "arm": "tfs-a1",
+      "smoke": true,
+      "requests": 8,
+      "warmup_requests": 0,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 1071.8855521190562,
+      "p95_ttft_ms": 1927.2611659835093,
+      "slo_pct": 62.5,
+      "completion_ms": 1934.390957991127,
+      "measured_read_bytes": 23744827392,
+      "evidence_sha256": {
+        "benchmark.check.json": "a68ddb7d00b8829bf146db287e667364ecf0141d6110b9f2c61dde1835a00c18",
+        "check.json": "d9e6fa8704b6bd768b4b170a13680743ff578e389de59dec70c59780ecc789e0",
+        "formula_check.json": "910218c9eab93865466ee66c04091c98be0da7295e763d6d6353d6ae20a610cc",
+        "layer_check.json": "5313949d6a379fd00d99048a3a0894c08762410a4aab678d420c487d34dc0ddc",
+        "hit_check.json": "18a60a3d4c884d64273182f90c193f95d4df606ead2ed5e069d0208ece8f6fe2"
+      },
+      "driver_status": "passed"
+    },
+    {
+      "status": "passed",
+      "case": "per_request_4pct",
+      "arm": "direct",
+      "smoke": true,
+      "requests": 4,
+      "warmup_requests": 0,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 606.6762287373422,
+      "p95_ttft_ms": 1590.3991659870371,
+      "slo_pct": 100.0,
+      "completion_ms": 1596.8930409871973,
+      "measured_read_bytes": 16763535360,
+      "evidence_sha256": {
+        "benchmark.check.json": "c0f85604335c9a8b59477b366ffaa800ff68d6174df950a52ab70454c14e93bd",
+        "check.json": "250753df73d0cc0e5456e7deb084f139fc4f9b84327e296eb2eee18ae34503da",
+        "formula_check.json": "5a73e38c06f9eacf67488bc55359e1f5b24ab769ba2d9deea921bb72c82fec23",
+        "layer_check.json": "76c9d0ea14285676fcb188407178e6ce386b6b0117737ce5dfaf556aef0caf6c",
+        "hit_check.json": "d6fff2c5986d1c47e815330b4c8d7f4e1ffdfc1776d3ecc137f01accbc519454"
+      },
+      "driver_status": "passed"
+    },
+    {
+      "status": "passed",
+      "case": "global4_abc",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 1432.3955290645245,
+      "p95_ttft_ms": 4245.810749998782,
+      "slo_pct": 26.666666666666668,
+      "completion_ms": 7780.705332988873,
+      "measured_read_bytes": 539571462144,
+      "evidence_sha256": {
+        "benchmark.check.json": "4ceef03ef84c01d2b8596bd0e5705d7e03cac37dbc8ecb590b514316cfb71643",
+        "check.json": "84ca8f37c5e8d37eb287d802d29f35f481f34c05c9b1a7440be90c27fb3b03cd",
+        "formula_check.json": "5f285a0d8760074a4316e0fc175a5d746673af5e99a28cd9f64162f43f923776",
+        "layer_check.json": "3dcc4599e61da5a672a7e14738f053998512ef0f4b335a799ba2cc20d5c8e552",
+        "hit_check.json": "b2905962fb2fba0922f34f1fb17f8667a9d4061a6ce5dd65c36ee677793854cf"
+      },
+      "driver_status": "passed"
+    },
+    {
+      "status": "passed",
+      "case": "per_request_4pct",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 1253.1503626308727,
+      "p95_ttft_ms": 2525.1384589937516,
+      "slo_pct": 19.444444444444446,
+      "completion_ms": 7135.09262498701,
+      "measured_read_bytes": 539258683392,
+      "evidence_sha256": {
+        "benchmark.check.json": "7c1e99664b00cc15aa584b4e6748d633c29da20f5e21a65dd1a686b7fbb9dc10",
+        "check.json": "8b1170e7566073e1173b0932b0d9e36e5bdb385f0117dd7e914ec14ea7ee6d22",
+        "formula_check.json": "14d44d985f032c736c780881ef61387afe922c50256ddbcac35db161c7cb6920",
+        "layer_check.json": "c880e97820d5eb41e926eea7f737e7c65a45b26940bfc5b03940900923226089",
+        "hit_check.json": "fb5bc92cdd36532fa11cf6ddf9cb8a768192e96aec1e13894e03572573be60fd"
+      },
+      "driver_status": "passed"
+    },
+    {
+      "status": "passed",
+      "case": "global4_abcd",
+      "arm": "tfs-a1",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 90000000000.0,
+      "mean_ttft_ms": 2582.591401264977,
+      "p95_ttft_ms": 5475.368832994718,
+      "slo_pct": 2.5,
+      "completion_ms": 8819.072999991477,
+      "measured_read_bytes": 539571462144,
+      "evidence_sha256": {
+        "benchmark.check.json": "a4b00505d9fb701d3e1fb50f64b15a098eae6d763a310549568dda8bb2e3294f",
+        "check.json": "49a2c0539b6a2552d538d6f0036c05d17baa992cc7800598b97fbc3fcec3379e",
+        "formula_check.json": "08fa0e4e2a41cb61fedf108193ce8985530a25c5cec34e05acad916a1c676183",
+        "layer_check.json": "8bff5714981517b6900996deea163c1ed8a4a77a77e5dc852b9c7de9868607d6",
+        "hit_check.json": "556edfa6dfcec4e6aeee90b22e7c1e2d1b6f015c1b02841fd0eff754c4ff626a"
+      },
+      "driver_status": "passed"
+    }
+  ],
+  "scope": "Portability/correctness acceptance only; no new strategy ranking",
+  "formal_requests": 1080,
+  "warmup_requests": 216,
+  "smoke_requests": 18,
+  "benchmark_rows_checked": 1080,
+  "clean_checkout_source_files_checked": 199,
+  "created": "2026-10-30",
+  "limits": [
+    "existing dependencies reused",
+    "macOS Apple Silicon only",
+    "one case/arm pairing per formal run; not a nine-cell performance comparison",
+    "fresh Linux bootstrap and native recompilation not performed"
+  ]
+}
