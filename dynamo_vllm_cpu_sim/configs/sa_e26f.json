@@ -1,0 +1,60 @@
+{
+  "workers": 32,
+  "scheduler": "upstream",
+  "policy": "fcfs",
+  "block_size": 1,
+  "connector_name": "SALayerConnector",
+  "num_blocks": 196114,
+  "max_model_len": 50000,
+  "max_num_seqs": 8,
+  "max_num_batched_tokens": 8192,
+  "enable_prefix_caching": false,
+  "memory": {
+    "total_bytes": 8000000000.0,
+    "base_bytes": 500000000.0,
+    "kv_bytes_per_token": 32768,
+    "workspace_bytes_per_token": 131072
+  },
+  "sa_profile": {
+    "profile_id": "synthetic-v1",
+    "L": 8,
+    "kappa_gb_per_token_layer": "8/1953125",
+    "N_sat": 512,
+    "t_launch_s": "1/20000",
+    "a_s_per_token": "13408301/8239718400000",
+    "b_s_per_pair": "961/2059929600000",
+    "eta_floor": "1/16",
+    "no_speedup": false,
+    "mem_base_gb": "1/2",
+    "mem_per_token_gb": "256/1953125"
+  },
+  "source_commit": "3cd826961bb53b05d09eb7f6e6949e4222230605",
+  "source_sha256": {
+    "sim/experiments/e26f_third.py": "c48fc08e64e4479189ddec8a8c6e2d31fe237829faa232e30343647c78f48689",
+    "sim/experiments/e26_ab.py": "e6290f20a206c50c2dce5122c352247c4ca13511aff70915fc1f97c00e8781bd",
+    "sim/cq/profile.py": "40e9134f850ec0297fef054037723faf8797d9ffffe472ce82d06f478f345f3d",
+    "sim/cq/config.py": "6540c2c7a273c53b9c4012e3c7535dddbb87c1be6c97fc2d898cb046b6b9e96e",
+    "sim/cq/storage.py": "4d238e2e83abdc492c664046c0ff8e6a62405ed262ba8b1a561269a8e9e3d5b1",
+    "sim/cq/engine.py": "8e08dbd36a4e46d6796e36f1947f656ac91f359e2b205b13c5f72a99f2b382ca",
+    "sim/cq/policies.py": "94b8c0ae856ba9d45429217723498151ebdbb43be1f3a62eae5974aa929a2919"
+  },
+  "storage": {
+    "bandwidth_policy": "sa_max_min",
+    "shared_link_Bps": 120000000000.0,
+    "q_max_Bps": 200000000000.0,
+    "layer_bytes_per_token": 4096,
+    "read_latency_s": 0
+  },
+  "ttft_slo_s": 1.0,
+  "admission": {
+    "mode": "tfs",
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 120000000000.0,
+    "release_on": "first_token",
+    "aging_enabled": false,
+    "aging_wait_s": 0,
+    "aging_cooldown_s": 0.05,
+    "feedback_delay_s": 0
+  },
+  "source_trace": "results/sa_alignment_20261019/source/D1fA-s416.json"
+}

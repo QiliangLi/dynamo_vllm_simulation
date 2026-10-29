@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "created": "2026-10-29",
+  "cases": [
+    {
+      "case": "per_request_4pct",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "new_tokens": 207547,
+      "new_pct": 4.055430554999213,
+      "read_bytes": 539258683392,
+      "class_counts": {
+        "B": 270,
+        "A": 90
+      },
+      "allocation_scope": "per_request"
+    },
+    {
+      "case": "global4_abc",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "new_tokens": 204699,
+      "new_pct": 3.9997811540411767,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 240,
+        "B": 90,
+        "C": 30
+      },
+      "allocation_scope": "global"
+    },
+    {
+      "case": "global4_abcd",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "new_tokens": 204699,
+      "new_pct": 3.9997811540411767,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 220,
+        "B": 90,
+        "D": 20,
+        "C": 30
+      },
+      "allocation_scope": "global"
+    }
+  ],
+  "comparison_config": {
+    "shared_storage_Bps": 90000000000.0,
+    "K": 1,
+    "workers": 12,
+    "arrival_window_s": 4
+  },
+  "scope": "Frozen workload inputs and configs only; no new performance runs"
+}

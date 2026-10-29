@@ -7,9 +7,11 @@
 SchedulerOutput → 执行 → ModelRunnerOutput 这一段；不 mock schedule() 返回、
 不重写 KV allocator、不绕过 update_from_output()。
 
-时间模型与 DES Engine.schedule()/complete() 完全一致::
+时间模型与 DES 共用 sim.compute_time。默认 linear::
 
     T = step_overhead_s + prefill * prefill_token_s + decode * decode_token_s
+
+compute.mode=glm5_d950pr 时按本轮真实 (h,u) 形状计算 78 层时间，拒绝 decode。
 
 壁钟模式（模式 1）以 time.sleep(T) 兑现；采样 token 恒为 SIM_TOKEN_ID
 （与 DES 相同，ignore_eos 语义由请求侧 max_tokens 决定）。
@@ -17,7 +19,7 @@ SchedulerOutput → 执行 → ModelRunnerOutput 这一段；不 mock schedule()
 请求表自愈机制：EngineCore.step() 只把 SchedulerOutput 交给 executor，executor
 看不到 Request 对象。本类从 ``scheduled_new_reqs``（新请求：prompt 长度与初始
 num_computed_tokens）与 ``scheduled_cached_reqs``（每步携带 scheduler 侧
-post-advance 的 num_computed_tokens / num_output_tokens，scheduler.py 构建
+pre-advance 的 num_computed_tokens / num_output_tokens，scheduler.py 构建
 SchedulerOutput 时读取）重建每请求的 computed/outputs 视图，因此抢占/重置/
 KV 恢复后不会漂移。采样条件与 DES 相同：computed_after >= prompt_len + outputs。
 """
@@ -29,6 +31,8 @@ import os
 import time
 from concurrent.futures import Future
 from pathlib import Path
+from sim.compute_time import estimate_step, validate_compute
+from sim.stack.clock import TimeScale
 
 import torch
 
@@ -52,9 +56,10 @@ def load_stack_config() -> dict:
     path = os.environ.get("SIM_STACK_CONFIG", str(ROOT / "configs/demo.json"))
     with open(path) as f:
         cfg = json.load(f)
-    for key in ("step_overhead_s", "prefill_token_s", "decode_token_s"):
-        if key not in cfg.get("compute", {}):
-            raise ValueError(f"config {path} lacks compute.{key}")
+    validate_compute(cfg["compute"])
+    TimeScale.from_config(cfg)
+    from sim.stack.layerwise import layer_spec
+    layer_spec(cfg)
     return cfg
 
 
@@ -62,6 +67,7 @@ class SimExecutor(Executor):
     def _init_executor(self) -> None:
         global CURRENT
         self.cfg = load_stack_config()
+        self.clock = TimeScale.from_config(self.cfg)
         self.compute = self.cfg["compute"]
         self.block_size = self.cfg["block_size"]
         # worker 身份仅用于日志与后续 storage-sim 记账
@@ -82,7 +88,22 @@ class SimExecutor(Executor):
         from sim.stack.storage_client import client_from_env
 
         self._storage = client_from_env()
+        from sim.stack.feedback import feedback_client
+        self._feedback = feedback_client()
+        self._layer_runner = None
+        from sim.stack.layerwise import transfer_mode, LayerRunner
+        if transfer_mode(self.cfg) != "bulk":
+            if self._storage is None:
+                raise ValueError("layerwise requires shared storage service")
+            self._layer_runner = LayerRunner(self.cfg,self._storage,self.worker_id,
+                                            self.clock,self._feedback,self._layer_event)
         CURRENT = self
+
+    def _layer_event(self,event,**values):
+        if self._step_log is not None:
+            occurred = values.pop("occurred_mono",None)
+            self._step_log.write(json.dumps(dict(event=event,occurred_mono=time.monotonic() if occurred is None else occurred,
+                wall_time_scale=self.clock.factor,worker=self.worker_id,**values))+"\n")
 
     # ------------------------------------------------------------------
     # EngineCore 初始化链（_initialize_kv_caches）所需
@@ -124,6 +145,9 @@ class SimExecutor(Executor):
         self, scheduler_output: SchedulerOutput, *args, non_block: bool = False, **kwargs
     ):
         out = scheduler_output
+        layer_runner = getattr(self,"_layer_runner",None)
+        if layer_runner is not None:
+            layer_runner.install(out.kv_connector_metadata)
 
         # 1) 登记本步新请求（prompt 长度与初始 computed 来自 NewRequestData；
         #    其 num_computed_tokens 是 schedule 推进前的值）。
@@ -131,7 +155,7 @@ class SimExecutor(Executor):
             self._prompt_len[nd.req_id] = len(nd.prompt_token_ids or [])
             self._base_computed[nd.req_id] = nd.num_computed_tokens
 
-        # 2) scheduler 真值视图（对齐索引；构建时在 schedule() 推进之后读取）。
+        # 2) scheduler 真值视图（对齐索引；固定 0.20.2 的字段是本步推进前值）。
         cached_computed = dict(
             zip(out.scheduled_cached_reqs.req_ids, out.scheduled_cached_reqs.num_computed_tokens)
         )
@@ -145,6 +169,7 @@ class SimExecutor(Executor):
         ids: list[str] = []
         sampled: list[list[int]] = []
         prefill = decode = 0
+        shapes = []
         for rid, count in out.num_scheduled_tokens.items():
             ids.append(rid)
             prompt_len = self._prompt_len[rid]
@@ -158,6 +183,8 @@ class SimExecutor(Executor):
             p = min(count, max(0, prompt_len - before))
             prefill += p
             decode += count - p
+            if p:
+                shapes.append((before, p))
             if computed >= prompt_len + outputs:
                 sampled.append([SIM_TOKEN_ID])
             else:
@@ -168,6 +195,10 @@ class SimExecutor(Executor):
         for rid in out.finished_req_ids:
             self._prompt_len.pop(rid, None)
             self._base_computed.pop(rid, None)
+            if self._feedback is not None:
+                self._feedback.forget(rid)
+            if layer_runner is not None:
+                layer_runner.forget(rid)
 
         model_output = ModelRunnerOutput(
             req_ids=ids,
@@ -182,23 +213,34 @@ class SimExecutor(Executor):
             )
 
         # 4) 壁钟兑现计算时延（模式 1），再以已完成 Future 返回。
+        timing = None
+        sleep_elapsed_s = 0.0
         if ids:
-            c = self.compute
-            duration = (
-                c["step_overhead_s"]
-                + prefill * c["prefill_token_s"]
-                + decode * c["decode_token_s"]
-            )
+            if self._feedback is not None and layer_runner is None:
+                for rid in ids:
+                    self._feedback.starting(rid)
+            timing = estimate_step(self.compute, shapes, decode)
+            if layer_runner is not None and decode:
+                raise ValueError("layerwise stack supports prefill-only (max_tokens=1)")
+            duration = timing["duration_s"]
             if duration <= 0:
                 raise ValueError("nonpositive compute time")
-            time.sleep(duration)
+            sleep_start = time.perf_counter()
+            if layer_runner is None:
+                time.sleep(self.clock.to_wall(duration))
+                sleep_elapsed_s = time.perf_counter() - sleep_start
+            else:
+                sleep_elapsed_s = layer_runner.run(ids,timing,self.steps+1)
             self.sleep_s += duration
             self.steps += 1
-        if self._storage is not None:
+        if self._storage is not None and layer_runner is None:
             # 与 DES Engine.complete 相同：完成事件（含空步）把已到达的远端
             # KV 接收完成附在 ModelRunnerOutput 上，走真实 update_from_output。
             rids = self._storage.finished(self.worker_id)
             if rids:
+                if self._feedback is not None:
+                    for rid in rids:
+                        self._feedback.completed(rid)
                 from vllm.v1.outputs import KVConnectorOutput
 
                 model_output.kv_connector_output = KVConnectorOutput(
@@ -219,6 +261,13 @@ class SimExecutor(Executor):
                         "sampled": [bool(s) for s in sampled],
                         "prefill": prefill,
                         "decode": decode,
+                        "timing": timing,
+                        "sleep_elapsed_s": sleep_elapsed_s,
+                        "execution_elapsed_wall_s": sleep_elapsed_s,
+                        "wall_time_scale": self.clock.factor,
+                        "kv_transfer_mode": self.cfg.get("kv_transfer_mode","bulk") if hasattr(self,"cfg") else "bulk",
+                        "sleep_requested_wall_s": self.clock.to_wall(timing["duration_s"]),
+                        "sleep_elapsed_model_s": self.clock.to_model(sleep_elapsed_s),
                     },
                     ensure_ascii=False,
                 )
@@ -248,6 +297,8 @@ class SimExecutor(Executor):
         return None
 
     def shutdown(self) -> None:
+        if self._feedback is not None:
+            self._feedback.close()
         if self._step_log is not None:
             self._step_log.close()
             self._step_log = None

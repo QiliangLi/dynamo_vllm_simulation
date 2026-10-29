@@ -1,0 +1,13 @@
+{
+  "profile_id": "synthetic-v1",
+  "L": 8,
+  "kappa_gb_per_token_layer": "8/1953125",
+  "N_sat": 512,
+  "t_launch_s": "1/20000",
+  "a_s_per_token": "13408301/8239718400000",
+  "b_s_per_pair": "961/2059929600000",
+  "eta_floor": "1/16",
+  "no_speedup": false,
+  "mem_base_gb": "1/2",
+  "mem_per_token_gb": "256/1953125"
+}

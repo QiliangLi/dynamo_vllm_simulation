@@ -15,6 +15,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,6 +40,7 @@ def make_trace(path, rows):
 
 
 class StorageServiceTest(unittest.TestCase):
+    config = CONFIG
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
@@ -62,7 +64,7 @@ class StorageServiceTest(unittest.TestCase):
         }
         make_trace(cls.trace, [cls.row_a, cls.row_big])
         cls.cfg_path = tmp / "c.json"
-        cls.cfg_path.write_text(json.dumps(CONFIG))
+        cls.cfg_path.write_text(json.dumps(cls.config))
         cls.sock = tmp / "s.sock"
         # 块哈希依赖 PYTHONHASHSEED；服务与哈希计算子进程统一固定为 0
         cls.env = {**os.environ, "PYTHONHASHSEED": "0"}
@@ -99,6 +101,7 @@ class StorageServiceTest(unittest.TestCase):
         cls.client.close()
         cls.proc.terminate()
         cls.proc.wait(timeout=10)
+        cls.proc.stdout.close()
         cls.tmp.cleanup()
 
     def call(self, payload):
@@ -175,6 +178,93 @@ class StorageServiceTest(unittest.TestCase):
         # 64 块 × 400B = 25.6KB，单 path 1GB/s → 25.6µs ≪ solo_s 轮询开销；
         # 本断言主要保证完成语义与不超时，精确竞争语义由 tests/test_storage.py 覆盖
         self.assertLess(solo_s, 5.0)
+
+
+class StorageMonotonicTest(unittest.TestCase):
+    def test_three_disk_service_does_not_publish_early_completion(self):
+        from sim.stack.storage_service import Service
+        from test_storage_disks import blocks_for
+        cfg = {"block_size": 1, "storage": dict(STORAGE_CFG, disks=3,
+               disk_Bps=40, shared_link_Bps=None, bandwidth_policy="max_min_fair",
+               record_reads=True)}
+        with mock.patch("sim.stack.storage_service.time.monotonic",return_value=100.0) as clock:
+            service = Service(cfg, [])
+            blocks = sum((blocks_for(service.store,d,n) for d,n in enumerate([3,2,1])),[])
+            service.store.present.update(blocks)
+            service.op_submit(0,"r",[b.hex() for b in blocks],1)
+            clock.return_value = 102.5
+            self.assertEqual(service.op_finished(0)["rids"],[])
+            clock.return_value = 105
+            self.assertEqual(service.op_finished(0)["rids"],[])
+            clock.return_value = 107.5
+            self.assertEqual(service.op_finished(0)["rids"],["r"])
+            self.assertEqual(service.op_finished(0)["rids"],[])
+            stats = service.op_stats()
+            self.assertEqual(stats["disk_bytes_transferred"],[300,200,100])
+            self.assertAlmostEqual(stats["read_history"][0]["completed_s"],7.5)
+
+    def test_host_wall_clock_adjustment_does_not_advance_transfers(self):
+        from sim.stack.storage_service import Service
+        cfg = {"block_size":4,"storage":dict(STORAGE_CFG,shared_link_Bps=1000)}
+        with mock.patch("sim.stack.storage_service.time.monotonic",return_value=100.0) as clock:
+            with mock.patch("sim.stack.storage_service.time.time",return_value=1000.0) as epoch:
+                service = Service(cfg,[])
+                service.store.present.add(b"block")
+                service.op_submit(0,"r",[b"block".hex()],None)
+                epoch.return_value = 5000.0
+                clock.return_value = 100.1
+                service._advance_to_wall()
+                self.assertAlmostEqual(service.store.bytes_transferred,100,places=7)
+                self.assertEqual(len(service.store.pending),1)
+                clock.return_value = 100.5
+                service._advance_to_wall()
+                self.assertEqual(len(service.store.pending),0)
+                self.assertAlmostEqual(service.store.bytes_transferred,400)
+
+
+class ThreeDiskStorageServiceTest(StorageServiceTest):
+    """Repeat the real Unix-socket checks with three disks and no global cap."""
+    config = dict(CONFIG, storage=dict(STORAGE_CFG, disks=3, shared_link_Bps=None,
+                  bandwidth_policy="max_min_fair", record_reads=True))
+
+    def call(self, payload):
+        if payload.get("op") == "submit" and payload.get("demand") is None:
+            payload = dict(payload, demand=1e9)
+        return super().call(payload)
+
+    def test_topology_and_hash_plan_from_rpc(self):
+        blocks = self.hashes()
+        self.call(dict(op="submit",worker=2,rid="disk-plan",blocks_hex=blocks,demand=1e9))
+        deadline = time.monotonic()+5
+        while time.monotonic()<deadline:
+            if self.call(dict(op="finished",worker=2))["rids"]:
+                break
+            time.sleep(.002)
+        stats = self.call(dict(op="stats"))
+        self.assertEqual(stats["disks"],3)
+        self.assertIsNone(stats["shared_link_Bps"])
+        self.assertTrue(all(rate<=40e9+1e-3 for rate in stats["disk_peak_Bps"]))
+        read = next(r for r in stats["read_history"] if r["rid"]=="disk-plan")
+        self.assertIsNotNone(read["completed_s"])
+        self.assertEqual(sum(read["disk_bytes"]),800)
+
+
+class ConnectorDemandTest(unittest.TestCase):
+    def test_glm_request_demand_is_split_across_actual_blocks(self):
+        from types import SimpleNamespace
+        from sim.stack.connector_rpc import SimConnectorRpc
+        connector = SimConnectorRpc.__new__(SimConnectorRpc)
+        connector.mode = "bulk"
+        connector.cfg = {"compute":{"mode":"glm5_d950pr"},"storage":{"kv_bytes_per_token":100}}
+        connector._vllm_config = SimpleNamespace(cache_config=SimpleNamespace(block_size=16))
+        connector._pending_blocks = {"r":[b"a",b"b",b"c"]}
+        connector._pending_demands = {"r":900}
+        connector.demand, connector.worker_id = None, 0
+        connector.client = mock.Mock()
+        connector.external_tokens = {}
+        with mock.patch("sim.stack.feedback.feedback_client",return_value=None):
+            connector.update_state_after_alloc(SimpleNamespace(request_id="r"),None,48)
+        connector.client.submit.assert_called_once_with(0,"r",[b"a",b"b",b"c"],300)
 
 
 if __name__ == "__main__":

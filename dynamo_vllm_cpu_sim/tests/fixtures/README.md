@@ -1,0 +1,5 @@
+# 冻结存储参考实现
+
+storage_before_step2与storage_before_grouping保留原实验实际冻结的少量Python源码。
+manifest.json记录原实验report SHA及源码SHA。只搬移源文件，不重写旧模型或虚构性能结果。
+对应测试继续按原SHA核对、逐事件对拍。测试不再依赖未提交的大型results目录。

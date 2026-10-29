@@ -1,6 +1,9 @@
 """dynamo.vllm worker 包装入口：注入 SimExecutor 并补齐 0.20.2↔0.28 兼容层（W3/W4）。
 
-为什么需要包装（两件事，均不改 vLLM 与 Dynamo 任何源码，设计文档 D1/D2）：
+默认包装不改上游磁盘源码。scheduler 准入实验另外启用有意改变调度行为的
+运行期补丁，以及 Dynamo 重读字段适配；这不是“原调度语义不变”的模式。
+
+基础包装（设计文档 D1/D2）：
 
 1. executor 注入：vLLM CLI 的 ``--distributed-executor-backend`` 用 argparse
    choices 限定 ``mp/ray/uni/external_launcher``，限定名字符串会被拒绝；程序内
@@ -30,13 +33,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Linux's empty-device build is not auto-detected as CPU (macOS is).
-# Select the same simulation platform as sim.engine before parsing engine args.
-if sys.platform == "linux":
-    import vllm.platforms
-    from vllm.platforms.cpu import CpuPlatform
-
-    vllm.platforms._current_platform = CpuPlatform()
+# 本入口始终执行 CPU mock；在 spawn 子进程重导入时也选定同一平台。
+import vllm.platforms
+from vllm.platforms.cpu import CpuPlatform
+vllm.platforms._current_platform = CpuPlatform()
 
 EXECUTOR_QUALNAME = os.environ.get(
     "SIM_STACK_EXECUTOR", "sim.stack.executor.SimExecutor"
@@ -102,6 +102,11 @@ _create_engine_config = AsyncEngineArgs.create_engine_config
 
 
 def _patched_create_engine_config(self, *args, **kwargs):
+    if os.environ.get("SIM_STACK_CONFIG"):
+        from sim.stack.executor import load_stack_config
+        from sim.stack.edf_priority import enabled
+        if enabled(load_stack_config()):
+            self.scheduling_policy = "priority"
     engine_config = _create_engine_config(self, *args, **kwargs)
     engine_config.parallel_config.distributed_executor_backend = EXECUTOR_QUALNAME
     return engine_config
@@ -110,6 +115,23 @@ def _patched_create_engine_config(self, *args, **kwargs):
 AsyncEngineArgs.create_engine_config = _patched_create_engine_config
 
 from dynamo.vllm.main import main  # noqa: E402
+
+if os.environ.get("SIM_STACK_CONFIG"):
+    from sim.stack.executor import load_stack_config
+    if load_stack_config().get("admission", {}).get("placement") == "scheduler":
+        from sim.stack.storage_hint import install_dynamo_adapter
+        from sim.stack.scheduler_admission import install_scheduler_adapter
+        install_dynamo_adapter()
+        install_scheduler_adapter()
+
+    from sim.stack.edf_priority import enabled as edf_priority_enabled
+    if edf_priority_enabled(load_stack_config()):
+        from sim.stack.edf_priority import install as install_edf_priority
+        install_edf_priority()
+
+if os.environ.get("SIM_FINE_TRACE_DIR"):
+    from sim.stack.fine_trace import install_vllm
+    install_vllm()
 
 if __name__ == "__main__":
     main()

@@ -20,17 +20,35 @@ SIM_CONFIG=""
 WORKERS=2
 REMOTE_KV=1
 API="completions"
+ADMISSION=""
+RELEASE_ON="first_token"
+TRACE_EXPLICIT=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --name) NAME="$2"; shift 2 ;;
-    --trace) TRACE="$2"; shift 2 ;;
+    --trace) TRACE="$2"; TRACE_EXPLICIT=1; shift 2 ;;
     --sim-config) SIM_CONFIG="$2"; shift 2 ;;
     --workers) WORKERS="$2"; shift 2 ;;
     --no-remote-kv) REMOTE_KV=0; shift ;;
     --api) API="$2"; shift 2 ;;
+    --admission) ADMISSION="$2"; shift 2 ;;
+    --release-on) RELEASE_ON="$2"; shift 2 ;;
     *) echo "unknown arg $1" >&2; exit 2 ;;
   esac
 done
+
+# TFS 请求入口独立运行并回收进程；保留无此参数时的原启动行为。
+if [ -n "$ADMISSION" ]; then
+  export PYTHONHASHSEED=0
+  [ "$API" = "completions" ] && [ "$REMOTE_KV" = "1" ] || {
+    echo "TFS entry requires --api completions and remote KV mode" >&2; exit 2;
+  }
+  [ "$TRACE_EXPLICIT" = "1" ] || TRACE="configs/mooncake_first_seen.jsonl"
+  [ -n "$SIM_CONFIG" ] || SIM_CONFIG="configs/mooncake_first_seen_layerwise.json"
+  exec "${STACK_PYTHON:-.venv/bin/python}" scripts/run_tfs_stack.py \
+    --config "$SIM_CONFIG" --trace "$TRACE" --output "results/$NAME" \
+    --mode "$ADMISSION" --release-on "$RELEASE_ON" --workers "$WORKERS"
+fi
 
 LOG_DIR="/tmp/stack_logs/$NAME"
 FILE_KV="/tmp/dyn_kv_$NAME"

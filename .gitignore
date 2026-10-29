@@ -24,3 +24,10 @@ dynamo_vllm_cpu_sim/results/traces/
 
 # ZCode tool-local config
 .zcodeignore
+
+# Branch experiments: source and benchmark fixtures only.
+/dynamo_vllm_cpu_sim/results/benchmark_runs/
+/dynamo_vllm_cpu_sim/build/
+/*.log
+/dynamo_vllm_cpu_sim/.venv
+/dynamo_vllm_cpu_sim/upstream

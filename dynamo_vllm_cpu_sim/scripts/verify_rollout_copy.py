@@ -21,8 +21,9 @@ sys.path.insert(0, str(ROOT))
 
 from sim.engine import Engine, make_request
 from sim.storage import Storage
+from sim.request_profile import normalize_config, build_profile
 
-c = json.loads((ROOT / "configs/demo.json").read_text())
+c = normalize_config(json.loads((ROOT / "configs/demo.json").read_text()))
 rows = [
     json.loads(x)
     for x in (ROOT / "configs/demo.jsonl").read_text().splitlines()
@@ -37,7 +38,8 @@ def build_world():
     derived = c["storage"]["kv_bytes_per_token"] / c["compute"]["prefill_token_s"]
     for e in engines:
         e.scheduler.connector.demands = {r["id"]: derived for r in rows}
-    reqs = {r["id"]: make_request(r, c["block_size"], c["policy"]) for r in rows}
+    reqs = {r["id"]: make_request({**r, 'deadline_s': build_profile(r, c).deadline_s},
+                                c["block_size"], c["policy"]) for r in rows}
     for r in rows:
         store.present.update(
             reqs[r["id"]].block_hashes[

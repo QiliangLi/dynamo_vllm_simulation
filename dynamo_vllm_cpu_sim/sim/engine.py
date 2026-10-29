@@ -2,6 +2,8 @@ import importlib.util
 from pathlib import Path
 import sys
 import torch
+from sim.compute_time import estimate_step
+from sim.control_events import ControlEvent
 import vllm.platforms
 from vllm.platforms.cpu import CpuPlatform
 
@@ -58,8 +60,11 @@ def scheduler_class(mode):
 
 def make_request(row, block_size, policy):
     priority = row.get("priority", 0)
-    if policy == "priority" and "priority" not in row:
-        priority = len(row["prompt_token_ids"]) - row.get("remote_prefix_tokens", 0)
+    if policy == "priority":
+        from sim.priority import edf_priority
+        if 'deadline_s' not in row:
+            raise ValueError('EDF request requires a frozen deadline_s')
+        priority = edf_priority(row['deadline_s'])
     return Request(
         request_id=row["id"],
         prompt_token_ids=row["prompt_token_ids"],
@@ -107,7 +112,7 @@ class Engine:
             device_config=DeviceConfig("cpu"),
             parallel_config=ParallelConfig(),
             kv_transfer_config=KVTransferConfig(
-                kv_connector="SimConnector", kv_role="kv_both"
+                kv_connector=c.get("connector_name", "SimConnector"), kv_role="kv_both"
             ),
             additional_config={
                 "enable_balance_scheduling": c["scheduler"] == "ascend_balance"
@@ -142,6 +147,23 @@ class Engine:
         self.stall_s = 0.0
         self.idle_s = 0.0
         self.steps = 0
+        self.control_events = []
+        self.step_events = []
+        self.load_attempts = {}
+        self.load_resolved = set()
+        self._control_sequence = 0
+        self.zero_token_steps = 0
+
+    def emit_control(self, kind, rid, now, payload=None):
+        """仅输出请求级事实，由连接层决定反馈可见时间。"""
+        self._control_sequence += 1
+        self.control_events.append(ControlEvent(
+            f"{self.id}:{self._control_sequence}", kind, rid, self.id,
+            now, now, payload or {}))
+
+    def load_completed(self, rid, now):
+        self.emit_control("load_completed", rid, now,
+                          {"attempt_id": self.load_attempts[rid]})
 
     def account(self, dt):
         if self.inflight is not None:
@@ -161,16 +183,28 @@ class Engine:
         out = self.scheduler.schedule()
         for rid, blocks, demand in self.scheduler.connector.submissions:
             self.store.submit(now, (self.id, rid), blocks, demand)
+            self.load_attempts[rid] = self.load_attempts.get(rid, 0) + 1
+            self.load_resolved.add(rid)
+            self.emit_control("load_submitted", rid, now, {
+                "attempt_id": self.load_attempts[rid], "num_blocks": len(blocks),
+                "submitted_read_bytes": len(blocks) * self.store.block_bytes})
         self.scheduler.connector.submissions.clear()
         ids = list(out.num_scheduled_tokens)
         sampled = []
         prefill = decode = 0
+        shapes = []
         for rid, count in out.num_scheduled_tokens.items():
             req = self.scheduler.requests[rid]
+            if rid not in self.load_resolved:
+                # 只在真实 Scheduler 已决定计算时确认，不把临时匹配失败当作无加载。
+                self.load_resolved.add(rid)
+                self.emit_control("no_external_load", rid, now)
             before = req.num_computed_tokens - count
             p = min(count, max(0, req.num_prompt_tokens - before))
             prefill += p
             decode += count - p
+            if p:
+                shapes.append((before, p))
             sampled.append([100] if req.num_computed_tokens >= req.num_tokens else [])
         model = ModelRunnerOutput(
             req_ids=ids,
@@ -178,16 +212,18 @@ class Engine:
             sampled_token_ids=sampled,
         )
         if not ids:
+            self.zero_token_steps += 1
             return out, model, now
-        c = self.c["compute"]
-        duration = (
-            c["step_overhead_s"]
-            + prefill * c["prefill_token_s"]
-            + decode * c["decode_token_s"]
-        )
+        timing = estimate_step(self.c["compute"], shapes, decode)
+        duration = timing["duration_s"]
         if duration <= 0:
             raise ValueError("nonpositive compute time")
         self.steps += 1
+        self.step_events.append({"t": now, "event": "step_scheduled", "worker": self.id,
+                                 "step_id": self.steps, "num_requests": len(ids),
+                                 "num_scheduled_tokens": dict(out.num_scheduled_tokens),
+                                 "prefill_tokens": prefill, "decode_tokens": decode,
+                                 "duration_s": duration, "timing": timing})
         self.inflight = out, model, now + duration
         return None
 

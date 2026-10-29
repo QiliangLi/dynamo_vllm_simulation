@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "case": "per_request_4pct",
+  "requests": 360,
+  "input_tokens": 5117755,
+  "hit_tokens": 4910208,
+  "new_tokens": 207547,
+  "new_pct": 4.055430554999213,
+  "read_bytes": 539258683392,
+  "class_counts": {
+    "B": 270,
+    "A": 90
+  },
+  "nominal_new_pct": 4,
+  "allocation_scope": "per_request",
+  "block_size": 16,
+  "arrival_window_s": 4,
+  "synthetic_hit_allocation": true,
+  "output_length_used_for_work": false,
+  "hash_ids_used_for_hits": false,
+  "label_semantics": "historical display labels; not online P75",
+  "source_file": "data/status_aware_network/mooncake_trace/conversation_trace.jsonl",
+  "source_file_sha256": "b8cbb061a85206d729d91cdc2981f43c9e0d99209dce588d3af5f7934408b9df",
+  "source_first_line": 1,
+  "source_last_line": 360,
+  "historical_input_directory": "data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_prefill_v2_four_20261028/package/results/input360",
+  "original_trace_sha256": "57b23ce7ac589220f23a5ce7b1ba768f786fa9506c41d58ddbb3ffa62f315f9b",
+  "historical_config_sha256": "033d70a2c8991cc81c3a5663d21b792800a656caeb93834b1a57646726c40fb3",
+  "historical_bandwidth_Bps": 120000000000.0,
+  "historical_DV_commit": "e1bb6df0f7ce54b4dba7052d8bd9ce6e0cbacd45",
+  "historical_working_tree_dirty": null,
+  "default_comparison_bandwidth_Bps": 90000000000.0,
+  "K": 1,
+  "configuration_note": "config.json is common 90GB/s portable comparison config; config.historical.json is exact original config. Recompute T0/deadlines when replaying. Published historical config removes only the original machine-specific overlay path; historical_config_sha256 retains original file SHA. Published CSV uses LF; parsed values and compressed original JSONL are unchanged.",
+  "files_sha256": {
+    "trace.jsonl.gz": "d52d9872ad6fcec94e6e1594849b3d8d75db604a96c4bea28d9a4ceb219670af",
+    "requests.csv": "4e6f9364f4312e123f9abe63e678bffb191571adb47881e31c1fda81fe9b89cc",
+    "config.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5",
+    "config.historical.json": "f20b2c369119b6c676ba1f503eddb5fffdb6bc5fd9930e1b00aec024761f7142"
+  },
+  "historical_config_sanitized": true
+}

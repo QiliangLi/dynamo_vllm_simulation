@@ -1,0 +1,9 @@
+{
+  "source_experiment": "storage_timing_20261024",
+  "source_report_sha256": "ebf9cbb4453b64586dfd0edaa563dac5e084767f865b093bdfac091b05fa1270",
+  "source_sha256": {
+    "sim/storage.py": "b937ac7f5508d8bf1955b04e58b8ab35f18ceb40dd7d037521b0e6bf04c3ac3a",
+    "sim/stack/storage_service.py": "8906324b76bcaa0273a31ac04f4649a0cad731a36596a18364c21aab702651ed"
+  },
+  "scope": "Actual frozen reference source only; no performance data or invented results"
+}

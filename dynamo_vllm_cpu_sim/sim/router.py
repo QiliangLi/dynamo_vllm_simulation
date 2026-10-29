@@ -1,4 +1,4 @@
-"""Real Dynamo selector; explicit cache-blind baseline, not a mock router."""
+"""Dynamo reservations with cache-blind KV selection or explicit round-robin."""
 
 import os
 import asyncio
@@ -13,7 +13,12 @@ from dynamo.llm import SelectionService
 
 
 class Router:
-    def __init__(self):
+    def __init__(self, mode="kv"):
+        if mode not in ("kv", "round-robin"):
+            raise ValueError(f"unsupported router mode: {mode}")
+        self.mode = mode
+        self.workers = ()
+        self.next_worker = 0
         self.service = SelectionService(indexer_threads=1)
         self.active = {}
 
@@ -41,6 +46,9 @@ class Router:
             await asyncio.sleep(0.0001)
 
     async def start(self, c):
+        if c["workers"] <= 0:
+            raise ValueError("router needs at least one worker")
+        self.workers = tuple(range(c["workers"]))
         for wid in range(c["workers"]):
             await self.service.upsert_worker(
                 {
@@ -55,8 +63,7 @@ class Router:
             )
 
     async def route(self, row):
-        result = await self.service.select_and_reserve(
-            {
+        request = {
                 "model_name": "sim-model",
                 "selection_id": row["id"],
                 "token_ids": row["prompt_token_ids"],
@@ -66,7 +73,20 @@ class Router:
                     "assume_kv_reuse": False,
                 },
             }
-        )
+        if self.mode == "round-robin":
+            if not self.workers:
+                raise RuntimeError("router has not started")
+            wid = self.workers[self.next_worker % len(self.workers)]
+            # Explicit native reservation keeps load/first-token/free accounting.
+            # Only cyclic selection is Python; no Rust frontend is run in DES.
+            result = await self.service.create_reservation({
+                **request, "worker_id": wid,
+                "effective_prefill_tokens": len(row["prompt_token_ids"]),
+                "track_prefill_tokens": True,
+            })
+            self.next_worker += 1
+        else:
+            result = await self.service.select_and_reserve(request)
         self.active[row["id"]] = result["worker_id"], len(row["prompt_token_ids"])
         await self.settle()
         return result["worker_id"]

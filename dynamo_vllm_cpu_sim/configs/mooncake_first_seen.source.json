@@ -1,0 +1,24 @@
+{
+  "algorithm": "first_seen(D1/D2/D3/D7)",
+  "input_sha256": "b8cbb061a85206d729d91cdc2981f43c9e0d99209dce588d3af5f7934408b9df",
+  "derived_sha256": "0684cf8adfcc6683ba45b4a9e22cb68ec3c0a5fd82bf407ededb4ef71e84b6a3",
+  "n_rows": 12031,
+  "timestamps": 1180,
+  "max_same_ts_group": 28,
+  "token_hit_ratio": 0.37358842994289887,
+  "request_hit_ratio": 0.9991688138974316,
+  "full_hit_rows": 117,
+  "source": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/data/status_aware_network/mooncake_trace/conversation_trace.jsonl",
+  "exported_rows": 6,
+  "source_lines": [
+    1,
+    2,
+    14,
+    17,
+    262,
+    323
+  ],
+  "time_scale": 0.001,
+  "trace_sha256": "15559edafe7114bbc0b83a3b3efcb338c367391994de723415cce5eae293f21d",
+  "semantics": "Full-file pre-scan before selection; frozen per-request hits; synthetic text; output=1; block_size=1."
+}
