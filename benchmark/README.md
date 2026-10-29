@@ -41,7 +41,7 @@ GLM5实际组批v2、TP1/DP8/EP8、78层流水，实例内EDF。
 这些标记需要回放驱动实现；导出工具不会自动安装实验运行时包装。
 
 简单版本的历史配置是120 GB/s，ABC、ABCD的历史配置是90 GB/s。
-简单版本在统一90 GB/s配置下的结果尚未补跑。
+本分支交付时对简单版本的90 GB/s直接准入做了完整流程验收；三臂性能对照尚未补跑。
 配置变化后必须重算请求画像、T0及期限，不直接复用旧SLO结果。
 `config.historical.json`保留原实验参数，移除本机overlay路径；原文件SHA仍记录在manifest中。
 `config.json`移除了本机Dynamo overlay路径。

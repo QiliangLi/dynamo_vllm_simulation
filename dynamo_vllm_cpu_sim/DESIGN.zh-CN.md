@@ -1009,3 +1009,13 @@ GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式
 活动许可按请求索引；JSONL流式解析仅复用不可变整数，保留独立可变数组。
 日志64KiB缓冲不改变内存控制事件。正常关闭flush；强杀失败日志可能缺尾。
 说明见`../docs/TFS前置分诊与反馈开销对照-20261029.md`，实测结果见VALIDATION。
+
+
+## 2026-10-30：独立实验分支交付入口
+
+本分支提供仓库内benchmark与scripts/run_benchmark.py，冻结同一代码/输入/native构建后串行回放。
+新入口固定90 GB/s、K=1、12逻辑实例、EDF、72预热后360正式，保持完整booking/picker和逐层屏障。
+网关预分词、无payload重复bind、Unix backlog及GC/预热隔离适配位于scripts/benchmark_support/，
+属于显式实验运行时，不新增真实存储传感器或张量执行。profile/T0在当前配置下重算。
+存储对拍测试使用tests/fixtures实际冻结源码与原SHA，不依赖作者历史results。
+具体路径从仓库根docs/实验分支使用说明.md进入。新鲜依赖安装与Linux/WSL全流程尚未在本轮验证。
