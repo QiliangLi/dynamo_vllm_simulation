@@ -1,0 +1,59 @@
+{
+  "workers": 8,
+  "router_mode": "kv",
+  "scheduler": "upstream",
+  "policy": "fcfs",
+  "block_size": 1,
+  "num_blocks": 196114,
+  "max_model_len": 50000,
+  "max_num_seqs": 4,
+  "max_num_batched_tokens": 8192,
+  "enable_prefix_caching": false,
+  "ttft_slo_s": 10,
+  "compute": {
+    "mode": "sa_e26f",
+    "profile": {
+      "profile_id": "synthetic-v1",
+      "L": 8,
+      "kappa_gb_per_token_layer": "8/1953125",
+      "N_sat": 512,
+      "t_launch_s": "1/20000",
+      "a_s_per_token": "13408301/8239718400000",
+      "b_s_per_pair": "961/2059929600000",
+      "eta_floor": "1/16",
+      "no_speedup": false,
+      "mem_base_gb": "1/2",
+      "mem_per_token_gb": "256/1953125"
+    }
+  },
+  "storage": {
+    "disks": 1,
+    "paths_per_disk": 128,
+    "disk_Bps": 120000000000.0,
+    "shared_link_Bps": 120000000000.0,
+    "path_Bps": 2000000000.0,
+    "read_latency_s": 0.0,
+    "kv_bytes_per_token": 32768,
+    "bandwidth_policy": "sa_max_min",
+    "record_reads": true,
+    "q_max_Bps": 200000000000.0
+  },
+  "request_profile": {
+    "mode": "sa_reference_v2",
+    "profile_token_budget": 8192,
+    "slo_multiplier": 4.0
+  },
+  "admission": {
+    "mode": "tfs",
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 120000000000.0,
+    "release_on": "first_token",
+    "aging_enabled": false,
+    "aging_wait_s": 0.5,
+    "aging_cooldown_s": 0.05,
+    "feedback_delay_s": 0
+  },
+  "cache_model": "first_seen",
+  "kv_transfer_mode": "layer_pipeline",
+  "wall_time_scale": 10.0
+}

@@ -26,12 +26,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import httpx  # noqa: E402
+from sim.stack.clock import TimeScale  # noqa: E402
 
 
 async def one_request(
     client: httpx.AsyncClient, url: str, model: str, rid: str, text: str,
-    max_tokens: int, record: dict, api: str,
+    max_tokens: int, record: dict, api: str, admission_metadata: dict | None = None,
+    time_scale: float = 1.,
 ) -> None:
+    clock = TimeScale(time_scale)
     if api == "completions":
         payload = {"model": model, "prompt": text, "max_tokens": max_tokens,
                    "stream": True, "temperature": 0}
@@ -44,6 +47,8 @@ async def one_request(
             "stream": True,
             "temperature": 0,
         }
+    if admission_metadata is not None:
+        payload["_sim_admission"] = admission_metadata
     t_send = time.perf_counter()
     ttft = None
     finish = None
@@ -64,31 +69,37 @@ async def one_request(
                     usage = chunk["usage"]
                 if chunk.get("choices") and chunk["choices"][0].get("finish_reason"):
                     finish = chunk["choices"][0]["finish_reason"]
+        elapsed = time.perf_counter() - t_send
         record[rid] = {
-            "ttft_s": ttft,
-            "e2e_s": time.perf_counter() - t_send,
+            "ttft_s": clock.to_model(ttft) if ttft is not None else None,
+            "e2e_s": clock.to_model(elapsed),
+            "ttft_wall_s": ttft, "e2e_wall_s": elapsed, "sent_perf_s": t_send,
             "finish": finish,
             "usage": usage,
             "ok": True,
         }
     except Exception as exc:  # noqa: BLE001
-        record[rid] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+        record[rid] = {"ok": False, "sent_perf_s": t_send,
+                       "error": f"{type(exc).__name__}: {exc}"}
 
 
 async def replay(
-    trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool, api: str
+    trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool, api: str,
+    *, admission: bool = False, time_scale: float = 1.,
 ) -> int:
+    clock = TimeScale(time_scale)
     chat_url = url.rstrip("/") + (
         "/v1/completions" if api == "completions" else "/v1/chat/completions"
     )
     from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(str(ROOT / "configs/model"))
-    rows = [json.loads(line) for line in trace_path.read_text().splitlines() if line.strip()]
+    from sim.trace_io import load_trace
+    rows = load_trace(trace_path)
     jobs = []
     records: dict[str, dict] = {}
     skipped = 0
-    async with httpx.AsyncClient(timeout=120) as client:
+    async with httpx.AsyncClient(timeout=clock.to_wall(120),trust_env=False) as client:
         for row in rows:
             ids = row.get("prompt_token_ids")
             text = row.get("prompt_text")
@@ -99,18 +110,27 @@ async def replay(
                     records[row["id"]] = {"ok": False, "error": "lossy-token-roundtrip", "skipped": True}
                     continue
             delay = row["arrival_s"]
-            jobs.append((delay, row["id"], text, row["output_tokens"]))
+            meta = dict(id=row["id"],estimated_remote_tokens=row.get("remote_prefix_tokens",0),
+                        class_id=row.get("class_id","unclassified")) if admission else None
+            jobs.append((delay, row["id"], text, row["output_tokens"],meta))
         t0 = time.perf_counter()
         tasks = []
-        for delay, rid, text, out_tokens in jobs:
-            await asyncio.sleep(max(0.0, delay - (time.perf_counter() - t0)))
-            tasks.append(
-                asyncio.create_task(one_request(client, chat_url, model, rid, text, out_tokens, records, api))
-            )
+        for delay, rid, text, out_tokens, meta in jobs:
+            await asyncio.sleep(max(0.0, clock.to_wall(delay) - (time.perf_counter() - t0)))
+            kwargs = {"admission_metadata":meta} if admission else {}
+            tasks.append(asyncio.create_task(
+                one_request(client, chat_url, model, rid, text, out_tokens, records, api,
+                            time_scale=clock.factor,**kwargs)))
         await asyncio.gather(*tasks)
 
     ok = [r for r in records.values() if r.get("ok")]
     ttfts = sorted(r["ttft_s"] for r in ok if r["ttft_s"] is not None)
+    elapsed_wall = time.perf_counter() - t0
+    for row in rows:
+        record = records[row["id"]]
+        if "sent_perf_s" in record:
+            record["planned_arrival_s"] = row["arrival_s"]
+            record["actual_arrival_s"] = clock.to_model(record["sent_perf_s"]-t0)
     report = {
         "trace": str(trace_path),
         "url": url,
@@ -121,7 +141,11 @@ async def replay(
         "ttft_mean_s": sum(ttfts) / len(ttfts) if ttfts else None,
         "ttft_max_s": ttfts[-1] if ttfts else None,
         "requests": records,
-        "wall_clock_s": time.perf_counter() - t0,
+        "wall_clock_s": elapsed_wall,
+        "model_elapsed_s": clock.to_model(elapsed_wall),
+        "wall_time_scale": clock.factor,
+        "ttft_mean_wall_s": sum(r["ttft_wall_s"] for r in ok if r["ttft_wall_s"] is not None) / len(ttfts) if ttfts else None,
+        "time_units": "ttft_s/e2e_s/arrival_s are model seconds; *_wall_s and wall_clock_s are wall seconds",
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False))
@@ -140,10 +164,13 @@ def main() -> int:
     ap.add_argument("--model", default="sim-opt")
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--allow-lossy", action="store_true", help="跳过 decode→encode 往返校验")
+    ap.add_argument("--admission",action="store_true",help="向 TFS 服务发送公开画像元数据")
+    ap.add_argument("--time-scale",type=float,default=1.,help="wall seconds per model second (>=1)")
     ap.add_argument("--api", choices=["chat", "completions"], default="completions",
                     help="completions=裸 prompt（token 精确，远端 KV 实验用）；chat=套模板")
     args = ap.parse_args()
-    return asyncio.run(replay(args.trace, args.url, args.model, args.output, args.allow_lossy, args.api))
+    return asyncio.run(replay(args.trace, args.url, args.model, args.output, args.allow_lossy, args.api,
+                             admission=args.admission,time_scale=args.time_scale))
 
 
 if __name__ == "__main__":

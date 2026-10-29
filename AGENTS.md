@@ -1,51 +1,36 @@
-# AGENTS.md
+# AI接手本实验分支
 
-本仓库是"真实 Dynamo 路由 + 真实 vLLM / vLLM-Ascend 调度代码 + 仿真执行"的 CPU 调度实验台工程。本文件是给 coding agent 的工作约定，保持精简；事实与细节一律以下列文档为准。
+默认用中文。使用短句，区分实现事实、性能观察和待验证假设。
 
-## 目录导读
+## 先读与入口
 
-| 位置 | 内容 |
-|---|---|
-| [docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md](docs/Dynamo_vLLM_CPU_Simulation_Design.zh-CN.md) | 总体设计：真实/仿真代码边界、版本固定、存储模型、扩展路线 P1–P3 |
-| [docs/CPU真实代码仿真环境检视报告-20260924.md](docs/CPU真实代码仿真环境检视报告-20260924.md) | 实现与需求/研究目标的差距分析、待决策项、后续路线。**改代码前先读** |
-| [docs/macOS原生运行验证报告-20260924.md](docs/macOS原生运行验证报告-20260924.md) | macOS Apple Silicon 原生运行的平台适配、复现步骤与验证数据 |
-| [docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md](docs/Dynamo路由与vLLM引擎的状态交互机制-20261009.md) | 路由↔引擎状态交互机制：Dynamo 三通道（在途记账/KV 事件/FPM 每步事件流）+ llm-d、AIBrix 交互机制对照与三框架比较，真实部署 vs 仿真桥接，含 ASCII 全路径图与代码索引（2026-10-14 勘误扩充） |
-| [docs/vLLM组批规则与调度器并发推演可行性-20261010.md](docs/vLLM组批规则与调度器并发推演可行性-20261010.md) | vLLM V1（v0.20.2）逐步组批规则整理（两阶段调度、两上限、PD 门控）；外部调度器仅凭规则在线推演每实例并发执行集合不可行的原因（缺观测通道而非规则），及所需新增的每步 StepBatch 事件流接口 |
-| [docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md](docs/MPC调度架构前提与真实Dynamo-vLLM落地挑战-20261010.md) | MPC（滚动优化）四要素对照：假设架构（中央队列+分批下发+整批执行）vs 实际 Dynamo 直通路由+vLLM 自治组批的八项挑战；**重点：在线 MPC 参考架构（最终目标是在线运行的算法）**——四个在线必需件：admission 控制接口（SchedulerQueue 升级为主动扣留/指令放行，仿真侧=胶水层投放点）、StepBatch 事件流观测（控制器只吃事件流不直读引擎对象）、轻量事件重放器预测模型（09-13 §10.5 蓝本+每步事件纠偏，毫秒预算）、预算化滚动优化与回退链；仿真实验台的三重角色（施加在线约束的开发场/ground truth 校准场/S0-vs-在线-vs-Oracle 三对照验收场）；深拷贝影子世界（`scripts/verify_rollout_copy.py` 验证轨迹逐位一致、18.45ms/拷贝）定位为**离线 Oracle 上界与校准工具而非在线方案**；让权分工（Dynamo 记账/vLLM 被控动力学/MPC 投放）与挑战逐条消解表 |
-| [docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md](docs/多进程真实Dynamo-vLLM仿真栈设计-20261020.md) | **进程化仿真栈（模式 1 壁钟已于 2026-10-21 实现并验收）**：本机多进程跑原始 Dynamo frontend/router + N 个原始 vLLM worker（AsyncLLM/EngineCore/Scheduler 原码，真实 HTTP/TCP/ZMQ），仅 mock 模型执行（SimExecutor 经 vLLM `Executor` 限定名注入，vLLM 零修改）与远端存储（storage-sim 服务）；2026-10-20 本机实测依据（`dynamo.frontend` 可导入、`dynamo.vllm` 对 0.20.2 仅缺 3 符号+2 包、`CpuPlatform` 不破坏注入、`file` 发现/tcp 请求面/ZMQ 事件面免 etcd/NATS）；决策：不升 vLLM 0.28、`patched/` 薄补丁、壁钟先行/虚拟时钟服务后置、DES 不动两形态分工；W0–W7 里程碑、风险缓冲、决策序列对拍验收；§13 实现追记（零源码补丁、PYTHONHASHSEED 跨进程统一、纪元秒死循环、completions token 精确性等八项实测修正，**标准流程一条命令 run_stack_experiment.sh**（起栈→回放→验收→必定停栈，trap 兜底；bootstrap_stack.sh 一次性装环境；launch_stack.sh/replay_http.py/check_stack.py 为底层入口） |
-| [docs/与SimLLM和llm-emu对比分析-20261021.md](docs/与SimLLM和llm-emu对比分析-20261021.md) | 与 GitHub 上 SimLLM（openfabric-systems/simllm，网络保真部署仿真）与 llm-emu（AKafakA/llm-emu，profile 驱动 vLLM 单实例仿真，ISCA'26 poster）的对比分析：三家同属"真实控制面+仿真执行"家族；真实/仿真边界逐层对照表、时间模型（本仓库独有双形态：DES 虚拟时钟+进程栈壁钟）、保真度分层（机制/网络物理/单点绝对时间）、本仓库独有真实路由层与远端 KV 存储建模、各自不可替代问题域、vLLM RFC #61305 仿真缝标准化趋势与借鉴点；含 SimLLM 同名消歧 |
-| [docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md](docs/共享KV多ASU多Path下的组批错峰与带宽协同调度设计-20260917.md) | 调度策略研究目标：S/P/B 三层策略、ASU/Path/带宽模型、E26–E31 实验规划 |
-| [docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md](docs/共享KV统一队列下的Batch效率与错峰调度形式化分析-20260913.md) | 前序形式化分析（09-17 文档已修正其部分结论） |
-| [docs/ChatGPT-Ascend路径问题说明-20260924-1858.md](docs/ChatGPT-Ascend路径问题说明-20260924-1858.md) | 方案沟通与交付过程记录 |
-| [docs/AB双类带宽争抢实验设计-20261008.md](docs/AB双类带宽争抢实验设计-20261008.md) | A/B 双类带宽争抢实验设计：E26 工况映射、虚拟 token 标定、两到达序臂 |
-| [docs/存储带宽分配策略设计-maxmin-20261009.md](docs/存储带宽分配策略设计-maxmin-20261009.md) | 带需求上限的 max-min fair 带宽分配策略设计（`bandwidth_policy` 可选配置；**已实现 2026-10-10**：需求=层传输/层计算自推导、仅盘内、迭代到不动点、块全 Path 可见两策略共用、新策略取消 Path 排队、active_split 保留速率规则、五模式基线已重跑） |
-| [AB双类带宽争抢实验结果-20261008.md](AB双类带宽争抢实验结果-20261008.md) | A/B 实验结果：分类甘特图+带宽时序图、错峰不迁移结论、复现性注记。**含图的结果文档放仓库根**，图片链接用 `docs/figures/` 前缀（GitHub 与本地预览均正确） |
-| [dynamo_vllm_cpu_sim/README.md](dynamo_vllm_cpu_sim/README.md) | 实现工程的启动方式、可复跑实验、输入输出格式、适用边界 |
-| [dynamo_vllm_cpu_sim/VALIDATION.md](dynamo_vllm_cpu_sim/VALIDATION.md) | 已通过的验收记录与数值 |
-| [docs/Windows-WSL2运行说明.md](docs/Windows-WSL2运行说明.md) | Windows 编辑与 WSL2 执行；独立 Linux 环境、代码同步、原有 DES / 多进程入口 |
-| `dynamo_vllm_cpu_sim/{sim,scripts,tests,configs,results,patched}/` | 实现代码、引导脚本、测试、配置与验证产物 |
+1. 阅读[实验分支使用说明](docs/实验分支使用说明.md)。它定义本分支的可用入口与边界。
+2. 阅读[benchmark说明](benchmark/README.md)，明确逐请求4%和全局4%的区别。
+3. 在`dynamo_vllm_cpu_sim/`内运行`scripts/run_benchmark.py`。先`--smoke`，再正式回放。
+4. 修改模型、准入或反馈前，读取主说明中的对应设计文档。
 
-`upstream/`（bootstrap 按 SHA 下载的上游源码）与 `.venv/` 为本地运行产物，已 gitignore，不提交。
+## 必须保持的实验合同
 
-## 工作规则
+- 本分支新benchmark入口固定K=1、90 GB/s单共享池和12个逻辑实例。
+- 冒烟使用2个实例和各类少量请求；不能把冒烟当作正式性能数据。
+- 正式每组72预热排空后360请求，排除预热分类历史，重新开始正式GC窗口。
+- 三种策略共用EDF、模型、存储和反馈模式；α只改变等待重读评分系数。
+- 保留原生Dynamo picker、完整资源预留和vLLM token预算/slot分配。
+- 输入JSONL的h/u、token值、顺序、到达时刻不能为获得预期结果而修改。
+- 人工A/B/C/D标签不等于TFS运行期P75分类。首token释放不是实际IO结束释放。
+- GLM5解析计时及存储速率属于仿真；不得表述为Ascend910C实测。
 
-1. **自动提交**：完成并验证一组修改后，直接 `git commit` 并 `push` 到 `origin main`，无需向用户逐次确认（用户已授权）。提交信息用中文概述改动及动机；相关文档更新与代码改动放入同一提交。禁止提交 `upstream/`、`.venv/`、凭据或本地缓存。
-2. **文档同步**：修改代码必须同步更新对应文档，缺一不可：
-   - 改 `dynamo_vllm_cpu_sim/sim|scripts|configs` → 更新包内 `README.md`；行为或真实/仿真边界变化时，`DESIGN.zh-CN.md` 的 docs 与包内两份副本一起改；
-   - 新增/变更验收结果 → 更新 `VALIDATION.md`，原始 `report.json`/`events.jsonl` 存入 `results/<实验名>/`；
-   - 差距状态变化（如补齐某策略挂载点、完成 P1 某项）→ 更新检视报告的对应条目；
-   - 目录结构、工作规则、版本变化 → 更新本文件。
-3. **不伪造结果**：`results/` 与 `VALIDATION.md` 只记录真实运行的输出，禁止手写仿真数值或"预期通过"。上游源码被有意修改后，用 `scripts/doctor.py --allow-edited` 记录，不得假装指纹未变。
-4. **版本固定**：三个上游仓库按 `versions.json` 的 SHA 获取并受 `source-fingerprints.json` 校验；升级版本必须同步更新这两个文件、相关文档章节，并在 Linux 环境重跑验收。
-5. **平台**：Linux x86_64 为基准验证平台（bootstrap.sh 全自动）；macOS Apple Silicon 已验证可原生运行（2026-09-24，五模式指标与 Linux 逐位一致），但需按 `dynamo_vllm_cpu_sim/README.md` 的 macOS 小节手动适配（torch 无 `+cpu` 后缀、maturin `--features select-service` 自编译 dynamo、vLLM `setup.py` 允许 darwin 显式 `empty` 的一行修改），`scripts/doctor.py` 的 torch 精确版本检查在 mac 上按预期失败。Windows 使用 `scripts/wsl.py` 在 WSL2 / Ubuntu 24.04 的独立 Linux 镜像运行，Windows 原生推理不在支持范围内。不得提交 `.venv/upstream`、WSL 缓存或机器凭据。
+## 修改与验证
 
-## 常用命令
+- 修改`sim/`、`scripts/`、`configs/`时同步包内README。行为边界变化时同步两份DESIGN。
+- 新结果写入独立输出目录，保留失败记录；不覆盖旧结果，不只保留有利轮次。
+- 按改动运行相关测试。发布前运行完整单元测试和主说明中的冒烟/正式验收。
+- 验收至少覆盖请求数、h/u/token/字节、模型公式、层屏障、EDF、配额归零及进程退出。
+- 核对JSONL及源码SHA；不能用旧配置的T0/期限判断新配置SLO。
+- 不提交`.venv/`、`upstream/`、原生构建、大型原始事件或私人工作区历史。
+- 仓库中较早的实验脚本和README章节是历史材料。不要绕过新入口去猜测命令。
 
-在 Linux 上、`dynamo_vllm_cpu_sim/` 目录内执行（详见包内 README）：
+## Git
 
-```bash
-bash scripts/bootstrap.sh                # 首次：下载固定源码 + 建环境 + 跑通默认案例
-.venv/bin/python -m sim.run --output results/<实验名>          # 运行实验
-.venv/bin/python -m unittest discover -s tests -v              # 单元测试
-.venv/bin/python scripts/check_results.py results/<实验名>     # 集成断言
-```
+只在用户指定的实验分支提交。推送需要用户授权和目标仓库写权限。
+不自动向原仓库main推送，不强推，不自动合并其他分支。

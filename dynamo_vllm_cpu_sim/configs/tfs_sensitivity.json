@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "base_config": "tfs_demo.json",
+  "seeds": [
+    11,
+    23,
+    37,
+    53,
+    71
+  ],
+  "repeats_per_trace": 3,
+  "workloads": [
+    {
+      "name": "burst",
+      "generator_preset": "abc_burst",
+      "trace": "../results/tfs_matrix_20261019/traces/burst-s{seed}.jsonl"
+    }
+  ],
+  "axes": {
+    "admission.release_on": [
+      "first_token",
+      "load_done"
+    ],
+    "admission.aging_enabled": [
+      true,
+      false
+    ],
+    "admission.feedback_delay_s": [
+      0.0,
+      0.001,
+      0.005
+    ]
+  },
+  "fixed": {
+    "scheduler": "upstream",
+    "policy": "fcfs",
+    "max_num_seqs": 8,
+    "admission.mode": "tfs",
+    "storage.bandwidth_policy": "active_split"
+  }
+}

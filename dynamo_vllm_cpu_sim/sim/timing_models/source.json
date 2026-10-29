@@ -1,0 +1,18 @@
+{
+  "repository": "QiliangLi/status_aware_network",
+  "commit": "79f48a097e9f3b10fb6b805f1d6671bc5bec5809",
+  "path": "prefill_time/prefill_time_batch.py",
+  "sha256": "ea76abe23c0a0c05b3633760358b70f876f4b20b9a8e18c92d10eac1a09c0b59",
+  "adaptation": "冻结来源保持原样；正式prefill_time_batch按实际工作量聚合并修正MoE守恒。",
+  "batch_time_model": {
+    "version": "glm5_actual_batch_work_v2",
+    "module": "prefill_time_batch.py",
+    "ported_from": "tooling/experiments/gpu_batch_4090/glm5_per_batch.py",
+    "workspace_commit": "8454fe1702a6d2a180a592f2e624def6cd117523",
+    "deployment_defaults": {
+      "tp": 1,
+      "dp": 8,
+      "ep": 8
+    }
+  }
+}

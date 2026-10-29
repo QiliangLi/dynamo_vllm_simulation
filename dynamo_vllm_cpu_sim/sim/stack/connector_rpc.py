@@ -24,7 +24,8 @@ from sim.stack.storage_client import StorageClient, client_from_env, default_dem
 
 
 class Metadata(KVConnectorMetadata):
-    pass
+    def __init__(self,loads=None):
+        self.loads = loads or {}
 
 
 class SimConnectorRpc(KVConnectorBase_V1):
@@ -39,8 +40,14 @@ class SimConnectorRpc(KVConnectorBase_V1):
         self.client: StorageClient = client
         self.worker_id = int(os.environ.get("SIM_STACK_WORKER_ID", "0"))
         self.demand = default_demand()
+        from sim.stack.executor import load_stack_config
+        self.cfg = load_stack_config()
+        from sim.stack.layerwise import transfer_mode
+        self.mode = transfer_mode(self.cfg)
+        self._loads = {}
         self.external_tokens: dict[str, int] = {}
         self._pending_blocks: dict[str, list] = {}
+        self._pending_demands: dict[str, float] = {}
 
     def get_num_new_matched_tokens(self, request, num_computed_tokens):
         size = self._vllm_config.cache_config.block_size
@@ -49,7 +56,10 @@ class SimConnectorRpc(KVConnectorBase_V1):
         if not candidates:
             self._pending_blocks[request.request_id] = []
             return 0, False
-        present = self.client.present(candidates)
+        if self.cfg.get("cache_model") == "first_seen":
+            present = self.client.present_for_request(request.request_id,num_computed_tokens//size,candidates)
+        else:
+            present = self.client.present(candidates)
         blocks = []
         for block, hit in zip(candidates, present):
             if not hit:
@@ -57,7 +67,15 @@ class SimConnectorRpc(KVConnectorBase_V1):
             blocks.append(block)
         self._pending_blocks[request.request_id] = blocks
         n = len(blocks) * size
-        return n, n > 0
+        if n and self.cfg["compute"].get("mode") == "glm5_d950pr":
+            from sim.compute_time import reference_compute_s
+            budget = self.cfg.get("request_profile", {}).get(
+                "profile_token_budget", self.cfg["max_num_batched_tokens"])
+            seconds = reference_compute_s(self.cfg["compute"], request.num_prompt_tokens,
+                                          num_computed_tokens + n, budget)
+            self._pending_demands[request.request_id] = (
+                n * self.cfg["storage"]["kv_bytes_per_token"] / seconds)
+        return n, n > 0 and self.mode == "bulk"
 
     def update_state_after_alloc(self, request, blocks, num_external_tokens):
         if num_external_tokens:
@@ -66,17 +84,33 @@ class SimConnectorRpc(KVConnectorBase_V1):
                 len(wanted) * self._vllm_config.cache_config.block_size
                 == num_external_tokens
             )
-            self.client.submit(self.worker_id, request.request_id, wanted, self.demand)
+            demand = self._pending_demands.pop(request.request_id, self.demand)
+            # GLM reference gives the whole request's V/T. Storage claimants are
+            # blocks, so preserve sum(block demands) == request demand.
+            if self.cfg["compute"].get("mode") == "glm5_d950pr" and demand is not None:
+                demand /= len(wanted)
+            if self.mode != "bulk":
+                load = self.client.layer_register(self.worker_id,request.request_id,wanted,demand)
+                self._loads[request.request_id] = load
+                self.external_tokens[request.request_id] = num_external_tokens
+                return
+            self.client.submit(self.worker_id, request.request_id, wanted, demand)
+            from sim.stack.feedback import feedback_client
+            feedback = feedback_client()
+            if feedback is not None:
+                feedback.submitted(request.request_id,
+                                   num_external_tokens*self.cfg["storage"]["kv_bytes_per_token"])
             self.external_tokens[request.request_id] = num_external_tokens
 
     def build_connector_meta(self, scheduler_output):
-        return Metadata()
+        loads,self._loads = self._loads,{}
+        return Metadata(loads)
 
     def start_load_kv(self, forward_context, **kwargs):
         raise RuntimeError("use event harness, not device worker")
 
     def wait_for_layer_load(self, layer_name):
-        raise RuntimeError("layerwise mode not implemented")
+        raise RuntimeError("CPU layer barriers run in SimExecutor, not a device ModelRunner")
 
     def save_kv_layer(self, layer_name, kv_layer, attn_metadata, **kwargs):
         raise RuntimeError("read-only pool")

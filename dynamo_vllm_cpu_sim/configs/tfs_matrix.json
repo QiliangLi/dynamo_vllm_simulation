@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "base_config": "tfs_demo.json",
+  "seeds": [
+    11,
+    23,
+    37,
+    53,
+    71
+  ],
+  "repeats_per_trace": 3,
+  "workloads": [
+    {
+      "name": "ample",
+      "generator_preset": "abc_ample"
+    },
+    {
+      "name": "burst",
+      "generator_preset": "abc_burst"
+    },
+    {
+      "name": "sustained",
+      "generator_preset": "abc_sustained"
+    }
+  ],
+  "axes": {
+    "admission.mode": [
+      "immediate",
+      "slack_only",
+      "quota_fcfs",
+      "tfs"
+    ],
+    "max_num_seqs": [
+      1,
+      4,
+      8,
+      16
+    ]
+  },
+  "fixed": {
+    "scheduler": "upstream",
+    "policy": "fcfs",
+    "admission.release_on": "first_token",
+    "storage.bandwidth_policy": "active_split"
+  }
+}

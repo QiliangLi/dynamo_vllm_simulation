@@ -1,0 +1,72 @@
+{
+  "workers": 12,
+  "scheduler": "upstream",
+  "policy": "priority",
+  "block_size": 16,
+  "num_blocks": 30159,
+  "max_model_len": 120634,
+  "max_num_seqs": 4,
+  "max_num_batched_tokens": 8192,
+  "enable_prefix_caching": false,
+  "ttft_slo_s": 10,
+  "compute": {
+    "mode": "glm5_d950pr",
+    "sparse_HBM_hit_ratio": 1.0,
+    "batch_time_model": "glm5_actual_batch_work_v2",
+    "tp": 1,
+    "dp": 8,
+    "ep": 8,
+    "kv_hbm_reuse": true
+  },
+  "storage": {
+    "disks": 1,
+    "paths_per_disk": 128,
+    "disk_Bps": 90000000000.0,
+    "shared_link_Bps": 90000000000.0,
+    "path_Bps": 2000000000.0,
+    "read_latency_s": 0.0,
+    "kv_bytes_per_token": 109824,
+    "bandwidth_policy": "max_min_fair",
+    "record_reads": true,
+    "gc_policy": "defer_during_run"
+  },
+  "request_profile": {
+    "mode": "glm5_reference_v3",
+    "profile_token_budget": 8192,
+    "slo_multiplier": 4.0
+  },
+  "admission": {
+    "mode": "immediate",
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 90000000000.0,
+    "release_on": "first_token",
+    "aging_enabled": false,
+    "aging_wait_s": 0.5,
+    "aging_cooldown_s": 0.05,
+    "feedback_delay_s": 0,
+    "placement": "gateway",
+    "classification": "dynamic",
+    "retry_interval_wall_s": 0.002,
+    "rpc_transport": "unix",
+    "rpc_timeout_wall_s": 5.0,
+    "idle_bypass": false
+  },
+  "cache_model": "first_seen",
+  "kv_transfer_mode": "layer_pipeline",
+  "layerwise": {
+    "layers": 78,
+    "startup": "once"
+  },
+  "router_mode": "kv",
+  "wall_time_scale": 1.0,
+  "routing_accounting": {
+    "enabled": false,
+    "waiting_factor": 0.1,
+    "rpc_timeout_wall_s": 2.0
+  },
+  "request_ordering": "edf",
+  "experiment": {
+    "batch_feedback": true,
+    "coalesced_feedback": false
+  }
+}

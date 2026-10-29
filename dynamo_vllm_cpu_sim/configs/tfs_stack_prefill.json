@@ -1,0 +1,44 @@
+{
+  "workers": 2,
+  "scheduler": "upstream",
+  "policy": "fcfs",
+  "block_size": 16,
+  "num_blocks": 8192,
+  "max_model_len": 16384,
+  "max_num_seqs": 4,
+  "max_num_batched_tokens": 2048,
+  "enable_prefix_caching": false,
+  "ttft_slo_s": 10,
+  "compute": {
+    "mode": "glm5_d950pr",
+    "sparse_HBM_hit_ratio": 1.0,
+    "tp": 1,
+    "dp": 8,
+    "ep": 8,
+    "kv_hbm_reuse": true,
+    "batch_time_model": "glm5_actual_batch_work_v2"
+  },
+  "storage": {
+    "disks": 3,
+    "paths_per_disk": 128,
+    "disk_Bps": 40000000000.0,
+    "shared_link_Bps": null,
+    "path_Bps": 2000000000.0,
+    "read_latency_s": 0.0001,
+    "kv_bytes_per_token": 109824,
+    "bandwidth_policy": "max_min_fair",
+    "record_reads": true
+  },
+  "request_profile": {
+    "profile_token_budget": 2048,
+    "mode": "glm5_reference_v3"
+  },
+  "admission": {
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 120000000000.0,
+    "aging_enabled": false,
+    "feedback_delay_s": 0,
+    "release_on": "first_token",
+    "mode": "tfs"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "path": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/data/status_aware_network/mooncake_trace/derived/conversation_trace.jsonl.hit.jsonl",
+  "sha256": "0684cf8adfcc6683ba45b4a9e22cb68ec3c0a5fd82bf407ededb4ef71e84b6a3",
+  "rows": [
+    {
+      "id": "m00-line17",
+      "line": 17,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 915,
+        "output_length": 355,
+        "hash_ids": [
+          0,
+          462
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 403,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m01-line17",
+      "line": 17,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 915,
+        "output_length": 355,
+        "hash_ids": [
+          0,
+          462
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 403,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m02-line17",
+      "line": 17,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 915,
+        "output_length": 355,
+        "hash_ids": [
+          0,
+          462
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 403,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m03-line17",
+      "line": 17,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 915,
+        "output_length": 355,
+        "hash_ids": [
+          0,
+          462
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 403,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m04-line14",
+      "line": 14,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 2012,
+        "output_length": 354,
+        "hash_ids": [
+          0,
+          427,
+          428,
+          429
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 1500,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m05-line14",
+      "line": 14,
+      "source": {
+        "timestamp": 3000,
+        "input_length": 2012,
+        "output_length": 354,
+        "hash_ids": [
+          0,
+          427,
+          428,
+          429
+        ],
+        "hit_tokens": 512,
+        "u_tokens": 1500,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m06-line4",
+      "line": 4,
+      "source": {
+        "timestamp": 0,
+        "input_length": 2290,
+        "output_length": 316,
+        "hash_ids": [
+          0,
+          42,
+          43,
+          44,
+          45
+        ],
+        "hit_tokens": 0,
+        "u_tokens": 2290,
+        "full_hit_adjusted": false
+      }
+    },
+    {
+      "id": "m07-line4",
+      "line": 4,
+      "source": {
+        "timestamp": 0,
+        "input_length": 2290,
+        "output_length": 316,
+        "hash_ids": [
+          0,
+          42,
+          43,
+          44,
+          45
+        ],
+        "hit_tokens": 0,
+        "u_tokens": 2290,
+        "full_hit_adjusted": false
+      }
+    }
+  ],
+  "semantics": "同源长度重复采样；隔离合成前缀；同时到达；输出=1。"
+}

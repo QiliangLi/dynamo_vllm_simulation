@@ -4,6 +4,13 @@
 
 ## 1. 判断：可行，但“真实代码”必须定义到具体边界
 
+2026-10-27新增可选weighted routing overlay：原生Rust默认scorer只对等待heavy请求扣除
+`(1-waiting_factor)`倍prefill/decode成本。原scheduler booking、完整资源投影、容量准入、picker及guard仍由Dynamo持有。
+Gateway预登记heavy UUID；原生booking绑定worker/AttemptId；额度获准经独立本机控制RPC撤销折扣，回滚恢复折扣，
+无实际外部命中转完整计算分数。原生request-index删除时清理评分记录。该模式有意修改Dynamo评分行为，
+仅对frontend加载指纹固定的独立native构建；worker和原磁盘源码保持原环境。默认关闭、启用缺省0.1，范围0～1，启动生效。
+本机持久TCP评分控制不是远程部署接口；不明RPC结果停止本轮，不伪造资源释放。详细边界见折扣计分说明。
+
 这个方向适合研究路由、批处理、KV 缓存和存储状态联合调度。最有价值的保真对象是**做决策的程序、它读到的状态，以及外部事件回来时发生的状态转换**。保留这些代码，确实比另写一套“近似 vLLM”的调度器更容易把实验策略迁回生产。
 
 但不能得出“使用真实源码，性能预测就自动真实”的结论。NPU kernel、图捕获、设备 stream、HCCL、内存带宽和存储 I/O 都影响事件顺序。如果 mock 全部立即成功，调度器虽然是真的，它看到的世界却是假的。正确做法是在真实程序的执行边界上放入**有资源竞争、有延迟、有完成语义的执行模型**。
@@ -444,8 +451,561 @@ CPU/Gloo 可帮助运行控制协议，但测得的 Gloo 时间不是 HCCL 时�
 - [Ascend 存储后端接口](https://github.com/vllm-project/vllm-ascend/blob/367b8e62da799870a7476ce34f5f7658589a8aad/vllm_ascend/distributed/kv_transfer/kv_pool/ascend_store/backend/backend.py)。
 
 
-## Windows / WSL2 启动适配（2026-10-22）
+## 2026-10-19：请求级 TFS 准入适配
 
-Windows 入口 scripts/wsl.py 把当前工程同步到每个克隆独立的 Linux 工作目录，再调用原有 bootstrap、DES 或多进程脚本。Linux 环境、固定上游源码与运行结果保留在镜像中；不从 Windows 复制运行环境，不删除已有结果。Windows 原生 vLLM / 设备推理不在本适配范围内。
+新增独立 `sim/admission.py`、`request_profile.py` 和 `control_events.py`，
+中央准入位于 Dynamo 路由之前。允许向已有请求的实例提交；真实 vLLM Scheduler
+仍自主组批。没有修改上游 SelectionService/Scheduler、计算公式或存储公式。
 
-Linux empty-device 的仿真 worker / smoke 入口在参数解析前选择与 DES 相同的 CpuPlatform，解决设备识别问题。多进程环境在 Linux 使用 CPU torchvision，增量包通过 --no-deps 安装以保留已有锁定依赖。运行子进程绕过外部 HTTP 代理，安装阶段保留下载代理。调度器、KV 分配、时间公式与存储模型均不变。详细操作见 [Windows + WSL2 运行说明](../docs/Windows-WSL2运行说明.md)。
+控制器只接收已到达画像和可见反馈。固定参考带宽、固定 token 画像预算；
+P75 仅统计已到达历史，采用下标分位。全零读取不设配额；P75=0 且有正值时取最小正值。
+所有批准请求建立租约，门槛变化时重分类仍开放的租约。首 token 与加载完成两种释放口径独立。
+反馈延迟只作用于观测；物理 KV 完成照常通知真实调度器。
+
+事件记录实际 `SchedulerOutput` 计算 batch、请求到达与提交、读取提交与完成、首 token 与结束。
+报告 schema v2 保留旧指标，并分别统计中央等待、实例侧 TTFT、画像期限和按类分位数。
+控制反馈排空不延长业务 makespan 或设备积分；重复加载和抢占显式标为超出主实验假设。
+
+这只是固定供给参数下的请求级适配，不是 sa 逐层模型的严格复现，也不是生产端动态存储感知。
+当前策略不会读取未来到达、私有引擎队列或存储剩余量真值。旧配置缺失 admission 时仍为 immediate。
+入口、实验矩阵与复现命令见包内 README；技术规格见 docs/TFS接入dv技术方案-20261019.md。
+
+
+## 2026-10-19：SA E26f 对齐执行模型
+
+新增独立 `sim.sa_aligned`，保留原 `sim.run` 整段异步加载路径。真实 Dynamo SelectionService、真实 upstream vLLM Scheduler/KVCacheManager 不变；`Engine` 仅增加可选 connector 名称。SA 模式同步层加载 Connector 返回精确外部命中并让 Scheduler 正常组批，不发送未完成的异步 finished_recving。仿真执行器对真实 SchedulerOutput 运行八层画像、逐层屏障和一层预取；没有数值 ModelRunner。
+
+`sim.sa_model.LayerStorage` 以 batch/layer 为流，在 120GB/s 聚合池中使用 SA max_min 规则（欠载 bonus、过载 waterfill），下一层 q=min(200GB/s,V/c_batch)，前层计算结束未完成则升速。该入口不做盘/路径/块放置，不与默认 `Storage.max_min_fair` 混用。`layer_compute` 使用 SA 的 batch eta/attention 公式，不再使用旧线性系数。独立单请求与串行 SA 引擎对拍验证模型。
+
+逻辑 block=1 允许 h/u 原样输入，不使用旧 AB 的虚拟 token；关闭本地前缀复用、输出1token，无 decode。KV manager 容量按同一 8GB 逻辑内存预算扣除 base 和最大 workspace 后配置，各策略/容量上限共用，并记录实际峰值。资源限额与输入对齐不代表设备已校准。唯一有意替换的系统行为为 Dynamo 路由/每 Worker 队列/vLLM 自主组批及分块；相应准入租约仍按请求计数，不以存储真值或空闲 Worker 约束偷偷恢复 SA 的中央派发。
+
+详见 `docs/SA-E26f对齐实验设计-20261019.md`、独立原始结果与逐格验收；旧实验结论保留，不覆盖。
+
+
+## 2026-10-22：可选 GLM5 prefill 计时
+
+执行计时增加 `compute.mode=glm5_d950pr`，DES 与进程栈共用，不改变真实 Scheduler。
+按本轮已计算上下文 h、新 token u、真实 batch 形状估算 78 层时间。默认关闭来源模型的
+额外稀疏存储拉取，外部 KV 读取仍由 Storage/StorageService 计时。仅支持输出 1 token，
+不实现完整 PD，不把 prefill(u=1) 当作 decode。旧 linear 模式保留。TFS 单请求参考画像
+使用同一模型；进程栈的中央 TFS 准入仍未接入。源码固定、参考 DP/EP、padding、误差
+及独立公式验收见 `prefill_time接入与公式对拍-20261022.md` 和包内 README 新增章节。
+
+
+## 2026-10-22：多进程 TFS 已接入
+
+独立准入服务位于真实 Dynamo frontend 前，复用既有 TFS；EngineCore 的 Connector/
+Executor 经 Unix socket 回传实际 KV 提交、接收与 no-load 事件，代理根据真实首 token
+和正常流结束回写状态。两种释放口径可选；引擎组批与 Dynamo 选实例不变。所有策略
+使用同一代理、同一公开画像。没有访问未来 trace 或存储内部真值。
+
+当前为 prefill-only completion 服务，输出=1；关联依赖固定版本已有 header，未改
+上游源码。排队取消与已放行请求排空分开；不确定错误关闭新准入。独立进程、反馈
+延迟和 wall-clock 噪声不等同于 DES 虚拟时间。StorageService 改用单调时钟并加入
+守恒/带宽下界检查。设计见 `多进程TFS接入设计-20261022.md`，包内 README 含入口，
+实际结果见仓库根 `多进程TFS接入验证-20261022.md`。这更新了前节接入 prefill_time
+当时尚未覆盖多进程 TFS 的状态，历史报告不重写。
+
+## 2026-10-23：多进程逐盘带宽约束
+
+`configs/tfs_stack_prefill.json` 与 `validate_tfs_stack.py` 默认采用三盘各 40 GB/s、
+盘内 `max_min_fair`。`shared_link_Bps=null` 表示没有额外全局限速；数值配置仍保留
+原链路缩放。总计 120 GB/s 仅是三盘同时饱和时的容量和，热点盘不能借用其他盘容量。
+
+复用 `Storage.disk_of` 已有的 HRW：以真实 vLLM 块哈希和盘 ID 的 SHA256 最大值
+确定唯一盘，保持既有 DV 二进制键编码。SA 使用 HRW 的字符串编码；本次不迁移 SA
+的类标识、512-token 块或逐层模型。该三盘配置使用 16-token 块、完整前缀读取，所有 worker
+通过同一 storage-sim 服务共享内容放置。块存在只表示可命中，完成前不能恢复计算。
+
+GLM5 请求需求 `V/T` 按实际块数分摊，盘内按块分配。每个事件点重算速率；请求全部
+块完成后才进入对应 worker 的完成集合。实际完成经 Executor 领取和 TFS 事实反馈返回。
+单调时钟推进不变。逐盘累计字节/峰值及可选 read_history 支持独立哈希和时间下界验收。
+read_history 会随请求数增长，短实验默认开启，长实验可设 `record_reads=false`。
+
+TFS 的 `reference_bandwidth_Bps=120e9` 是画像标量，与物理分速率隔离。本次没有让
+TFS 读取盘状态，也不把 `V/120e9` 当作真实读取时间。物理独占下界为
+`read_latency + max_d(bytes_d/40e9)`；并发竞争可进一步延长读取时间。
+不含真实磁盘服务、KV 写回、逐层预取、盘故障或动态迁移。验证记录见包内 VALIDATION。
+
+## 2026-10-23：Mooncake first_seen 输入合同
+
+`--admission` 默认改用 `mooncake_first_seen` 配置和六条源行样本。完整原始文件
+按 timestamp/source_line 预扫，D1/D2/D3/D7 与 SA 工具一致，生成固定 hit/u 后才切片。
+不将策略完成时间或运行期缓存写入时刻用于命中判定，不增加 frozen/全部命中模式。
+
+Mooncake 无原始 token，导出使用合成可往返文本，保留源 hash、长度、h/u、到达分组。
+新配置使用 1-token 仿真缓存块，精确保留非 16 对齐的尾块命中及 u=1；逻辑槽数扩大，
+关闭本地 prefix caching。此选择改变 HRW 放置与逐块分配粒度，不与旧三盘数值混用。
+
+gateway 转发前绑定 UUID/源行/prompt/h 到 storage-sim。Connector 按绑定读取固定
+命中前缀；服务验证块序列与范围，不能因预置池中有未来共享块而超出 h。命中绑定
+只传固定输入，不返回存储负载。仍由真实 Scheduler 分槽后提交读，三盘各 40 GB/s
+独立分配，全部块完成后回写 KV，再恢复执行。TFS 的参考 120 GB/s 仍只用于画像。
+
+验收逐请求核对提交字节=h×KV字节/token、首次计算 h、chunk 连续性、Σu=u_tokens，
+并保留原公式、逐盘守恒、下界和反馈因果检查。短 socket 目录规避 AF_UNIX 路径限制。
+完整设计见 `docs/Mooncake首现命中多进程接入设计-20261023.md`；结果见 VALIDATION。
+
+## 2026-10-23：默认存储改为统一带宽池
+
+当前 `mooncake_first_seen.json` 使用一个逻辑资源、容量 120e9 B/s、无额外共享链路、
+max_min_fair 分配。这是现有单逻辑盘能力的参数化使用，没有修改 Storage 内核。
+所有 KV 块进入同一分配器，取消独立盘瓶颈，分配仍以块为主体。HRW 仅有盘0可选。
+启动延迟、first_seen、1-token 仿真块、TFS 标量参考与 KV 完成语义均不变。
+
+导出器默认配置改为当前 first_seen 配置。原三盘 first_seen 配置另存
+`mooncake_first_seen_three_disk.json`，旧 16-token tfs_stack_prefill 也保留。
+统一池读取下界为 `read_latency + bytes/120e9`；仅给三盘加总链路上限不等价。
+历史实验归档仍按各自实际配置解读，不更新历史结果。
+
+
+## 2026-10-23 本机360请求突发实验适配边界
+
+实验产物目录 `results/mc_360_2s_8w_20261023/` 的 `run_comparison.py` 复用现有
+起停和逐例验收。完整conversation首现预扫后选择前360条，压缩计划到达，实际HTTP
+登记跨度单独记录。用户明确接受大致接近两秒，未要求严格两秒墙钟上限。
+
+该实验通过结果目录适配器在子进程内替换部分输入/传输处理：HTTP池512连接、600秒
+超时；网关预先验证固定文本的tokenizer往返与冻结画像字段，回放时复用，期限按
+实际到达平移；绑定元数据经实际token/h一致性校验后发送源引用，存储端展开同一
+固定输入并调用原绑定实现；AF_UNIX listen队列1024。两种策略使用完全相同适配。
+控制器仅消费已到达画像，阈值不读未来请求；KV字节、池带宽、引擎组批与结果反馈
+不改。前端/worker仍按既有路径运行。这不是新增生产接口，默认入口不启用这些适配。
+
+运行源码文件未改，并不表示此次执行没有运行时适配。原 `implementation.json` 的
+源码指纹必须与provenance中的网关/存储适配器SHA、接续器SHA一起阅读。前四次传输
+或到达预试保留并排除；正式首臂在全部执行验收通过后因严格时间断言停止，按用户
+澄清接受该完整数据并继续配对，其异常保留。所有墙钟延迟含本机CPU和JSON元数据
+协议成本，不能视为GPU硬件性能或纯解析计算时间。详细边界、固定输入、预试记录
+见仓库docs/Mooncake360条两秒到达对照设计-20261023.md及结果目录。
+
+## 2026-10-24：存储服务带权合并表示与数值边界
+
+`sim.stack.storage_service.Service` 的max-min服务默认使用 `GroupedStorage`。
+DES入口仍使用 `Storage`；active_split仍使用逐块FIFO。上游Dynamo/vLLM源码、
+输入、计算计时、TFS、反馈协议、全局锁与壁钟映射不改。
+storage配置 `max_min_read_representation` 可选 `grouped`（默认）/`per_block`。
+
+同一提交、同一盘上的块初始大小、就绪时刻和逐块需求相同，后续受相同带宽规则
+作用，因而每块剩余量一致。只合并此集合，不跨请求、提交或盘合并。
+一个对象保存逐块剩余字节、逐块需求d_i及块数n_i。带宽权重是块数，不能改成
+各请求均分，也不能直接把整请求需求送入原来的逐块waterfill。
+
+盘容量C、N=Σn_i。若Σ(n_i*d_i)≤C，每块速率为
+`d_i + (C-Σ(n_i*d_i))/N`；否则每块速率为 `min(d_i, λ)`，
+其中λ满足 `Σ[n_i*min(d_i,λ)]=C`。这是原waterfill两分支的带权表示。
+盘总速率为逐块速率乘块数之和；共享链路仍按此总量等比例压缩。
+下一完成时刻仍为逐块剩余量/逐块速率；完成时按n_i递减pending块数。
+只有请求所有盘上的逻辑块完成，才返回一次读取完成反馈。
+
+单盘直接统计块数；三盘仍逐块HRW哈希并按实际落盘统计。命中与hex解析保持逐块
+校验。路径序号仍按逻辑块递增。`pending`、snapshot的queued_reads/active_paths
+及逐路径速率映射保留逻辑块含义；`queues`内的对象数现为物理分组数。
+显式调用rates/snapshot时才展开逐路径映射，内部事件推进按分组计算。
+逐路径映射的遍历顺序与原逐块插入顺序可以不同，路径编号及数值含义保持。
+
+数值求和次序改变，不能声明浮点逐位一致。测试使用冻结的真实逐块源码，按明确
+时间、字节与速率预算检查动态事件、逐盘字节、逻辑路径和完成顺序。
+旧模型在40.0001009152s、剩余0.0002922856B时可能把下一事件舍入为当前时刻。
+合并模型遇到此零进展边界时，用 `math.nextafter(now,+inf)` 前进一个可表示刻度，
+并在advance中完整计入剩余字节，不扩大完成阈值或丢弃剩余量。
+此处理在已复现场景增加7.1054e-15s；逐块回退仍保留旧边界，不代表全时域精度已验证。
+测试对两模型接近的事件预测取较晚者，最多在声明的时间预算内对齐；这不是服务
+运行时的事件合批。完整验证及误差上限见VALIDATION，失败/中断预试也保留。
+
+实现加速会改变壁钟服务中提交的实际间隔，从而恢复模型中的带宽竞争；不要求
+壁钟结果与优化前相同。没有引入攒批、虚拟时钟协调或统一时间缩放，也没有以
+并发必须达到8作为验收标准。仍需后续缩放稳定性验证及完整栈复测。
+
+## 2026-10-24：进程栈时间缩放与量纲
+
+`sim.stack.clock.TimeScale` 统一解释顶层wall_time_scale=K，默认1，有限且K≥1。
+这是壁钟时间膨胀，不是分布式离散事件协调。DES入口不消费该参数。
+模型配置仍使用原SI单位，所有容量/带宽、KV字节、模型计算系数和画像均不缩放。
+`run_tfs_stack.py` 向所有子进程传同一配置，并向回放器传K；验收核对各层参数。
+
+| 项目 | 实现 |
+|---|---|
+| 存储事件推进 | now_model=(monotonic-t0_wall)/K；原资源模型和带权合并均不改 |
+| mock计算等待 | sleep_wall=K*T_model；估时公式、实际SchedulerOutput和输出token不变 |
+| 计划到达 | 真实回放起点后K*arrival_s发起请求；原trace不改写 |
+| gateway及TFS | now_model=(monotonic-origin_wall)/K；画像/期限/老化参数仍为模型单位 |
+| EngineCore事实反馈 | 原始occurred_mono为真实时钟；gateway减原点后除K，且只换算一次 |
+| 反馈延迟 | 在模型occurred_s上加配置delay；真实等待自然为K*delay |
+| 协议及原生控制代码 | 继续按真实CPU/OS执行，未乘K、未替换其调度或消息顺序 |
+
+gateway按模型唤醒时刻换算实际等待。心跳、最小轮询和HTTP断连轮询属于实现开销，
+保留实际时间间隔。请求HTTP容错超时乘K，避免慢速执行被120秒操作超时截断；
+启动就绪、停栈及socket元数据请求仍采用原运维超时。
+
+HTTP报告ttft_s/e2e_s与model_elapsed_s为模型秒，同时保留*_wall_s及wall_clock_s。
+步骤timing.duration_s仍为模型公式结果；sleep_elapsed_s保留真实秒，新增
+sleep_requested_wall_s、sleep_elapsed_model_s和wall_time_scale。
+Storage的read_history和gateway控制事件为各自本地起点下的模型秒；两者不能直接
+混用绝对时间。原始occurred_mono、t_wall、服务t0_monotonic_s仍采用真实时钟。
+诊断脚本把模型完成时刻映回真实时刻时采用t0_wall+K*completed_model，而非直接相加。
+
+`validate_time_scaling.py` 在固定输入和资源下扫描K，同时观测归一化延迟、真实组批、
+读取并发和SLO。最高两个K的跨轮中位数比较只是局部筛查，不构成全负载收敛证明。
+增大K会相对减小真实控制面的开销，这只能揭示模拟器敏感性，不能替代生产控制面
+定标。本轮完整栈为round-robin，未证明基于壁钟预测的全部路由策略缩放后等价。
+
+
+## 2026-10-24：正式回放前的实例就绪屏障
+
+`run_tfs_stack.py`原先以模型名称出现且各worker日志包含Registered作为就绪条件。
+原360条输入复测中，该条件在前端仅发现部分实例时就放行突发请求，导致配置8实例
+但实际只有6实例执行。另一预试中8份generate注册文件均已存在，前端却持续仅报告7实例。
+不能把进程启动、模型卡写入或任意Registered日志等同于前端路由池就绪。
+
+入口先启动全部引擎，等待每个引擎日志明确注册generate端点，再启动前端读取完整
+注册快照。入口读取原生前端`/v1/models/sim-opt/ready`；只有dynamo命名空间就绪且
+aggregated实例数等于预期，才开始回放。registration.json、readiness.latest.json及
+readiness.json保存注册和前端事实。该屏障处于测量窗口之前；真实/模型计时、输入、
+准入、存储分配及原生调度代码不变。串行启动worker的预试也出现增量发现缺失，不能
+声称串行启动已解决问题。macOS原生文件发现的深层根因尚未完成定位；未改上游源码。
+
+
+## 2026-10-24：真实进程栈逐层前缀加载与计算屏障
+
+### 边界与调用顺序
+
+新增模式为 `bulk/layer_serial/layer_pipeline`。配置缺省保留 bulk；准入 shell 入口
+显式选择新增 layerwise 配置。只改变 mock 执行和其 KV 就绪边界，不修改固定上游源码。
+原生 Dynamo 路由、EngineCore、Scheduler、KV 分配器和 update_from_output 继续运行。
+
+1. 连接器查询实际远端命中，并返回 `(external_tokens, False)`。False 表示同步连接器执行，
+   不是“KV 已物理读完”。因此真实调度器可以把该请求放入本步 batch。
+2. 原生分配成功后，连接器向存储登记远端前缀。登记校验 first_seen 合同、块存在及盘放置；
+   登记本身不提交全部层。每请求加载元数据进入 SchedulerOutput.kv_connector_metadata。
+3. SimExecutor 接收真实 SchedulerOutput。请求集合和 num_scheduled_tokens 固定到本步结束。
+   LayerRunner 开启一次加载尝试，并先提交第 0 层读取。
+4. 第 l 层计算必须等本批每个远端成员的第 l 层 KV 就绪，且第 l−1 层计算结束。
+   零读成员不提交读取，但同样参加 batch 屏障。pipeline 在第 l 层开始时提交 l+1；
+   serial 在第 l 层结束后提交 l+1。至多预取下一层，不预先提交其余全部层。
+5. 最后一层计算完成后生成原生 ModelRunnerOutput，再经原 update_from_output 更新状态。
+   不借用 bulk 的 finished_recving 将整段 KV 等待重新塞回调度器。
+
+### 字节、带宽和计算
+
+GLM5 固定 78 层。109824B/token 拆为每层 1408B/token，所有层读取总量与原整段相等。
+同一远端块在各层保持相同 HRW 盘位置。LayerStorageState 只在注册时统计盘上块数；
+GroupedStorage.submit_counted 在每次真实层提交时创建带相同逻辑块数权重的读组。
+所有 worker 共用原存储分配器；按盘独立竞争，可选总链路上限仍有效。
+
+逐块需求保持原单请求参考 V/T 除以实际远端块数。这是平均层参考需求，不另行按 dense/MoE
+耗时重算需求。请求释放与存储读完成是不同事件，TFS 不读取存储内部预测或未来 batch。
+只有真实提交的层计入 submitted_read_bytes，不在登记时把完整前缀预记为实际读取。
+一次加载尝试由 parent 反馈登记预期层数/字节，每层子反馈累计实际字节，末层就绪才完成 parent。
+parent 登记可以早于第 0 层实际提交；逐层实际提交时刻以存储层日志为准。
+
+计算耗时使用原 estimate_step 的本轮实际 h/u。第 0..2 层使用 dense_layer_us，
+第 3..77 层使用 moe_layer_us；engine_overhead_s 仅加到第 0 层。补偿求和核对总量。
+第 l 层预取 RPC 处于本层真实计算区间内，等待剩余 K*C_l，不在 RPC 之后再次等待完整 C_l。
+若 RPC/调度成本超过 K*C_l，实际计算区间会被拉长，仍须保留实际记录。
+
+启动延迟默认 once，仅第 0 层收取原 read_latency_s，避免改变总启动成本；per_layer
+支持每层收取。两者代表不同模型假设。不能把一次启动成本等价于实测层读取协议成本。
+
+层读取使用 complete_exactly 标志，只有 per-block remaining=0 才完成；bulk 保留原
+1e-5B/块阈值。拆为 78 层后，旧阈值在原场景累计少记 2.410202B，触发原先 <1B 的
+守恒断言。修复不放宽断言或补写统计量。若 remaining/rate 加到 now 后被舍入为 now，
+nextafter 前进一个可表示刻度，再按实际剩余量传输。受影响的是最后的浮点尾量，
+带宽分配不变。65537 块×78 层的数值回归将累计误差从 −0.108152B 降为 0，
+总完成时间差约 2.22e-12s。完整运行结果另见 VALIDATION。
+
+### 跨 step 驻留与反馈
+
+远端前缀在首次执行的 78 层内加载一次。后续 chunk 只对本步实际新 token 计算；
+不能根据不断增长的 h 重新读取本地新生成 KV。LayerRunner 保留请求驻留标志，
+收到原生 finished_req_ids 后清理自身映射。存储端保留紧凑历史用于审计，成功运行结束无 pending。
+重复外部登记/抢占恢复当前明确报错；取消中的读回收不在本次覆盖范围。
+
+默认 first_token 释放不变；load_done 释放在最后一层读取就绪时发生，可以早于最后层计算结束。
+延迟反馈仍按原 K 和模型延迟处理。未新增“本步每个成员单独计算”或绕过真实组批的路径。
+
+### 验证与限制
+
+check_layerwise 独立重算原 GLM 公式、层时序、读取下界、HRW、逐盘/总字节、固定 batch 及预取位置。
+hit_check 另核对每请求 h/u 连续和首次前缀总读量。解析小用例同时检查读慢/算慢、串行/重叠、
+K=1/10、混合屏障、一次驻留和一次 parent 尝试。真实链路矩阵包含 chunk、零读、两种准入、
+三盘和两种启动成本。每次运行保存配置、源码指纹、实际事件与校验结果，不改写历史实验。
+
+原生 KV 分配仍用合成的单层逻辑 FullAttentionSpec；本次的 78 层是执行/IO 的模型层，
+并非真实 78 层 GPU 张量。ModelRunner、CUDA、写回、容量淘汰、取消/抢占压力仍未实现。
+层级事件增加真实 CPU/IPC/轮询开销；K 只能用于敏感性检查，尚无全负载收敛证明。
+功能验收不代表新 TFS 性能结论。时间字段遵守前节量纲；execution_elapsed_wall_s 包含层等待，
+timing.duration_s 仅为计算模型总量。具体实测范围与数值以 VALIDATION 为准。
+
+逐层模式将远端就绪屏障移入执行器，会改变相对 bulk 异步预加载的 batch 形成时机。
+真实调度规则不变不等于两种模式的 batch 序列相同；padding 和总计算模型时间可随组批改变。
+请求画像/SLO/配额仍用原参考服务时间，没有利用逐层 overlap 的实际完成时间重标定。
+这些参数保留用于隔离本次修改范围，不能将跨模式 TTFT 差直接归因于 overlap，
+也不能把功能矩阵解释为逐层 TFS 策略已经完成性能校准。
+
+
+## 2026-10-24：SA 八层模型接入真实进程栈
+
+新增可选SA模型，保留原GLM和linear路径。`sa_e26f`复用原SA系数：L=8，
+κ=4096B/token/layer，η=min(1,max(1/16,Σu/512))；
+c=t_launch+aΣu/η+bΣ[u*h+u(u+1)/2]。每步实际SchedulerOutput决定h/u，
+一次step执行8次c，前缀在后续chunk中驻留，不按最长长度padding。
+`sa_reference_v1`使用同源单请求T0及4倍期限；中央准入使用原SAAdmission，
+包括P75=0不限制的边界。其余画像/计算模式不自动切换到SA。
+
+存储模式`sa_max_min`由`SAStackStorage`适配旧`sim.sa_model.LayerStorage`。
+实际vLLM batch/layer为带宽分配单位，容量120e9B/s，q_max=200e9B/s。
+首层q=q_max；本层计算同时预取下一层，q=min(q_max,V_batch_layer/c)，
+若预取跨过本层计划结束时刻仍未完成，提升到q_max。IPC延迟导致RPC抵达时已经
+到期，则立即提升。每层计算必须同时等前一层计算完成和本层读取完成。
+同批远端成员共用聚合流完成屏障，零读成员不新增读取；只读取实际外部前缀。
+
+旧GroupedStorage在此配置仅提供block存在性/首现命中合同和单池元数据校验，
+不参与带宽分配。其盘向量长度1只是通用审计接口。不能把SA聚合池描述为三盘HRW
+或按请求/块共享。SA模式要求prefix cache关、零读取启动延迟、8层字节系数一致；
+不支持bulk/layer_serial/decode。层事件另存聚合流、成员、速率区间和完成记录。
+
+运行仍为原生Dynamo路由、AsyncLLM、EngineCore、Scheduler及KV分配，
+SimExecutor兑现模型等待；未接真实GPU ModelRunner、KV张量或物理盘。
+真实壁钟/IPC/操作系统调度开销不属于SA公式。K统一缩放未消除这些开销。
+报告按公式时长表示纯计算，额外执行内时间单列控制开销；存储未就绪的重叠区间
+才列IO等待。其余空白可能包含中央/引擎排队，不能视为系统没有请求。
+
+新增准备器与对照脚本详见README。输入不强制控制计算负载，80%表示计划窗口
+全前缀需求/(120GB/s×窗口)，不表示排空阶段或实际存储速率。单轮K10对照只说明
+该输入/进程配置的观测结果，不能验证跨种子稳健性或硬件定标。
+
+SA全记录预试发现客户端JSON-lines接收反复复制完整缓冲的平方复杂度。客户端
+现仅搜索新增分片并一次合并，保留行尾多响应缓冲。服务端分配/时间规则不变；
+该修复用于正式两组。大stats导出与之后审计均在计时窗口外，原慢导出预试保留。
+
+SA waterfill在Σq≤B时按q分配后均分剩余容量，实际速率可高于申请率。
+q仅在争抢分配中限制低申请流，不是独占时的硬上限。报告须明确此继承规则，
+不能套用grouped逐块分配的解释。
+
+## 2026-10-25：单进程 SA ABC 可选轮询路由
+
+`sim.sa_aligned` 顶层 `router_mode` 支持 `kv`（缺省）和 `round-robin`。
+`kv` 沿用 Dynamo 原生 select_and_reserve。轮询使用 Python 循环实例编号，
+随后调用原生 create_reservation，显式给出 worker_id、完整 prompt 长度的
+有效 prefill hint 和 track_prefill_tokens=true；首token和完成仍由原生
+prefill_complete/free_reservation结算。轮询选择不依据负载或KV内容。
+
+这是策略适配，不是Rust HTTP frontend的直接复用；完整frontend/EngineCore
+仍只存在于进程栈。DES创建N个原生vLLM Scheduler与KV管理器，同一虚拟时刻
+先收齐到达再准入和组批，Python/native调用的壁钟时间不进入模型时钟。
+默认负载选择、SAAdmission、八层读算公式与存储分配不变。报告显式记录
+router_mode和router_selection，不能用“真实Dynamo路由”笼统遮盖该边界。
+
+`run_sa_abc_des.py` 保留冻结多进程输入的h/u、计划到达、T0、deadline和数值
+资源，仍使用旧DES合成token IDs。原生前端池顺序、网络实际到达、EngineCore
+调用路径与时间处理没有被复刻。轮询统一后可以判断某现象是否也会在单进程
+出现，不能把两条路径的全部指标差异解释为进程通信成本。
+
+## 2026-10-25 四种子存储输入归一化
+
+`run_sa_pressure.py`将冻结E26f样本整体缩放到有限窗口W=Σ读取字节/(B×rho)，
+保持h/u和原来的同刻簇/相对间隔，按B与原qmax重算T0和4T0期限。默认12个DES
+实例、轮询、B=60GB/s、rho=.8、qmax=200GB/s、max_num_seqs=4。单进程真实
+Scheduler/KV管理器及原生Dynamo记账边界不变，不修改核心读算或准入算法。
+
+每份读取205581189120B，窗口4.28294144s；C_A输入等价计算75.89%，C_B118.05%。
+有限窗口归一化不是重新生成平稳泊松过程，不能据此认定长期平均也是80%。
+check_sa_results的参考验证改为读取当前B/qmax；保留120GB/s既有输入的验收。
+
+P75阈值来自历史已到达画像。417在本轮3154.7ms才把阈值从B切为A，典型配额44
+降到2，当时有27个重请求持有准入，不能追溯撤回。此为原有策略行为，不是新规则。
+带宽间歇应在到达阶段核对，排空阶段单列。已到达未读取的总字节含未来层，不能
+等同于存储服务中的积压；同时核对存储空闲区间与A的实际加载完成事件。
+
+## 2026-10-25 原生进程栈的Dynamo负载选择
+
+SA进程栈入口`run_sa_abc_stack.py`默认`--router-mode kv`；可显式选择round-robin。
+通用`run_tfs_stack.py`读取配置router_mode，CLI可覆盖；旧配置缺省仍为round-robin，
+避免改变既有GLM/Mooncake的历史复跑语义。sa_abc_stack.json显式选择kv。
+
+kv模式运行原始dynamo.frontend的KV路由器和原始vLLM worker/EngineCore。前端参数
+显式关闭KV事件和假定缓存复用，overlap_score_credit=0、temperature=0，并启用
+prefill token跟踪。它按Dynamo原生负载评分选择目标，非新写的最短队列算法，亦非
+专门的least-loaded模式。TFS仍先做准入，随后前端路由，实例内原生Scheduler组批。
+同分选择仍有原生随机性，PYTHONHASHSEED不固定该选择。
+
+生命周期由原生RequestGuard管理：含token输出标记prefill完成，流正常结束释放
+booking；本实现不手工覆盖原生路由账本，不向选择器提供仿真真实剩余计算量。
+这与DES主动调用SelectionService维护账本的接入边界不同。prefill负载按完整prompt
+记账，不按SA层计算进度逐层扣减。真实HTTP/分词/控制耗时仍存在，没有被消除。
+
+启动仍先等待全部worker注册，再起前端，并确认模型ready中完整实例数。kv额外
+设置最小初始worker数。结果记录实际argv/路由配置，1秒采样原生负载gauges，保存
+最终快照。check_stack_routing从原生每候选评分及Best日志检查选择最小值，要求
+观察到不等负载和非零记账，结束时prefill tokens和decode blocks全部归零。只检查
+native router账本，不将它等同于存储A配额。首token释放的TFS规则未改。
+
+上述诊断不改变评分或强制实例编号。日志和采样有实际执行成本；时间倍率沿用原
+实验，单轮结果不是时间收敛或统计等价证明。新增检查不跳过原读取字节、计算公式、
+层屏障、命中合同和请求回收验收。取消、抢占、长decode与GPU模型仍不在本次范围。
+> 2026-10-26补充：新增独立`sim.layer_aligned` DES入口。该入口以真实vLLM Scheduler/KV分配和Dynamo选择为控制面，复用原生栈的GLM逐层计算和GroupedStorage逐请求逐层读取模型，支持下一层预取。控制代码不推进虚拟时钟。原有`sim.run`整段读取及SA八层入口保持原行为。此入口用于机制对照，不能直接把单多进程时间差全部归为通信成本；路由和组批仍可不同。
+
+## 2026-10-26：调度前重读准入 V1（显式启用）
+
+`admission.placement=scheduler` 将申请位置移到真实 vLLM waiting 路径的
+外部KV命中查询之前。先按已有hint申请，再由原查询确定实际命中，不缓存查询结果或改变协议。
+网关转发时不占额度。到达时冻结重读标记，在线阈值只更新并发上限。
+重读申请一条额度；hint预计无读取或标记轻读时不申请。本轮第一次 full 后跳过
+后续未获额度的重读，继续轻读；缺省壁钟 2 ms 后允许下一轮重试，不做防饥饿。
+
+当前 Rust HTTP 不透传任意 extra_args，测试适配通过 nvext.annotations 携带 hint，
+在 Python worker 恢复到 SamplingParams.extra_args.storage_hint。原生路由未替换。
+单事件循环账本提供幂等 acquire/rollback。查询暂不可用、实际外部命中为零、预算/空间
+检查退出和KV分配失败，只退还本次刚申请且未提交读取的额度；
+已提交读取的旧额度不会因后续分配失败被释放。沿用 HTTP 实际首 token 释放，
+不新增 FPM 释放通道。通信结果不确定时失败关闭，不按额度不足或已完成处理。
+
+运行期 AST 补丁校验固定 Scheduler.schedule 的源码哈希和唯一锚点。
+**上游磁盘源码未改，但新模式有意改变调度语义，不属于纯观测。**
+旧配置默认 gateway/dynamic，行为不变。仅当前只读前缀、文本 prefill-only 实验，
+不支持重复加载、抢占压力或跨机恢复。完整说明见
+`docs/重读信息下发与调度前准入V1-20261026.md`（相对仓库根）。
+验收包含真实两 worker 的 bulk/layer_pipeline 链路及独立账本审计；不宣称收益。
+
+## 2026-10-27：准入网络通信
+
+多进程准入的默认传输改为 TCP 长连接上的 JSON-lines RPC。
+新配置 admission.rpc_transport=tcp；unix 仅作显式对照。账本语义与额度钩子不变。
+run_tfs_stack 自动分配空闲回环端口，服务就绪后记录 admission.rpc.json，
+worker 根据 SIM_STACK_ADMISSION_ENDPOINT 连接。远程服务可绑定指定 IP/端口。
+网络异常不重放不确定申请，不回退 Unix。超时缺省为壁钟 5 秒。
+
+同一 Linux 时钟域沿用原事件时间。不同或未知时钟域使用服务端接收时间，
+并明确标记 receiver_observation；不能把两台机器的 monotonic 值直接相减。
+事件 ID 加入连接 UUID，避免跨机 PID 冲突。消息分帧、大小和响应错误均有检查。
+
+本机验收仍为 TCP 回环，不代表物理跨机网络，也不代表整套仿真跨机部署完成。
+存储模拟器仍使用原 IPC。RPC 时延记录真实壁钟；模型时延仍按既有 K 换算。
+功能与开销记录见 VALIDATION 2026-10-27 条目。
+
+## 2026-10-27 后续：准入复用 Dynamo Runtime
+
+当前 admission.rpc_transport 缺省改为 dynamo，使用固定版本 Runtime 的 TCP 请求面和
+MessagePack。tcp/unix 保留为显式 JSON-lines 对照。独立准入服务注册账本端点；
+EngineCore 固定目标实例直接调用，不经推理路由器或外部 worker 进程转发。
+账本与原 HTTP 登记、分类、转发、首 token 释放共用 AdmissionState 和服务事件循环。
+扣账期间无 await；只支持单账本实例，无副本一致性或重启恢复。
+
+每个 EngineCore 在初始化后创建常驻通信线程、事件循环和 Runtime 客户端，
+完成发现与 ping。同步 schedule 等待该线程返回；等待期间本轮后续轻请求也会等待。
+这不是异步跳过式准入。Runtime 自身的 Rust 后台线程和网络连接仍由真实库管理。
+EngineCore 的系统健康端口关闭，以免与继承的外部 worker 监听端口冲突。
+
+runner 每次生成唯一 dyn:// 端点。就绪记录与响应携带实例 ID、账本启动标识、
+服务器进程 ID、传输和编码；独立审计核对。客户端使用 direct 固定实例，并在每次
+调用前检查发现集合；结果不确定、发现或身份变化时关闭，不重连、不回放、不改投。
+同一客户端串行处理申请与反馈。既有申请键和事件 ID 幂等语义继续保留。
+
+申请 RTT 由 ReadGate.allow 计量，包含线程交接、Python/Rust 边界、Runtime 分帧和
+编解码、TCP 与账本处理、完整响应流收尾。初始化发现与 ping 不在该指标内。
+仍记录真实壁钟，不除以 K。完整栈仍是同机；接口与传输真实不等于物理跨机延迟已测。
+外部 KV 查询前的额度钩子、分类、回滚、额度上限、重试和存储模型均不变。
+代码入口 sim/stack/dynamo_admission_rpc.py；完整部署约定见 V1 文档第 12 节。
+
+## 2026-10-27：原公式预算 priority
+
+本节保留历史实验说明。2026-10-28 起当前实现统一为下文的 EDF；复核本节实验须使用冻结运行包。
+
+新增可选 `request_ordering=budget_priority`，要求 `policy=priority`。
+网关只使用已到达请求的冻结画像，携带 deadline、T0、模型时钟起点和 K。
+同机多进程共用 monotonic 时间域；没有验证跨机器时钟同步或动态剩余服务时间估计。
+通过原有 annotations → SamplingParams.extra_args 路径传递元数据，
+EngineCore 在 add_request 和每轮 schedule 按 `deadline - now - T0` 原式计算。
+每轮所有候选共用一次采样。负预算保留，模型微秒量化为有符号整数。
+
+运行期适配刷新 running、waiting、skipped_waiting 的 Request.priority，并重建固定
+版本原生 PriorityRequestQueue 的堆。排队和可能的 priority 抢占行为由原生 Scheduler 执行。
+TFS 申请、共享存储模型及 Dynamo 原生 worker picker 保留。
+本次正式试验使用既有 waiting_factor=0.1 的 Dynamo 计分版本。
+这是新调度策略接入，不是 vLLM 已有的 deadline/T0 自动观测能力。
+默认路径不启用该适配。单次结果及独立审计见 VALIDATION 和 results/budget_priority_20261027。
+
+
+2026-10-27补充：可选等待heavy评分扩展为 block1/16。等待账本仍保存 token，
+在原生 scorer 内除以 block_size，将折扣转换为 block 单位，并保留小数。
+原生 decode block 边界规则、完整资源 booking 和 vLLM KV 分配不变。
+block1公式不变。此扩展不提供计算或真实存储硬件画像，不改变真实/仿真执行边界。
+
+
+## 2026-10-28：可选空闲实例强制准入
+
+新增admission.idle_bypass，默认false。只有本实例无running、无未释放强制请求，且原生等待队列只含未获准/未计算/非阻塞重读时，允许一条请求跳过同步permit查询。原生KV/slot分配成功后生成本地强制permit，有序后台通知中央并上报读取事实；中央计入held，可超过cap，普通acquire仍受包含超额在内的held约束。首token原口径释放，每实例强制配额上限1。
+
+这有意改变真实Scheduler的准入语义；计算/存储模型、原生资源分配、picker和完整booking不变。HTTP完成与后台通知跨连接乱序时保留实际发生时间并延后账本应用。只允许Unix或可验证共享单调时钟、逐层KV、零反馈延迟。非强制路径保持同步，传输异常禁止自动重放。存在轻请求或阻塞状态时本版不触发，不能宣称完全工作守恒。完整说明见docs/TFS空闲实例强制准入-20261028.md；运行数据只以VALIDATION实际记录为准。
+
+
+## 2026-10-28：存储仿真服务的 GC 测量窗口
+
+原生进程栈的 `run_tfs_stack.run_one()` 缺省设置 `storage.gc_policy=defer_during_run`。调用者可以显式设为 `automatic` 保留旧自动 GC，或通过 CLI `--storage-gc-policy automatic` 对照。独立启动存储服务时，未配置该字段仍使用 `automatic`；`defer_during_run` 也必须经 `gc_control begin/end` 才生效。
+
+在原生路由和全部实例就绪后，编排端调用存储服务 `gc_begin()`。存储读取必须排空。服务先执行一次全代 GC，再暂停自动循环 GC。引用计数释放继续工作。结束全部请求并释放引擎配额后，编排端调用 `gc_end()`；服务确认存储读取排空，恢复原自动 GC 状态并执行全代回收。这些回收均在客户端性能计时之外。多阶段预热驱动应在预热及引擎/路由排空后调用 `gc_end(collect=False)`、`gc_begin()`，在正式回放前重新建立测量边界。
+
+`StorageGcWindow` 每 0.25 秒采样存储进程 RSS。缺省上限 `storage.gc_max_rss_bytes=4294967296`（4 GiB）、`gc_max_window_s=600`（壁钟秒，可配置）。Linux 使用当前 RSS，macOS 使用保守的进程峰值 RSS。超过任一上限或监控读取失败，立即恢复原 GC 状态，记录 guard failure；后续数据 RPC 报错，验收必须失败，不将保护后的轨迹作为有效结果。异常清理恢复原状态，但有未完成读取时不主动执行全代回收。进程被强制终止时随进程结束，不承诺执行清理回调。
+
+此改动控制仿真程序的宿主开销，不改变 KV 字节、带宽分配、计算公式、原生调度或路由。它会影响实际壁钟和后续组批，因此新旧结果必须标明 GC 策略。它不解决所有通信开销，也不保证 TFS 性能改善。
+
+## 2026-10-28：EDF 与分模型估时接口
+
+`policy=priority` 统一按固定绝对期限 `deadline_s` 排序，配置名为 `request_ordering=edf`。
+整数键为 `round(deadline_s*1e9)`，限定有符号 64 位范围；同键沿用原生比较规则。
+排序不扣 now 或 T0。到达画像冻结期限，超期不丢弃、不自行延长；原生 Scheduler
+仍决定排队、组批及可能的 priority 抢占。FCFS 对照保留。
+旧 `budget_priority` 配置名称带警告迁移为 EDF；旧模块/审计入口只转发新实现，
+不能据此重新解释历史剩余预算日志。annotations、extra_args 与事件使用 `edf_priority`。
+
+`sim/compute_time.py:get_compute_time_model` 返回 `ComputeTimeModel`，
+其 `estimate_step(shapes,decode_tokens)` 使用实际 `(h,u)`。ABC 使用 SA 逐层公式，
+Mooncake 使用 GLM padding、dense/MoE 与原参考 DP/EP；线性计时独立保留。
+三个实现位于 `sim/timing_models/compute_models.py`。外部函数入口和 timing 明细兼容。
+这只封装计算接口，不改变数学、硬件布局、KV 字节或依赖版本。
+
+`sim/reference_time.py` 为各模型分别实现参考时间。期限仍为
+`arrival_s+slo_multiplier*T0`，倍率可配置、缺省4。该倍率不是 EDF 常数。
+bulk 的 T0 为读后算；layer_serial 为逐层串行；layer_pipeline 使用
+`x1+sum(max(x_l,c_(l-1)))+c_L`。首个 chunk 后前缀驻留，后续 chunk 只算。
+各层时长复用执行器的拆分，零读没有读取启动成本；SA 使用 min(B_ref,q_max)。
+参考带宽是配置值，不读取当前存储竞争真值，也不保证实际 batch/排队时间。
+
+画像版本升级为 `*_reference_v2`，v1 名称带警告迁移。Mooncake pipeline 的旧画像
+按读算相加，新画像按重叠合成，T0/期限/SLO 因此变化。应以同版本 FCFS/EDF 做对照，
+不能把历史和新结果的全部差异归因于排序。详细设计见
+`docs/EDF统一排序与分模型估时接口-20261028.md`，实际测试范围见 VALIDATION。
+
+
+## 2026-10-28 后续：prefill_time 实际组批工作量
+
+正式GLM估时使用`glm5_actual_batch_work_v2`，实现收入
+`sim/timing_models/prefill_time_batch.py`。线性算子聚合sum(u)，indexer与KV复用保留
+逐请求边界；MoE、dispatch、combine统一统计DP*sum(u)*top_k，权重读取与FLOPs分开。
+参考TP/DP/EP固定配置，默认1/8/8，不再用实际batch大小改变布局。
+
+GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式和布局，
+不同chunk的前缀仍只加载一次；逐层执行保留3个Dense和75个MoE时间。
+旧冻结来源与原始SHA不变，历史无版本事件由独立审计器按旧算法解释。
+本项修正批次估时，不修改Scheduler组批规则、路由或存储资源。SA/ABC与线性模型不变。
+新旧请求压力/期限/SLO可能变化，历史比较必须标明模型版本。
+详细方案见`docs/prefill_time实际组批公式接入-20261028.md`，验收按VALIDATION实际记录。
+仍未GLM5实机定标，未模拟真实专家倾斜、kernel内部补齐和计算通信重叠。
+## 2026-10-29：前置分诊与层级遥测模式
+
+可选`admission.placement=gateway, classification=arrival`先在中央TFS队列分诊，
+获准后才交给原生Dynamo选实例。中央只使用已到达画像和反馈；没有新增实例队列真值或实时存储传感器。
+配额仍从准入持有到首token，实例内排队可能继续占额。
+
+可选`experiment.batch_feedback`在同一原生batch/层合帧，仍同步确认。
+`experiment.coalesced_feedback`则本地有界保存各层原始事实，在下一同步控制或生命周期事件前确认。
+每事件ID、顺序、字节和原始发生时间保留；中央可见性变晚。
+当前P75计数控制不使用中间层事实；未来依赖实时逐层反馈的算法不能直接沿用此模式。
+缓冲、256KiB帧或RPC限制失败必须判运行失败，不丢弃、不截断、不重连。
+原生路由/完整booking、token预算与slot、逐层读算屏障、物理容量和计算公式不变。
+当前最多4请求×78层形状已进入实验；其他形状和原生Dynamo RPC新模式不能据此宣称通过。
+
+活动许可按请求索引；JSONL流式解析仅复用不可变整数，保留独立可变数组。
+日志64KiB缓冲不改变内存控制事件。正常关闭flush；强杀失败日志可能缺尾。
+说明见`../docs/TFS前置分诊与反馈开销对照-20261029.md`，实测结果见VALIDATION。

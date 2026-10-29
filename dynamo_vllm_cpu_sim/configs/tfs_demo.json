@@ -1,0 +1,43 @@
+{
+  "workers": 4,
+  "scheduler": "upstream",
+  "policy": "fcfs",
+  "block_size": 16,
+  "num_blocks": 4096,
+  "max_model_len": 4096,
+  "max_num_seqs": 8,
+  "max_num_batched_tokens": 512,
+  "enable_prefix_caching": true,
+  "storage": {
+    "disks": 2,
+    "paths_per_disk": 64,
+    "disk_Bps": 40000000000,
+    "shared_link_Bps": 2000000000,
+    "path_Bps": 1000000000,
+    "read_latency_s": 0.0001,
+    "kv_bytes_per_token": 131072,
+    "bandwidth_policy": "active_split"
+  },
+  "compute": {
+    "step_overhead_s": 5e-05,
+    "prefill_token_s": 4e-06,
+    "decode_token_s": 2e-05
+  },
+  "ttft_slo_s": 0.02,
+  "storage_interval_log": true,
+  "admission": {
+    "mode": "tfs",
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 2000000000,
+    "release_on": "first_token",
+    "aging_enabled": true,
+    "aging_wait_s": 0.5,
+    "aging_cooldown_s": 0.05,
+    "feedback_delay_s": 0
+  },
+  "request_profile": {
+    "mode": "linear_reference_v2",
+    "profile_token_budget": 8192,
+    "slo_multiplier": 4
+  }
+}

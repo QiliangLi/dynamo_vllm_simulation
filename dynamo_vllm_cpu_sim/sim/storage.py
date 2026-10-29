@@ -13,7 +13,8 @@ storage.bandwidth_policy selects the rate rule:
   carries a demand rate. When demands fit the disk, each gets its demand
   plus an equal share of the surplus; otherwise allocations are max-min
   fair: equal split, cap over-demanded requests at their demand, iterate.
-Both policies then proportionally limit all rates by the shared link.
+An optional shared_link_Bps further limits rates. None disables this global
+constraint: disks then supply bandwidth independently, with no borrowing.
 """
 
 from collections import defaultdict, deque
@@ -54,12 +55,15 @@ class Storage:
             "disks",
             "paths_per_disk",
             "disk_Bps",
-            "shared_link_Bps",
             "path_Bps",
             "kv_bytes_per_token",
         ):
-            if config[k] <= 0:
+            if not math.isfinite(config[k]) or config[k] <= 0:
                 raise ValueError(f"storage.{k} must be positive")
+        link = config.get("shared_link_Bps")
+        if link is not None and (not math.isfinite(link) or link <= 0):
+            raise ValueError("storage.shared_link_Bps must be positive or null")
+        self.link_Bps = link
         self.policy = config.get("bandwidth_policy", "active_split")
         if self.policy not in ("active_split", "max_min_fair"):
             raise ValueError(
@@ -73,8 +77,18 @@ class Storage:
         self.pending = {}
         self.now = 0.0
         self.bytes_transferred = 0.0
+        self.disk_bytes_submitted = [0] * config["disks"]
+        self.disk_bytes_transferred = [0.0] * config["disks"]
+        self.disk_peak_Bps = [0.0] * config["disks"]
 
     def disk_of(self, block):
+        """HRW placement using the real vLLM content hash, independent of worker.
+
+        Keep DV's existing binary key encoding to preserve existing placement;
+        SA uses the same argmax-SHA256 algorithm with a different key encoding.
+        """
+        if self.c["disks"] == 1:
+            return 0
         return max(
             range(self.c["disks"]),
             key=lambda d: hashlib.sha256(block + d.to_bytes(4, "little")).digest(),
@@ -92,12 +106,14 @@ class Storage:
 
     def submit(self, now, key, blocks, demand=None):
         assert abs(now - self.now) < 1e-9 and key not in self.pending and blocks
+        assert all(block in self.present for block in blocks)
         if self.policy == "max_min_fair":
             assert demand and demand > 0, "max_min_fair requires a positive demand"
         self.pending[key] = len(blocks)
         for block in blocks:
             assert block in self.present
             disk = self.disk_of(block)
+            self.disk_bytes_submitted[disk] += self.block_bytes
             if self.policy == "max_min_fair":
                 path = self.path_seq[disk]
                 self.path_seq[disk] += 1
@@ -132,8 +148,12 @@ class Storage:
 
     def rates(self):
         raw = self._raw_rates()
-        scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, sum(raw.values())))
+        scale = self._link_scale(sum(raw.values()))
         return {p: b * scale for p, b in raw.items()}
+
+    def _link_scale(self, total):
+        return (1.0 if self.link_Bps is None else
+                min(1.0, self.link_Bps / max(1.0, total)))
 
     def link_flux(self):
         """(demand_Bps, actual_Bps)：施加共享链路缩放前/后的活跃读速率总和。
@@ -143,12 +163,16 @@ class Storage:
         时序图消费（run.py 的 storage_interval_log）。
         """
         demand = sum(self._raw_rates().values())
-        scale = min(1.0, self.c["shared_link_Bps"] / max(1.0, demand))
+        scale = self._link_scale(demand)
         return demand, demand * scale
 
     def next_time(self):
+        return self._next_time_for_rates(self.rates())
+
+    def _next_time_for_rates(self, rates):
+        """Find the event boundary using rates from the unchanged current state."""
         times = [
-            self.now + self.queues[p][0].remaining / b for p, b in self.rates().items()
+            self.now + self.queues[p][0].remaining / b for p, b in rates.items()
         ]
         times += [
             q[0].ready
@@ -158,31 +182,59 @@ class Storage:
         return min(times, default=math.inf)
 
     def advance(self, target):
-        if target < self.now - 1e-12 or target > self.next_time() + 1e-9:
+        rates = self.rates()
+        if target < self.now - 1e-12 or target > self._next_time_for_rates(rates) + 1e-9:
             raise ValueError("must stop at next storage event")
-        for p, b in self.rates().items():
+        by_disk = defaultdict(float)
+        for (d, _), rate in rates.items():
+            by_disk[d] += rate
+        for d, rate in by_disk.items():
+            self.disk_peak_Bps[d] = max(self.disk_peak_Bps[d], rate)
+        for p, b in rates.items():
             r = self.queues[p][0]
             n = min(r.remaining, b * (target - self.now))
             r.remaining -= n
             self.bytes_transferred += n
+            self.disk_bytes_transferred[p[0]] += n
         self.now = target
         done = []
-        for q in self.queues.values():
+        empty_paths = []
+        for path, q in self.queues.items():
             if q and q[0].remaining <= 1e-5:
                 r = q.popleft()
                 self.pending[r.key] -= 1
                 if not self.pending[r.key]:
                     del self.pending[r.key]
                     done.append(r.key)
+                if not q and self.policy == "max_min_fair":
+                    empty_paths.append(path)
+        # Max-min paths have unique, never reused IDs. Removing retired paths
+        # preserves the order of all remaining reads and simultaneous completions.
+        # active_split reuses IDs: keep its bounded empty queues so reinsertion
+        # cannot change the original completion tie order.
+        for path in empty_paths:
+            del self.queues[path]
         return done
 
     def snapshot(self):
+        rates = self.rates()
+        disk_rates = [0.0] * self.c["disks"]
+        for (d, _), rate in rates.items():
+            disk_rates[d] += rate
         return {
+            "placement": "hrw_sha256_content_hash",
+            "disks": self.c["disks"],
+            "disk_Bps": self.c["disk_Bps"],
+            "shared_link_Bps": self.link_Bps,
+            "disk_rates_Bps": disk_rates,
+            "disk_peak_Bps": self.disk_peak_Bps.copy(),
+            "disk_bytes_submitted": self.disk_bytes_submitted.copy(),
+            "disk_bytes_transferred": self.disk_bytes_transferred.copy(),
             "timestamp_s": self.now,
             "queued_reads": sum(len(q) for q in self.queues.values()),
-            "active_paths": len(self.rates()),
+            "active_paths": len(rates),
             "bytes_remaining": sum(
                 r.remaining for q in self.queues.values() for r in q
             ),
-            "path_rates_Bps": {f"{d}:{p}": b for (d, p), b in self.rates().items()},
+            "path_rates_Bps": {f"{d}:{p}": b for (d, p), b in rates.items()},
         }
