@@ -1,0 +1,2 @@
+# Some manifests hash their README; retain LF with Windows core.autocrlf=true.
+*.md text eol=lf
