@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "report_id": "agentx_random_360_12s_12_180GBps/20261030-162707_直接提交-EDF_TFS-EDF-alpha0.1+alpha1",
+  "study_id": "agentx360-180gb-12s-20261030",
+  "benchmark_id": "agentx_random_360_12s_12_180GBps",
+  "related_benchmark_ids": [
+    "agentx_random_360_12s_12_180GBps"
+  ],
+  "title": "实验结果：AgentX360｜12秒到达｜180GB/s｜直接与新TFS对照",
+  "created_at": "2026-10-30T16:27:07+08:00",
+  "timezone": "Asia/Shanghai",
+  "experiment_dates": [
+    "2026-10-30"
+  ],
+  "schemes": [
+    {
+      "id": "direct",
+      "label": "直接提交 EDF",
+      "ordering": "edf",
+      "alpha": null,
+      "force_admission": false
+    },
+    {
+      "id": "a01",
+      "label": "TFS EDF α=0.1",
+      "ordering": "edf",
+      "alpha": 0.1,
+      "force_admission": false
+    },
+    {
+      "id": "a1",
+      "label": "TFS EDF α=1",
+      "ordering": "edf",
+      "alpha": 1,
+      "force_admission": false
+    }
+  ],
+  "compatibility": "research_runtime_export_only",
+  "source": {
+    "report_path": "note/tfs_dv/AgentX360-180GB-12秒三方案-20261030/report.md",
+    "report_sha256": "7ef5219314c1c424adf8daa2b6a74cb0a9e3845d6805135e9d985e4f44b4da34",
+    "private_source_commit": null
+  },
+  "source_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "a9becef2b04222b2a0908a089cfb49bc1e92d25369f61776c0970d3e220adba8",
+      "bytes": 50848
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "b09af83fb01eb5a09117528d7e46b22ddcd39853d301375eca43e29e36e13301",
+      "bytes": 218363
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "63c1904defc63e88635e8f5bae8b07f67bc5777bfebcf2498123f4f6a24bb0f8",
+      "bytes": 95834
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "9bd6de94b69372ec0c5e64425a96a14e967939ce5904758c8b3ef3c433d07db5",
+      "bytes": 471447
+    },
+    "figure/05_cdf.png": {
+      "sha256": "12009c24de6680cb1c46b278e4992a84520f057822d73face7ad4b0beba1a0b9",
+      "bytes": 100902
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "028d298b55c0dadee0632768d178850ae24d10702f6501293ecc327c96a14f8f",
+      "bytes": 106152
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "17b7d66a811b9654b1b4fb752c3463482fa2ecf9b4d11de0f53d53bc9e3057ed",
+      "bytes": 56586
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "af011ecc73f514d03aa7b0332d8f3a0168e079b9b5eb282584d1ec53c6256b30",
+      "bytes": 377148
+    },
+    "report_data/cdf.csv": {
+      "sha256": "21f2c9944a10a053dfd6e0c1d1908e7637a2d3b7d2a38fe4f458522ca8db3a92",
+      "bytes": 111531
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "de80e249b537ed8cdaf0fd64de0046fb77946dc5d2aa61874a622bd979a0fbcb",
+      "bytes": 794
+    },
+    "report_data/configuration.json": {
+      "sha256": "ddccd82896e2f3ae94a030c8ea08afeeea5cbf4fb3f733657cbb30372243dcf0",
+      "bytes": 6952
+    },
+    "report_data/dataset.json": {
+      "sha256": "33cd2803e1c916031084c86ccd8a1ebb6faa61bf88332784e86a36398c4000ce",
+      "bytes": 63957026
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "5f9fc92389118dd508776e264298d223a7017075a5807ef7faab6c096b077167",
+      "bytes": 3591
+    },
+    "report_data/layers.csv": {
+      "sha256": "8e629b7fa4033fa2edd090c95e450aee0cc6a77190f3234ce68def4ef2ba1237",
+      "bytes": 4248775
+    },
+    "report_data/requests.csv": {
+      "sha256": "a3b8d6133f0c2f38a410e14da513980bfb61838cad6a20a62a29f1ba6910a765",
+      "bytes": 184147
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "bdd401c01dcafd3b47368d433f38867a1087f64f357387413741f2f4ee4dc873",
+      "bytes": 939
+    },
+    "report_data/validation.json": {
+      "sha256": "41c8a6ba761bce42674a03807dfdb680822ce1e767683886f30c76c723810c66",
+      "bytes": 18419
+    }
+  },
+  "figures": [
+    {
+      "path": "figure/01_slo_bar.png",
+      "source_sha256": "a9becef2b04222b2a0908a089cfb49bc1e92d25369f61776c0970d3e220adba8",
+      "width": 1888,
+      "height": 992
+    },
+    {
+      "path": "figure/02_full-sort-ms.png",
+      "source_sha256": "b09af83fb01eb5a09117528d7e46b22ddcd39853d301375eca43e29e36e13301",
+      "width": 2640,
+      "height": 1425
+    },
+    {
+      "path": "figure/03_util_box_heatmap.png",
+      "source_sha256": "63c1904defc63e88635e8f5bae8b07f67bc5777bfebcf2498123f4f6a24bb0f8",
+      "width": 2240,
+      "height": 848
+    },
+    {
+      "path": "figure/04_bandwidth.png",
+      "source_sha256": "9bd6de94b69372ec0c5e64425a96a14e967939ce5904758c8b3ef3c433d07db5",
+      "width": 2336,
+      "height": 1360
+    },
+    {
+      "path": "figure/05_cdf.png",
+      "source_sha256": "12009c24de6680cb1c46b278e4992a84520f057822d73face7ad4b0beba1a0b9",
+      "width": 1632,
+      "height": 960
+    },
+    {
+      "path": "figure/06_cdf_by_class.png",
+      "source_sha256": "028d298b55c0dadee0632768d178850ae24d10702f6501293ecc327c96a14f8f",
+      "width": 1920,
+      "height": 752
+    },
+    {
+      "path": "figure/07_arrival_lateness.png",
+      "source_sha256": "17b7d66a811b9654b1b4fb752c3463482fa2ecf9b4d11de0f53d53bc9e3057ed",
+      "width": 1632,
+      "height": 800
+    }
+  ],
+  "standard_dataset": "report_data/dataset.json.gz",
+  "source_visual_reviewed": true,
+  "source_figures_unchanged": true,
+  "changes": [
+    "归档名称、元信息和相对链接",
+    "较大JSON/CSV用gzip无损压缩"
+  ],
+  "omitted_links": [],
+  "simulations_run": 0,
+  "performance_recomputed": false,
+  "benchmark_input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707",
+  "large_raw_events_included": false,
+  "files": {
+    "report.md": {
+      "sha256": "d4fc4ed8c797f1205e370686afdb871e2fdb76d9f5915a2594060b16ca330113",
+      "bytes": 13130
+    },
+    "figure/01_slo_bar.png": {
+      "sha256": "a9becef2b04222b2a0908a089cfb49bc1e92d25369f61776c0970d3e220adba8",
+      "bytes": 50848
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "b09af83fb01eb5a09117528d7e46b22ddcd39853d301375eca43e29e36e13301",
+      "bytes": 218363
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "63c1904defc63e88635e8f5bae8b07f67bc5777bfebcf2498123f4f6a24bb0f8",
+      "bytes": 95834
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "9bd6de94b69372ec0c5e64425a96a14e967939ce5904758c8b3ef3c433d07db5",
+      "bytes": 471447
+    },
+    "figure/05_cdf.png": {
+      "sha256": "12009c24de6680cb1c46b278e4992a84520f057822d73face7ad4b0beba1a0b9",
+      "bytes": 100902
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "028d298b55c0dadee0632768d178850ae24d10702f6501293ecc327c96a14f8f",
+      "bytes": 106152
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "17b7d66a811b9654b1b4fb752c3463482fa2ecf9b4d11de0f53d53bc9e3057ed",
+      "bytes": 56586
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "af011ecc73f514d03aa7b0332d8f3a0168e079b9b5eb282584d1ec53c6256b30",
+      "bytes": 377148
+    },
+    "report_data/benchmark_snapshot.json": {
+      "sha256": "11ebc9dda14dce94271b0a08317f86f53baa20dedde6e0eb4cb4cd5b3aabf5bb",
+      "bytes": 2963
+    },
+    "report_data/cdf.csv": {
+      "sha256": "21f2c9944a10a053dfd6e0c1d1908e7637a2d3b7d2a38fe4f458522ca8db3a92",
+      "bytes": 111531
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "de80e249b537ed8cdaf0fd64de0046fb77946dc5d2aa61874a622bd979a0fbcb",
+      "bytes": 794
+    },
+    "report_data/configuration.json": {
+      "sha256": "ddccd82896e2f3ae94a030c8ea08afeeea5cbf4fb3f733657cbb30372243dcf0",
+      "bytes": 6952
+    },
+    "report_data/dataset.json.gz": {
+      "sha256": "53660edd83ade55155b7835b6871d16cc2cdcc199b167a5ecd5a3415bced58a4",
+      "bytes": 6341066
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "5f9fc92389118dd508776e264298d223a7017075a5807ef7faab6c096b077167",
+      "bytes": 3591
+    },
+    "report_data/layers.csv.gz": {
+      "sha256": "c0f08ef0a51e9ad194276c83e4a975fd80c8b68d6c2846afc43fcb2f0d61c06f",
+      "bytes": 504399
+    },
+    "report_data/requests.csv": {
+      "sha256": "a3b8d6133f0c2f38a410e14da513980bfb61838cad6a20a62a29f1ba6910a765",
+      "bytes": 184147
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "bdd401c01dcafd3b47368d433f38867a1087f64f357387413741f2f4ee4dc873",
+      "bytes": 939
+    },
+    "report_data/source_validation.json": {
+      "sha256": "41c8a6ba761bce42674a03807dfdb680822ce1e767683886f30c76c723810c66",
+      "bytes": 18419
+    },
+    "reproduce/README.md": {
+      "sha256": "2d6a2508c73dcedaa9d384cb1b74fb6849e37f5a6f28e5321a3faf95164e41b7",
+      "bytes": 966
+    }
+  },
+  "run_code_description": [
+    "|版本与RPC|沿用240条实验冻结DV b6aca299ec9888d25435c94013f05d73fd8fa825及同一native扩展；Dynamo runtime原生RPC、最终答复及后台EOF；Kahan仅诊断计数|"
+  ],
+  "configuration_file": "report_data/configuration.json",
+  "configuration_status": "per_arm_source_snapshot",
+  "archive_layout_reviewed": true,
+  "archive_layout_review_method": "Contact sheet inspection of all 54 unique source figures; source PNG bytes unchanged; no redraw"
+}

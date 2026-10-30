@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "cases": [
+    {
+      "case": "fcfs",
+      "label": "直接放行 FCFS",
+      "requests": 360,
+      "workers": 12,
+      "steps": 131,
+      "layers": 10218,
+      "span_s": 7.584750986000003,
+      "wall_time_scale": 1.0,
+      "rule": "dynamic",
+      "classification_reference_only": true,
+      "model_s": 59.780044678618225,
+      "red_s": 3.356514508151276,
+      "gray_s": 27.880452645230612,
+      "compute_heavy_any": 100,
+      "compute_light_any": 267,
+      "changed_requests": 7,
+      "read_bytes": 539258683392,
+      "formal_ids_source": "client_report.json"
+    },
+    {
+      "case": "edf",
+      "label": "直接放行 EDF",
+      "requests": 360,
+      "workers": 12,
+      "steps": 136,
+      "layers": 10608,
+      "span_s": 6.8684242060000145,
+      "wall_time_scale": 1.0,
+      "rule": "dynamic",
+      "classification_reference_only": true,
+      "model_s": 59.788234678618224,
+      "red_s": 4.52564704427966,
+      "gray_s": 18.10720874910257,
+      "compute_heavy_any": 99,
+      "compute_light_any": 268,
+      "changed_requests": 7,
+      "read_bytes": 539258683392,
+      "formal_ids_source": "client_report.json"
+    },
+    {
+      "case": "old-tfs",
+      "label": "旧 TFS",
+      "requests": 360,
+      "workers": 12,
+      "steps": 191,
+      "layers": 14898,
+      "span_s": 7.262183792000002,
+      "wall_time_scale": 1.0,
+      "rule": "dynamic",
+      "classification_reference_only": false,
+      "model_s": 59.87832467861823,
+      "red_s": 1.1633793215353818,
+      "gray_s": 26.10450150384633,
+      "compute_heavy_any": 96,
+      "compute_light_any": 268,
+      "changed_requests": 4,
+      "read_bytes": 539258683392,
+      "formal_ids_source": "client_report.json"
+    },
+    {
+      "case": "new-tfs",
+      "label": "新 TFS α=0.1",
+      "requests": 360,
+      "workers": 12,
+      "steps": 165,
+      "layers": 12870,
+      "span_s": 7.876092309000001,
+      "wall_time_scale": 1.0,
+      "rule": "arrival",
+      "classification_reference_only": false,
+      "model_s": 59.835736678618225,
+      "red_s": 1.511203094354699,
+      "gray_s": 33.166167935027296,
+      "compute_heavy_any": 101,
+      "compute_light_any": 259,
+      "changed_requests": 0,
+      "read_bytes": 539258683392,
+      "formal_ids_source": "client_report.json"
+    },
+    {
+      "case": "idle-bypass",
+      "label": "新 TFS α=0.1＋强制准入",
+      "requests": 360,
+      "workers": 12,
+      "steps": 170,
+      "layers": 13260,
+      "span_s": 8.611611245999995,
+      "wall_time_scale": 1.0,
+      "rule": "arrival",
+      "classification_reference_only": false,
+      "model_s": 59.843926678618224,
+      "red_s": 3.1669707194488916,
+      "gray_s": 40.328437553933014,
+      "compute_heavy_any": 102,
+      "compute_light_any": 258,
+      "changed_requests": 0,
+      "read_bytes": 539258683392,
+      "formal_ids_source": "client_report.json"
+    }
+  ],
+  "image_pixels": [
+    2640,
+    2248
+  ],
+  "elapsed_s": 14.206508922000012,
+  "source_files": {
+    "fcfs": {
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/config.json": {
+        "sha256": "eac2ddccd799cecbab7d7d00eeaa560746eb2210baa7a64ea006f89b5bc92d06",
+        "bytes": 1800
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/admission.final.json": {
+        "sha256": "27d02d89b2ebdcba692b39b22f4a5f7a829d99de1a45440a59271da804b74956",
+        "bytes": 1869344
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/storage.projection.json": {
+        "sha256": "ca424cb89046131ff2315782b907d53d7a0a1d3443177966aca9db296534ede2",
+        "bytes": 38378009
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/clock.json": {
+        "sha256": "395b7a29ede295aa9472a9d278e107ade8b619977fe432826958aeba87628682",
+        "bytes": 131
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/client_report.json": {
+        "sha256": "5df7c361a644edf7306d865bf9b67ac82280f4887c4fbe3841ba45749e4933e0",
+        "bytes": 135979
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker0.steps.jsonl": {
+        "sha256": "36736df5dc3d70806884969246892e639968d16999969ab6e28b623a8feb68ac",
+        "bytes": 2654366
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker1.steps.jsonl": {
+        "sha256": "2aacdde576b0bd06f959b1483287793270c2c954972baddcaa92e88f5867de15",
+        "bytes": 2154106
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker10.steps.jsonl": {
+        "sha256": "0788bb7dfc3f23f6b8ee9ad6c84b9ea5e1026d29daec955609c59f515996f369",
+        "bytes": 2412630
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker11.steps.jsonl": {
+        "sha256": "8644089e23d4a4c83607dc46e9c643978feefc1906c98f6f1bbce03c7f8f16b2",
+        "bytes": 1912861
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker2.steps.jsonl": {
+        "sha256": "9ce7af06640fcc7f1e693978f4822d7efb9daea994c2a48a8bf9c83b5266db2f",
+        "bytes": 2020194
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker3.steps.jsonl": {
+        "sha256": "5d58adca4b912c6051ff3a90aba39b6ac80d8af31f52f0e2c7ebadfc93230cc7",
+        "bytes": 1570889
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker4.steps.jsonl": {
+        "sha256": "10be2fc078cba02ff90c8a12478a7425b676413efdf8a0cd901c7188fbc1f895",
+        "bytes": 1775894
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker5.steps.jsonl": {
+        "sha256": "52d99c2ccb03f3aa4c008757706ebddc972de9d83dc4e9a72dda88992244e3f8",
+        "bytes": 2199217
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker6.steps.jsonl": {
+        "sha256": "ae5158eb0237c2f87bbb143725189f4acff3707e3aa648d83c58b7acbf28c213",
+        "bytes": 1703601
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker7.steps.jsonl": {
+        "sha256": "fffae9132f40fae8c43ba523affb57aaed5256334131b4459375ec5b3f02aa46",
+        "bytes": 1790651
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker8.steps.jsonl": {
+        "sha256": "deb3ab8ff5efa15af285ac7d131407a4aaf74a2b51ac7d53db6607a1f87f5545",
+        "bytes": 2360647
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/fcfs/worker9.steps.jsonl": {
+        "sha256": "686be5c35bd0455d535515e6cc6728b463e3a4a3a299c1a9db2fd3e86ead4ce2",
+        "bytes": 2183627
+      }
+    },
+    "edf": {
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/config.json": {
+        "sha256": "deff4442ef49df00654799205d59b820f29c3f33b20847371f4a51d6a2539bb9",
+        "bytes": 1803
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/admission.final.json": {
+        "sha256": "5adbc1ea4abc7d835313b49b90ce8023a35d22b1f529af6a724f84b65a30a59d",
+        "bytes": 2064233
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/storage.projection.json": {
+        "sha256": "4668b790c065a59a017e98fc2344d8ed46c7b31bb289e9346176174926cd0614",
+        "bytes": 38395811
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/clock.json": {
+        "sha256": "05ab935a5dafe5bcc39762207716f0ee8d8913d78d41d37058518d243d7c63e9",
+        "bytes": 132
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/client_report.json": {
+        "sha256": "531e30462534720e1bbce0bade6f889b0b0b45d7ad74ea7d833e6853242e27bf",
+        "bytes": 136035
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker0.steps.jsonl": {
+        "sha256": "5caed4c2e69c1aa0b297022d0b3c38360f715ad9a4a5abc8c9c4f38b0669624c",
+        "bytes": 1906983
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker1.steps.jsonl": {
+        "sha256": "b3ac96d25ce4884c8468c849de2c319f88cc487e51cd59c08029803063cdb345",
+        "bytes": 2230031
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker10.steps.jsonl": {
+        "sha256": "44ae76ba19a9b89a049182246e7f392317b01de418cffe1272f7178ddd81d9fa",
+        "bytes": 1911820
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker11.steps.jsonl": {
+        "sha256": "9f2eb47ff624c47118032fab20eeff94c20694d25c8511f92486e05fbb56549f",
+        "bytes": 1852136
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker2.steps.jsonl": {
+        "sha256": "dce900a3df87027bb4da28730d1d81413b8f9ffc4082837446dc8df3288b00a3",
+        "bytes": 2288467
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker3.steps.jsonl": {
+        "sha256": "c55bf61ceb9096cf00dcc6f97e915212f980dc83d2139bde72e815c4607585ca",
+        "bytes": 1527624
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker4.steps.jsonl": {
+        "sha256": "5eb99a68b1a9dd23c20cb6327002f38a8b2c6f12f7bee2a84d6d1d879975338d",
+        "bytes": 2430926
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker5.steps.jsonl": {
+        "sha256": "0ea8a2d4454f55ce65e994be2393e285f14ca5af2d82e42172696c4be407ea9a",
+        "bytes": 1640673
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker6.steps.jsonl": {
+        "sha256": "fd31e0b29920666a180b428b8c8b22f87c279048b32049350bbdb51ef39936bb",
+        "bytes": 2008444
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker7.steps.jsonl": {
+        "sha256": "c996fb51be06d006a715d1259d6b7600005a6eaea14951f64ce62638d6cbc9e9",
+        "bytes": 2332040
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker8.steps.jsonl": {
+        "sha256": "75d3512ef0e270c99629db794735f97ac64f51f6d234bdce78bf324594a49c1f",
+        "bytes": 2225344
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/edf/worker9.steps.jsonl": {
+        "sha256": "923be12ded68c20d988c287f329a2b0111949a29126c2dcc1d960546168c06de",
+        "bytes": 2518954
+      }
+    },
+    "old-tfs": {
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/config.json": {
+        "sha256": "1a56896c420b24185cda4c129987c8045d1b4beda1862a54db76d14155cee880",
+        "bytes": 1794
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/admission.final.json": {
+        "sha256": "33dbc423cce898c1e3069e98bc1e59c9072394f4f809fedfd6f340a863c63571",
+        "bytes": 1870832
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/storage.projection.json": {
+        "sha256": "de31be7b7f7eab506fe30e06870616c09c4a5f1adb96558b2874854a256a6a46",
+        "bytes": 38381439
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/clock.json": {
+        "sha256": "65fb3e5da65e485ef8da5350acd9c28d12934c16ac0e97cfb5bfeafa36e1a1a1",
+        "bytes": 132
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/client_report.json": {
+        "sha256": "8e6717fbaac2b94b6f1158cac9af1a23da69786450813b29ab0df11f29ea9929",
+        "bytes": 136253
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker0.steps.jsonl": {
+        "sha256": "e233582e16321e3f68a59f5a582eddbcf3dd50abf9dcc262c9ec194649951da6",
+        "bytes": 2314477
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker1.steps.jsonl": {
+        "sha256": "5d353533164bb41a9fe937cc57ce4fa950ae32c442d28e072a567d45f62316f5",
+        "bytes": 2078758
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker10.steps.jsonl": {
+        "sha256": "a867f7c2fa28c94d8d0d6444f1c5848ab91702c1893bcf22b48189b558b2380d",
+        "bytes": 2084818
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker11.steps.jsonl": {
+        "sha256": "88e5efcc8a386860bc2cb739acbfc3f48ea04391524cbfcc6de165d3050c7590",
+        "bytes": 2259104
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker2.steps.jsonl": {
+        "sha256": "bbbae8950f28d893de183bd56d14d6edce88d2f77a7ce74729d5cfafb9aeae37",
+        "bytes": 2367906
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker3.steps.jsonl": {
+        "sha256": "cffc9ab4d1d0401c72da38085bfe3916f2bed02db2a9298cc065e60f476960ed",
+        "bytes": 2150568
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker4.steps.jsonl": {
+        "sha256": "a73d4798dc71542bf0b4c22bd4d25148d032ae786a1139bcacbc7759abc4c74b",
+        "bytes": 2299259
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker5.steps.jsonl": {
+        "sha256": "2239498e6bbf6fe49e439d32535471022d6ae0f30e8aa68203195e63c0b98dab",
+        "bytes": 2182236
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker6.steps.jsonl": {
+        "sha256": "07f9bfbe80d928ec4cc18da6ef78cb133118f91ed1571b6aedd6a45dc8c3377f",
+        "bytes": 2135360
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker7.steps.jsonl": {
+        "sha256": "462211a8979b33270d3fc196a7f4c1eff6784437c94d782f103e33c725aed4e1",
+        "bytes": 2399771
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker8.steps.jsonl": {
+        "sha256": "52d808e827a69f0cc70fff0b47ed184288daa36f652c6cf7b9e68e3430e8ced2",
+        "bytes": 2211244
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/old-tfs/worker9.steps.jsonl": {
+        "sha256": "1fe4260647d6c7e09c14a3c656afd7bb840b2006f0bbc61650e7d74ba6aa1422",
+        "bytes": 1899835
+      }
+    },
+    "new-tfs": {
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/config.json": {
+        "sha256": "48e37c47749b02d150c7fc4f7e099dfc4258d2d6f59eeef168de290cc3b619f5",
+        "bytes": 1798
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/admission.final.json": {
+        "sha256": "e4bde6418906a37f5361619b024a675a0f783b8d949b54accf67c6d679d7e97f",
+        "bytes": 2811341
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/storage.projection.json": {
+        "sha256": "4b5a0e8af7675032c01c06201ef5462409a05e52d745d0abfaf701ae7a33d145",
+        "bytes": 38405022
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/clock.json": {
+        "sha256": "3488c3cc0794b4c204cc2eb559b6e16ac0ff8ff01bad151d33fe0f53ea7ddbf3",
+        "bytes": 132
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/client_report.json": {
+        "sha256": "4b3f681061c3998a1139aba172b8a9f6ffc1bcb48b7e2e8d9906a364785251e1",
+        "bytes": 136223
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker0.steps.jsonl": {
+        "sha256": "98b6de34444bbc74dc84ae013f988dc409b64f89893a91f75516f2a4497d686d",
+        "bytes": 1701981
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker1.steps.jsonl": {
+        "sha256": "389b74e37362a60f9ce60b870f64c958e397cea89c5572305ef590f0f3668b1f",
+        "bytes": 2241549
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker10.steps.jsonl": {
+        "sha256": "d276b2be8b3e6aa4eececb7f76d72f2422978b7079938e83e4f5585f9dce9957",
+        "bytes": 2102774
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker11.steps.jsonl": {
+        "sha256": "a2c0027bb751a57a1ea25c6bc499e62014cba517ab64c6a5151af6a80a5b8d03",
+        "bytes": 2676116
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker2.steps.jsonl": {
+        "sha256": "a36206b89b044deb9871a8da3dbcce1d597ad0dc4ef855bfcad63756a21656c9",
+        "bytes": 2105761
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker3.steps.jsonl": {
+        "sha256": "890ee4dc6a0ec676ae53cc972263226dc0969d478f861b5290053d4ea19894e9",
+        "bytes": 2139877
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker4.steps.jsonl": {
+        "sha256": "458046db10a4e37c7b3aebdefd309fce31e2ab6c400c20b7c3b7f06d6b0d04bd",
+        "bytes": 1960569
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker5.steps.jsonl": {
+        "sha256": "6f707c04a83fca8a13f57a640372128ef5391411cd010256220f884d83f6f9c7",
+        "bytes": 1641641
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker6.steps.jsonl": {
+        "sha256": "929075b0dcab4597811425eddd357f58a3f1336f621bf185842a9834526621ad",
+        "bytes": 2369821
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker7.steps.jsonl": {
+        "sha256": "9a08ffbf4f673d207e183d20d9461b6a85269492063efcdbaf3801d9c38c2400",
+        "bytes": 2123936
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker8.steps.jsonl": {
+        "sha256": "964ee6689085baefcee8ef47f4f8126a7ab4130be2ee616393c94c93f9be090e",
+        "bytes": 2020412
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/new-tfs/worker9.steps.jsonl": {
+        "sha256": "8f624c3b88ad24d125d63f693d4eb4d4e4a888e26e6164e4744f383d6a55433c",
+        "bytes": 2096100
+      }
+    },
+    "idle-bypass": {
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/config.json": {
+        "sha256": "2cbe82e1c773810f89efc730d5374b88d15c3577528ca5c6d171238a406164eb",
+        "bytes": 1797
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/admission.final.json": {
+        "sha256": "5a22e872458a0ed1b75ed53374ddeb1ecf9bf59f82b48af6b27a66e053edf2d6",
+        "bytes": 2719499
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/storage.projection.json": {
+        "sha256": "e55e1dc91e250ac6c8cc41ae80427587a8f12a2e8a50599a91321491e1e88529",
+        "bytes": 38400722
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/clock.json": {
+        "sha256": "b2b38145d29564d2fb005ff4f315082e9ee7c8acded92a14085983171aa5c329",
+        "bytes": 132
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/client_report.json": {
+        "sha256": "c94299e0b373b040b5e08b075efa042b9f85d12d5280a415974ebeed6192e355",
+        "bytes": 136143
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker0.steps.jsonl": {
+        "sha256": "5250274cbe2eae8927190b1285ae2b9c3921043e736141af638764317e886223",
+        "bytes": 1890770
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker1.steps.jsonl": {
+        "sha256": "59d24dd819b24908320f3cc70650bb7f54368a6f87b34946bcc755206bc3d492",
+        "bytes": 2774439
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker10.steps.jsonl": {
+        "sha256": "1577b60a681fc867ab670565cd720e47fe6b8fd8ab05e3e9bd0454e99ab7cd2e",
+        "bytes": 1952296
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker11.steps.jsonl": {
+        "sha256": "de95c6163478b8cc7c01ebd3f951f10959c466f489424eaeda760a4c7c4c4adc",
+        "bytes": 1717288
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker2.steps.jsonl": {
+        "sha256": "db25d81871c8d0ea55399596baa856007d6ffea896416f73ac6fe8e6539f191a",
+        "bytes": 2037277
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker3.steps.jsonl": {
+        "sha256": "19b7a82c227d9e36da053def3dc8607ee31e4424c0064b9ecdca8b2c02752818",
+        "bytes": 1716250
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker4.steps.jsonl": {
+        "sha256": "28e516c986bd36beecdb382a6981190d1bc172c840043223097d6824854531fd",
+        "bytes": 2675924
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker5.steps.jsonl": {
+        "sha256": "b7ceef46496781a7ac3016e955bfbab7505eeef9bf1b9a3e1e5f6e2da664e042",
+        "bytes": 2689716
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker6.steps.jsonl": {
+        "sha256": "4bd287ea91246196f99e818fe9b484dc7cc37a52b396be5b04bfe6901c8aa70e",
+        "bytes": 2167035
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker7.steps.jsonl": {
+        "sha256": "e0d8c06eb63c53388642020f0b5d5a8a0a4c75fbed17dddfabd004fdd1ca1893",
+        "bytes": 2113302
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker8.steps.jsonl": {
+        "sha256": "4b09eb23c69ff5edd86d7a9fa7fa391e9b1326dcead9516f49a9de6903485fcb",
+        "bytes": 2156427
+      },
+      "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/Mooncake360-90GB直接组合五方案-20261029/report_data/raw/idle-bypass/worker9.steps.jsonl": {
+        "sha256": "e4a17bd0e56bb632dda5f867dce5c86996018d81eaadda8cb277408482f15207",
+        "bytes": 2006890
+      }
+    }
+  },
+  "output_files": {
+    "layers.csv": {
+      "sha256": "8560aa9d70951f90b763082531f273f2cde9535999348ce19882554da99ebfd9",
+      "bytes": 7268319
+    },
+    "README.md": {
+      "sha256": "25c8187bdab96f1f84f8e7f63b22ee171d0bafcc03b2beb37643e0e09e2d6dd7",
+      "bytes": 775
+    },
+    "requests.csv": {
+      "sha256": "16d57db06d2926348fefa4571c3a97ee3c35bd6fcee1c8bad0a5efd36667de29",
+      "bytes": 109293
+    },
+    "summary.csv": {
+      "sha256": "da7b839b33d688b5d928720cb0bc938c6aba8b0714fd7eeb7328b66c1262ee34",
+      "bytes": 1086
+    },
+    "timeline.png": {
+      "sha256": "65d2625a3140a684eae0ec8035a14e0399893742fc3c8e55da1ab63e4ea08ef5",
+      "bytes": 334809
+    },
+    "workers.csv": {
+      "sha256": "33b5b82a47a744435dd3872ce02533127a7fafc1db1dbc416e17b7d777e6541f",
+      "bytes": 4041
+    }
+  },
+  "semantics": {
+    "compute": "nominal model intervals",
+    "red": "per-worker union of inflight reads minus nominal compute",
+    "classification": "arrival-frozen hints or dynamic controller threshold at each layer start",
+    "historical_AB_used_for_classification": false
+  }
+}

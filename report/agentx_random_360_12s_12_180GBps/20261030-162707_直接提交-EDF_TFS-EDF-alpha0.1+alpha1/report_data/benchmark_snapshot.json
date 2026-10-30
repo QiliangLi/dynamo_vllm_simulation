@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "case": "agentx_random_360_12s_12_180GBps",
+  "requests": 360,
+  "input_tokens": 23255872,
+  "hit_tokens": 22588592,
+  "new_tokens": 667280,
+  "read_bytes": 2480769527808,
+  "long_context_requests": 39,
+  "class_counts": {
+    "B": 270,
+    "A": 90
+  },
+  "new_pct": 2.869296838235092,
+  "allocation_scope": "full_history_prefix_hit",
+  "block_size": 16,
+  "arrival_window_s": 12,
+  "shared_storage_Bps": 180000000000.0,
+  "K": 1,
+  "workers": 12,
+  "max_input_tokens": 300480,
+  "synthetic_hit_allocation": false,
+  "output_length_used_for_work": false,
+  "hash_ids_used_for_hits": true,
+  "label_semantics": "frozen offline input pressure P75, A90/B270; not online TFS heavy classification",
+  "source_dataset": "semianalysisai/cc-traces-weka-062126",
+  "source_revision": "23f152f6f0f9399a85901b89a6458def0ef16729",
+  "source_first_line": 2608,
+  "source_last_line": 2967,
+  "source_window_sha256": "f56db66c4cac50d26bdb14df1ff5d9a94ffa838fa36e37958094e325bd0ef534",
+  "original_trace_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707",
+  "historical_config_sha256": "8bd5ed3fd8b43324273bffc9412be2bac868fae7955b6f15d43b753b4da1be25",
+  "historical_DV_commit": "b6aca299ec9888d25435c94013f05d73fd8fa825",
+  "native_sha256": "1f7a8f31ce5d76825f3ec6783b398c5f25600dddbb6a26840732b33417548f27",
+  "sampling": {
+    "root_groups": 40,
+    "seed": 416,
+    "quantile_strata": 4,
+    "groups_per_stratum": 10,
+    "offset_seconds": [
+      0,
+      60
+    ],
+    "window_start_request_fraction": 0.3
+  },
+  "hit_assumption": "Unlimited original group history, remote prefix, block16, retain at least one new block; not cold start or measured hit rate",
+  "timing": {
+    "batch_model": "glm5_direct_sum_v1",
+    "launch_saving_fraction": 1.0,
+    "tp": 1,
+    "dp": 8,
+    "ep": 8,
+    "reference_compute_instance_s": 164.18052330065615,
+    "long_context_formula_extrapolation": true
+  },
+  "portable_runner_status": "export_only",
+  "historical_config_sanitized": true,
+  "files_sha256": {
+    "trace.jsonl.gz": "cd355604cf86395922cd560d2fb6fdd9ad1086bb789abb66a5a786488e040253",
+    "requests.csv": "fc36e7ce5acc6dfbed83d164e79145bee49f009fe19c36095dbc970f16c915ec",
+    "config.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
+    "config.historical.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
+    "run_contract.json": "a0af327c08ae3de330df695ee35a84d81d0d9e9eb96ffc891bc69678ffdaf8f2"
+  },
+  "aliases": [
+    "agentx360_12s_180gb"
+  ],
+  "source": "agentx",
+  "feature": "random",
+  "description": "保留选定AgentX窗口的请求顺序，用原组完整历史推导理想远端前缀命中；不是冷启动或实测命中，39条超长上下文涉及公式外推。",
+  "benchmark_format_version": 1,
+  "token_pattern": [
+    1332,
+    995,
+    2581,
+    640,
+    1366,
+    23748
+  ],
+  "runner_profile": null,
+  "execution_feedback": "disabled"
+}

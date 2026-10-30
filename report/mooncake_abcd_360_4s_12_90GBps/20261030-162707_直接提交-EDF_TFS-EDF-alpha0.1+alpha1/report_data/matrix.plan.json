@@ -1,0 +1,47 @@
+{
+  "seed": 20261029,
+  "jobs": [
+    {
+      "dataset": "ABC",
+      "arm": "direct"
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "tfs-a1"
+    },
+    {
+      "dataset": "ABC",
+      "arm": "tfs-a1"
+    },
+    {
+      "dataset": "ABC",
+      "arm": "tfs-a01"
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "direct"
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "tfs-a01"
+    }
+  ],
+  "files": {
+    "/Users/zed/PycharmProjects/kv_aware_net/tooling/experiments/mooncake_global4_20261029/run.py": "9c96742191e0b07980cad3cdd9c3d404b2a5b0675123ddd4dc9d16b5d25f9dc9",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/base_runner.py": "357baa41d7bb86408936bc338d0f1a8b3eefbb79d60c446c469c8d6bd712c626",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/controlled_gc_gateway_20261027.py": "b9db7641bb4f3be832c28e803de300617652a109f548ac699eff36d556ea76d4",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/tfs_warmup_gateway_20261027.py": "22c9973dba481a713bed96345c31780260ac778e79e71681183fd508c432cd54",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/input_check.json": "fa0482ddb272d0d23a22897226372e19c112276b7576ff0a95700dfb001d0178",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/base_runner.py": "357baa41d7bb86408936bc338d0f1a8b3eefbb79d60c446c469c8d6bd712c626",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/controlled_gc_gateway_20261027.py": "b9db7641bb4f3be832c28e803de300617652a109f548ac699eff36d556ea76d4",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/tfs_warmup_gateway_20261027.py": "22c9973dba481a713bed96345c31780260ac778e79e71681183fd508c432cd54",
+    "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/input_check.json": "96a5c7255bc74f8ac0c1f8c9b06d643bc147b2aa860a059a68bf61ff437f30b0"
+  },
+  "repeats": 1,
+  "host": {
+    "epoch_s": 1793285870.953946,
+    "available_bytes": 4507254784,
+    "swap_bytes": 4267835392,
+    "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t85%; discharging; 10:55 remaining present: true"
+  }
+}

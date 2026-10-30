@@ -4,6 +4,8 @@
 先读[实验分支使用说明](docs/实验分支使用说明.md)，AI先读[AGENTS.md](AGENTS.md)。
 输入及类别到达规则见[Benchmark目录](benchmark/benchmark目录.md)，通用用法见[benchmark说明](benchmark/README.md)。本分支不含模型权重或大规模原始运行数据。
 
+已归档报告见[报告目录](report/报告目录.md)，通用规则见[report/README.md](report/README.md)。报告按benchmark分组，子目录列明创建时间与实际比较方案；历史模型和研究版运行边界在各报告开头标注。
+
 ---
 
 # Dynamo / vLLM CPU 调度仿真

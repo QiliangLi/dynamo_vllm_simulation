@@ -1,0 +1,22 @@
+{
+  "simulations_run": 0,
+  "baseline_performance_sha256": {
+    "run_summary.csv": "79b199a4fd2168768b39b3eb4ddcd7ef7fb8bd0a126e0644550906a9dfa7a83e",
+    "requests.csv": "832ca28ca1c0f5760f5ad4610950c018229c1fe67f24655a0da6abba1aaf4bf7",
+    "device_utilization.csv": "133e567412c601d58714ddb02fb344f5632fed8b0ec2deb057e2eb918a3c56e6",
+    "workers.csv": "cbfe9438f7bc00bdf5535a550dbc30de81d65e789e3a376c78315526fcc32218",
+    "storage_intervals.csv": "5852aea94c6b64c983ebf1057b606217a5704bd40e7d4e436b51666d7c4e602c",
+    "bandwidth_10ms.csv": "05f5ca3cbb202975ee8d1b7fc10dd13d07dbf927a8de7c6713bf90111379bcf5",
+    "cdf.csv": "fb1a531131a1c78919ea79e8ca61f8fe4e150f44308b70363065e5ff18631bee",
+    "admission_summary.csv": "bdd14b86c8a2b032f625338c47bbae087893998b83e6b6fbcbe130d1c4190531",
+    "formal_rpc.json": "bba321354482532ae1d906339ca939864cabc4536a7f2ca58c1445c858342064"
+  },
+  "previous_timeline_sha256": "2fbc9d848b515def545c60e268a0a19c1022a37c83dc392b973f413546603d66",
+  "previous_validation_sha256": "7d963b563dc2cadb3437ca1e89930841f9dea23bc1895838a00736de02cb72a2",
+  "old_rule": "historical fixed A/B display classes",
+  "new_rules": {
+    "new_tfs": "arrival-frozen storage_hint.is_heavy_read",
+    "old_tfs": "dynamic P75 at each layer compute start"
+  },
+  "backup_directory": "C:\\Users\\zed\\PycharmProjects\\state_aware_network\\temp\\mooncake90-alpha-historical-plot-before-recolor-20261029"
+}

@@ -8,6 +8,7 @@
 2. 阅读[benchmark说明](benchmark/README.md)、[AI用法](benchmark/agent.md)和[Benchmark目录](benchmark/benchmark目录.md)，从目录选择负载。
 3. 在`dynamo_vllm_cpu_sim/`内运行`scripts/run_benchmark.py`。先`--smoke`，再正式回放。
 4. 修改模型、准入或反馈前，读取主说明中的对应设计文档。
+5. 查看既有报告先读 report/README.md、report/agent.md 和 report/报告目录.md。只整理报告不自动重跑实验；归档验证与原运行验收分开。
 
 ## 必须保持的实验合同
 

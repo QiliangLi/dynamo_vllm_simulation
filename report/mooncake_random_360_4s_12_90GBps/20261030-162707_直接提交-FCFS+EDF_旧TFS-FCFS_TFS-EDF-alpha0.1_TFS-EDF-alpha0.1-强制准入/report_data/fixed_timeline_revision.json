@@ -1,0 +1,23 @@
+{
+  "simulations_run": 0,
+  "backup_directory": "C:\\Users\\zed\\PycharmProjects\\state_aware_network\\temp\\mooncake90-five-before-fixed-redraw-lqllntm1",
+  "performance_files_sha256": {
+    "run_summary.csv": "af5b34573ce711243e4afb8c1226ed195d6ef1b2abd4602a6562e8aac0f8f41d",
+    "requests.csv": "7363863d6fac465fd5e2e2c9d2f37e7aa0d4acc1edfbc0cc5a717fb622999873",
+    "device_utilization.csv": "d7d0eb5014fd82e236d7800fe54a1c1b81d2d85ae5cc7a5e882921fce4ac9283",
+    "storage_intervals.csv": "065283c1bf08f595871caffd78d7a8bec9c3adfd389a0b431804445ae7417ee0",
+    "bandwidth_10ms.csv": "907b7ef80478e981a69ee88acc7c27e29eab5389a11bd28864bc86aca053f482",
+    "cdf.csv": "ae17a906018f5326b16bb701a7556766e284da200a5424861a760d914f82e2cd",
+    "admission_summary.csv": "1e4e739703548810ea97f78f471fc37b79e11f521ff4972c1156eb0d67b3257f",
+    "summary.json": "b01c54a8f34d759f68f09d0d2107f706ab3598b02a213bc83bb7c100bf4e240e",
+    "bandwidth_comparison.csv": "713c82f2736b8c745d2a41d6f574811dd78e8bc19d71fff09e1e864b92426f70"
+  },
+  "unchanged_figure_sha256": {
+    "01_slo_bar.png": "949f43dfd91a935da02369ba64659d8aa99e1763af104f7e0ee46d7efb673095",
+    "03_util_box_heatmap.png": "d54b1c39a25da2998f0459e2019f3e4f35154e0438e30f2927771ae3dda37630",
+    "04_bandwidth.png": "0b170886a65f2e47d41f14fbe6bd48c2158b87ef46fc973291a838ddd1dd84e1",
+    "05_cdf.png": "684b1b22be87f5bfa7219ee4e7f1308a23b69393b948cec77766d9b8ecca52ba",
+    "06_cdf_by_class.png": "4eda7f896df0a1be835d5415bdedc2ed75718bc686ee88f4d3db3978bcf814cc",
+    "07_arrival_lateness.png": "cf0578f7506e7395e1362e5d5dd6ad06f74b346257553a27d6f7e0308473a575"
+  }
+}

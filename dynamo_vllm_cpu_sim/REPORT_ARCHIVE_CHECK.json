@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "date": "2026-10-30",
+  "report_entries": 8,
+  "source_studies": 7,
+  "benchmarks": 7,
+  "figure_entries": 66,
+  "unique_figures_reviewed": 54,
+  "unit_tests": 277,
+  "source_png_and_csv_identity": "passed",
+  "relative_links": "passed",
+  "standard_datasets_checked": 4,
+  "extra_alpha05_materials": "excluded for the two 100GB workloads; original random alpha sweep retained",
+  "simulations_run": 0,
+  "large_raw_events_included": false
+}

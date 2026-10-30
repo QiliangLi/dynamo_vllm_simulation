@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "simulations_run": 0,
+  "cases": 5,
+  "requests": 1800,
+  "source_script": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/tooling/redraw_timeline.py",
+  "script_sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+  "image_sha256": "65d2625a3140a684eae0ec8035a14e0399893742fc3c8e55da1ab63e4ea08ef5",
+  "timeline_validation_sha256": "688f28bc64fd60f8e159d9b9dcddcdd42ab5183d0e97fac578f9a02ea3d41440",
+  "published_time_accounts_equal": true
+}

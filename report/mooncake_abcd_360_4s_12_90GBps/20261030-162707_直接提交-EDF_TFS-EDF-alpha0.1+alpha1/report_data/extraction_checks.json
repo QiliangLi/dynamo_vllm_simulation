@@ -1,0 +1,134 @@
+[
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/package/results/direct/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 1.1224365234375,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "357f1b424306c4c6ed1f0f8885adfb1458b0e7f08ee9e1d1163403a1c82279db",
+      "check.json": "43fbad692e65aaa0e01f7f42f90d42f68e2271c780f13d878bd35896074553ba",
+      "global4.check.json": "c31b516694adcb69be706910f79130fd9bcf79805356eccf84277965e7cf8aeb",
+      "formula_check.json": "8e01a255d1f98492df0ff6c9572970ff33f1768acdad125ac8b5a990469634d6",
+      "layer_check.json": "85f763d98b8b78aa341c0a7277ea87b2c4bae1515c5a6a384659c19cda2d84fb",
+      "hit_check.json": "511d0fa68d3f03f034786c4450600bbda428ae43fca96f467f7e47f7cbf15e78",
+      "admission.final.json": "767f289a257319d53958c22d88e4401d4c0bf08c7f6ee50937f7bf6fc6a5bd69",
+      "storage.final.json": "69174cb2702943101e6fdf5d5084fd18c066e00674e82f5027978ff1f0e24125"
+    }
+  },
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/package/results/tfs-a01/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 3.074951171875,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "5f676187d48c55b8c7e2ecdbfccd2377fbffead9720a3ebfd6f714bac055b55c",
+      "check.json": "aac8dc6f6c7713e855452fcfe42b5652c58d7f252c87c8e2de2447339ad54e7c",
+      "global4.check.json": "b76d79894fa24612217c43067224803dc5f8ec07f0c18264def9ea2970a51f23",
+      "formula_check.json": "23647275ae3ab284b7e7ad74b486d4f109be2247d2ea997a5830bc96a2d2246c",
+      "layer_check.json": "a140e62144a014cf78f3854089032160830011e121d6980b2a5c4a6b4f817aaf",
+      "hit_check.json": "9effae82231702858027dd74abeab9fed6b13d8a4d806c8cf871a561a2a79fce",
+      "admission.final.json": "1a73e94b648fef49b91a4ceb77e97c2932e3befdfa1b5ab1e99c35d66553d697",
+      "storage.final.json": "fd1534f66a92c44ff26440b0a7096817172547330f36a8a1b33ab4bdbbba1e86"
+    }
+  },
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABC/package/results/tfs-a1/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 2.48895263671875,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "1d952f7d5920f454d2020b8b7e33db64ec92dee5652b965dfd837e5487fbc67b",
+      "check.json": "28ecdfc1c4dcfd5a28878c6e93876e4545853cd2942e1abe7f1d0e430a980df5",
+      "global4.check.json": "b2ce7f592c91c00a011ca428fe7cba7957885c352f5cd51230ae4f155b9f252b",
+      "formula_check.json": "7e803618165175cffd030bda305b4e06e4bcb9db5482793e7a1fcf148016a088",
+      "layer_check.json": "998ebb683ff09535de9daf4775ffa87f677566f89bb2688681d6c7a26120ec90",
+      "hit_check.json": "d3ab3446bb2f7c128d81826c59f0d126e28e18d8cd709456ef546e40dccd623d",
+      "admission.final.json": "ca51a1649826178c820c81765cbafd000384f30bf4d611779250e5c026e50840",
+      "storage.final.json": "c1314e1c2c5de5344995b4da3dd5339cdd7133311e9d68d049dc0e962dcf3cdc"
+    }
+  },
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/package/results/direct/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 0.94732666015625,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "357f1b424306c4c6ed1f0f8885adfb1458b0e7f08ee9e1d1163403a1c82279db",
+      "check.json": "c57a94e45bd84c9cf33f40cff1f0ff9405aacfd8dd029298bb32010d37dfc3e3",
+      "global4.check.json": "3696a3afa020d248c20e78961a370ee170af356d6997ff5b995b4647d25c461b",
+      "formula_check.json": "76e3b00f8b24b2a0e94f86ef098945d026839a6484ee2af5a811b5b10afe5e38",
+      "layer_check.json": "e5bf52123bd7e00b9d8a0b3633bae7eacbfe0fb46e30fa4ebf9406250a061f5a",
+      "hit_check.json": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+      "admission.final.json": "cf33ae1dd3f0de82558c6176f10733497f398e7556ea347920d72edf529ada2c",
+      "storage.final.json": "c37d40d59629f46b60e39b5e844fd0f5a2c2daa4cbfcefdff0af93f1f7c54e86"
+    }
+  },
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/package/results/tfs-a01/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 2.256591796875,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "5f676187d48c55b8c7e2ecdbfccd2377fbffead9720a3ebfd6f714bac055b55c",
+      "check.json": "8d5c7c506379ade5c2ecdca2a8188bddd64f0d98fc1e4bb1e00d04cecaa7a7b2",
+      "global4.check.json": "5e2e4c0fb6f07456f94eebe6e04b195baaa6bc34a7ed0eff745157699cba1c25",
+      "formula_check.json": "2436fe64d5ebc869133555f291503d87dc73799ea76cb6b1bd9f73c1033ecf27",
+      "layer_check.json": "d00ce2bd474c2d561fe8b8e373185aaf91890185fcec3df045615c2ee57a66a3",
+      "hit_check.json": "0a73c53a702c5f29c38ebed80ff6347b349fa50dfc791e8d814ab27240c6acf4",
+      "admission.final.json": "86974d8677ce3513740673d090bc20416dc2894e8efa7f738de7e68789b5446d",
+      "storage.final.json": "0c232ce9c53a500910bbceef90ae9bf55409077bac7bae20f2809b8502b1ba28"
+    }
+  },
+  {
+    "status": "passed",
+    "run": "/Users/zed/PycharmProjects/kv_aware_net/data/dynamo_vllm_simulation/dynamo_vllm_cpu_sim/results/mooncake360_global4_90g_20261029/ABCD/package/results/tfs-a1/run",
+    "formal": 360,
+    "warmup": 72,
+    "new_tokens": 204699,
+    "read_bytes": 539571462144,
+    "loaded_requests": 330,
+    "zero_read_requests": 30,
+    "band_integral_error_B": 1.78076171875,
+    "clock_scale": 1,
+    "raw_sha256": {
+      "config.json": "1d952f7d5920f454d2020b8b7e33db64ec92dee5652b965dfd837e5487fbc67b",
+      "check.json": "610aa16dd61b9b1f1da288e4134c057c922edba71cac9e26735d0f65a68414fa",
+      "global4.check.json": "90e00315720fd64bcc11cc6cd21d1eaf9b12760dfb1b3f19c020b9afb3339972",
+      "formula_check.json": "cf865125882adb3bb44d17a56c5a2a309c19c413e165e2a683d77d8ee09464a9",
+      "layer_check.json": "c13f383f414eeb52fb930f451429420f5d9e504dc8da43bb063577a1cd64e772",
+      "hit_check.json": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+      "admission.final.json": "bc53d7bc1d1338c43059b8ea3477e8bdfa8acb105715048f2fafd80824c090bb",
+      "storage.final.json": "7b4f9f43141666fbf9c41ae3f520e2181de956ac2ee0a9e1ec7b4f2e89e2875d"
+    }
+  }
+]

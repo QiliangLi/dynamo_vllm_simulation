@@ -1,0 +1,9 @@
+# Keep generated metadata and instructions stable across Windows/Linux clones.
+*.md text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.txt text eol=lf
+# Frozen source tables/scripts must retain their exact original bytes and hashes.
+**/report_data/** -text -whitespace
+**/online_timeline/** -text -whitespace
+**/figure/** -text

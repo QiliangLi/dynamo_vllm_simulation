@@ -1,5 +1,16 @@
 # 分支交付验证
 
+
+## 2026-10-30：规范报告归档
+
+新增report/README.md、agent.md、报告目录.md与标准时间/方案命名的报告目录。
+七份选定源研究归档为八个入口，覆盖七个benchmark；90GB联合研究在ABC/ABCD两处保持同一study_id，不计为两次复跑。
+包含两份random历史报告并明确模型/反馈差异；不纳入100GB独立alpha0.5补充材料。
+原图和源CSV保持字节一致，较大的派生JSON/CSV用gzip保存；大型原始事件不发布。
+66张图（54张不重复源图）的身份/PNG结构、正文相对链接和归档清单检查通过；已查看源图联系表。
+四份标准dataset通过兼容校验；277项单元测试通过。历史报告缺少完整配置或标准重绘输入时明确标注，不补造可复现保证。
+本次不运行仿真、不改变历史性能数值。归档验证与原运行验收分开；检查记录见[REPORT_ARCHIVE_CHECK.json](REPORT_ARCHIVE_CHECK.json)。
+
 ## 2026-10-30：新增人工ABC 360条、6秒、90 GB/s
 
 新增 [synthetic_abc_360_6s_12_90GBps](../benchmark/synthetic_abc_360_6s_12_90GBps/README.md)。
