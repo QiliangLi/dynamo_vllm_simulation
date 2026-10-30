@@ -65,7 +65,11 @@ def verify_case(name):
         assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
     with (folder/'requests.csv').open(encoding='utf-8',newline='') as f:table=list(csv.DictReader(f))
     digest=hashlib.sha256();totals=Counter();classes=Counter();arrivals=[];timestamps=[];max_input=0
-    pattern=m.get('token_pattern')
+    pattern=m.get('token_pattern');mapping=m.get('arrival_mapping')
+    if mapping:
+        assert mapping['mode']=='scale_from_origin' and mapping['source_time_unit']=='seconds'
+        assert mapping['target_origin_s']==0 and mapping['target_last_s']==window
+        assert mapping['source_last_s']>mapping['source_origin_s']>=0
     with gzip.open(folder/'trace.jsonl.gz','rb') as stream:
         for i,line in enumerate(stream):
             digest.update(line);r=json.loads(line);s=table[i];tokens=r['prompt_token_ids']
@@ -88,14 +92,27 @@ def verify_case(name):
                 assert src['timestamp_ms']==int(s['source_timestamp'])
                 assert src['prefix_hit_tokens']==int(s['source_prefix_hit_tokens'])
                 assert h==min(src['prefix_hit_tokens'],(n-1)//block*block)
+            elif m['allocation_scope']=='synthetic_abc':
+                shape=m['class_shapes'][r['class_id']]
+                assert (h,u)==(shape['hit_tokens'],shape['new_tokens'])
+                assert r['original_seed416_arrival_s']==float(s['source_timestamp'])
             totals.update(requests=1,input_tokens=n,hit_tokens=h,new_tokens=u,read_bytes=h*cfg['storage']['kv_bytes_per_token'])
-            classes[r['class_id']]+=1;arrivals.append(r['arrival_s']);timestamps.append(int(s['source_timestamp']));max_input=max(max_input,n)
+            classes[r['class_id']]+=1;arrivals.append(r['arrival_s'])
+            timestamps.append(float(s['source_timestamp']) if mapping else int(s['source_timestamp']));max_input=max(max_input,n)
     assert len(table)==totals['requests']==count and len({r['id'] for r in table})==count
     assert digest.hexdigest()==m['original_trace_sha256']
     assert all(totals[k]==m[k] for k in totals) and dict(classes)==m['class_counts']
-    assert arrivals[0]==0 and arrivals[-1]==window and all(a<=b for a,b in zip(arrivals,arrivals[1:]))
+    assert arrivals[-1]==window and all(a<=b for a,b in zip(arrivals,arrivals[1:]))
     assert timestamps[-1]>timestamps[0]
-    for a,t in zip(arrivals,timestamps):assert math.isclose(a,window*(t-timestamps[0])/(timestamps[-1]-timestamps[0]),abs_tol=1e-12)
+    if mapping:
+        assert 0<=arrivals[0]<window and timestamps[-1]==mapping['source_last_s']
+        for a,t in zip(arrivals,timestamps):
+            assert math.isfinite(t) and t>=mapping['source_origin_s']
+            expected=window*(t-mapping['source_origin_s'])/(mapping['source_last_s']-mapping['source_origin_s'])
+            assert math.isclose(a,expected,rel_tol=0,abs_tol=1e-12)
+    else:
+        assert arrivals[0]==0
+        for a,t in zip(arrivals,timestamps):assert math.isclose(a,window*(t-timestamps[0])/(timestamps[-1]-timestamps[0]),abs_tol=1e-12)
     assert cfg['max_model_len']>=max_input+1
     return dict(case=name,**totals,class_counts=dict(classes),original_trace_match=True,arrival_window_s=window,
                 shared_storage_Bps=bandwidth,portable_runner_status=m['portable_runner_status'])
@@ -138,10 +155,11 @@ def catalog_text():
     lines+=['','## 附录：字段与类别','',
         '- 名称顺序：数据来源_数据特征_请求总数_发送窗口_计算实例数_存储带宽。时间用 s；GBps 表示十进制 GB/s，1 GB = 10^9 B。带宽指单共享池，不是每实例独享带宽。',
         '- random：未按 ABC/ABCD 人为分配请求类别。不表示随机打乱、无采样或命中未处理。两份 random 的命中规则不同，见来源说明及各自 manifest。',
-        '- abc / abcd：总 input 的约 4% 为全局新算预算。A 重读轻计算（新算 1—16 token）；B 轻读重计算（承接剩余额度）；C 零读（短请求全部重算）；D 重读重计算（最长 20 条各新算 2033—2046 token）。按长度选类别后恢复原 trace 顺序，不按类别重排。',
+        '- mooncake 来源的 abc / abcd：总 input 的约 4% 为全局新算预算。A 重读轻计算（新算 1—16 token）；B 轻读重计算（承接剩余额度）；C 零读（短请求全部重算）；D 重读重计算（最长 20 条各新算 2033—2046 token）。按长度选类别后恢复原 trace 顺序，不按类别重排。',
+        '- synthetic 来源的 abc：固定三种请求形状，A 重读轻计算、B 较轻读且计算更重、C 零读且计算时间接近 A。h/u 取自 manifest 的 class_shapes，不使用 Mooncake 全局 4% 规则；保留 seed416 原到达顺序。',
         '- 表中 A/B/C/D 是人工或离线展示标签，不是运行期 TFS P75 轻重分类。random 的 A/B 不按 ABC 构造解释。',
         '- 新计算比例 = sum(u)/sum(input)。逐请求约 4% 与整批全局约 4% 不等价；block16 影响取整。h 为有效远端命中 token，u 为新计算 token，input=h+u。',
-        '- 窗口是首个计划到达到最后一个计划到达的间隔；实际发送迟到和整轮完成时间另行统计。实例数为逻辑实例数，不等于物理 GPU/NPU 数量。',
+        '- 默认窗口是首个计划到达到最后一个计划到达的间隔；manifest 有 arrival_mapping 时按其时间原点到末次计划到达定义，保留首请求之前的间隔。实际发送迟到和整轮完成时间另行统计。实例数为逻辑实例数，不等于物理 GPU/NPU 数量。',
         '- config.json 是本负载运行配置，config.historical.json 只用于追溯。模型版本、反馈、block、SLO 以配置及合同为准，不从名称猜测。T0/期限按当前配置重算，不能复用另一模型或带宽下的旧期限。',
         '- 可运行：当前交付运行器支持。仅校验、导出：不得套用其他负载默认条件。AgentX 有 39 条超过 131072 token，最长 300480，涉及公式外推。所有计算时间均为解析仿真，不是实机测量。','']
     return '\n'.join(lines)

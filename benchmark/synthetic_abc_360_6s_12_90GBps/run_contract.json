@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "case": "synthetic_abc_360_6s_12_90GBps",
+  "K": 1,
+  "formal_requests": 360,
+  "warmup_requests": 72,
+  "warmup_phases": [
+    "small",
+    "median",
+    "large"
+  ],
+  "warmups_per_phase": 24,
+  "drain_before_formal": true,
+  "reset_classification_history": true,
+  "reset_formal_gc_window": true,
+  "execution_feedback": "disabled",
+  "admission_rpc_transport": "dynamo",
+  "admission_rpc_request_plane": "tcp",
+  "admission_rpc_codec": "msgpack",
+  "admission_rpc_final_reply": true,
+  "background_eof": true,
+  "diagnostic_kahan_counters": true,
+  "idle_bypass": false,
+  "heavy_release_on": "first_token",
+  "heavy_quantile": 0.75,
+  "heavy_cap_rule": "max(1, floor(90e9 / historical_P75_pressure_Bps))",
+  "expected_stable_threshold_GBps": 28.432690921586623,
+  "expected_stable_heavy_cap": 3,
+  "arrival_origin_s": 0,
+  "first_planned_arrival_s": 0.00503337572724873,
+  "last_planned_arrival_s": 6,
+  "arms": {
+    "direct": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    },
+    "tfs-a01": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    },
+    "tfs-a1": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    }
+  },
+  "portable_runner_status": "export_only",
+  "portable_runner_reason": "交付运行器仍为batch-v2和同步执行反馈；尚未移植本负载的direct_sum、禁用四反馈及Dynamo Runtime最终答复/后台EOF合同。"
+}
