@@ -4,6 +4,8 @@
 先读[实验分支使用说明](docs/实验分支使用说明.md)，AI先读[AGENTS.md](AGENTS.md)。
 输入及类别到达规则见[Benchmark目录](benchmark/benchmark目录.md)，通用用法见[benchmark说明](benchmark/README.md)。本分支不含模型权重或大规模原始运行数据。
 
+研究版核心代码同步范围及SHA见[运行代码清单](dynamo_vllm_cpu_sim/RUNTIME_SYNC.json)，核对命令见包内README。当前进程栈已移除四种加载反馈，并支持最终答复后的后台RPC流收尾。
+
 已归档报告见[报告目录](report/报告目录.md)，通用规则见[report/README.md](report/README.md)。报告按benchmark分组，子目录列明创建时间与实际比较方案；历史模型和研究版运行边界在各报告开头标注。
 
 可共享的自编技能放在[skills](skills/README.md)。用途、依赖和入口见[技能目录](skills/技能目录.md)，AI使用与维护见[agent.md](skills/agent.md)。

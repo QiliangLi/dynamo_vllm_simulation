@@ -171,7 +171,12 @@ def run(arm, smoke=False):
                                 and not state['snapshot']['pending_ids'] and metrics_drained(run_tfs_stack.router_metrics())):break
                         if time.monotonic()>limit:raise TimeoutError('warmup drain')
                         await asyncio.sleep(.02)
-                    coverage=sorted({r['worker_id'] for r in records.values()});assert coverage==list(range(12)),coverage
+                    # Online records no longer receive executor load/worker facts.
+                    # Warmup has drained; join local logs only for this audit.
+                    from sim.stack.load_observation import with_local_observations
+                    observed=with_local_observations(state,sorted(out.glob('worker*.loads.jsonl')))
+                    coverage=sorted({r['worker_id'] for r in observed['records'].values()})
+                    assert coverage==list(range(cfg['workers'])),coverage
                     from sim.stack.storage_client import StorageClient
                     storage=StorageClient(storage_path[0]);snap=storage.stats();storage.close();assert snap['pending_reads']==0
                     history=control('warmup/finish');assert history['status']=='pass'

@@ -3,7 +3,14 @@
   "commit": "79f48a097e9f3b10fb6b805f1d6671bc5bec5809",
   "path": "prefill_time/prefill_time_batch.py",
   "sha256": "ea76abe23c0a0c05b3633760358b70f876f4b20b9a8e18c92d10eac1a09c0b59",
-  "adaptation": "冻结来源保持原样；正式prefill_time_batch按实际工作量聚合并修正MoE守恒。",
+  "adaptation": "冻结来源保持原样；正式prefill_time_batch默认按实际工作量聚合，另可选单请求直接求和并合并显式kernel启动项。",
+  "direct_sum_time_model": {
+    "version": "glm5_direct_sum_v1",
+    "singleton_model": "glm5_actual_batch_work_v2",
+    "launch_saving_fraction_default": 1.0,
+    "shared_launch_components": ["indexer_score_us", "gather_us", "sparse_attention_us"],
+    "calibration": "existing reference launch constants; sharing assumption is not hardware calibrated"
+  },
   "batch_time_model": {
     "version": "glm5_actual_batch_work_v2",
     "module": "prefill_time_batch.py",

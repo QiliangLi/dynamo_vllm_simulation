@@ -23,10 +23,6 @@ class TriageTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(s.controller.records['old'].state,'QUEUED')
         self.assertIsNone(s.controller.records['old'].worker_id)
         self.assertTrue(s.controller.records['urgent'].lease_open)
-        s.receive(dict(request_id=s.uuid_by_id['urgent'],event_id='start',kind='load_submitted',
-            worker_id=0,occurred_mono=time.monotonic(),payload=dict(attempt_id=1,submitted_read_bytes=32)))
-        s.receive(dict(request_id=s.uuid_by_id['urgent'],event_id='done',kind='load_completed',
-            worker_id=0,occurred_mono=time.monotonic(),payload=dict(attempt_id=1)))
         s.admit();self.assertFalse(s.futures['old'].done())
         s.local_event('first_token','urgent');s.admit()
         self.assertTrue(s.futures['old'].done());self.assertEqual(s.controller.held,1)

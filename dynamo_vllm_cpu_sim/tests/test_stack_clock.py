@@ -47,7 +47,7 @@ class TimeScaleTest(unittest.TestCase):
             executor.clock = TimeScale(factor)
             executor.compute = dict(step_overhead_s=.001,prefill_token_s=.002,decode_token_s=.003)
             executor._prompt_len,executor._base_computed = {},{}
-            executor._feedback = executor._storage = None
+            executor._load_observer = executor._storage = None
             executor.steps,executor.sleep_s = 0,0.
             executor._step_log = io.StringIO()
             out = SimpleNamespace(
@@ -74,7 +74,7 @@ class AsyncTimeScaleTest(unittest.IsolatedAsyncioTestCase):
             cfg = json.loads((root/"configs/demo.json").read_text())
             cfg["wall_time_scale"] = factor
             cfg["admission"] = dict(mode="tfs",reference_bandwidth_Bps=1.,
-                release_on="load_done",feedback_delay_s=.02,aging_enabled=False)
+                release_on="first_token",feedback_delay_s=.02,aging_enabled=False)
             with mock.patch("time.monotonic",return_value=100.) as mono:
                 state = AdmissionState(cfg)
                 state.arrive(dict(id="a",prompt_token_ids=list(range(100)),remote_prefix_tokens=32))
@@ -84,8 +84,7 @@ class AsyncTimeScaleTest(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(state.futures["a"].done())
                 self.assertFalse(state.futures["b"].done())
                 mono.return_value = 100.+factor*.01
-                state.receive(dict(request_id=state.uuid_by_id["a"]+"_0",event_id="e",
-                    kind="no_external_load",worker_id=1,occurred_mono=mono.return_value,payload={}))
+                state.local_event('first_token','a')
                 mono.return_value = 100.+factor*.029
                 state.admit()
                 self.assertFalse(state.futures["b"].done())

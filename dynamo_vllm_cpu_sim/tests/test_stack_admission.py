@@ -30,50 +30,44 @@ class StackAdmissionTests(unittest.IsolatedAsyncioTestCase):
         s.admit()
         self.assertTrue(a.done())
         self.assertFalse(b.done())
-        s.receive(self.raw(s,"a","load_submitted",payload=dict(attempt_id=1,submitted_read_bytes=1024)))
-        s.receive(self.raw(s,"a","load_completed","e2",dict(attempt_id=1)))
         s.admit()
         self.assertFalse(b.done())
         s.local_event("first_token","a")
         s.admit()
         self.assertTrue(b.done())
-        self.assertEqual(s.controller.records["a"].worker_id,1)
+        self.assertEqual(s.controller.records["a"].worker_id,-1)
 
-    async def test_load_done_and_no_load_release_once(self):
-        s = AdmissionState(config("load_done"))
+    async def test_repeated_token_releases_once(self):
+        s = AdmissionState(config())
         self.arrive(s,"a")
         self.arrive(s,"b")
         s.admit()
-        event = self.raw(s,"a","no_external_load")
-        s.receive(event)
-        s.receive(event)
+        s.local_event('first_token','a')
+        s.local_event('first_token','a')
         s.admit()
         self.assertTrue(s.futures["b"].done())
         self.assertEqual(sum(e["event"]=="admission_released" for e in s.events),1)
 
     async def test_feedback_delay_is_respected(self):
-        s = AdmissionState(config("load_done",delay=0.02))
+        s = AdmissionState(config(delay=0.02))
         self.arrive(s,"a")
         self.arrive(s,"b")
         s.admit()
-        s.receive(self.raw(s,"a","no_external_load"))
+        s.local_event('first_token','a')
         s.admit()
         self.assertFalse(s.futures["b"].done())
         await asyncio.sleep(0.03)
         s.admit()
         self.assertTrue(s.futures["b"].done())
 
-    async def test_wrong_worker_or_unregistered_id_fails(self):
+    async def test_execution_feedback_is_rejected(self):
         s = AdmissionState(config())
         self.arrive(s,"a")
         s.admit()
-        s.receive(self.raw(s,"a","no_external_load"))
-        with self.assertRaises(ValueError):
-            s.receive(self.raw(s,"a","no_external_load","e2",worker=2))
-        raw = self.raw(s,"a","no_external_load")
-        raw["request_id"] = "unregistered"
-        with self.assertRaises(ValueError):
-            s.receive(raw)
+        for kind in ('load_submitted','layer_load_submitted','load_completed','no_external_load'):
+            with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, 'removed'):
+                s.receive(self.raw(s,'a',kind))
+        self.assertTrue(s.controller.records['a'].lease_open)
 
     async def test_uncertain_upstream_never_admits_next(self):
         s = AdmissionState(config())
@@ -85,12 +79,9 @@ class StackAdmissionTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(s.futures["b"].done())
         self.assertTrue(s.controller.records["a"].lease_open)
 
-    async def test_completion_without_submit_fails(self):
-        s = AdmissionState(config("load_done"))
-        self.arrive(s,"a")
-        s.admit()
-        with self.assertRaises(ValueError):
-            s.receive(self.raw(s,"a","load_completed",payload=dict(attempt_id=1)))
+    async def test_load_done_release_is_not_silently_kept(self):
+        with self.assertRaisesRegex(ValueError, 'first_token'):
+            AdmissionState(config('load_done'))
 
     async def test_only_queued_cancellation_removes_request(self):
         s = AdmissionState(config())

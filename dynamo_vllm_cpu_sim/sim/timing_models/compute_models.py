@@ -69,7 +69,9 @@ class GLM5ComputeTimeModel(ComputeTimeModel):
         ep = compute.get("ep", tp * dp)
         batch = estimate_batch([(h + u, u) for h, u in shapes], tp=tp, dp=dp, ep=ep,
             sparse_HBM_hit_ratio=compute.get("sparse_HBM_hit_ratio", 1.0),
-            kv_hbm_reuse=compute.get("kv_hbm_reuse", True))
+            kv_hbm_reuse=compute.get("kv_hbm_reuse", True),
+            batch_time_model=compute.get("batch_time_model", VERSION),
+            launch_saving_fraction=compute.get("launch_saving_fraction"))
         components = batch["components_us"]
         dense, moe = batch["dense_layer_us"], batch["moe_layer_us"]
         m = ref.MODEL
@@ -81,7 +83,9 @@ class GLM5ComputeTimeModel(ComputeTimeModel):
         # 与来源工具相同：命中前缀 MLA + indexer 的完整加载量，IO 不按 padding 放大。
         kv_gb = batch["per_layer_prefix_kv_gb"]
         return {"mode": mode, "duration_s": duration, "model_s": model_s,
-                "batch_time_model": VERSION, "work": batch["work"],
+                "batch_time_model": batch["model"], "work": batch["work"],
+                **({"batch_composition": batch["batch_composition"]}
+                   if "batch_composition" in batch else {}),
                 "moe_work": batch["moe_work"],
                 "layer_durations_us": batch["layer_durations_us"],
                 "engine_overhead_s": compute.get("engine_overhead_s", 0.0),

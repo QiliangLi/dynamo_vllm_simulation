@@ -24,6 +24,16 @@ def write(path,value):
     path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+"\n")
 
 
+def save_admission_snapshot(folder, status):
+    """Keep each final refresh's raw ledger and its offline report copy separate."""
+    if status.get('execution_feedback') == 'disabled' and not status.get('load_observation_source'):
+        from sim.stack.load_observation import with_local_observations
+        write(folder/'admission.runtime.final.json', status)
+        status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
+    write(folder/'admission.final.json', status)
+    return status
+
+
 def request_json(url):
     with urllib.request.urlopen(url,timeout=2) as response:
         return json.load(response)
@@ -58,6 +68,9 @@ def frontend_has_workers(snapshot, expected):
 
 
 def verify(folder,status,report,storage):
+    if status.get('execution_feedback') == 'disabled':
+        status = save_admission_snapshot(folder, status)
+        assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
     records = status["records"]
     assert status["status"]=="ready" and not status["invalid_reasons"]
     assert len(records)==report["n_total"]==report["n_ok"] and report["n_skipped"]==0
@@ -278,7 +291,8 @@ def run_one(config,trace,output,python,mode,release,workers=2):
                PYTHONHASHSEED="0",VLLM_ALLOW_LONG_MAX_MODEL_LEN="1",OMP_NUM_THREADS="1",
                MKL_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",NO_PROXY="*",no_proxy="*",
                DYN_DISCOVERY_BACKEND="file",DYN_FILE_KV=str(folder/"discovery"),DYN_REQUEST_PLANE="tcp",
-               SIM_STACK_CONFIG=str(folder/"config.json"))
+               SIM_STACK_CONFIG=str(folder/"config.json"),
+               SIM_STACK_ADMISSION_STATUS_DIR=str(folder/'admission_rpc'))
     for key in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","http_proxy","https_proxy","all_proxy"):
         env.pop(key,None)
         os.environ.pop(key,None)
@@ -419,6 +433,11 @@ def run_one(config,trace,output,python,mode,release,workers=2):
         write(folder/'storage.gc.end.json', gc_client.gc_end())
         gc_client.close()
         gc_client = None
+        from sim.stack.admission_rpc_status import collect
+        write(folder/'admission_rpc.check.json', collect(folder/'admission_rpc',
+              cfg['admission']['rpc_timeout_wall_s']+2,
+              expected_workers=workers if cfg['admission']['rpc_transport']=='dynamo'
+              and cfg['admission']['placement']=='scheduler' else 0))
         status = request_json("http://127.0.0.1:28766/sim/admission")
         write(folder/"admission.final.json",status)
         from sim.stack.storage_client import StorageClient
@@ -444,7 +463,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
                 return score['connected'] and score['registered']==score['waiting']==score['active']==0
             wait_for(score_drained,5)
             status = request_json('http://127.0.0.1:28766/sim/admission')
-            write(folder/'admission.final.json',status)
+            status = save_admission_snapshot(folder, status)
             write(folder/'routing.score.final.json',status['routing_score'])
             from check_routing_accounting import check as check_weighted_routing
             write(folder/'routing.score.check.json',check_weighted_routing(folder))
@@ -487,7 +506,7 @@ def main():
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--python",type=Path,default=Path(sys.executable))
     parser.add_argument("--mode",choices=["immediate","tfs","quota_fcfs","slack_only"],default="tfs")
-    parser.add_argument("--release-on",choices=["first_token","load_done"],default="first_token")
+    parser.add_argument("--release-on",choices=["first_token"],default="first_token")
     parser.add_argument("--workers",type=int,default=2)
     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
     parser.add_argument("--kv-mode",choices=["bulk","layer_serial","layer_pipeline"],help="KV loading/execution mode")

@@ -59,5 +59,7 @@
   ],
   "portable_runner_status": "supported",
   "runner_profile": "mooncake360_v1",
-  "execution_feedback": "sync_batch"
+  "execution_feedback": "disabled",
+  "historical_execution_feedback": "sync_batch",
+  "current_runtime_note": "当前核心代码禁用四种加载反馈；config中的旧experiment反馈开关不再启用通信。历史报告的反馈合同保留在归档中。"
 }

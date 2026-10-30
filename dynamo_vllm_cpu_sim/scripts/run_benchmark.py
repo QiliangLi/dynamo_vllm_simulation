@@ -81,11 +81,17 @@ def prepare(case,folder,overlay):
 def audit(folder,arm,smoke):
     run=folder/f'package/results/{arm}/run';cfg=read(run/'config.json');state=read(run/'admission.final.json')
     driver=read(run.parent/'driver.json');client=read(run/'measured/report.json')
-    records={k:v for k,v in state['records'].items() if k.startswith('conversation:')}
     profiles={r['id']:r for r in read(folder/'profiles.json')};manifest=read(folder/'manifest.json')
+    records={k:v for k,v in state['records'].items() if k in profiles}
     assert driver['status']=='passed' and not driver['guards'] and not driver['alive']
     assert len(records)==client['n_total']==client['n_ok'] and not client['n_skipped']
-    assert not state['fatal'] and not state['invalid_reasons'] and not state['pending_engine_events']
+    assert not state['fatal'] and not state['invalid_reasons'] and not state.get('pending_engine_events')
+    if state.get('execution_feedback')=='disabled':
+        raw=read(run/'admission.runtime.final.json')
+        assert state['load_observation_source']=='offline_worker_logs'
+        assert all(r['load_attempts']==0 and r['submitted_read_bytes']==0 for r in raw['records'].values())
+        assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in raw['events'])
+        assert read(run/'admission_rpc.check.json')['status']=='passed'
     assert not state['snapshot']['pending_ids'] and not state['snapshot']['heavy_held']
     ttft=[];slo=0
     for rid,r in records.items():

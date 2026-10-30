@@ -140,10 +140,34 @@ def manual_timing(timing):
     args = (timing['shapes'],timing['sparse_HBM_hit_ratio'],timing['engine_overhead_s'])
     if version is None:
         return manual_legacy(*args)
-    if version != 'glm5_actual_batch_work_v2':
+    if version not in ('glm5_actual_batch_work_v2', 'glm5_direct_sum_v1'):
         raise ValueError('unsupported recorded batch_time_model: '+str(version))
+    if version == 'glm5_direct_sum_v1':
+        return manual_direct_sum(*args, tp=timing['reference_tp'], dp=timing['reference_dp'],
+            ep=timing['reference_ep'], reuse=timing['kv_hbm_reuse'],
+            fraction=timing['batch_composition']['launch_saving_fraction'])
     return manual(*args,tp=timing['reference_tp'],dp=timing['reference_dp'],
                   ep=timing['reference_ep'],reuse=timing['kv_hbm_reuse'])
+
+
+def manual_direct_sum(shapes, hit=1.0, overhead=0.0, *, tp=1, dp=8, ep=8,
+                      reuse=True, fraction=1.0):
+    """独立直接组合审计；单请求算术仍使用本文件固定常数。"""
+    singles = [manual([shape], hit, 0.0, tp=tp, dp=dp, ep=ep, reuse=reuse)
+               for shape in shapes]
+    saved_component = max(0, len(singles) - 1) * 7 * fraction
+    components = {name: math.fsum(single['components'][name] for single in singles)
+                  for name in singles[0]['components']}
+    for name in ('indexer_score_us', 'gather_us', 'sparse_attention_us'):
+        components[name] -= saved_component
+    dense = math.fsum(single['dense_layer_us'] for single in singles) - 3 * saved_component
+    moe = math.fsum(single['moe_layer_us'] for single in singles) - 3 * saved_component
+    return dict(duration_s=math.fsum([dense] * 3 + [moe] * 75) * 1e-6 + overhead,
+        dense_layer_us=dense, moe_layer_us=moe, components=components,
+        worksheet=[dict(singleton=i, **row) for i, single in enumerate(singles)
+                   for row in single['worksheet']],
+        inputs=dict(singleton_inputs=[single['inputs'] for single in singles],
+                    launch_saving_fraction=fraction, saved_launch_us_per_layer=3 * saved_component))
 
 
 def check(paths):

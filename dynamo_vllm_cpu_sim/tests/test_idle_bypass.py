@@ -39,7 +39,6 @@ class NativeIdleTests(unittest.TestCase):
 
     def setup_idle(self):
         engine,client=self.engine()
-        client.outbox.busy.return_value=False
         client.force_admit_async.side_effect=lambda *a:(uuid.uuid4().hex,time.monotonic())
         engine.scheduler._read_gate=ReadGate(client,idle_bypass=True)
         client.control.return_value=dict(granted=False,reason='full')
@@ -93,11 +92,26 @@ class NativeIdleTests(unittest.TestCase):
         self.assertIn('light',out.num_scheduled_tokens)
         client.force_admit_async.assert_not_called()
 
-    def test_unreleased_exception_disables_next_force(self):
-        engine,client=self.setup_idle();self.add(engine,'a',10)
-        client.outbox.busy.return_value=True
-        self.assertFalse(engine.scheduler.schedule().num_scheduled_tokens)
-        client.force_admit_async.assert_not_called();client.control.assert_called_once()
+    def test_next_idle_round_forces_without_waiting_for_previous_ledger_release(self):
+        from vllm.v1.outputs import ModelRunnerOutput
+        engine,client=self.setup_idle();s=engine.scheduler
+        self.add(engine,'a',10);self.add(engine,'b',20)
+        original_query=s.connector.get_num_new_matched_tokens
+        def query(*args):
+            tokens,_=original_query(*args)
+            return tokens,False
+        with patch.object(s.connector,'get_num_new_matched_tokens',side_effect=query):
+            first=s.schedule()
+            self.assertEqual(list(first.num_scheduled_tokens),['a'])
+            s.update_from_output(first,ModelRunnerOutput(req_ids=['a'],req_id_to_index={'a':0},
+                sampled_token_ids=[[100]]))
+            self.assertFalse(s.running)
+            # There is deliberately no central first-token/release confirmation.
+            self.assertIn('a',s._read_gate.permits)
+            second=s.schedule()
+        self.assertEqual(list(second.num_scheduled_tokens),['b'])
+        self.assertEqual(client.force_admit_async.call_count,2)
+        client.control.assert_not_called()
 
     def test_existing_compute_or_remote_load_or_partial_prefill_prevents_idle(self):
         from vllm.v1.request import RequestStatus
@@ -120,11 +134,11 @@ class ForceLedgerTests(unittest.IsolatedAsyncioTestCase):
         for rid in ['a','b','c']:self.arrive(s,rid)
         s.admit();return s
 
-    def force(self,s,rid,worker,token=None):
+    def force(self,s,rid,worker,token=None,decided=None):
         token=token or uuid.uuid4().hex
         return s.control(dict(op='force_acquire',request_id=s.uuid_by_id[rid],worker_id=worker,
             permit_id=token,acquisition_key='idle:'+token,load_attempt_id=1,
-            storage_hint=s.controller.hints[rid],proof=proof(),occurred_mono=time.monotonic()))
+            storage_hint=s.controller.hints[rid],proof=proof(),occurred_mono=time.monotonic() if decided is None else decided))
 
     async def test_over_cap_is_counted_and_normal_acquire_remains_blocked(self):
         s=self.setup_state();a=self.force(s,'a',0);b=self.force(s,'b',1)
@@ -132,28 +146,61 @@ class ForceLedgerTests(unittest.IsolatedAsyncioTestCase):
         normal=dict(op='acquire',request_id=s.uuid_by_id['c'],worker_id=1,acquisition_key='normal',
                     load_attempt_id=1,storage_hint=s.controller.hints['c'])
         self.assertFalse(s.control(normal)['granted'])
-        with self.assertRaises(ValueError):self.force(s,'c',1)
         # Duplicate receipt cannot debit a second slot.
         self.force(s,'a',0,a['permit_id']);self.assertEqual(s.controller.held,2)
-        s.local_event('first_token','a')  # Deferred until its engine facts arrive.
-        s.receive(self.raw(s,'a','load_submitted',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=0))
-        s.receive(self.raw(s,'a','load_completed','done-a',dict(attempt_id=1),worker=0))
+        s.local_event('first_token','a')
         self.assertEqual(s.controller.held,1);self.assertFalse(s.control(normal)['granted'])
         s.local_event('first_token','b')
-        s.receive(self.raw(s,'b','load_submitted','submit-b',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=1))
-        s.receive(self.raw(s,'b','load_completed','done-b',dict(attempt_id=1),worker=1))
         self.assertEqual(s.controller.held,0);self.assertTrue(s.control(normal)['granted'])
 
+    async def test_same_worker_keeps_two_forced_permits_until_individual_first_tokens(self):
+        s=self.setup_state();a=self.force(s,'a',0);b=self.force(s,'b',0)
+        self.assertNotEqual(a['permit_id'],b['permit_id'])
+        self.assertEqual(s.controller.held,2)
+        normal=dict(op='acquire',request_id=s.uuid_by_id['c'],worker_id=0,acquisition_key='normal',
+                    load_attempt_id=1,storage_hint=s.controller.hints['c'])
+        self.assertFalse(s.control(normal)['granted'])
+        self.force(s,'a',0,a['permit_id']);self.force(s,'b',0,b['permit_id'])
+        self.assertEqual(s.controller.held,2)
+        with self.assertRaises(ValueError):self.force(s,'a',0)
+        # Release out of registration order. One token cannot release its peer.
+        s.local_event('first_token','b');s.local_event('first_token','b')
+        self.assertEqual(s.controller.held,1)
+        self.assertEqual(s.controller.permits[a['permit_id']]['state'],'reserved')
+        self.assertFalse(s.control(normal)['granted'])
+        s.local_event('first_token','a')
+        self.assertEqual(s.controller.held,0)
+        self.assertTrue(s.control(normal)['granted'])
+        s.local_event('first_token','c')
+        self.assertEqual(s.controller.held,0)
+
     async def test_gateway_first_token_before_force_notice_keeps_http_timestamp(self):
-        s=self.setup_state();s.local_event('first_token','a');s.local_event('request_finished','a')
-        actual=next(e['occurred_s'] for e in s.events if e['event']=='gateway_event_deferred')
-        self.assertIsNone(s.controller.records['a'].first_token_s)
-        self.force(s,'a',0)
-        s.receive(self.raw(s,'a','load_submitted',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=0))
-        s.receive(self.raw(s,'a','load_completed','done',dict(attempt_id=1),worker=0))
+        s=self.setup_state();decided=time.monotonic()
+        s.local_event('first_token','a');s.local_event('request_finished','a')
+        actual=s.controller.records['a'].first_token_s
+        token=uuid.uuid4().hex
+        self.force(s,'a',0,token,decided)
         self.assertEqual(s.controller.records['a'].first_token_s,actual)
         self.assertEqual(s.controller.records['a'].state,'FINISHED')
-        self.assertEqual(s.controller.held,0);self.assertFalse(s.pending_engine_events)
+        self.assertEqual(s.controller.held,0)
+        self.assertEqual(s.controller.permits[token]['state'],'released')
+        self.force(s,'a',0,token,decided)
+        self.assertEqual(sum(e['event']=='admission_released' for e in s.events),1)
+        with self.assertRaises(ValueError):
+            self.force(s,'a',0,decided=decided)
+
+    async def test_first_token_without_any_external_load_never_waits_for_feedback(self):
+        s=self.setup_state()
+        s.local_event('first_token','a');s.local_event('request_finished','a')
+        self.assertEqual(s.controller.records['a'].state,'FINISHED')
+        self.assertEqual(s.controller.held,0)
+        self.assertFalse(s.controller.permits)
+
+    async def test_force_decision_after_first_token_is_rejected(self):
+        s=self.setup_state();s.local_event('first_token','a')
+        with self.assertRaisesRegex(ValueError,'follows'):
+            self.force(s,'a',0)
+        self.assertEqual(s.controller.held,0)
 
     async def test_disabled_bad_proof_and_wrong_owner_rejected(self):
         s=self.setup_state();s.controller.c['idle_bypass']=False
@@ -164,7 +211,13 @@ class ForceLedgerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(s.controller.held,0)
         a=self.force(s,'a',0)
         with self.assertRaises(ValueError):
-            s.control(dict(op='force_status',request_id=s.uuid_by_id['a'],worker_id=1,permit_id=a['permit_id']))
+            s.control(dict(op='rollback',request_id=s.uuid_by_id['a'],worker_id=1,permit_id=a['permit_id']))
+
+    async def test_force_status_operation_is_removed(self):
+        s=self.setup_state();a=self.force(s,'a',0)
+        with self.assertRaisesRegex(ValueError,'unknown admission operation'):
+            s.control(dict(op='force_status',request_id=s.uuid_by_id['a'],worker_id=0,permit_id=a['permit_id']))
+        self.assertEqual(s.controller.held,1)
 
 
 class OutboxTests(unittest.TestCase):
@@ -173,22 +226,21 @@ class OutboxTests(unittest.TestCase):
         def exchange(row):
             seen.append(row.get('op',row.get('kind')))
             if row.get('op')=='force_acquire':entered.set();unblock.wait(2)
-            return dict(ok=True,granted=True,permit_id=row.get('permit_id'),released=True)
+            return dict(ok=True,granted=True,permit_id=row.get('permit_id'))
         client=SimpleNamespace(worker=0,clock_id=None,timeout_s=2,_exchange=exchange)
         outbox=AdmissionOutbox(client)
         try:
             token,_=outbox.force('a',{},proof())
             self.assertTrue(entered.wait(1))
-            # While the notification still waits on its ack, the caller can
-            # enqueue IO facts and return. No completion/permission is awaited.
-            future=outbox.send(dict(kind='load_submitted',request_id='a'),wait=False)
-            self.assertFalse(future.done());self.assertTrue(outbox.busy())
-            unblock.set();future.result(timeout=1)
-            self.assertEqual(seen[:2],['force_acquire','load_submitted'])
-            outbox.send(dict(kind='load_completed',request_id='a'),wait=False).result(timeout=1)
-            deadline=time.monotonic()+1
-            while outbox.busy() and time.monotonic()<deadline:time.sleep(.002)
-            self.assertFalse(outbox.busy())
+            other,_=outbox.force('b',{},proof())
+            self.assertNotEqual(token,other)
+            barrier=outbox.send(dict(op='barrier'),wait=False)
+            self.assertEqual(seen,['force_acquire'])
+            unblock.set()
+            barrier.result(timeout=1)
+            # The idle queue performs no release-status calls.
+            outbox.close()
+            self.assertEqual(seen,['force_acquire','force_acquire','barrier'])
         finally:unblock.set();outbox.close()
 
     def test_ambiguous_error_stops_next_scheduler_call_without_replay(self):
@@ -221,7 +273,7 @@ class OutboxTests(unittest.TestCase):
 
 
 class UnixForceTests(unittest.IsolatedAsyncioTestCase):
-    async def test_client_feedback_returns_while_notice_ack_is_withheld(self):
+    async def test_client_progresses_without_load_feedback_while_notice_ack_is_withheld(self):
         entered=asyncio.Event();release=asyncio.Event();seen=[]
         async def handler(reader,writer):
             try:
@@ -229,7 +281,7 @@ class UnixForceTests(unittest.IsolatedAsyncioTestCase):
                     row=json.loads(line);seen.append(row)
                     if row.get('op')=='force_acquire':
                         entered.set();await release.wait()
-                    writer.write((json.dumps(dict(ok=True,granted=True,permit_id=row.get('permit_id'),released=True))+'\n').encode())
+                    writer.write((json.dumps(dict(ok=True,granted=True,permit_id=row.get('permit_id')))+'\n').encode())
                     await writer.drain()
             finally:writer.close();await writer.wait_closed()
         with tempfile.TemporaryDirectory() as tmp:
@@ -237,39 +289,37 @@ class UnixForceTests(unittest.IsolatedAsyncioTestCase):
             client=FeedbackClient(tmp+'/control.sock',0);client.enable_idle_bypass()
             try:
                 client.force_admit_async('a',{},proof());await asyncio.wait_for(entered.wait(),1)
-                await asyncio.wait_for(asyncio.to_thread(client.submitted,'a',1024),.25)
+                client.force_admit_async('b',{},proof())
+                barrier=client.outbox.send(dict(op='barrier'),wait=False)
                 self.assertEqual(len(seen),1)  # No reply yet, caller still progressed.
                 release.set()
-                deadline=time.monotonic()+1
-                while len(seen)<2:
-                    self.assertLess(time.monotonic(),deadline);await asyncio.sleep(.002)
-                self.assertEqual(seen[1]['kind'],'load_submitted')
+                await asyncio.wait_for(asyncio.wrap_future(barrier),1)
+                await asyncio.to_thread(client.close)
+                self.assertEqual([r['op'] for r in seen],['force_acquire','force_acquire','barrier'])
             finally:
                 release.set();await asyncio.to_thread(client.close);server.close();await server.wait_closed()
 
-    async def test_real_ordered_socket_notice_reads_and_release(self):
+    async def test_real_ordered_socket_same_worker_forces_and_individual_release(self):
         with tempfile.TemporaryDirectory() as tmp:
             app=create_app(config(),'http://127.0.0.1:1',feedback_endpoint=tmp+'/control.sock')
             async with app.router.lifespan_context(app):
                 s=app.state.admission
                 for rid in ['a','b']:
                     s.arrive(dict(id=rid,prompt_token_ids=list(range(100)),remote_prefix_tokens=32))
-                s.admit();clients=[FeedbackClient(tmp+'/control.sock',i) for i in range(2)]
+                s.admit();client=FeedbackClient(tmp+'/control.sock',0);client.enable_idle_bypass()
                 try:
-                    for client,rid in zip(clients,['a','b']):
-                        client.enable_idle_bypass();engine=s.uuid_by_id[rid]
-                        client.force_admit_async(engine,s.controller.hints[rid],proof())
-                        client.submitted(engine,1024);client.completed(engine)
+                    for rid in ['a','b']:
+                        client.force_admit_async(s.uuid_by_id[rid],s.controller.hints[rid],proof())
                     deadline=time.monotonic()+2
-                    while any(r.load_done_s is None for r in s.controller.records.values()):
+                    while s.controller.held != 2:
                         self.assertLess(time.monotonic(),deadline);await asyncio.sleep(.002)
                     self.assertEqual(s.controller.held,2)
-                    for rid in ['a','b']:s.local_event('first_token',rid)
-                    while any(client.outbox.busy() for client in clients):
-                        self.assertLess(time.monotonic(),deadline);await asyncio.sleep(.002)
+                    s.local_event('first_token','b')
+                    self.assertEqual(s.controller.held,1)
+                    s.local_event('first_token','a')
                     self.assertEqual(s.controller.held,0)
                 finally:
-                    await asyncio.gather(*(asyncio.to_thread(c.close) for c in clients))
+                    await asyncio.to_thread(client.close)
 
 
 class ConfigTests(unittest.TestCase):
@@ -279,6 +329,20 @@ class ConfigTests(unittest.TestCase):
         for field,value in [('idle_bypass',1),('placement','gateway'),('feedback_delay_s',.1)]:
             c=config();c['admission'][field]=value
             with self.assertRaises(ValueError):normalize_config(c)
+
+
+class PermitAuditTests(unittest.TestCase):
+    def test_overlap_and_out_of_order_release_are_counted_without_losing_a_permit(self):
+        from scripts.check_read_admission import check_permit_ledger
+        permits={'p':dict(id='a',worker=0,forced=True),'q':dict(id='b',worker=0,forced=True)}
+        events=[dict(event='admission_reserved',permit_id='p',held_before=0,held_after=1),
+                dict(event='admission_reserved',permit_id='q',held_before=1,held_after=2),
+                dict(event='admission_released',id='b',held_before=2,held_after=1),
+                dict(event='admission_released',id='a',held_before=1,held_after=0)]
+        self.assertEqual(check_permit_ledger(events,permits),2)
+        for broken in (events[:-1],events+[events[-1]],
+                       [events[0],dict(events[1],held_after=1),*events[2:]]):
+            with self.assertRaises(AssertionError):check_permit_ledger(broken,permits)
 
 
 if __name__=='__main__':unittest.main()

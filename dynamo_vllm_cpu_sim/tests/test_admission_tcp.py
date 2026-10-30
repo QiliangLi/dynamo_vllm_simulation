@@ -67,15 +67,12 @@ class TCPAdmissionTests(unittest.IsolatedAsyncioTestCase):
         identity=self.state.uuid_by_id[rid]
         self.assertEqual(client.sock.family,socket.AF_INET)
         self.assertNotEqual(client.sock.getsockopt(socket.IPPROTO_TCP,socket.TCP_NODELAY),0)
-        await asyncio.to_thread(client.submitted,identity,1024)
-        await asyncio.to_thread(client.completed,identity)
         self.assertFalse((await self.acquire(('a','b')[loser],loser))['granted'])
         self.state.local_event('first_token',rid)
         self.assertTrue((await self.acquire(('a','b')[loser],loser))['granted'])
         self.assertEqual(self.state.controller.permits[token]['state'],'released')
         events=[e for e in self.state.events if e['event']=='feedback_received' and e.get('engine_id')]
-        expected='shared_monotonic' if clock_id() else 'receiver_observation'
-        self.assertTrue(all(e['timestamp_basis']==expected and e['rpc_transport']=='tcp' for e in events))
+        self.assertEqual(events,[])
 
     async def test_rollback_is_idempotent_over_persistent_connection(self):
         first=await self.acquire('a',0)
@@ -87,19 +84,15 @@ class TCPAdmissionTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse((await self.acquire('a',0))['granted'])
         self.assertTrue((await self.acquire('a',0,'retry'))['granted'])
 
-    async def test_remote_clock_uses_receiver_observation(self):
+    async def test_removed_feedback_is_rejected_over_tcp(self):
         await self.acquire('a',0)
-        before=self.state.now()
-        reply=await asyncio.to_thread(self.clients[0]._exchange,dict(
+        with self.assertRaisesRegex(RuntimeError, 'removed'):
+            await asyncio.to_thread(self.clients[0]._exchange,dict(
             event_id='other-host:1',kind='load_submitted',request_id=self.state.uuid_by_id['a'],
             worker_id=0,clock_id='different-machine',occurred_mono=1e12,
             payload=dict(attempt_id=1,submitted_read_bytes=1024)))
-        self.assertTrue(reply['ok'])
-        event=next(e for e in self.state.events if e.get('event_id')=='other-host:1' and e['event']=='feedback_received')
-        self.assertEqual(event['timestamp_basis'],'receiver_observation')
-        self.assertLessEqual(before,event['occurred_s'])
-        self.assertEqual(event['occurred_s'],event['received_s'])
-        self.assertEqual(event['sender_occurred_mono'],1e12)
+        self.assertTrue(self.clients[0].closed)
+        self.assertEqual(self.state.controller.held,1)
 
     async def test_fragmented_and_coalesced_request_frames(self):
         host,port=parse_endpoint(self.endpoint)[1]

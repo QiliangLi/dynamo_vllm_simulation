@@ -28,6 +28,8 @@ UUID_RE = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{
 class AdmissionState:
     def __init__(self, config, log_path=None):
         self.config = normalize_config(config)
+        if self.config['admission']['release_on'] != 'first_token':
+            raise ValueError('process stack requires release_on=first_token; execution feedback RPCs were removed')
         self.clock = TimeScale.from_config(self.config)
         controller_class = AdmissionController
         if self.config["compute"].get("mode") == "sa_e26f":
@@ -44,7 +46,6 @@ class AdmissionState:
         self.uuid_by_id = {}
         self.events = []
         self.delayed = []
-        self.pending_engine_events = {}
         self.sequence = 0
         self.wakeup = asyncio.Event()
         self.fatal = None
@@ -55,7 +56,7 @@ class AdmissionState:
             rc = self.config['routing_accounting']
             self.routing_score = ScoreClient(os.environ['SIM_STACK_ROUTING_SCORE_READY'],
                                              rc['waiting_factor'],rc['rpc_timeout_wall_s'])
-        self.log = Path(log_path).open("w",buffering=65536) if log_path else None
+        self.log = Path(log_path).open("w",buffering=1) if log_path else None
 
     def now(self):
         return self.clock.to_model(time.monotonic()-self.origin)
@@ -88,73 +89,7 @@ class AdmissionState:
         return self.futures[row["id"]]
 
     def receive(self, raw, *, transport="unix"):
-        match = UUID_RE.search(raw["request_id"])
-        key = uuid.UUID(match.group()).hex if match else None
-        if key not in self.aliases:
-            raise ValueError(f"unregistered engine request ID: {raw['request_id']}")
-        rid = self.aliases[key]
-        record = self.controller.records[rid]
-        if record.state not in ("SUBMITTED","FINISHED"):
-            raise ValueError("engine feedback arrived before admission")
-        worker = raw["worker_id"]
-        if record.worker_id == -1:
-            record.worker_id = worker
-            self.log_event("worker_assigned",id=rid,worker=worker)
-        if worker != record.worker_id:
-            raise ValueError("request worker changed")
-        now = self.now()
-        sender_time = raw["occurred_mono"]
-        if not isinstance(sender_time, (int, float)) or not math.isfinite(sender_time):
-            raise ValueError('invalid sender monotonic timestamp')
-        same_clock = clock_id() is not None and raw.get('clock_id') == clock_id()
-        # Old Unix clients are necessarily local. TCP clocks require an explicit
-        # shared domain; remote timestamps are diagnostic data, never subtracted.
-        legacy_local = transport == 'unix' and 'clock_id' not in raw
-        basis = 'shared_monotonic' if same_clock or legacy_local else 'receiver_observation'
-        occurred = self.clock.to_model(sender_time-self.origin) if same_clock or legacy_local else now
-        if occurred < 0 or occurred > now+self.clock.to_model(0.001):
-            raise ValueError("feedback clock is outside this run")
-        event = ControlEvent(raw["event_id"],raw["kind"],rid,worker,occurred,
-                             max(now,occurred+self.config["admission"]["feedback_delay_s"]),
-                             raw.get("payload",{}))
-        self.queue_event(event,raw["request_id"],timestamp_basis=basis,
-                         sender_occurred_mono=sender_time,received_s=now,rpc_transport=transport)
-
-    def receive_batch(self, raw, *, transport='unix'):
-        if self.fatal:
-            raise RuntimeError(self.fatal)
-        if not self.config.get('experiment',{}).get('batch_feedback'):
-            raise ValueError('batched feedback is disabled')
-        rows=raw.get('rows')
-        if (not isinstance(rows,list) or not 1<=len(rows)<=self.config['max_num_seqs']
-                or len({r.get('request_id') for r in rows})!=len(rows)):
-            raise ValueError('invalid feedback batch')
-        worker=rows[0].get('worker_id');layer=rows[0].get('payload',{}).get('layer')
-        if any(r.get('kind')!='layer_load_submitted' or r.get('worker_id')!=worker
-               or r.get('payload',{}).get('layer')!=layer for r in rows):
-            raise ValueError('feedback batch mixes workers, layers or event kinds')
-        for row in rows:
-            self.receive(row,transport=transport)
-        return dict(ok=True,events=len(rows))
-
-    def receive_flush(self, raw, *, transport='unix'):
-        if self.fatal:
-            raise RuntimeError(self.fatal)
-        if not self.config.get('experiment',{}).get('coalesced_feedback'):
-            raise ValueError('coalesced feedback is disabled')
-        from sim.stack.layerwise import layer_spec
-        spec=layer_spec(self.config);rows=raw.get('rows')
-        if (spec is None or not isinstance(rows,list) or not rows
-                or len(rows)>self.config['max_num_seqs']*spec['layers']):
-            raise ValueError('invalid layer flush size')
-        worker=rows[0].get('worker_id')
-        if any(r.get('kind')!='layer_load_submitted' or r.get('worker_id')!=worker for r in rows):
-            raise ValueError('layer flush mixes workers or event kinds')
-        keys=[(r.get('request_id'),r.get('payload',{}).get('layer')) for r in rows]
-        if len(set(keys))!=len(keys):
-            raise ValueError('duplicate request/layer in flush')
-        for row in rows:self.receive(row,transport=transport)
-        return dict(ok=True,events=len(rows))
+        raise ValueError('execution feedback RPCs were removed; only admission controls are accepted')
 
     def control(self, raw, *, transport='unix'):
         """Atomic ledger mutation: no await between checking and debiting."""
@@ -193,12 +128,6 @@ class AdmissionState:
                 self.log_event('routing_score_force_already_closed' if reply.get('already_closed') else 'routing_score_activated',
                                id=rid,permit_id=result['permit_id'],
                                duration_wall_ns=reply['duration_wall_ns'])
-        elif raw['op'] == 'force_status':
-            permit = self.controller.permits[raw['permit_id']]
-            if (not permit.get('forced') or permit['id'] != rid
-                    or permit['worker'] != raw['worker_id']):
-                raise ValueError('wrong forced permit owner')
-            result = dict(released=permit['state'] == 'released')
         elif raw["op"] == "rollback":
             self.controller.rollback(rid, raw["worker_id"], raw["permit_id"], now)
             if self.routing_score is not None:
@@ -216,6 +145,16 @@ class AdmissionState:
             result = dict(ready=True)
         else:
             raise ValueError("unknown admission operation")
+        if raw['op'] == 'force_acquire' and result['granted']:
+            rec = self.controller.records[rid]
+            # The HTTP stream can overtake the asynchronous force notice. Store
+            # HTTP facts immediately, then release a late-registered permit.
+            kind = 'first_token' if rec.first_token_s is not None else 'request_finished'
+            occurred = rec.first_token_s if rec.first_token_s is not None else rec.finish_s
+            if occurred is not None and rec.lease_open:
+                event = ControlEvent(f"reconcile:{result['permit_id']}", kind, rid,
+                                     rec.worker_id, occurred, self.now())
+                self.queue_event(event)
         self.drain()
         return dict(ok=True, **result)
 
@@ -230,37 +169,24 @@ class AdmissionState:
         self.wakeup.set()
 
     def local_event(self, kind, rid):
+        if kind not in ('first_token', 'request_finished'):
+            raise ValueError('only HTTP token/completion observations belong in the online ledger')
         now = self.now()
         worker = self.controller.records[rid].worker_id
         self.sequence += 1
         event = ControlEvent(f"gateway:{self.sequence}",kind,rid,worker,now,
                              now+self.config["admission"]["feedback_delay_s"])
-        rec = self.controller.records[rid]
-        if (self.config['admission']['idle_bypass']
-                and kind in ('first_token', 'request_finished')
-                and self.controller.hints[rid]['is_heavy_read']
-                and rec.load_done_s is None and not rec.no_external_load):
-            # HTTP and the ordered engine outbox are separate connections. Keep
-            # the original HTTP timestamp if it overtakes delayed engine facts.
-            self.pending_engine_events.setdefault(rid, []).append(event)
-            self.log_event('gateway_event_deferred', id=rid, kind=kind, occurred_s=now)
-            return
         self.queue_event(event)
 
     def deliver(self):
         now = self.now()
         while self.delayed and self.delayed[0][0] <= now:
             _,_,event = heapq.heappop(self.delayed)
+            event = replace(event, worker_id=self.controller.records[event.request_id].worker_id)
             self.controller.on_event(event,now)
             self.log_event("feedback_delivered",id=event.request_id,kind=event.kind,
                            event_id=event.event_id,occurred_s=event.occurred_s,
                            visible_s=event.visible_s,worker=event.worker_id)
-            rec = self.controller.records[event.request_id]
-            if rec.load_done_s is not None or rec.no_external_load:
-                for pending in self.pending_engine_events.pop(event.request_id, []):
-                    self.sequence += 1
-                    pending = replace(pending, worker_id=rec.worker_id)
-                    heapq.heappush(self.delayed, (max(now,pending.visible_s),self.sequence,pending))
         self.drain()
 
     def admit(self):
@@ -314,6 +240,7 @@ class AdmissionState:
     def snapshot(self):
         self.deliver()
         return dict(status="failed" if self.fatal else "ready",fatal=self.fatal,
+                    execution_feedback='disabled', origin_monotonic_s=self.origin,
                     rpc=self.rpc_info,
                     routing_score=self.routing_score.snapshot() if self.routing_score is not None else None,
                     permits=getattr(self.controller,"permits",{}),
@@ -322,7 +249,6 @@ class AdmissionState:
                     snapshot=asdict(self.controller.snapshot(self.now())),
                     records={rid:asdict(r) for rid,r in self.controller.records.items()},
                     delayed_events=len(self.delayed),invalid_reasons=sorted(self.controller.invalid_reasons),
-                    pending_engine_events=sum(map(len,self.pending_engine_events.values())),
                     events=self.events)
 
 
@@ -339,11 +265,7 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
 
     def process(raw):
         try:
-            if raw.get('op') == 'layer_feedback_flush':
-                response = state.receive_flush(raw,transport=transport)
-            elif raw.get('op') == 'layer_feedback_batch':
-                response = state.receive_batch(raw,transport=transport)
-            elif raw.get('op') == 'ping':
+            if raw.get('op') == 'ping':
                 response = dict(ok=True, service='admission', protocol=1)
             elif raw.get('op'):
                 response = state.control(raw, transport=transport)
