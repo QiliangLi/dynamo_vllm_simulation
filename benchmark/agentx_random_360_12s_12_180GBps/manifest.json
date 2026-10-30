@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "case": "agentx360_12s_180gb",
+  "case": "agentx_random_360_12s_12_180GBps",
   "requests": 360,
   "input_tokens": 23255872,
   "hit_tokens": 22588592,
@@ -61,5 +61,22 @@
     "config.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
     "config.historical.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
     "run_contract.json": "a0af327c08ae3de330df695ee35a84d81d0d9e9eb96ffc891bc69678ffdaf8f2"
-  }
+  },
+  "aliases": [
+    "agentx360_12s_180gb"
+  ],
+  "source": "agentx",
+  "feature": "random",
+  "description": "保留选定AgentX窗口的请求顺序，用原组完整历史推导理想远端前缀命中；不是冷启动或实测命中，39条超长上下文涉及公式外推。",
+  "benchmark_format_version": 1,
+  "token_pattern": [
+    1332,
+    995,
+    2581,
+    640,
+    1366,
+    23748
+  ],
+  "runner_profile": null,
+  "execution_feedback": "disabled"
 }

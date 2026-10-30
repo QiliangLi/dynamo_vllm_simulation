@@ -1,8 +1,19 @@
 # 分支交付验证
 
+
+## 2026-10-30：标准化 benchmark 文件夹
+
+按“来源_特征_请求数_窗口_实例数_带宽”命名，四份负载及附录统一见 [Benchmark目录](../benchmark/benchmark目录.md)。
+总 README 与 agent.md 只记录格式和使用流程；管理器从文件夹 manifest 自动发现负载，不再维护 catalog.json 或固定名单。
+旧 case 名保留为命令别名；新运行输出使用标准名称。AgentX360 仍为 export_only，AgentX240 不在交付目录。
+重新校验并导出四份共1440条请求；17个数据、配置与运行合同文件SHA保持不变。
+Windows新增5项定向测试通过；WSL完整266项单元测试通过。
+本次未重跑性能矩阵，未修改模型公式、存储执行或准入策略。
+小型检查记录见 [BENCHMARK_MIGRATION_CHECK.json](BENCHMARK_MIGRATION_CHECK.json)。
+
 ## 2026-10-30：新增AgentX360固定输入
 
-新增`agentx360_12s_180gb`，360条、12秒到达、180GB/s共享带宽、12逻辑实例。完整gzip输入、可读明细、默认配置、三方案合同及来源SHA在benchmark目录。
+新增`agentx_random_360_12s_12_180GBps`，360条、12秒到达、180GB/s共享带宽、12逻辑实例。完整gzip输入、可读明细、默认配置、三方案合同及来源SHA在benchmark目录。
 原三个Mooncake case的输入与配置未改。四份共1440请求的SHA、token、h/u、字节、顺序、到达与类别校验通过；AgentX解压与已验收研究实验逐字节一致。
 实际导出AgentX及旧ABC，通过配置带宽与输入SHA读回；重复输出目录拒绝覆盖；不兼容运行器在启动前拒绝，无仿真进程启动。
 本次在Ubuntu-24.04/WSL复用已安装依赖运行完整261项单元测试，全部通过，耗时88.808秒。没有重编原生依赖，没有重跑未修改的原三个Mooncake进程栈；此前完整链路验收保留如下。

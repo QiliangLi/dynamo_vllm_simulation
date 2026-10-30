@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "date": "2026-10-30",
+  "format": "six-field named folders",
+  "benchmarks": 4,
+  "requests_checked": 1440,
+  "unit_tests": 266,
+  "unit_test_platform": "WSL Ubuntu-24.04 Python3.12",
+  "windows_catalog_tests": 5,
+  "unchanged_payload_files": 17,
+  "mapping": {
+    "per_request_4pct": "mooncake_random_360_4s_12_90GBps",
+    "global4_abc": "mooncake_abc_360_4s_12_90GBps",
+    "global4_abcd": "mooncake_abcd_360_4s_12_90GBps",
+    "agentx360_12s_180gb": "agentx_random_360_12s_12_180GBps"
+  },
+  "exports": [
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "trace_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707",
+      "portable_runner_status": "export_only"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "trace_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308",
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "trace_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7",
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_random_360_4s_12_90GBps",
+      "trace_sha256": "57b23ce7ac589220f23a5ce7b1ba768f786fa9506c41d58ddbb3ffa62f315f9b",
+      "portable_runner_status": "supported"
+    }
+  ],
+  "navigation_links": "passed for benchmark and current branch entry points",
+  "catalog_check": "passed",
+  "runtime_changes": "benchmark discovery and input preparation only; simulator math and runtime execution unchanged",
+  "agentx240": "not present in delivered catalog; old retired local checkout copy retained",
+  "performance_runs": "not rerun; this is layout and input compatibility validation",
+  "frozen_input_preparation": {
+    "status": "passed",
+    "cases": 3,
+    "profiles": 1080,
+    "native_execution": false
+  }
+}

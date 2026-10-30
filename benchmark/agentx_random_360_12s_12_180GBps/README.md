@@ -1,4 +1,4 @@
-# agentx360_12s_180gb
+# agentx_random_360_12s_12_180GBps
 
 固定360条AgentX请求，12秒到达，180GB/s单共享带宽池，12个逻辑实例。输入为2026-10-30已验收三方案实验的原文件，没有重新抽样或修改命中率。
 
@@ -32,7 +32,7 @@
 
 ```bash
 python3 benchmark/manage.py verify
-python3 benchmark/manage.py export agentx360_12s_180gb --output temp/agentx360_input
+python3 benchmark/manage.py export agentx_random_360_12s_12_180GBps --output temp/agentx360_input
 ```
 
 导出包含`trace.jsonl`、`config.json`和`run_contract.json`，不会启动仿真。解压后SHA256为`eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707`，与原验收实验完全一致。
@@ -43,4 +43,4 @@ python3 benchmark/manage.py export agentx360_12s_180gb --output temp/agentx360_i
 
 39条超过原公式入口131072 token，最长300480。原实验只把冻结副本的长度guard及max_model_len调至300481，算子系数不改，属于公式外推。仅调配置不能让旧计时模块支持它。复现还需要直接组合计时、关闭执行反馈、最终答复/后台EOF与统一Kahan诊断计数支持。
 
-已有三方案实验在独立研究版本上各完成72预热加360正式；不能将其当作当前交付运行器的验收。本次新增输入的校验记录在父目录`validation.json`，完整原始实验事件不随输入发布。
+已有三方案实验在独立研究版本上各完成72预热加360正式；不能将其当作当前交付运行器的验收。输入校验使用父目录 manage.py verify；统一索引在父目录 benchmark目录.md，完整原始实验事件不随输入发布。

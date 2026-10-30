@@ -1,80 +1,56 @@
-# 固定Benchmark目录
+# Benchmark
 
-原三个Mooncake case可由统一运行器执行。新增[agentx360_12s_180gb](agentx360_12s_180gb/README.md)固定输入与配置：360条、12秒、180GB/s共享带宽、12实例。AgentX用原完整历史命中，667280新计算token、2480.769528GB累计读取；运行合同为direct_sum及关闭在线执行反馈。
+本目录保存可追溯的固定请求负载及其运行配置。每个 benchmark 使用一个文件夹；具体名单、构造说明、支持状态和字段解释统一见 [benchmark目录.md](benchmark目录.md)。AI 使用方法见 [agent.md](agent.md)。
 
-AgentX当前支持校验和导出，交付运行器尚未移植所需研究代码。显式选择该case会在启动前拒绝；`--case all`仍只运行原三个Mooncake case。不能把导出通过当作运行兼容。
+## 命名
 
-```bash
-python3 benchmark/manage.py export agentx360_12s_180gb --output temp/agentx360_input
+```text
+数据来源_数据特征_请求总数_发送窗口_计算实例数_存储带宽
 ```
 
-`manage.py verify`现检查四份共1440条请求。AgentX配置独立，不受下文Mooncake共同90GB/s、4秒配置约束。
+来源与特征使用小写字母或数字；发送窗口带 s，存储带宽带 GBps。GBps 表示十进制 GB/s。实例数指逻辑计算实例数；存储带宽指共享池总容量。名称必须与 manifest.json、config.json 和实际请求一致。
 
-## 原三种Mooncake360 Benchmark
+random 表示未按 ABC/ABCD 刻意分配请求类别，不表示随机打乱或没有其他数据处理。特征定义放在总目录附录，具体来源与处理规则放在负载自己的说明和 manifest 中。
 
-本目录保存三份已用于实验的固定负载。三份都取自
-`conversation_trace.jsonl`前360条，保留原input长度、请求顺序及到达节奏，
-将到达窗口归一化为4秒。不使用原output长度计算工作量，也不使用hash_ids推导命中。
+## 文件夹内容
 
-|目录|构造规则|新计算token|实际新计算比例|读取量（GB，十进制）|类别数量|
-|---|---|---:|---:|---:|---|
-|[per_request_4pct](per_request_4pct/README.md)|每条请求约4%未命中，命中前缀向下对齐16-token块|207547|4.055431%|539.258683|旧标签A90/B270|
-|[global4_abc](global4_abc/README.md)|整批input的4%作为总计算额度，分配A/B/C|204699|3.999781%|539.571462|A240/B90/C30|
-|[global4_abcd](global4_abcd/README.md)|在相同全局额度内增加D类|204699|3.999781%|539.571462|A220/B90/C30/D20|
+|文件|作用|
+|---|---|
+|README.md|这份负载的来源、处理方法和特殊限制|
+|trace.jsonl.gz|冻结的完整请求数据，gzip 只压缩、不改变 JSONL 内容|
+|requests.csv|逐请求可读明细，含长度、命中、新算、到达和读取量|
+|config.json|这份 benchmark 的运行配置，含模型和资源条件|
+|config.historical.json|来源实验的历史配置，仅用于追溯|
+|manifest.json|身份、来源版本、SHA256、统计总量、支持状态等机器可读信息|
+|run_contract.json（可选）|特殊反馈、预热、外推边界和方案配置等合同|
 
-总input均为5117755 token。简单版本的4%是逐请求规则。
-ABC、ABCD的4%是全局额度，两种口径不能混用。
-全局理论额度为204710.2；block16下不超过额度的最近可行值为204699。
+计算模型、反馈、block 和 SLO 等未写进名称的信息，必须在配置和合同中保留。不得根据名称补猜默认参数。重新运行时按当前有效配置计算画像和期限。
 
-## 类别含义
+## 查找、校验和导出
 
-ABC与ABCD使用下列人工读算成本分类：
-
-- A：重读、轻计算。只计算块对齐所需的1–16个token。
-- B：轻读、重计算。承接全局剩余计算额度。
-- C：零读、计算。最短30条请求全部作为新计算。
-- D：重读、重计算。最长20条请求各计算2033–2046个token，其余读取。
-
-ABCD从B转出40640个新计算token分给D，保持总计算额度和总读取量不变。
-简单版本的A90/B270是历史展示标签，不能按上述A/B含义解读。
-这些标签都不替代运行期TFS的P75分类。
-
-## 文件与配置
-
-每份负载包含完整输入的`trace.jsonl.gz`、可读的`requests.csv`、
-统一比较配置`config.json`、原实验参数`config.historical.json`和来源指纹`manifest.json`。
-JSONL只压缩，不改内容；解压后与原实验输入逐字节一致。
-不复制74 MB未压缩token数组、原始事件日志或运行环境。
-
-统一比较配置使用90 GB/s单共享池、K=1、12实例、block16、每步最多4请求/8192新token，
-GLM5实际组批v2、TP1/DP8/EP8、78层流水，实例内EDF。
-默认配置为直接准入；TFS与α由实验运行器选择，避免把某个算法固定进负载定义。
-比较配置保留同步batch反馈、关闭coalesced反馈的实验标记。
-这些标记需要回放驱动实现；导出工具不会自动安装实验运行时包装。
-
-简单版本的历史配置是120 GB/s，ABC、ABCD的历史配置是90 GB/s。
-本分支交付时对简单版本的90 GB/s直接准入做了完整流程验收；三臂性能对照尚未补跑。
-配置变化后必须重算请求画像、T0及期限，不直接复用旧SLO结果。
-`config.historical.json`保留原实验参数，移除本机overlay路径；原文件SHA仍记录在manifest中。
-`config.json`移除了本机Dynamo overlay路径。
-
-## 校验与导出
-
-在工作区根目录执行。工具只需要Python标准库，不需要导入DV或SA。
+从仓库根目录运行；这些工具只需 Python 标准库，不启动模拟器：
 
 ```bash
-python3 benchmark/manage.py verify
-python3 benchmark/manage.py export global4_abc --output temp/benchmark_abc_input
+python benchmark/manage.py list
+python benchmark/manage.py verify
+python benchmark/manage.py catalog --check
+python benchmark/manage.py export <benchmark名称> --output <新的输出目录>
 ```
 
-导出目录必须不存在。导出得到DV所需的`trace.jsonl`与`config.json`。
-另两份可将名称换成`per_request_4pct`或`global4_abcd`。
-需要加权Dynamo构建时，用`--dynamo-python <本机overlay目录>`明确指定路径。
-导出只准备输入，不启动仿真，也不自动选择算法、预热或资源保护参数。
+导出目录必须不存在。导出提供 trace.jsonl、config.json、manifest.json，以及存在时的 run_contract.json。本机加权 Dynamo 路径通过可选参数 --dynamo-python 显式传入，不写进冻结配置。
 
-`manage.py verify`检查四份共1440条请求的长度、h/u、块对齐、token序列、
-请求顺序、到达时刻、类别、总量、配置与SHA256。
-[catalog.json](catalog.json)是机器可读目录；[validation.json](validation.json)保存本次校验结果。
-本分支直接提供冻结输入。日常复用不依赖原工作区、SA仓库或历史results/temp目录。
+完整运行方式见仓库 [实验分支使用说明](../docs/实验分支使用说明.md)。只有支持状态为 supported 的负载可以交给当前运行器；export_only 只支持校验和导出。
 
-AgentX另检查源行号、历史命中映射、12秒缩放、180GB/s、39条长上下文和三方案合同。配额为动态P75计算，不是固定5条；本case不代表平均负载低于100%。
+## 新增与维护
+
+新增一个符合规则的文件夹，完成数据与配置校验，再运行：
+
+```bash
+python benchmark/manage.py verify
+python benchmark/manage.py catalog
+python benchmark/manage.py catalog --check
+```
+
+工具从文件夹 manifest 自动发现负载，不维护第二份固定名单。普通新增只增加负载文件夹并更新总目录；总 README 和 agent.md 仅在格式或使用流程变化时修改。
+
+SHA 校验保证文件一致，不证明模型准确、运行合同已经实现或性能结论成立。运行记录、图表和大型原始事件放到独立结果目录。

@@ -7,9 +7,9 @@
 
 ## 2026-10-30：AgentX360固定输入与导出
 
-新增agentx360_12s_180gb：360条、12秒、180GB/s、12逻辑实例，保留完整历史理想命中。输入23255872 token、有效命中22588592、新算667280，读取2480769527808 B。
+新增agentx_random_360_12s_12_180GBps：360条、12秒、180GB/s、12逻辑实例，保留完整历史理想命中。输入23255872 token、有效命中22588592、新算667280，读取2480769527808 B。
 原三个Mooncake负载不改，四份共1440请求验证通过。AgentX与已验收研究版本输入逐字节一致，旧ABC导出不变；输出防覆盖及不兼容启动拒绝通过。
-完整261项单元测试在WSL通过。该case当前仅支持校验/导出；未移植研究运行代码，未在交付版重跑该case或原有进程栈。详细边界及Windows CSV换行修正见DELIVERY_VALIDATION.md，数据验收在benchmark/validation.json。
+完整261项单元测试在WSL通过。该case当前仅支持校验/导出；未移植研究运行代码，未在交付版重跑该case或原有进程栈。详细边界及Windows CSV换行修正见DELIVERY_VALIDATION.md，数据验收在benchmark/manage.py verify的输出。
 
 ## 2026-10-28：ABC360 EDF 新TFS及强制准入，附历史对照
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "case": "global4_abcd",
+  "case": "mooncake_abcd_360_4s_12_90GBps",
   "requests": 360,
   "input_tokens": 5117755,
   "hit_tokens": 4913056,
@@ -40,5 +40,25 @@
     "config.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5",
     "config.historical.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5"
   },
-  "historical_config_sanitized": true
+  "historical_config_sanitized": true,
+  "aliases": [
+    "global4_abcd"
+  ],
+  "source": "mooncake",
+  "feature": "abcd",
+  "workers": 12,
+  "shared_storage_Bps": 90000000000.0,
+  "description": "保留相同总读量与全局新算预算；从B转移40640个新token给最长20条D，构成A220/B90/C30/D20。",
+  "benchmark_format_version": 1,
+  "token_pattern": [
+    1332,
+    995,
+    2581,
+    640,
+    1366,
+    23748
+  ],
+  "portable_runner_status": "supported",
+  "runner_profile": "mooncake360_v1",
+  "execution_feedback": "sync_batch"
 }

@@ -1,4 +1,4 @@
-# per_request_4pct
+# mooncake_random_360_4s_12_90GBps
 
 对每条请求n：h=16×floor(floor(0.96×n)/16)，u=n−h。全局比例会因块取整略高于4%。A90/B270仅为旧展示标签。
 
