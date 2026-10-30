@@ -10,6 +10,8 @@
 4. 修改模型、准入或反馈前，读取主说明中的对应设计文档。
 5. 查看既有报告先读 report/README.md、report/agent.md 和 report/报告目录.md。只整理报告不自动重跑实验；归档验证与原运行验收分开。
 
+6. 需要使用共享技能时，先读[skills的AI说明](skills/agent.md)与[技能目录](skills/技能目录.md)，再读对应SKILL.md。报告整理不隐含重新运行或发布实验。
+
 ## 必须保持的实验合同
 
 - 可运行Mooncake360 benchmark固定K=1、4秒到达和12个逻辑实例。单共享池带宽读取所选benchmark的config.json和manifest.json，并与名称核对，不写死为90 GB/s。

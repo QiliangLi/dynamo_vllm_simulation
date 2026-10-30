@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "title": "合成格式样例：不代表性能实验",
+  "execution_boundary": "人工构造的格式测试数据；未运行Dynamo/vLLM或真实设备，不用于性能结论。",
+  "metadata": {
+    "数据用途": "验证报告结构、七类图、数据校验和重绘包",
+    "真实实验": "无；以下请求、时长和带宽全部为格式样例"
+  },
+  "narrative": {
+    "0": "本报告仅演示输出格式。所有数据为人工构造，不能用于比较调度策略。",
+    "6": "只有一个格式样例方案，没有对照实验，不能分析收益或因果机制。",
+    "7": "计算区间和读取速率为显式样例值，没有调用模型公式或运行仿真。",
+    "8": "请求包含读密集、计算密集和零读三个展示分组；这些名称不决定时间线的heavy/light颜色。",
+    "10": "用本样例检查环境、图例、坐标、链接及分享包。实际报告必须使用本次真实来源数据。"
+  },
+  "cases": [
+    {
+      "summary": {
+        "case": "format_example",
+        "label": "合成格式样例",
+        "workers": 2,
+        "span_s": 4,
+        "rule": "arrival",
+        "classification_reference_only": true
+      },
+      "requests": [
+        {"id":"r1","worker":0,"cohort":"读密集","arrival_s":0,"completion_s":2,"deadline_s":1.8,"read_bytes":10000000000,"arrival_lateness_ms":0,"gateway_wait_ms":0},
+        {"id":"r2","worker":1,"cohort":"计算密集","arrival_s":0.5,"completion_s":2.5,"deadline_s":2.8,"read_bytes":5000000000,"arrival_lateness_ms":1,"gateway_wait_ms":2},
+        {"id":"r3","worker":0,"cohort":"零读","arrival_s":1,"completion_s":4,"deadline_s":3.8,"read_bytes":0,"arrival_lateness_ms":2,"gateway_wait_ms":1},
+        {"id":"r4","worker":1,"cohort":"计算密集","arrival_s":1.5,"completion_s":3.2,"deadline_s":3.8,"read_bytes":5000000000,"arrival_lateness_ms":3,"gateway_wait_ms":1}
+      ],
+      "comp": [
+        {"worker":0,"start":0.4,"end":1.5,"state":"heavy"},
+        {"worker":0,"start":2.2,"end":3.6,"state":"light"},
+        {"worker":1,"start":1,"end":2.2,"state":"light"},
+        {"worker":1,"start":2.4,"end":3.1,"state":"mixed"}
+      ],
+      "io": [
+        {"worker":0,"start":0,"end":1,"state":"io"},
+        {"worker":1,"start":0.5,"end":1.5,"state":"io"},
+        {"worker":1,"start":1.5,"end":2,"state":"io"}
+      ],
+      "bandwidth": {
+        "capacity_Bps": 10000000000,
+        "read_bytes": 20000000000,
+        "source": "人工构造的格式测试区间，不是设备观测",
+        "intervals": [
+          {"start_s":0,"end_s":1,"actual_Bps":10000000000,"demand_Bps":15000000000},
+          {"start_s":1,"end_s":2,"actual_Bps":10000000000,"demand_Bps":10000000000}
+        ]
+      },
+      "config": {
+        "max_num_seqs": 4,
+        "max_num_batched_tokens": 8192,
+        "compute": {"mode":"format_fixture"},
+        "storage": {"shared_link_Bps":10000000000},
+        "admission": {"placement":"example","classification":"illustrative"}
+      },
+      "run_metadata": {"purpose":"format-only","repeat":1},
+      "sources": {}
+    }
+  ]
+}

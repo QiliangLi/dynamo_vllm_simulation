@@ -1,0 +1,4 @@
+interface:
+  display_name: "报告整理"
+  short_description: "优先用固定脚本生成图表与校验包，再补充实验分析"
+  default_prompt: "使用 $report-organizer 将本次实验结果整理成统一格式的报告。"
