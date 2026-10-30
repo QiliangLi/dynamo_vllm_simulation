@@ -132,6 +132,8 @@ def execute(folder,arm,overlay,smoke):
 
 
 def main(args):
+    if args.case=='agentx360_12s_180gb':
+        raise SystemExit('AgentX360已登记为固定输入。当前交付运行器尚不支持其direct_sum、关闭执行反馈及长上下文外推合同；请用benchmark/manage.py export导出。见benchmark/agentx360_12s_180gb/README.md。')
     overlay=args.dynamo_python.resolve()
     assert (overlay/'dynamo/_core.abi3.so').is_file(),'Build the weighted Dynamo overlay first'
     assert (overlay.parent/'build.json').is_file(),'Overlay build receipt is required'
@@ -177,7 +179,7 @@ def main(args):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--case',choices=(*CASES,'all'),default='global4_abc')
+    p.add_argument('--case',choices=(*CASES,'agentx360_12s_180gb','all'),default='global4_abc')
     p.add_argument('--arm',choices=(*ARMS,'all'),default='direct')
     p.add_argument('--output',type=Path,default=ROOT/'results/benchmark_runs/run')
     p.add_argument('--dynamo-python',type=Path,required=True)

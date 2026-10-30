@@ -1,7 +1,8 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
 本分支最新入口：[实验分支使用说明](../docs/实验分支使用说明.md)。
-三个固定输入位于仓库根benchmark，统一运行器为`scripts/run_benchmark.py`。
+固定输入位于仓库根benchmark，统一运行器为`scripts/run_benchmark.py`。
+新增[AgentX360固定输入](../benchmark/agentx360_12s_180gb/README.md)：360条、12秒、180GB/s、12实例。可校验及导出；当前交付运行器尚不支持其直接组合计时、关闭反馈及长上下文合同，显式选择会在启动前拒绝。`--case all`仍运行原三个Mooncake case。
 先运行`--smoke`，再按说明运行90GB/s、K=1的正式对照。下文按日期保留历史入口与结果。
 存储优化测试所需的少量冻结参考源码已放入`tests/fixtures/`，不再依赖历史results目录。
 

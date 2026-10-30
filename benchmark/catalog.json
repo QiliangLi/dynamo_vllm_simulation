@@ -43,13 +43,36 @@
         "C": 30
       },
       "allocation_scope": "global"
+    },
+    {
+      "case": "agentx360_12s_180gb",
+      "requests": 360,
+      "input_tokens": 23255872,
+      "new_tokens": 667280,
+      "new_pct": 2.869296838235092,
+      "read_bytes": 2480769527808,
+      "class_counts": {
+        "B": 270,
+        "A": 90
+      },
+      "allocation_scope": "full_history_prefix_hit",
+      "arrival_window_s": 12,
+      "shared_storage_Bps": 180000000000.0,
+      "workers": 12,
+      "portable_runner_status": "export_only"
     }
   ],
   "comparison_config": {
     "shared_storage_Bps": 90000000000.0,
     "K": 1,
     "workers": 12,
-    "arrival_window_s": 4
+    "arrival_window_s": 4,
+    "applies_to": [
+      "per_request_4pct",
+      "global4_abc",
+      "global4_abcd"
+    ]
   },
-  "scope": "Frozen workload inputs and configs only; no new performance runs"
+  "scope": "Frozen inputs and case-specific configs; AgentX portable runner compatibility is explicit in its run_contract.json",
+  "updated": "2026-10-30"
 }
