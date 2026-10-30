@@ -11,7 +11,7 @@
 
 ## 必须保持的实验合同
 
-- 原三个可运行Mooncake benchmark固定K=1、90 GB/s单共享池和12个逻辑实例。
+- 可运行Mooncake360 benchmark固定K=1、4秒到达和12个逻辑实例。单共享池带宽读取所选benchmark的config.json和manifest.json，并与名称核对，不写死为90 GB/s。
 - AgentX360固定输入另用12秒、180GB/s、12实例及direct_sum/关闭执行反馈；当前仅支持校验与导出，交付运行器尚未移植相应研究代码。详见benchmark/agentx_random_360_12s_12_180GBps/README.md。
 - 冒烟使用2个实例和各类少量请求；不能把冒烟当作正式性能数据。
 - 正式每组72预热排空后360请求，排除预热分类历史，重新开始正式GC窗口。

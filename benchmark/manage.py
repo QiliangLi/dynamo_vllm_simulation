@@ -61,7 +61,7 @@ def verify_case(name):
         assert c['formal_requests']==count and c['K']==m['K'] and c['arms']['direct']==cfg
     if m['portable_runner_status']=='supported':
         assert m['runner_profile']=='mooncake360_v1'
-        assert (count,window,workers,bandwidth)==(360,4,12,90e9)
+        assert (count,window,workers)==(360,4,12)
         assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
     with (folder/'requests.csv').open(encoding='utf-8',newline='') as f:table=list(csv.DictReader(f))
     digest=hashlib.sha256();totals=Counter();classes=Counter();arrivals=[];timestamps=[];max_input=0

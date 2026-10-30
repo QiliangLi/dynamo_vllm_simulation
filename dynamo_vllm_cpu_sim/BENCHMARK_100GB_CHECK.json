@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "catalog_requests": 2160,
+  "cases": [
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "requests": 360,
+      "input_unchanged": true,
+      "prepared_bandwidth_Bps": 100000000000.0,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "trace_sha256": "ec229aa3b2d44b8287d97fe9de1bb6891bdb5bce5c5fcd40f61d4e081713f36d"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "requests": 360,
+      "input_unchanged": true,
+      "prepared_bandwidth_Bps": 100000000000.0,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "trace_sha256": "2f049cf24b1875bccaa1ddf7b67ff18f0cf08318aefc0c2740fa646cfc5426b5"
+    }
+  ],
+  "native_execution": false,
+  "performance_runs": false,
+  "date": "2026-10-30",
+  "unit_tests": 268,
+  "windows_catalog_tests": 7,
+  "changed_config_fields": [
+    "storage.disk_Bps",
+    "storage.shared_link_Bps",
+    "admission.reference_bandwidth_Bps"
+  ],
+  "common_readme_agent_unchanged": true,
+  "old_90gb_benchmarks_unchanged": true
+}
