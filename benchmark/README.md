@@ -1,4 +1,16 @@
-# 三种Mooncake360 Benchmark
+# 固定Benchmark目录
+
+原三个Mooncake case可由统一运行器执行。新增[agentx360_12s_180gb](agentx360_12s_180gb/README.md)固定输入与配置：360条、12秒、180GB/s共享带宽、12实例。AgentX用原完整历史命中，667280新计算token、2480.769528GB累计读取；运行合同为direct_sum及关闭在线执行反馈。
+
+AgentX当前支持校验和导出，交付运行器尚未移植所需研究代码。显式选择该case会在启动前拒绝；`--case all`仍只运行原三个Mooncake case。不能把导出通过当作运行兼容。
+
+```bash
+python3 benchmark/manage.py export agentx360_12s_180gb --output temp/agentx360_input
+```
+
+`manage.py verify`现检查四份共1440条请求。AgentX配置独立，不受下文Mooncake共同90GB/s、4秒配置约束。
+
+## 原三种Mooncake360 Benchmark
 
 本目录保存三份已用于实验的固定负载。三份都取自
 `conversation_trace.jsonl`前360条，保留原input长度、请求顺序及到达节奏，
@@ -60,7 +72,9 @@ python3 benchmark/manage.py export global4_abc --output temp/benchmark_abc_input
 需要加权Dynamo构建时，用`--dynamo-python <本机overlay目录>`明确指定路径。
 导出只准备输入，不启动仿真，也不自动选择算法、预热或资源保护参数。
 
-`manage.py verify`检查三份共1080条请求的长度、h/u、块对齐、token序列、
+`manage.py verify`检查四份共1440条请求的长度、h/u、块对齐、token序列、
 请求顺序、到达时刻、类别、总量、配置与SHA256。
 [catalog.json](catalog.json)是机器可读目录；[validation.json](validation.json)保存本次校验结果。
 本分支直接提供冻结输入。日常复用不依赖原工作区、SA仓库或历史results/temp目录。
+
+AgentX另检查源行号、历史命中映射、12秒缩放、180GB/s、39条长上下文和三方案合同。配额为动态P75计算，不是固定5条；本case不代表平均负载低于100%。
