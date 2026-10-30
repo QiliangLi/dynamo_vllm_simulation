@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "case": "per_request_4pct",
+  "case": "mooncake_random_360_4s_12_90GBps",
   "requests": 360,
   "input_tokens": 5117755,
   "hit_tokens": 4910208,
@@ -38,5 +38,25 @@
     "config.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5",
     "config.historical.json": "f20b2c369119b6c676ba1f503eddb5fffdb6bc5fd9930e1b00aec024761f7142"
   },
-  "historical_config_sanitized": true
+  "historical_config_sanitized": true,
+  "aliases": [
+    "per_request_4pct"
+  ],
+  "source": "mooncake",
+  "feature": "random",
+  "workers": 12,
+  "shared_storage_Bps": 90000000000.0,
+  "description": "保留Mooncake前360条原长度与顺序，逐请求人为96%远端命中后block16取整；不是未经处理的随机命中。",
+  "benchmark_format_version": 1,
+  "token_pattern": [
+    1332,
+    995,
+    2581,
+    640,
+    1366,
+    23748
+  ],
+  "portable_runner_status": "supported",
+  "runner_profile": "mooncake360_v1",
+  "execution_feedback": "sync_batch"
 }

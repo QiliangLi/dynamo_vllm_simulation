@@ -16,7 +16,6 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 REPO=ROOT.parent
-CASES=('per_request_4pct','global4_abc','global4_abcd')
 ARMS={'direct':1.,'tfs-a01':.1,'tfs-a1':1.}
 read=lambda p:json.loads(Path(p).read_text())
 
@@ -39,17 +38,20 @@ def load_module(name,path):
     return module
 
 
+MANAGER=load_module('benchmark_manage',REPO/'benchmark/manage.py')
+CASES=MANAGER.case_names(supported_only=True)
+
+
 def prepare(case,folder,overlay):
     package=folder/'package';package.mkdir(parents=True)
     for name in ('sim','scripts','configs','patched'):
         shutil.copytree(ROOT/name,package/name,ignore=shutil.ignore_patterns('__pycache__'))
     for name in ('versions.json','source-fingerprints.json'):shutil.copy2(ROOT/name,package/name)
     for name in ('.venv','upstream'):(package/name).symlink_to((ROOT/name).resolve(),target_is_directory=True)
-    source=REPO/'benchmark'/case;inp=package/'results/input360';inp.mkdir(parents=True)
-    with gzip.open(source/'trace.jsonl.gz','rb') as f,(inp/'trace.jsonl').open('wb') as g:
-        shutil.copyfileobj(f,g)
-    manifest=read(source/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
-    cfg=read(source/'config.json');cfg['routing_accounting']['python_path']=str(overlay)
+    inp=package/'results/input360'
+    MANAGER.export(case,inp,quiet=True)
+    manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
+    cfg=read(inp/'config.json');cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
     assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==90e9
     assert cfg['admission']['reference_bandwidth_Bps']==90e9
@@ -132,16 +134,17 @@ def execute(folder,arm,overlay,smoke):
 
 
 def main(args):
-    if args.case=='agentx360_12s_180gb':
-        raise SystemExit('AgentX360已登记为固定输入。当前交付运行器尚不支持其direct_sum、关闭执行反馈及长上下文外推合同；请用benchmark/manage.py export导出。见benchmark/agentx360_12s_180gb/README.md。')
+    if args.case!='all':
+        args.case=MANAGER.resolve_case(args.case)
+        if args.case not in CASES:
+            raise SystemExit(f'{args.case} 当前仅支持校验、导出；运行合同尚未移植。请用 benchmark/manage.py export 导出，见 benchmark/benchmark目录.md。')
     overlay=args.dynamo_python.resolve()
     assert (overlay/'dynamo/_core.abi3.so').is_file(),'Build the weighted Dynamo overlay first'
     assert (overlay.parent/'build.json').is_file(),'Overlay build receipt is required'
     if args._execute:
         execute(args._execute.resolve(),args.arm,overlay,args.smoke);return
     assert (ROOT/'.venv').is_dir() and (ROOT/'upstream').is_dir(),'Bootstrap dependencies first'
-    manager=load_module('benchmark_manage',REPO/'benchmark/manage.py')
-    verified=manager.verify()
+    verified=MANAGER.verify()
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     write(output/'benchmark.verify.json',verified)
     cases=CASES if args.case=='all' else (args.case,)
@@ -179,7 +182,7 @@ def main(args):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--case',choices=(*CASES,'agentx360_12s_180gb','all'),default='global4_abc')
+    p.add_argument('--case',default='mooncake_abc_360_4s_12_90GBps',help='Benchmark目录中的名称；all只选择当前支持完整运行的负载。')
     p.add_argument('--arm',choices=(*ARMS,'all'),default='direct')
     p.add_argument('--output',type=Path,default=ROOT/'results/benchmark_runs/run')
     p.add_argument('--dynamo-python',type=Path,required=True)

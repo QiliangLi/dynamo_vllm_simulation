@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "case": "global4_abc",
+  "case": "mooncake_abc_360_4s_12_90GBps",
   "requests": 360,
   "input_tokens": 5117755,
   "hit_tokens": 4913056,
@@ -39,5 +39,25 @@
     "config.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5",
     "config.historical.json": "28b9deaa963b7d50b91b5481e7e4363e5571aec1e1e288f5b1a2b74c523a51e5"
   },
-  "historical_config_sanitized": true
+  "historical_config_sanitized": true,
+  "aliases": [
+    "global4_abc"
+  ],
+  "source": "mooncake",
+  "feature": "abc",
+  "workers": 12,
+  "shared_storage_Bps": 90000000000.0,
+  "description": "保留相同长度和到达节奏；全局约4%新算预算，人工构造A240/B90/C30。",
+  "benchmark_format_version": 1,
+  "token_pattern": [
+    1332,
+    995,
+    2581,
+    640,
+    1366,
+    23748
+  ],
+  "portable_runner_status": "supported",
+  "runner_profile": "mooncake360_v1",
+  "execution_feedback": "sync_batch"
 }

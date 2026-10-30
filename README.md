@@ -1,8 +1,8 @@
 # TFS与Mooncake360实验分支
 
-本分支提供真实Dynamo路由、vLLM调度、仿真模型/共享存储，以及三个固定benchmark。
+本分支提供真实Dynamo路由、vLLM调度、仿真模型/共享存储，以及固定benchmark目录。
 先读[实验分支使用说明](docs/实验分支使用说明.md)，AI先读[AGENTS.md](AGENTS.md)。
-输入及类别到达规则见[benchmark说明](benchmark/README.md)。本分支不含模型权重或大规模原始运行数据。
+输入及类别到达规则见[Benchmark目录](benchmark/benchmark目录.md)，通用用法见[benchmark说明](benchmark/README.md)。本分支不含模型权重或大规模原始运行数据。
 
 ---
 
