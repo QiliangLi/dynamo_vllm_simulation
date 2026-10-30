@@ -173,7 +173,8 @@
   "changes": [
     "归档名称、元信息和相对链接",
     "较大JSON/CSV用gzip无损压缩",
-    "移除未选取的100GB alpha0.5独立参考小节及附表，正式case数据不变"
+    "移除未选取的100GB alpha0.5独立参考小节及附表，正式case数据不变",
+    "报告工具移至仓库scripts；仅更新当前操作命令与链接，原数据及配图不变"
   ],
   "omitted_links": [
     "report_data/historical_alpha05.csv"
@@ -184,8 +185,8 @@
   "large_raw_events_included": false,
   "files": {
     "report.md": {
-      "sha256": "2038af2fda0fb7c7960b849eae72954cc7819100210aab7773790e02a3c65478",
-      "bytes": 11126
+      "sha256": "f462f5ce531d124f45dedd76d0823e0303abcca2f3cc76688f197346603e046f",
+      "bytes": 11144
     },
     "figure/01_slo_bar.png": {
       "sha256": "a6b21aa435d03ded3d2f0e9011f2db48be70dfcaa27a2e3bc3129010fbea89e0",
@@ -272,8 +273,8 @@
       "bytes": 20043
     },
     "reproduce/README.md": {
-      "sha256": "74f22e823daac553884c356b0eb68fbbc1c969642d5fb11a5219b46c65e9c9bc",
-      "bytes": 965
+      "sha256": "6ca5dc83aae5125bc409c5fb66d102f7f37c099d25bfc989fc29c75bce884966",
+      "bytes": 974
     }
   },
   "run_code_description": [

@@ -2,6 +2,8 @@
 
 先读README.md和报告目录.md，再读取所选报告的manifest.json与正文。具体报告从目录发现，不把本文件当作固定名单。
 
+report/ 的直属子文件夹与 benchmark/ 的负载文件夹严格一一对应。禁止把工具、缓存或某次报告直接放在这一层。工具放 scripts/；暂无报告的 benchmark 也保留同名文件夹，并放 README.md 说明。目录校验必须检查缺失和多余文件夹。
+
 ## 整理已有结果
 
 1. 确认benchmark、输入SHA、实际执行方案、代码/工作树指纹、计算模型、反馈、资源和时间口径。区分历史结果、研究版结果和当前交付运行器。
@@ -10,7 +12,7 @@
 4. 配图放figure；必要数据/配置/来源放report_data。较大派生JSON/CSV可无损gzip；大型原始事件和依赖环境不自动发布。记录来源、SHA及不随包提供的资产。
 5. 修改正文链接及归档元信息时，不改历史指标或图像。重新生成图表时使用仓库内固定工具，保留新输出目录，并重新检查图片。
 6. manifest记录实际方案、日期、来源与文件SHA。源验证存source_validation；归档验证存archive_validation，不能用归档通过声称实验重新运行或生产部署通过。
-7. 从仓库根目录执行python report/manage.py verify --write，然后执行catalog和catalog --check。检查正文、表格、配图和索引的相对链接，再交付。
+7. 从仓库根目录执行python scripts/manage_reports.py verify --write，然后执行catalog和catalog --check。检查正文、表格、配图和索引的相对链接，再交付。
 
 ## 边界
 

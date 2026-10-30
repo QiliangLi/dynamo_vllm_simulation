@@ -13,8 +13,9 @@ import tempfile
 from urllib.parse import unquote
 from datetime import datetime
 
-ROOT=Path(__file__).resolve().parent
-REPO=ROOT.parent
+REPO=Path(__file__).resolve().parents[1]
+ROOT=REPO/'report'
+TOOLS=Path(__file__).resolve().parent/'report_tools'
 read=lambda p:json.loads(p.read_text(encoding='utf-8'))
 
 def digest(path):
@@ -25,6 +26,17 @@ def digest(path):
 
 def entries():
     return [(p.parent,read(p)) for p in sorted(ROOT.glob('*/*/manifest.json'))]
+
+def benchmark_names():
+    return {p.name for p in (REPO/'benchmark').iterdir()
+            if p.is_dir() and (p/'manifest.json').is_file()}
+
+def check_layout():
+    expected=benchmark_names()
+    actual={p.name for p in ROOT.iterdir() if p.is_dir()}
+    assert actual==expected, ('report目录必须与benchmark一一对应',
+                              {'missing':sorted(expected-actual),'extra':sorted(actual-expected)})
+    return expected
 
 def report_path(value):
     target=(ROOT/value).resolve()
@@ -78,6 +90,7 @@ def verify_one(folder,m,writing=False):
                 simulations_run=0,performance_recomputed=False)
 
 def verify(write=False):
+    benchmarks=check_layout()
     results=[]
     for folder,m in entries():
         result=verify_one(folder,m,writing=write)
@@ -85,7 +98,7 @@ def verify(write=False):
         results.append(dict(report_id=m['report_id'],study_id=m['study_id'],**result))
     assert results,'No reports'
     return dict(status='passed',report_entries=len(results),unique_source_studies=len({r['study_id'] for r in results}),
-                benchmarks=len({m['benchmark_id'] for _,m in entries()}),reports=results,simulations_run=0)
+                benchmarks=len(benchmarks),reports=results,simulations_run=0)
 
 def catalog_text():
     labels={'matched_input_and_model':'负载/模型对应；保留原运行版本',
@@ -98,6 +111,9 @@ def catalog_text():
         stamp=datetime.fromisoformat(m['created_at']).strftime('%Y-%m-%d %H:%M:%S')
         link=m['report_id']+'/report.md'
         lines.append(f"| {m['benchmark_id']} | {stamp} | {'、'.join(m['experiment_dates'])} | {'；'.join(s['label'] for s in m['schemes'])} | {labels[m['compatibility']]} | [查看]({link}) |")
+    covered={m['benchmark_id'] for _,m in entries()}
+    for name in sorted(benchmark_names()-covered):
+        lines.append(f'| {name} | — | — | — | 暂无报告 | — |')
     studies=len({m['study_id'] for _,m in entries()})
     lines+=['',f'共 {len(entries())} 个报告入口，来自 {studies} 份源研究报告。','',
         '## 附录：归档口径','',
@@ -107,7 +123,7 @@ def catalog_text():
         '- 不纳入100 GB/s的两组独立alpha0.5补充图、附表及对应旧参考小节。random历史alpha扫描中的alpha0.5属于已选报告，仍按原实验保留。',
         '- 图像保持原始字节；较大派生JSON/CSV使用gzip无损压缩。大型原始事件不随本目录发布；来源和哈希在manifest与source_validation/provenance中。',
         '- source_validation.json是原报告验证记录；archive_validation.json只验证本次归档，不表示重新运行了实验。',
-        '- 新报告增加独立目录和manifest后，运行python report/manage.py verify --write与catalog更新索引；通用README和agent.md不维护逐报告名单。','']
+        '- 新报告增加独立目录和manifest后，运行python scripts/manage_reports.py verify --write与catalog更新索引；通用README和agent.md不维护逐报告名单。','']
     return '\n'.join(lines)
 
 def redraw(path,output):
@@ -122,7 +138,7 @@ def redraw(path,output):
             import shutil
             with gzip.open(source,'rb') as src,target.open('wb') as dst:shutil.copyfileobj(src,dst)
         else:target.write_bytes(source.read_bytes())
-        subprocess.run([sys.executable,str(ROOT/'tools/generate_report.py'),'--dataset',str(target),'--output',str(output)],check=True)
+        subprocess.run([sys.executable,str(TOOLS/'generate_report.py'),'--dataset',str(target),'--output',str(output)],check=True)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='action',required=True)

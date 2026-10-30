@@ -200,7 +200,7 @@ K=1；实际组批v2；3层Dense+75层MoE；TP1/DP8/EP8。名义模型时间、�
 - [方案汇总](report_data/run_summary.csv)
 - [请求明细](report_data/requests.csv)
 - [标准重绘数据](report_data/dataset.json.gz)
-- [复现入口](../../tools/generate_report.py)
+- [复现入口](../../../scripts/report_tools/generate_report.py)
 
 在报告目录执行：
 

@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[2]
-spec=importlib.util.spec_from_file_location('report_archive_catalog',REPO/'report/manage.py')
+spec=importlib.util.spec_from_file_location('report_archive_catalog',REPO/'scripts/manage_reports.py')
 manager=importlib.util.module_from_spec(spec);spec.loader.exec_module(manager)
 
 
@@ -51,6 +51,19 @@ class ReportCatalogTests(unittest.TestCase):
         self.assertEqual(result['report_entries'],1)
         self.assertEqual(manager.verify()['status'],'passed')
         self.assertIn(self.benchmark,manager.catalog_text())
+
+    def test_extra_report_root_folder_is_rejected(self):
+        (self.root/'tools').mkdir()
+        with self.assertRaises(AssertionError):manager.verify(write=True)
+
+    def test_benchmark_without_report_still_requires_a_folder(self):
+        name='demo_random_2_1s_1_1GBps'
+        folder=self.repo/'benchmark'/name;folder.mkdir()
+        (folder/'manifest.json').write_text('{}')
+        with self.assertRaises(AssertionError):manager.verify(write=True)
+        report=self.root/name;report.mkdir();(report/'README.md').write_text('No reports yet')
+        self.assertEqual(manager.verify(write=True)['benchmarks'],2)
+        self.assertIn('暂无报告',manager.catalog_text())
 
     def test_source_table_change_is_rejected_even_with_new_archive_hash(self):
         (self.folder/'report_data/run_summary.csv').write_bytes(b'mode,mean_ttft_ms\ndirect,1\n')

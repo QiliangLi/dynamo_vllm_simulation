@@ -5,7 +5,7 @@
 标准重绘数据：../report_data/dataset.json.gz。从仓库根目录执行：
 
 ```bash
-python report/manage.py redraw "synthetic_abc_360_6s_12_90GBps/20261030-162707_直接提交-EDF_TFS-EDF-alpha0.1+alpha1" --output <新的输出目录>
+python scripts/manage_reports.py redraw "synthetic_abc_360_6s_12_90GBps/20261030-162707_直接提交-EDF_TFS-EDF-alpha0.1+alpha1" --output <新的输出目录>
 ```
 
 重绘只读取冻结数据，不重新运行实验。生成的新图仍需人工检查，不能沿用本归档的图像检查状态。
