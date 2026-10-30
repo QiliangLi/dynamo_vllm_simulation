@@ -160,7 +160,8 @@
   "source_figures_unchanged": true,
   "changes": [
     "归档名称、元信息和相对链接",
-    "较大JSON/CSV用gzip无损压缩"
+    "较大JSON/CSV用gzip无损压缩",
+    "报告工具移至仓库scripts；仅更新当前操作命令与链接，原数据及配图不变"
   ],
   "omitted_links": [],
   "simulations_run": 0,
@@ -169,8 +170,8 @@
   "large_raw_events_included": false,
   "files": {
     "report.md": {
-      "sha256": "aa237f0bbd295690d41e07fd4fcd174e06f3f4f87b2185cacce2cee6015f955c",
-      "bytes": 13860
+      "sha256": "7099516b701505c672a6c021a47fad2a9fea897bcdd3df419c3cfeea4b807439",
+      "bytes": 13878
     },
     "figure/01_slo_bar.png": {
       "sha256": "9e0b2cae42d46497ac754188bd0718f2fc0b08c886920548b5c5a3a15dac6024",
@@ -245,8 +246,8 @@
       "bytes": 18157
     },
     "reproduce/README.md": {
-      "sha256": "5c5ecf1e63907c034a6d27b5929aff494739d8f86fd995cb1e5f8a9f630ee353",
-      "bytes": 964
+      "sha256": "a39c0403a4167faed57900ae51acf75029a9787d4d56853a54a5d0cb5044b2cf",
+      "bytes": 973
     }
   },
   "run_code_description": [],

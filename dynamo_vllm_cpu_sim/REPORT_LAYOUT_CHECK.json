@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "date": "2026-10-30",
+  "benchmark_directories": [
+    "agentx_random_360_12s_12_180GBps",
+    "mooncake_abc_360_4s_12_100GBps",
+    "mooncake_abc_360_4s_12_90GBps",
+    "mooncake_abcd_360_4s_12_100GBps",
+    "mooncake_abcd_360_4s_12_90GBps",
+    "mooncake_random_360_4s_12_90GBps",
+    "synthetic_abc_360_6s_12_90GBps"
+  ],
+  "report_directories": [
+    "agentx_random_360_12s_12_180GBps",
+    "mooncake_abc_360_4s_12_100GBps",
+    "mooncake_abc_360_4s_12_90GBps",
+    "mooncake_abcd_360_4s_12_100GBps",
+    "mooncake_abcd_360_4s_12_90GBps",
+    "mooncake_random_360_4s_12_90GBps",
+    "synthetic_abc_360_6s_12_90GBps"
+  ],
+  "exact_one_to_one": true,
+  "report_entries": 8,
+  "source_studies": 7,
+  "unit_tests": 279,
+  "tool_entry": "scripts/manage_reports.py",
+  "renderer": "scripts/report_tools/generate_report.py",
+  "source_data_and_figures_unchanged": true,
+  "simulations_run": 0
+}

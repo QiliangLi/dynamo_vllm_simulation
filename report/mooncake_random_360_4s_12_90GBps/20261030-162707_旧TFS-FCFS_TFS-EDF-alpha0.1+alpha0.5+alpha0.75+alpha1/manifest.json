@@ -218,7 +218,8 @@
   "source_figures_unchanged": true,
   "changes": [
     "归档名称、元信息和相对链接",
-    "较大JSON/CSV用gzip无损压缩"
+    "较大JSON/CSV用gzip无损压缩",
+    "报告工具移至仓库scripts；仅更新当前操作命令与链接，原数据及配图不变"
   ],
   "omitted_links": [
     "reproduce/runner.py",

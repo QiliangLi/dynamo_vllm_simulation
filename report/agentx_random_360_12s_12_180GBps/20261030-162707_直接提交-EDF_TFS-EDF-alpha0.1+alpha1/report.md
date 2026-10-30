@@ -206,7 +206,7 @@
 - [方案汇总](report_data/run_summary.csv)
 - [请求明细](report_data/requests.csv)
 - [标准重绘数据](report_data/dataset.json.gz)
-- [复现入口](../../tools/generate_report.py)
+- [复现入口](../../../scripts/report_tools/generate_report.py)
 
 在报告目录执行：
 

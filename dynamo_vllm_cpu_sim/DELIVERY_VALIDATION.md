@@ -1,6 +1,16 @@
 # 分支交付验证
 
 
+## 2026-10-30：报告目录与benchmark严格对齐
+
+report/直属目录恰好为七个benchmark同名目录；八个报告目录均位于对应benchmark之下。
+管理入口移至scripts/manage_reports.py，绘图工具移至scripts/report_tools/，report/不再放工具或缓存目录。
+命令、正文链接和manifest文件SHA同步更新；原图、冻结数据与性能数值未改。
+新增校验拒绝多余/缺失目录；暂无报告的benchmark仍须保留同名文件夹，并在索引显示暂无报告。
+279项单元测试、归档完整性/链接校验及移动后绘图入口的validate-only检查通过；未运行仿真。
+目录检查记录见[REPORT_LAYOUT_CHECK.json](REPORT_LAYOUT_CHECK.json)。
+
+
 ## 2026-10-30：规范报告归档
 
 新增report/README.md、agent.md、报告目录.md与标准时间/方案命名的报告目录。

@@ -2,6 +2,8 @@
 
 本目录按 benchmark 归档已完成实验的报告。具体报告、方案、日期和版本关系统一见 [报告目录.md](报告目录.md)。AI 使用约定见 [agent.md](agent.md)。
 
+report/ 的直属子文件夹必须与 benchmark/ 中的负载文件夹一一对应。有几个 benchmark，就保留几个同名文件夹；每次报告的日期/方案目录只放在相应 benchmark 文件夹内。暂无报告时，在该文件夹内放 README.md 说明。工具统一放在仓库 scripts/，不放进 report/。
+
 ## 目录与命名
 
 每个 benchmark 使用与 benchmark/ 相同的目录名。每份报告单独放入“YYYYMMDD-HHMMSS_实际方案列表”目录，日期时间采用 Asia/Shanghai，表示报告创建时间。正文另列实际实验日期和可获取的起止时刻，不用文件时间推断实验时间。
@@ -24,9 +26,9 @@
 从仓库根目录运行；目录和资产校验仅需Python标准库，不启动仿真：
 
 ```bash
-python report/manage.py list
-python report/manage.py verify
-python report/manage.py catalog --check
+python scripts/manage_reports.py list
+python scripts/manage_reports.py verify
+python scripts/manage_reports.py catalog --check
 ```
 
 source_validation.json保存原报告验证，archive_validation.json验证迁移后的文件、来源表格、图像身份和相对链接。图表数据一致不证明性能排名稳定；模拟计算占比不是硬件利用率。
@@ -36,7 +38,7 @@ source_validation.json保存原报告验证，archive_validation.json验证迁�
 manifest声明standard_dataset时，可以使用随仓库提供的固定报告工具重绘到新目录：
 
 ```bash
-python report/manage.py redraw <benchmark/报告目录> --output <新的输出目录>
+python scripts/manage_reports.py redraw <benchmark/报告目录> --output <新的输出目录>
 ```
 
 工具不改变实验，依赖Matplotlib、NumPy、Pillow与中文字体；Windows使用现有WSL环境，Linux直接运行。不自动安装或升级环境。生成的新图需要重新人工检查，不能沿用旧报告的视觉验收。
