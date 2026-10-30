@@ -1,0 +1,380 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1080,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1425
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "直接准入＋EDF": "#888888",
+    "新TFS α=0.1": "#55A868",
+    "新TFS α=1": "#4C72B0"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 5.464886667000002,
+  "bin_ms": 10,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "edf": {
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/config.json": {
+        "sha256": "da5000241cb26c04f122b547f1bdff1b4a56ab05de95ad80b3396e1ee0f09203",
+        "bytes": 1848
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/admission.final.json": {
+        "sha256": "6e74d962b022b2233664620fb390002f7722b5c50274dcda6b461930a1a17263",
+        "bytes": 1995303
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/storage.projection.json": {
+        "sha256": "328bf73032c17f9e1d6d1fb0fae3ac4de4c115b9a9b278b5cfa1f24db3ece5a9",
+        "bytes": 7267602
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/clock.json": {
+        "sha256": "760c09468ead845db14805dedf1c312e05426057dcd6729f28a6054481efed2f",
+        "bytes": 105
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/client_report.json": {
+        "sha256": "a65038d33bd4670f0cd1b25da598dce75299813f9c17059c750a249c85bc8ec5",
+        "bytes": 132306
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker0.steps.jsonl": {
+        "sha256": "5e0b5358f2621fd96c47c9aa8a67aa8681daf26495f653a52024ab8af3f13f79",
+        "bytes": 1759760
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker1.steps.jsonl": {
+        "sha256": "b771980ee4acf24a86c904d588a38335e03e0f7a8a5c2e5ca26576ef44b10b63",
+        "bytes": 1677099
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker10.steps.jsonl": {
+        "sha256": "3d4bf64e5118a4ed028c2f8a6554b4706fce97b37033895816e1a8fd06f077c7",
+        "bytes": 1752452
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker11.steps.jsonl": {
+        "sha256": "d89036bf568ba7e6b7c209fa472171f26217a3fd126194b440f4ec774c6662b5",
+        "bytes": 1554584
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker2.steps.jsonl": {
+        "sha256": "8da326871dbf29a8debcdbf77a0fdc0b06778401272c4055456b3d3a6286c364",
+        "bytes": 1500300
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker3.steps.jsonl": {
+        "sha256": "9a8a9d77edf6d7d8f33ffa9de9d627fdb86e14898962ac2efb9426f2a8118b9d",
+        "bytes": 1381778
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker4.steps.jsonl": {
+        "sha256": "5571a5b220c702236c791b61202c7d3d4aad9a954d674e109f1f6cbca8c3c3cb",
+        "bytes": 1874408
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker5.steps.jsonl": {
+        "sha256": "20962aa1b25ae398aca6ad7d526302323ee45ed42fa86f54ac8109bdb6755775",
+        "bytes": 1609485
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker6.steps.jsonl": {
+        "sha256": "0cb43bd7293952ef7af394618e9a1912b6ba4827fd42bffef0cdf01dc53179f6",
+        "bytes": 1759297
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker7.steps.jsonl": {
+        "sha256": "06aac7a34c41ce839bc306b12b2eeae8e1852b34f74ba6cbc05e2962c391b3c3",
+        "bytes": 1719237
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker8.steps.jsonl": {
+        "sha256": "b57df20b2a54d118616c8a69ac73011ed7d2a4c30b283cde16bc0626d1131ef1",
+        "bytes": 1705275
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/edf/worker9.steps.jsonl": {
+        "sha256": "2a758c3d0fa7eccf12904adce18abf87b0129b454339856b817e39d8a80cce00",
+        "bytes": 1535538
+      }
+    },
+    "a01": {
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/config.json": {
+        "sha256": "2b17e5da978bec8a4a4f634bce444e3991d0134ef1ba0aea4c8707a31796b8b7",
+        "bytes": 1843
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/admission.final.json": {
+        "sha256": "65d773b491f42cb54357f30ababc538781c1ff562e8ab2eac3be5445b040b319",
+        "bytes": 3127414
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/storage.projection.json": {
+        "sha256": "f7693972edc912bbcd6742f76f88b1c2cebdcbda5e0d53e9843a65ad0e02a37b",
+        "bytes": 7265156
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/clock.json": {
+        "sha256": "6e87523b887194a0e8836be2a29b7c635bce29a3f4bf803b30c58a2e021d283c",
+        "bytes": 105
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/client_report.json": {
+        "sha256": "43689417e9e0c211819d24204c61fd7a7d128af1bcf382b47b6de7fd126f67ad",
+        "bytes": 132369
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker0.steps.jsonl": {
+        "sha256": "f1a90fa7fe6f39ce2342b0fc77a5292e8e73eb5e89249caedcd9f97d36d8b528",
+        "bytes": 1704557
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker1.steps.jsonl": {
+        "sha256": "99e58de26b2d6ecd4ef95015b4e24a793b5e021cf224700b4642cc5bd908931d",
+        "bytes": 1810256
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker10.steps.jsonl": {
+        "sha256": "20ea0199514e6d2f889dd8ee013572f580fcf60b2813cbef1e544a85470467d3",
+        "bytes": 1540357
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker11.steps.jsonl": {
+        "sha256": "7779ef6491ef6ed0375611bf55701f2ef69f695d6abbd00d6d2a102db85381c4",
+        "bytes": 2032447
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker2.steps.jsonl": {
+        "sha256": "ffe4f1ccb739d0bd895f0321b3cbb5c8d662ad9863198ea22d143e1574fc69f2",
+        "bytes": 1960908
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker3.steps.jsonl": {
+        "sha256": "94ddf04194d37089c639239a03ecc35bd8a037b82d3443283aecaceb114f3167",
+        "bytes": 1688924
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker4.steps.jsonl": {
+        "sha256": "85c9ced71e49c68f17ec8177291674cdd526816afda5d104027a50e94bc82a81",
+        "bytes": 2022968
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker5.steps.jsonl": {
+        "sha256": "8b415d4ed9a718c36876fd2d774e0c91926ed14358be9c91668bfa06d5df7b2b",
+        "bytes": 1990725
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker6.steps.jsonl": {
+        "sha256": "c1c81843e18bf4c791d18248977755a102d1754c0c28648febd4e3c4efffbdf1",
+        "bytes": 1598892
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker7.steps.jsonl": {
+        "sha256": "64a90d4754d655e57bb57df055b3559418b5f1c5be28e4f1f4cf1781b8aad3c3",
+        "bytes": 2374166
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker8.steps.jsonl": {
+        "sha256": "2bdbca408161530633afc774a0be08066972b3f0c08faab588ae2ed482714f97",
+        "bytes": 2128150
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a01/worker9.steps.jsonl": {
+        "sha256": "b8b5b539639278c09561018835f9a29d08bf00d47fb64c1b9cfdb7f90309cc6a",
+        "bytes": 1872557
+      }
+    },
+    "a1": {
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/config.json": {
+        "sha256": "6f27a36eebddacd59777ae90d9470d378826260467ed70c4d340e78cd144e5c5",
+        "bytes": 1843
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/admission.final.json": {
+        "sha256": "ed97263e944662c92401bbd548350546b0f7cc2237566b43e80b5fd716d18bbf",
+        "bytes": 3604811
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/storage.projection.json": {
+        "sha256": "d2e97d83a63704e13dc944e167e5574ba9d2beffbc228f29d1f38ee467ba28e0",
+        "bytes": 7266973
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/clock.json": {
+        "sha256": "e3dbfd25bf1aabf55a208b7408e11d2db1df9985726fe240b156d5ad0436b9b5",
+        "bytes": 105
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/client_report.json": {
+        "sha256": "ac186288115543551bb056a7c30022dacb12c7fd537c0beab93c530fb544fdbe",
+        "bytes": 132242
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker0.steps.jsonl": {
+        "sha256": "8834460683a10311d41e99115eaa84746f5a74cd9feae365b455984fb5b08be5",
+        "bytes": 2231859
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker1.steps.jsonl": {
+        "sha256": "fd66f199dc4a4d9852f67e3e8f5fe4ab37924ce1356bc32ced0f8ed96be01ca8",
+        "bytes": 1608668
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker10.steps.jsonl": {
+        "sha256": "ff932e871e9a34293d6275680905768dfa64450aab501bd1da24790384d983fe",
+        "bytes": 1978654
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker11.steps.jsonl": {
+        "sha256": "5860f255d48eccf1ce855350923b3f8aef1a8de832fd893d3530a1b2cc6cc623",
+        "bytes": 1532366
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker2.steps.jsonl": {
+        "sha256": "e71e80e293c589673a9fa2076af96b0d34bbbe97220588dd3ba93d38d42c07bf",
+        "bytes": 2167160
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker3.steps.jsonl": {
+        "sha256": "941c980e6b7587d778fd07ee6dc7f45ec12044e1cb921146ac250510da1e9165",
+        "bytes": 1787888
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker4.steps.jsonl": {
+        "sha256": "3ee202bd19382a4a73243c0dd5a278e67e638f9b79405bbbeacb1fbb4ae1a89f",
+        "bytes": 1589416
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker5.steps.jsonl": {
+        "sha256": "ecabd01bba3fd01f5edead3c411dedbb7767f62f675fac5819a537bc93a38322",
+        "bytes": 2072874
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker6.steps.jsonl": {
+        "sha256": "83cb3f39a5312f41a086ca6c5b1a4ab9d0dfd65b03959e161bbb68d9acf1d013",
+        "bytes": 1821243
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker7.steps.jsonl": {
+        "sha256": "3f8502926ddf7b02210f311458a48972ad281650a6ddf081c30945531eaca237",
+        "bytes": 1720713
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker8.steps.jsonl": {
+        "sha256": "c7efe9ec6cac349cd1b69ef1c43a0f9445cc17ffa6ceed963138dacbb41a889b",
+        "bytes": 1942950
+      },
+      "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/raw/a1/worker9.steps.jsonl": {
+        "sha256": "426eb01f295de7e7f2f5edce41c75da7824a6daa01f57907e0cba30e61bdad6a",
+        "bytes": 1900970
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/abc360-glm90-6s-20261030-r1/6/report_inputs/dataset.json",
+    "sha256": "7053ccefbd868133eb4582e6fdad5aaeeccd84d32e120018ea90d04350bd4252"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "9e0b2cae42d46497ac754188bd0718f2fc0b08c886920548b5c5a3a15dac6024",
+      "bytes": 50949
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "f32bc52a6d6d8e2137ad07d7fd22f524c9044084a1f0ec1d4623383fb173eb69",
+      "bytes": 221679
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "35e43832071e988b89b0d53e4be0db03eb740f02b556186999198da9e6fcd9c9",
+      "bytes": 94706
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "76512512d0959a2258c87439291f7fe98c05915aeddde0f30d771a3827a96407",
+      "bytes": 558774
+    },
+    "figure/05_cdf.png": {
+      "sha256": "da313fa9b931e07167b38d6ceebc40756b28d7f9e12960452aa467e07a0db63d",
+      "bytes": 104373
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "921a779f0054a3f2b25d83f91669ff094d2fb583460e9b530f2b26ea07cd3c18",
+      "bytes": 138234
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "5e38001596880b9b57c264f74e68b3d5eec0749d12601000b527daf84adaea7a",
+      "bytes": 62132
+    },
+    "report.md": {
+      "sha256": "b05165fc9624267af5f77479b0dc3338b0f75d74797095c52e1410c74242a868",
+      "bytes": 12774
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "65785732151dec8eb5424a497acadcb9eb1f93516e6b224b8aedf3f8474e4dae",
+      "bytes": 159148
+    },
+    "report_data/cdf.csv": {
+      "sha256": "154ec2fd4eabcb84c6376c7013a2d226627d9df87c2d56859080480796e65439",
+      "bytes": 107422
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "3dd41b844e69cf2c401e7009006e9dbab696689a566d763fa9add8096bc0c12a",
+      "bytes": 1037
+    },
+    "report_data/configuration.json": {
+      "sha256": "abdce73501e010b6f9304a2f22d8fc35b10ec4490383e783ce24902f2ed681f2",
+      "bytes": 7087
+    },
+    "report_data/dataset.json": {
+      "sha256": "7053ccefbd868133eb4582e6fdad5aaeeccd84d32e120018ea90d04350bd4252",
+      "bytes": 52721360
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "5d95e2a35b56b734d708fd2dc701d9aa9a769e42080570aa027601aca464b4c4",
+      "bytes": 3625
+    },
+    "report_data/layers.csv": {
+      "sha256": "de860539deff675688f657f24f328e5e4064acc36e46981706e1c61cd32ad5e7",
+      "bytes": 3684909
+    },
+    "report_data/requests.csv": {
+      "sha256": "c1532aa4793a5edec5ff7f3cda43174eafabafe4b2ccbb6d3152844d8a796803",
+      "bytes": 175005
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "9f82a3a92f631a7f537dc0b99fd060f6162bad7f08e4b2720e4dd0f3a2e2288b",
+      "bytes": 952
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "e6b69e6989ff22653281317f5eb16cef0fc1380f84b463bb29426af274815e29",
+      "bytes": 9232
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "0bfbe6b274695bdf310025d7836ffafbd458b75da794362a9f0169182df71f3d",
+      "bytes": 10764
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "edc03278fb662258622379bff9e25832c7af48727761731eac3c3bfb117ec816",
+      "bytes": 23222
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "d59bd3b46f56f185c72eae6f45a2945eeaf1844df28b37c5cf9bf69972d28137",
+      "bytes": 3436
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "17e89b2773db830c515eff1e69755f09048df2cb032d5b948a7d932af46f16fe",
+      "bytes": 18365
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+      "bytes": 7167
+    }
+  }
+}

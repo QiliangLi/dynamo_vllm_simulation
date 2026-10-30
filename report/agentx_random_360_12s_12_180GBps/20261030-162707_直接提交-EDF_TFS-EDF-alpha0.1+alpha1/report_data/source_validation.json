@@ -1,0 +1,380 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1080,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1425
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      1920,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "直接准入＋EDF": "#888888",
+    "新TFS α=0.1": "#55A868",
+    "新TFS α=1": "#4C72B0"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 6.215960399000039,
+  "bin_ms": 10,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "edf": {
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/config.json": {
+        "sha256": "8bd5ed3fd8b43324273bffc9412be2bac868fae7955b6f15d43b753b4da1be25",
+        "bytes": 1806
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/admission.final.json": {
+        "sha256": "d80f20e64bc7863e6ca8889bf9b17835955c17fbe0ec724901a4e0b2c5a42312",
+        "bytes": 2009464
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/storage.projection.json": {
+        "sha256": "3261bf538c4ba0cafc8f32e4a4e98cd15f61d8888f0fa47fb987bcfd0c283562",
+        "bytes": 10686831
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/clock.json": {
+        "sha256": "89c3419c0e388fa29b36f9952e2d5b6bd12e3e873f797e72c27ebe918a6b422a",
+        "bytes": 103
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/client_report.json": {
+        "sha256": "6cd5fccab323578b5744de02bcb81731277f8b0e38e3d1eb6a3ee1a618ef205a",
+        "bytes": 133938
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker0.steps.jsonl": {
+        "sha256": "d7ae969cf4a65e45e0893933c0faeb25330fcd2add78ff48308186b90a8464d3",
+        "bytes": 2200935
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker1.steps.jsonl": {
+        "sha256": "33663b45bf93f0ede52ef04e4a137439f6f51e716e528d34926781c221ccb95d",
+        "bytes": 2719372
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker10.steps.jsonl": {
+        "sha256": "21e15ce7ade5103c27c299a2a2b327e85a41654cb7f907f80de518cef011e8d1",
+        "bytes": 3054046
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker11.steps.jsonl": {
+        "sha256": "434792bee0d67d7d8da9bba8246920f68b5f62be9f0ed35b47aa210c3ccf1a50",
+        "bytes": 1321608
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker2.steps.jsonl": {
+        "sha256": "64ac4d6bdcafa7003b2c41e8bbb58fbb987032f9a4b12fa8c2bc1bb9c9a7f97f",
+        "bytes": 2240678
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker3.steps.jsonl": {
+        "sha256": "66482c59c0bb82c25dcf0c965aaa71b9bdd978fdc4882a09d3eab1e0b15c3e12",
+        "bytes": 2438364
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker4.steps.jsonl": {
+        "sha256": "3ec84d2f8048e4e0d0811dc0ac7c5151bbe91c17cc8c065c6132776198e11672",
+        "bytes": 2276510
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker5.steps.jsonl": {
+        "sha256": "9a55a518908510a03751321da2ca6f59b9c8d302c60b5bbdfc276fd505144ea2",
+        "bytes": 2781107
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker6.steps.jsonl": {
+        "sha256": "b8d05f726959a4dcaa068c1964a641bff428912170202d61437414d726596098",
+        "bytes": 2324379
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker7.steps.jsonl": {
+        "sha256": "d808ecbae8b53a53af509b83d56defa145995e07b158feacddc44c5be4961d8a",
+        "bytes": 2663955
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker8.steps.jsonl": {
+        "sha256": "0138d5748ae115607797ff52122c1fa8d1c32efb744f95893b91a08a5556ad6d",
+        "bytes": 2403213
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/edf/worker9.steps.jsonl": {
+        "sha256": "1c9b741e546dfc097cb453b7c5c6548d39f93da6b38ead3cc03354048732aeca",
+        "bytes": 2118371
+      }
+    },
+    "a01": {
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/config.json": {
+        "sha256": "c4904fb62fa4e169770eb05708f59c6134cd85953285c483131ccd7464924d7a",
+        "bytes": 1801
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/admission.final.json": {
+        "sha256": "44ade8178dbb54e5240d27fe41794cd774c1ff41f2abd79a5a40bc7ffdb9ef41",
+        "bytes": 2595909
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/storage.projection.json": {
+        "sha256": "c299569d4ea153c048ddb754ae3d4bf387cf942981f62b54d43b706ca6264c1c",
+        "bytes": 10707021
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/clock.json": {
+        "sha256": "c116c4e4c3b50475a2108e3b0c5aee3f07143be5f761eea2b302b82e58aaded1",
+        "bytes": 105
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/client_report.json": {
+        "sha256": "da5928a830d0597f87aa8a4a37bb1bfe9fe0badf534bb39438a22ecb2d8e9838",
+        "bytes": 134050
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker0.steps.jsonl": {
+        "sha256": "686515a489627243a1528773eb73cd91a2186148b8e43f0d2482c12681e29748",
+        "bytes": 2505069
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker1.steps.jsonl": {
+        "sha256": "96b226327c5098f0ca04692fc304aa9a5464a716342060331de2de79c8da0e9f",
+        "bytes": 2282586
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker10.steps.jsonl": {
+        "sha256": "3ea990f06e9eff5e4194ba4f7df0abe5ca9e98ca1ad3d613a25324568724dfef",
+        "bytes": 1965129
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker11.steps.jsonl": {
+        "sha256": "3e0bf9efa4e5dfa9b686ef632f91a557881e3d86bdde8681d59277afdb597b02",
+        "bytes": 3018740
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker2.steps.jsonl": {
+        "sha256": "30ea1433ec9732ba368f10944fa904d8617c35c731091eae6e0ddd5e192b16dd",
+        "bytes": 2481520
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker3.steps.jsonl": {
+        "sha256": "5471322288387e59f80c9679c0452f7987733bc10b6f830b1444b321fdd8d61e",
+        "bytes": 2044954
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker4.steps.jsonl": {
+        "sha256": "2e684d1c25c65bad394e5acde3ba6c91dcaff0bbd7747f874aa433bcd8bcde75",
+        "bytes": 2825359
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker5.steps.jsonl": {
+        "sha256": "c952011298046f1ceb5f972116b74e54262bcede5abd02d2d9f67fec19b2f890",
+        "bytes": 1490509
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker6.steps.jsonl": {
+        "sha256": "d94e4d20fe4000d92f4c1ec5a21f4dbf55fd90cb47fd77d9a6b240b0effcb1b1",
+        "bytes": 2601401
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker7.steps.jsonl": {
+        "sha256": "43e6ea2385119292afc3c45d02ea5c31cab30307342419dc53a58242950b85fd",
+        "bytes": 2733237
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker8.steps.jsonl": {
+        "sha256": "f32dfc9dbee42e8eab145c9bd0e21345f72293a0d1a92643cc26d3154c5bd7b4",
+        "bytes": 2411314
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a01/worker9.steps.jsonl": {
+        "sha256": "422432102db5d6a5c79ee2af9382faac43ddcad5b17ac43dc74caeb9e5bcfced",
+        "bytes": 2549174
+      }
+    },
+    "a1": {
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/config.json": {
+        "sha256": "0b6393edb6432926a8cfa8ea1f26e00687a536ab079a5a7cd9fd2cc664842518",
+        "bytes": 1801
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/admission.final.json": {
+        "sha256": "9a839295983ba1c8af55f95afe48a8ed95b238488d428b7695ab2bd905ebc819",
+        "bytes": 2620919
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/storage.projection.json": {
+        "sha256": "40615ffae2a20a7a97b67aeb93a97b42d42b4aa13cc7dff8017ca84976c37fcf",
+        "bytes": 10666867
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/clock.json": {
+        "sha256": "b6ae6946e679fb2f7f3a9844b83bc4e06c476ed42d07fa861bdfadb935f4a956",
+        "bytes": 105
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/client_report.json": {
+        "sha256": "5572578c1400ce6b3ccbb6e836ed6a5a01696d4342b6289dd4f901507f4657be",
+        "bytes": 133954
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker0.steps.jsonl": {
+        "sha256": "ca81c1cad3ac5b4a86f0dc60cf3918b34e115991fc475487329ba0f919328dbb",
+        "bytes": 2584683
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker1.steps.jsonl": {
+        "sha256": "dbd4874f95e157d5fd1915b35959b5d12b26dd3c0bff6d6d08064b12a75a7cdd",
+        "bytes": 2868784
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker10.steps.jsonl": {
+        "sha256": "567ebc688fd04acefa4dc8e0c8a73cb71f9b9d5ab64b45cfbdb6dcc2ddb76423",
+        "bytes": 2569627
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker11.steps.jsonl": {
+        "sha256": "ac7b99c31166659c18cb8f57de87a7f60551f2a2850500ab96c89014c2b33176",
+        "bytes": 2157002
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker2.steps.jsonl": {
+        "sha256": "672a8dfa2b18d3b7fee31c64fcba5269c2942e72aa88eb1f2ae3e14420e2d64f",
+        "bytes": 2703261
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker3.steps.jsonl": {
+        "sha256": "f14ce97ef4d8dc534a382e292ee84029de31d3bac31e6c3e2ed8f94ebc10d265",
+        "bytes": 1857293
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker4.steps.jsonl": {
+        "sha256": "f0ec4d3ae1e464d98fb1b2cd5dc0c8ce868d34f866f050d9fb9ade3c401fa4c7",
+        "bytes": 2340653
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker5.steps.jsonl": {
+        "sha256": "8ea53523ba5fce4b0fc033bf5fdcef3b009ca7f018d6e35c6f4efbeaf21ce473",
+        "bytes": 2018734
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker6.steps.jsonl": {
+        "sha256": "786b4a4d28e2cdbae26255d7428fc4593036a45059b306eca916a42d22f59fbd",
+        "bytes": 2498173
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker7.steps.jsonl": {
+        "sha256": "0216eaf1de642f0f4ba89057065867aa10b935f3ed3bb34b432945939269d924",
+        "bytes": 2555728
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker8.steps.jsonl": {
+        "sha256": "20e5b56d0f29f8919735f7ff48ef1231eb04abec48603278030b340a17ac4d4c",
+        "bytes": 2576307
+      },
+      "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/raw/a1/worker9.steps.jsonl": {
+        "sha256": "6de0b0a1b7703d9b6b885e8a479e6a02174b7e350c8a5cfd6f2293bad2d31d57",
+        "bytes": 2051291
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/agentx360-180gb-12s-20261030-r1/12/report_inputs/dataset.json",
+    "sha256": "33cd2803e1c916031084c86ccd8a1ebb6faa61bf88332784e86a36398c4000ce"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "a9becef2b04222b2a0908a089cfb49bc1e92d25369f61776c0970d3e220adba8",
+      "bytes": 50848
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "b09af83fb01eb5a09117528d7e46b22ddcd39853d301375eca43e29e36e13301",
+      "bytes": 218363
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "63c1904defc63e88635e8f5bae8b07f67bc5777bfebcf2498123f4f6a24bb0f8",
+      "bytes": 95834
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "9bd6de94b69372ec0c5e64425a96a14e967939ce5904758c8b3ef3c433d07db5",
+      "bytes": 471447
+    },
+    "figure/05_cdf.png": {
+      "sha256": "12009c24de6680cb1c46b278e4992a84520f057822d73face7ad4b0beba1a0b9",
+      "bytes": 100902
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "028d298b55c0dadee0632768d178850ae24d10702f6501293ecc327c96a14f8f",
+      "bytes": 106152
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "17b7d66a811b9654b1b4fb752c3463482fa2ecf9b4d11de0f53d53bc9e3057ed",
+      "bytes": 56586
+    },
+    "report.md": {
+      "sha256": "7ef5219314c1c424adf8daa2b6a74cb0a9e3845d6805135e9d985e4f44b4da34",
+      "bytes": 12038
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "af011ecc73f514d03aa7b0332d8f3a0168e079b9b5eb282584d1ec53c6256b30",
+      "bytes": 377148
+    },
+    "report_data/cdf.csv": {
+      "sha256": "21f2c9944a10a053dfd6e0c1d1908e7637a2d3b7d2a38fe4f458522ca8db3a92",
+      "bytes": 111531
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "de80e249b537ed8cdaf0fd64de0046fb77946dc5d2aa61874a622bd979a0fbcb",
+      "bytes": 794
+    },
+    "report_data/configuration.json": {
+      "sha256": "ddccd82896e2f3ae94a030c8ea08afeeea5cbf4fb3f733657cbb30372243dcf0",
+      "bytes": 6952
+    },
+    "report_data/dataset.json": {
+      "sha256": "33cd2803e1c916031084c86ccd8a1ebb6faa61bf88332784e86a36398c4000ce",
+      "bytes": 63957026
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "5f9fc92389118dd508776e264298d223a7017075a5807ef7faab6c096b077167",
+      "bytes": 3591
+    },
+    "report_data/layers.csv": {
+      "sha256": "8e629b7fa4033fa2edd090c95e450aee0cc6a77190f3234ce68def4ef2ba1237",
+      "bytes": 4248775
+    },
+    "report_data/requests.csv": {
+      "sha256": "a3b8d6133f0c2f38a410e14da513980bfb61838cad6a20a62a29f1ba6910a765",
+      "bytes": 184147
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "bdd401c01dcafd3b47368d433f38867a1087f64f357387413741f2f4ee4dc873",
+      "bytes": 939
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "e6b69e6989ff22653281317f5eb16cef0fc1380f84b463bb29426af274815e29",
+      "bytes": 9232
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "0bfbe6b274695bdf310025d7836ffafbd458b75da794362a9f0169182df71f3d",
+      "bytes": 10764
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "edc03278fb662258622379bff9e25832c7af48727761731eac3c3bfb117ec816",
+      "bytes": 23222
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "d59bd3b46f56f185c72eae6f45a2945eeaf1844df28b37c5cf9bf69972d28137",
+      "bytes": 3436
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "17e89b2773db830c515eff1e69755f09048df2cb032d5b948a7d932af46f16fe",
+      "bytes": 18365
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+      "bytes": 7167
+    }
+  }
+}

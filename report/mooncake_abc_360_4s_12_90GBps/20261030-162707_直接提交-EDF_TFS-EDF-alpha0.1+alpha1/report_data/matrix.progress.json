@@ -1,0 +1,138 @@
+{
+  "status": "completed",
+  "completed": [
+    {
+      "dataset": "ABC",
+      "arm": "direct",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793285933.2894778,
+        "available_bytes": 8677031936,
+        "swap_bytes": 9720561664,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t84%; discharging; 10:45 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABC",
+        "name": "direct",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1665.1866817981095,
+        "p95_ttft_ms": 3637.3167079873383,
+        "completion_ms": 8127.96149996575,
+        "slo_pct": 13.61111111111111
+      }
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "tfs-a1",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793285995.932239,
+        "available_bytes": 9363095552,
+        "swap_bytes": 10472914944,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t83%; discharging; 10:25 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABCD",
+        "name": "tfs-a1",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1254.075001159961,
+        "p95_ttft_ms": 3198.9970830036327,
+        "completion_ms": 6868.396584002767,
+        "slo_pct": 26.38888888888889
+      }
+    },
+    {
+      "dataset": "ABC",
+      "arm": "tfs-a1",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793286066.622844,
+        "available_bytes": 8342192128,
+        "swap_bytes": 9299034112,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t82%; discharging; 10:05 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABC",
+        "name": "tfs-a1",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1534.5913880758517,
+        "p95_ttft_ms": 4099.145790969487,
+        "completion_ms": 9001.440833031666,
+        "slo_pct": 13.61111111111111
+      }
+    },
+    {
+      "dataset": "ABC",
+      "arm": "tfs-a01",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793286135.303197,
+        "available_bytes": 8673853440,
+        "swap_bytes": 9454026752,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t82%; discharging; 9:55 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABC",
+        "name": "tfs-a01",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1180.9604047443524,
+        "p95_ttft_ms": 3546.4110420434736,
+        "completion_ms": 7750.588125025388,
+        "slo_pct": 33.611111111111114
+      }
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "direct",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793286201.940964,
+        "available_bytes": 8433156096,
+        "swap_bytes": 10458431488,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t81%; discharging; 9:45 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABCD",
+        "name": "direct",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1471.1089684026472,
+        "p95_ttft_ms": 3364.162541984115,
+        "completion_ms": 8880.572541966103,
+        "slo_pct": 15.555555555555555
+      }
+    },
+    {
+      "dataset": "ABCD",
+      "arm": "tfs-a01",
+      "returncode": 0,
+      "host": {
+        "epoch_s": 1793286274.426094,
+        "available_bytes": 8718319616,
+        "swap_bytes": 8253538304,
+        "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=7209059)\t80%; discharging; 9:25 remaining present: true"
+      },
+      "result": {
+        "status": "passed",
+        "dataset": "ABCD",
+        "name": "tfs-a01",
+        "formal": 360,
+        "K": 1,
+        "mean_ttft_ms": 1993.874141796712,
+        "p95_ttft_ms": 4594.923999975435,
+        "completion_ms": 8056.789167050738,
+        "slo_pct": 7.777777777777778
+      }
+    }
+  ],
+  "total": 6
+}

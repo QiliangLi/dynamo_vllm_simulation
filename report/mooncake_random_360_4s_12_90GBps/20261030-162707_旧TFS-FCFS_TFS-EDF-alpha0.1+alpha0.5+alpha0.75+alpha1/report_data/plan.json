@@ -1,0 +1,25 @@
+{
+  "new_cases": {
+    "a05": 0.5,
+    "a075": 0.75,
+    "a1": 1.0
+  },
+  "repeats": 1,
+  "warmup_per_new_run": 72,
+  "formal_per_new_run": 360,
+  "baseline_source": "/home/zed/.local/share/state-aware-network/audits/mooncake-direct90-five-20261029-r1",
+  "reused_cases": {
+    "old-tfs": "old-tfs",
+    "a01": "new-tfs"
+  },
+  "only_changed_config": "routing_accounting.waiting_factor",
+  "force_admission": false,
+  "source_frozen_from": "219b465ab4a1562173b7632c4086319c73af5af6",
+  "runtime_fingerprints_equal": true,
+  "native_equal": true,
+  "input_equal": true,
+  "limits": [
+    "One execution per alpha; baselines reused from prior wall-clock runs.",
+    "Alpha=1 preserves scheduler quota and native accounting; it is not direct admission."
+  ]
+}

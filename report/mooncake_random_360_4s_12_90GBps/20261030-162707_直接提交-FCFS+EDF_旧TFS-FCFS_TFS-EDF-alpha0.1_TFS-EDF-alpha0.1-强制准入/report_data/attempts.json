@@ -1,0 +1,152 @@
+[
+  {
+    "physical_case": "edf",
+    "status": "passed",
+    "wall_s": 59.624892509000006,
+    "measured_started": true,
+    "warmup_phases": [
+      {
+        "phase": "warmup-large",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-median",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-small",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      }
+    ],
+    "errors": [],
+    "guards": [],
+    "alive": [],
+    "driver_sha256": "4a50825c9164a94c76800eacd49ecac95761b9a6a4083a2725223d4019b7a56d"
+  },
+  {
+    "physical_case": "fcfs",
+    "status": "passed",
+    "wall_s": 57.67167413300001,
+    "measured_started": true,
+    "warmup_phases": [
+      {
+        "phase": "warmup-large",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-median",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-small",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      }
+    ],
+    "errors": [],
+    "guards": [],
+    "alive": [],
+    "driver_sha256": "eb91658830ced6994b0a1ffbf71067f189459c392d0cdf6af7f1fb2aae2134cc"
+  },
+  {
+    "physical_case": "idle-bypass",
+    "status": "passed",
+    "wall_s": 62.723371601,
+    "measured_started": true,
+    "warmup_phases": [
+      {
+        "phase": "warmup-large",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-median",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-small",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      }
+    ],
+    "errors": [],
+    "guards": [],
+    "alive": [],
+    "driver_sha256": "c5d370404b0fd3c86381f66e8f50b9c02bd34b9de0245e00af89c057307aba40"
+  },
+  {
+    "physical_case": "new-tfs",
+    "status": "passed",
+    "wall_s": 61.21012311999999,
+    "measured_started": true,
+    "warmup_phases": [
+      {
+        "phase": "warmup-large",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-median",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-small",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      }
+    ],
+    "errors": [],
+    "guards": [],
+    "alive": [],
+    "driver_sha256": "27e6ede84e60bda0a02ae83e6cab4f1b6ab0db9a226e859c6fc26f87ff4b7f8e"
+  },
+  {
+    "physical_case": "old-tfs",
+    "status": "passed",
+    "wall_s": 59.334555978,
+    "measured_started": true,
+    "warmup_phases": [
+      {
+        "phase": "warmup-large",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-median",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      },
+      {
+        "phase": "warmup-small",
+        "total": 24,
+        "http_ok": 24,
+        "first_tokens": 24
+      }
+    ],
+    "errors": [],
+    "guards": [],
+    "alive": [],
+    "driver_sha256": "4230d4e1a421caa4fca7827854be45fcc02a39d2a291cb1ed96f6cf63bc020c9"
+  }
+]

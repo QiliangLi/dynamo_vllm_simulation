@@ -1,0 +1,14 @@
+{
+  "new_images_personally_reviewed": [
+    "figure/01_slo_bar.png",
+    "figure/02_full-sort-ms.png",
+    "figure/06_cdf_by_class.png"
+  ],
+  "unchanged_images_sha256_checked": [
+    "figure/03_util_box_heatmap.png",
+    "figure/04_bandwidth.png",
+    "figure/05_cdf.png",
+    "figure/07_arrival_lateness.png"
+  ],
+  "notes": "Online heavy/light legend, dynamic old-TFS rule, frozen new-TFS rule; historical A/B explicitly labeled in other classification plots."
+}

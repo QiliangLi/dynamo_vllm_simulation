@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "scope": "archive integrity, source tables and image identity",
+  "source_validation_status": "passed",
+  "source_visual_reviewed": true,
+  "file_count": 23,
+  "figures": 7,
+  "source_csv_tables": 10,
+  "simulations_run": 0,
+  "performance_recomputed": false
+}
