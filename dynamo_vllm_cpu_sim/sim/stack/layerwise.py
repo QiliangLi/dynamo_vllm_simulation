@@ -76,29 +76,24 @@ def layer_durations(timing, config):
 
 class LayerRunner:
     """One fixed native batch; one-layer lookahead; persistent request KV residency."""
-    def __init__(self, config, storage, worker, clock, feedback, emit):
+    def __init__(self, config, storage, worker, clock, observer, emit):
         self.config, self.storage, self.worker = config, storage, worker
-        self.clock, self.feedback, self.emit = clock, feedback, emit
+        self.clock, self.observer, self.emit = clock, observer, emit
         self.spec = layer_spec(config)
         self.loads = {}
         self.resident = set()
         self.submitted = set()
         self.ready = set()
-        if config.get('experiment',{}).get('coalesced_feedback'):
-            if not config['experiment'].get('batch_feedback') or config['admission'].get('idle_bypass'):
-                raise ValueError('coalesced layer telemetry requires batch frames and idle bypass off')
-            if feedback is not None:
-                feedback.enable_layer_buffer(config['max_num_seqs']*self.spec['layers'])
 
     def install(self, metadata):
         for rid, load in getattr(metadata, "loads", {}).items():
             if rid in self.loads:
                 raise RuntimeError("repeated layerwise external load/preemption unsupported")
             self.loads[rid] = load
-            if self.feedback:
+            if self.observer:
                 # Parent attempt starts once. Bytes are counted only as layers
                 # are actually submitted, not all up front as already-issued IO.
-                self.feedback.submitted(rid,0,layer_count=self.spec["layers"],
+                self.observer.submitted(rid,0,layer_count=self.spec["layers"],
                     expected_read_bytes=load["layer_bytes"]*self.spec["layers"])
 
     def _submit(self, ids, layer, step=None, compute_s=None, due_mono=None):
@@ -111,13 +106,11 @@ class LayerRunner:
                                       compute_s=compute_s,due_mono=due_mono)
         else:
             self.storage.layer_submit(self.worker, pending, layer)
-        if self.feedback and self.config.get('experiment',{}).get('batch_feedback'):
-            self.feedback.layer_batch(pending,layer,[self.loads[rid]['layer_bytes'] for rid in pending])
         for rid in pending:
             self.submitted.add((rid,layer))
             size = self.loads[rid]["layer_bytes"]
-            if self.feedback and not self.config.get('experiment',{}).get('batch_feedback'):
-                self.feedback.layer_submitted(rid,layer,size)
+            if self.observer:
+                self.observer.layer_submitted(rid,layer,size)
             self.emit("layer_read_issued",layer=layer,rid=rid,bytes=size)
 
     def _wait(self, ids, layer):
@@ -131,8 +124,8 @@ class LayerRunner:
                           completed_model_s=result["completed_s"][rid])
                 if layer == self.spec["layers"]-1:
                     self.resident.add(rid)
-                    if self.feedback:
-                        self.feedback.completed(rid)
+                    if self.observer:
+                        self.observer.completed(rid)
             waiting = [rid for rid in waiting if (rid,layer) not in self.ready]
             if waiting:
                 time.sleep(.0005)  # Actual implementation polling, not modeled IO latency.
@@ -140,9 +133,9 @@ class LayerRunner:
     def run(self, ids, timing, step):
         durations = layer_durations(timing,self.config)
         started = time.perf_counter()
-        if self.feedback:
+        if self.observer:
             for rid in ids:
-                self.feedback.starting(rid)
+                self.observer.starting(rid)
         self._submit(ids,0,step=step,compute_s=durations[0])
         for layer,duration in enumerate(durations):
             self._wait(ids,layer)

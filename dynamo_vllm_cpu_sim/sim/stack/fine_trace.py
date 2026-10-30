@@ -90,7 +90,6 @@ def install_vllm():
     from vllm.v1.core.kv_cache_manager import KVCacheManager
     from sim.stack.executor import SimExecutor
     from sim.stack.layerwise import LayerRunner
-    from sim.stack.feedback import FeedbackClient
     import sim.stack.layerwise as layerwise
     install_client()
 
@@ -191,8 +190,6 @@ def install_vllm():
             emit("layer_sleep",start,requested_s=seconds,ids=getattr(_tls,"ids",[]),
                  step=getattr(_tls,"step",None))
     layerwise.time=LayerTime()
-    sync_span(FeedbackClient,"emit","feedback_rpc",
-              lambda self,kind,rid,payload=None:dict(kind=kind,rid=rid))
     # Correlate the raw Dynamo context UUID before request suffixes are added.
     from dynamo.vllm.handlers import DecodeWorkerHandler
     original_generate=DecodeWorkerHandler.generate

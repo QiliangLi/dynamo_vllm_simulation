@@ -70,14 +70,14 @@
   "execution_feedback": "disabled",
   "portable_runner_status": "export_only",
   "runner_profile": null,
-  "portable_runner_reason": "交付运行器仍为batch-v2和同步执行反馈；尚未移植本负载的direct_sum、禁用四反馈及Dynamo Runtime最终答复/后台EOF合同。",
+  "portable_runner_reason": "direct_sum、禁用四反馈、强制释放等待修订与最终答复/后台EOF代码已同步；本负载专用合同尚未通过交付运行器完整验收，仍只校验和导出。长上下文与诊断计数边界见README。",
   "files_sha256": {
     "trace.jsonl.gz": "f7c4ca8cbd1f65c9b52c9a8cf9e97c1ec0bdd01807213c145ea2a06fb2399b03",
     "requests.csv": "741b8c5e34af329e5e0097d1fa4336345aecc6d6db4514f96429ca519ec6a84f",
     "config.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
     "config.historical.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
     "run_contract.json": "5d6df30f9c21bf6dd6130008170c4836ab489f1d050c88eed48d1e187523fc44",
-    "README.md": "44c685fc0c10c9847bace0c59b3f2ad6f5bf9ba9beba6e3cb1d31c4c58ae4f44",
+    "README.md": "4c099a3d419b42b880673605855d4eb90acd555c92269ca4b6ea527050aad506",
     "provenance.json": "355a1767a7da7adf8d294e20fbb5c0aea016b17944cac6bed8e1889b4d1c6a5b",
     "validation.json": "23aa0ac19f4599081c73cca10af42d434d51e381ef2832984a7e69d7a29eb084"
   }

@@ -13,7 +13,6 @@ class FrozenClassification:
     def __init__(self, config):
         self.hints = {}
         self.permits = {}
-        self.active_permit_by_request = {}
         self.permit_keys = {}
         self.placement = config.get("placement", "gateway")
         super().__init__(config)
@@ -68,9 +67,6 @@ class FrozenClassification:
             if (not isinstance(permit_id, str) or len(permit_id) != 32
                     or uuid.UUID(hex=permit_id).hex != permit_id or permit_id in self.permits):
                 raise ValueError('invalid forced permit identity')
-            if any(p.get('forced') and p['worker'] == worker
-                   and p['state'] in ('reserved', 'submitted') for p in self.permits.values()):
-                raise ValueError('worker already holds a forced permit')
             if (proof is None or proof.get('running_before') != 0
                     or proof.get('scheduled_tokens_before') != 0
                     or proof.get('nonheavy_candidates') != 0
@@ -79,7 +75,14 @@ class FrozenClassification:
                     or proof.get('heavy_candidates', 0) < 1
                     or decision_s is None or not rec.profile.arrival_s <= decision_s <= now_s + .001):
                 raise ValueError('invalid allocated idle-bypass decision')
-        if rec.state != "SUBMITTED" or rec.load_attempts or rec.lease_open:
+        # A forced notice may arrive after the HTTP first token or completion.
+        # Only a decision made before that terminal observation is admissible.
+        terminal = rec.first_token_s if rec.first_token_s is not None else rec.finish_s
+        if force and terminal is not None and decision_s > terminal:
+            raise ValueError("forced admission decision follows request completion")
+        if (rec.state not in (("SUBMITTED", "FINISHED") if force else ("SUBMITTED",))
+                or rec.lease_open or (not force and terminal is not None)
+                or any(p['id'] == rid and p['state'] != 'rolled_back' for p in self.permits.values())):
             raise ValueError("request cannot acquire another permit")
         if rec.worker_id == -1:
             rec.worker_id = worker
@@ -94,10 +97,7 @@ class FrozenClassification:
         permit = dict(permit_id=token, id=rid, worker=worker, attempt=attempt,
                       acquisition_key=key, state="reserved", granted_s=grant_time,
                       registered_s=now_s, forced=force)
-        if rid in self.active_permit_by_request:
-            raise RuntimeError("request already has an active permit index entry")
         self.permits[token] = permit
-        self.active_permit_by_request[rid] = token
         self.permit_keys[identity] = token
         rec.reserved_s, rec.lease_open, rec.lease_release_reason = grant_time, True, None
         self._log("admission_reserved", now_s, id=rid, worker=worker, permit_id=token,
@@ -119,8 +119,6 @@ class FrozenClassification:
         rec = self.records[rid]
         before = self.held
         permit["state"], permit["released_s"] = "rolled_back", now_s
-        if self.active_permit_by_request.pop(rid, None) != token:
-            raise RuntimeError("permit index disagrees with rollback owner")
         rec.lease_open = False
         rec.lease_release_reason = "allocation_failed"
         self._log("admission_released", now_s, id=rid, permit_id=token,
@@ -130,19 +128,12 @@ class FrozenClassification:
         if event.event_id in self.seen_events:
             return
         rec = self.records[event.request_id]
-        token = self.active_permit_by_request.get(event.request_id)
-        active = [self.permits[token]] if token is not None else []
-        if self.placement == "scheduler" and event.kind == "load_submitted" and self.is_heavy(rec.profile):
-            if len(active) != 1 or not rec.lease_open or event.occurred_s < active[0]["granted_s"]:
-                raise ValueError("heavy read submitted without a valid permit")
+        active = [p for p in self.permits.values() if p["id"] == event.request_id
+                  and p["state"] in ("reserved", "submitted")]
         super().on_event(event, now_s)
         for permit in active:
-            if event.kind == "load_submitted":
-                permit["state"] = "submitted"
             if not rec.lease_open:
                 permit.update(state="released", released_s=now_s, release_reason=event.kind)
-                if self.active_permit_by_request.pop(event.request_id, None) != permit["permit_id"]:
-                    raise RuntimeError("permit index disagrees with release owner")
 
 
 class FrozenAdmission(FrozenClassification, AdmissionController):

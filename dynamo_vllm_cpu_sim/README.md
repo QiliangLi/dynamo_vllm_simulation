@@ -1,11 +1,22 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
+## 2026-10-30：与研究版运行代码同步
+
+当前实现已同步研究版的直接组合计时、四种加载反馈移除、强制准入释放等待移除，以及Dynamo Runtime最终答复/后台EOF收尾。
+进程栈只允许first_token释放。执行器的加载事实只写本地日志；在线账本不消费这些事实，排空后才合并报告副本。
+`admission.runtime.final.json`保留原始在线账本，`admission.final.json`标明离线观测来源，`admission_rpc.check.json`核对后台流排空。
+GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自动改写已有benchmark的计算模型。
+现有可运行Mooncake入口保留K1、block16、EDF、到达窗口、带宽和预热规则。当前运行不再发送旧的同步batch/合帧反馈。
+旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX及六秒synthetic输入仍按目录状态仅校验/导出；代码存在不等于其特殊合同已验收。
+核心代码同步校验：`python dynamo_vllm_cpu_sim/scripts/check_runtime_sync.py`；可加`--source`指定另一份仓库根目录核对双方文件。
+
+
 
 标准benchmark运行器从所选负载的config.json/manifest.json读取共享池带宽，并校验名称一致；不将带宽固定为90 GB/s。完整名单及支持状态见[Benchmark目录](../benchmark/benchmark目录.md)。
 
 本分支最新入口：[实验分支使用说明](../docs/实验分支使用说明.md)。
 固定输入位于仓库根benchmark，统一运行器为`scripts/run_benchmark.py`。
-新增[AgentX360固定输入](../benchmark/agentx_random_360_12s_12_180GBps/README.md)：360条、12秒、180GB/s、12实例。可校验及导出；当前交付运行器尚不支持其直接组合计时、关闭反馈及长上下文合同，显式选择会在启动前拒绝。`--case all`只选择目录中支持完整运行的负载。
+新增[AgentX360固定输入](../benchmark/agentx_random_360_12s_12_180GBps/README.md)：360条、12秒、180GB/s、12实例。可校验及导出；核心计时与控制代码已同步，但其长上下文和专用合同尚未完成交付入口验收，显式选择会在启动前拒绝。`--case all`只选择目录中支持完整运行的负载。
 先运行`--smoke`，再按说明运行90GB/s、K=1的正式对照。下文按日期保留历史入口与结果。
 存储优化测试所需的少量冻结参考源码已放入`tests/fixtures/`，不再依赖历史results目录。
 

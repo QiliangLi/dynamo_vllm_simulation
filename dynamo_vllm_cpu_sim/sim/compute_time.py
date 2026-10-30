@@ -26,9 +26,9 @@ def validate_compute(compute):
         if Fraction(p["eta_floor"]) > 1:
             raise ValueError("SA eta_floor must not exceed 1")
     else:
-        from sim.timing_models.prefill_time_batch import VERSION, _validate
-        if compute.get("batch_time_model", VERSION) != VERSION:
-            raise ValueError("unsupported GLM batch_time_model; use frozen runtime for old results")
+        from sim.timing_models.prefill_time_batch import VERSION, _validate, validate_batch_options
+        validate_batch_options(compute.get("batch_time_model", VERSION),
+                               compute.get("launch_saving_fraction"))
         tp, dp = compute.get("tp", 1), compute.get("dp", 8)
         _validate([], tp, dp, compute.get("ep", tp * dp),
                   compute.get("sparse_HBM_hit_ratio", 1.0),

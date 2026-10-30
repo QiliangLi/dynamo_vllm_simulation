@@ -1,5 +1,20 @@
 # 分支交付验证
 
+## 2026-10-30：研究版与交付版核心代码同步
+
+来源为研究提交9df42f81142b230553a5de046c308b5fd45063ab（b6aca29加便携入口回同步）。
+195个研究版sim、scripts、configs、patched、tests文件均已按CRLF转LF后的SHA256核对一致；清单见[RUNTIME_SYNC.json](RUNTIME_SYNC.json)。
+交付版保留独立benchmark、report、skills及其工具；研究版保留个人研究归档，不把两份仓库历史合并。
+同步direct_sum计时、四种加载反馈移除、同实例强制额度释放等待/force_status移除，以及Dynamo Runtime最终答复与有界后台EOF检查。
+统一入口在预热排空后从本地日志核对实例覆盖，保留原始在线账本和离线报告副本；当前反馈语义在benchmark目录单独记录，历史输入和配置28个文件字节未变。
+完整308项回归测试及新增3项同步检查通过；Windows同步/目录14项测试通过。七份2520请求和八个报告入口的完整性、索引校验通过。
+原生Dynamo网络四组两实例功能验收共30请求通过；direct_sum两组共16请求、含真实混批通过。
+统一Mooncake ABC90入口的direct、TFSα0.1、TFSα1各12实例、72预热加360正式通过，block16、K1，额度归零、后台流排空与进程清理通过。
+α1首次有一条请求因worker3创建原生generate返回流失败（Network is unreachable，os error101）而未完成；保留失败并确认其余请求排空后停止本轮。
+同源码、输入、配置及原生构建显式重试一次通过；不自动重放请求、不更换协议。此运输层暂态问题仍存在，不把重试成功称作问题已修复。
+验收只证明功能与链路完整性，不用于稳定收益结论。详细记录见[RUNTIME_SYNC_CHECK.json](RUNTIME_SYNC_CHECK.json)。
+AgentX和六秒synthetic负载仍保持export_only，专用合同、长上下文与诊断计数边界未在本次扩大验收。
+
 ## 2026-10-30：共享报告整理技能
 
 新增仓库根目录 `skills/`，每个技能独立放置。首批为 `report-organizer`，外层提供README、agent.md和技能目录。

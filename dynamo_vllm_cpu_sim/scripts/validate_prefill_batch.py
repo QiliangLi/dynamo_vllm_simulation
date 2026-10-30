@@ -16,12 +16,18 @@ from run_tfs_stack import run_one, write
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--batch-time-model', choices=('glm5_actual_batch_work_v2', 'glm5_direct_sum_v1'),
+                        default='glm5_actual_batch_work_v2')
+    parser.add_argument('--launch-saving-fraction', type=float)
     args = parser.parse_args()
     if os.environ.get('PYTHONHASHSEED') != '0':
         parser.error('set PYTHONHASHSEED=0 to match all worker block hashes')
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
     config = json.loads((ROOT/'configs/mooncake_first_seen_layerwise.json').read_text())
+    config['compute']['batch_time_model'] = args.batch_time_model
+    if args.launch_saving_fraction is not None:
+        config['compute']['launch_saving_fraction'] = args.launch_saving_fraction
     config.update(workers=2, router_mode='round-robin', max_model_len=2048,
                   num_blocks=8193, block_size=16, max_num_batched_tokens=256,
                   wall_time_scale=1, policy='priority', request_ordering='edf')
@@ -53,7 +59,7 @@ def main():
                    if json.loads(line).get('num_scheduled_tokens')]
         assert check['workers'] == [0,1]
         assert check['actual_submitted_read_bytes'] == sum(h for h,u in shapes)*109824
-        assert all(t['batch_time_model']=='glm5_actual_batch_work_v2' for t in timings)
+        assert all(t['batch_time_model']==args.batch_time_model for t in timings)
         assert all((t['reference_tp'],t['reference_dp'],t['reference_ep'])==(1,8,8) for t in timings)
         assert all(t['real_prefill_tokens']==t['padded_prefill_tokens'] for t in timings)
         assert any(t['max_input_length']>512 for t in timings)

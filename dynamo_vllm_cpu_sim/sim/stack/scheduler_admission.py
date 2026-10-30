@@ -49,6 +49,7 @@ class ReadGate:
                                          round=self.round, **fields))+"\n")
 
     def begin_step(self, scheduler=None):
+        self.client.check()  # Surface a late stream failure even on all-light rounds.
         self.round += 1
         self.pending_allocation.clear()
         self.full = time.monotonic() < self.full_until
@@ -57,7 +58,7 @@ class ReadGate:
         if not self.idle_bypass:
             return
         self.client.outbox.check()
-        if scheduler is None or scheduler.running or self.client.outbox.busy():
+        if scheduler is None or scheduler.running:
             return
         queued = list(scheduler.waiting) + list(scheduler.skipped_waiting)
         if not queued:

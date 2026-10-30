@@ -26,11 +26,23 @@ class NativeProcessTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout[-1000:]+result.stderr[-5000:])
         self.assertIn('"status": "pass"', result.stdout)
 
-    def test_atomic_ledger_feedback_replay_and_release(self):
+    def test_atomic_ledger_replay_and_release_without_execution_feedback(self):
         self.run_case('ledger')
+
+    def test_same_worker_forces_overlap_in_ledger_without_release_polling(self):
+        self.run_case('force')
 
     def test_pinned_ledger_rejects_wrong_instance_and_epoch(self):
         self.run_case('identity')
 
     def test_ambiguous_timeout_keeps_ledger_and_closes_client_without_replay(self):
         self.run_case('timeout')
+
+    def test_next_outbox_operation_commits_while_previous_streams_remain_open(self):
+        self.run_case('tail')
+
+    def test_extra_response_fails_after_ack_without_replaying_the_permit(self):
+        self.run_case('tail-extra')
+
+    def test_missing_stream_end_fails_after_ack_without_replaying_the_permit(self):
+        self.run_case('tail-timeout')

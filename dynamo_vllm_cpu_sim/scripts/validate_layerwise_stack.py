@@ -57,8 +57,8 @@ def main():
         boundary="8 synthetic first_seen requests, two real workers, chunk budget 64; not Mooncake360."))
     cases=[dict(name=f"{mode}_{kv}",mode=mode,kv=kv,release="first_token",disks=1)
            for mode in ("immediate","tfs") for kv in ("bulk","layer_serial","layer_pipeline")]
-    cases += [dict(name="tfs_pipeline_three_disk_load_done",mode="tfs",kv="layer_pipeline",
-                   release="load_done",disks=3),
+    cases += [dict(name="tfs_pipeline_three_disk_first_token",mode="tfs",kv="layer_pipeline",
+                   release="first_token",disks=3),
               dict(name="immediate_pipeline_per_layer_startup",mode="immediate",kv="layer_pipeline",
                    release="first_token",disks=1,startup="per_layer")]
     results=[]

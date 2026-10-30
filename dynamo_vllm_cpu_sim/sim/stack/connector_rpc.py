@@ -95,10 +95,10 @@ class SimConnectorRpc(KVConnectorBase_V1):
                 self.external_tokens[request.request_id] = num_external_tokens
                 return
             self.client.submit(self.worker_id, request.request_id, wanted, demand)
-            from sim.stack.feedback import feedback_client
-            feedback = feedback_client()
-            if feedback is not None:
-                feedback.submitted(request.request_id,
+            from sim.stack.load_observation import observer_from_env
+            observer = observer_from_env()
+            if observer is not None:
+                observer.submitted(request.request_id,
                                    num_external_tokens*self.cfg["storage"]["kv_bytes_per_token"])
             self.external_tokens[request.request_id] = num_external_tokens
 

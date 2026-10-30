@@ -15,7 +15,7 @@
 ## 必须保持的实验合同
 
 - 可运行Mooncake360 benchmark固定K=1、4秒到达和12个逻辑实例。单共享池带宽读取所选benchmark的config.json和manifest.json，并与名称核对，不写死为90 GB/s。
-- AgentX360固定输入另用12秒、180GB/s、12实例及direct_sum/关闭执行反馈；当前仅支持校验与导出，交付运行器尚未移植相应研究代码。详见benchmark/agentx_random_360_12s_12_180GBps/README.md。
+- AgentX360固定输入另用12秒、180GB/s、12实例及direct_sum/关闭执行反馈；当前仅支持校验与导出，核心代码已同步，其长上下文及专用合同仍未完成交付入口验收。详见benchmark/agentx_random_360_12s_12_180GBps/README.md。
 - 冒烟使用2个实例和各类少量请求；不能把冒烟当作正式性能数据。
 - 正式每组72预热排空后360请求，排除预热分类历史，重新开始正式GC窗口。
 - 三种策略共用EDF、模型、存储和反馈模式；α只改变等待重读评分系数。
@@ -25,6 +25,8 @@
 - GLM5解析计时及存储速率属于仿真；不得表述为Ascend910C实测。
 
 ## 修改与验证
+
+- 更新共享核心后，运行`scripts/check_runtime_sync.py`并核对RUNTIME_SYNC.json；共享文件变化须与研究版同步并刷新清单。不要据此把交付专用报告或运行入口覆盖到研究版。
 
 - 修改`sim/`、`scripts/`、`configs/`时同步包内README。行为边界变化时同步两份DESIGN。
 - 新结果写入独立输出目录，保留失败记录；不覆盖旧结果，不只保留有利轮次。

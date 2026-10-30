@@ -60,7 +60,8 @@
     "requests.csv": "fc36e7ce5acc6dfbed83d164e79145bee49f009fe19c36095dbc970f16c915ec",
     "config.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
     "config.historical.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
-    "run_contract.json": "a0af327c08ae3de330df695ee35a84d81d0d9e9eb96ffc891bc69678ffdaf8f2"
+    "run_contract.json": "a0af327c08ae3de330df695ee35a84d81d0d9e9eb96ffc891bc69678ffdaf8f2",
+    "README.md": "7232b6462ccd5210f874b351234639b84f1f0fc2b13331a204071edebd028015"
   },
   "aliases": [
     "agentx360_12s_180gb"
@@ -78,5 +79,6 @@
     23748
   ],
   "runner_profile": null,
-  "execution_feedback": "disabled"
+  "execution_feedback": "disabled",
+  "portable_runner_reason": "direct_sum、禁用四反馈、强制释放等待修订与最终答复/后台EOF代码已同步；本负载专用合同尚未通过交付运行器完整验收，仍只校验和导出。长上下文与诊断计数边界见README。"
 }

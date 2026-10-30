@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--output",required=True,type=Path)
     parser.add_argument("--python",required=True,type=Path)
     parser.add_argument("--config",type=Path,default=ROOT/"configs/tfs_stack_prefill.json")
-    parser.add_argument("--cases",nargs="+",default=["immediate","tfs_first_token","tfs_load_done"])
+    parser.add_argument("--cases",nargs="+",choices=["immediate","tfs_first_token"],default=["immediate","tfs_first_token"])
     args = parser.parse_args()
     out = args.output.resolve()
     out.mkdir(parents=True,exist_ok=False)
@@ -44,7 +44,7 @@ def main():
     result = {}
     for case in args.cases:
         mode = "immediate" if case=="immediate" else "tfs"
-        release = "load_done" if case=="tfs_load_done" else "first_token"
+        release = "first_token"
         result[case] = run_one(config,out/"trace.jsonl",out/case,args.python,mode,release,2)
         write(out/"summary.json",result)
     if "immediate" in result and "tfs_first_token" in result:

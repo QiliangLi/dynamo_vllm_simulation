@@ -88,15 +88,15 @@ class SimExecutor(Executor):
         from sim.stack.storage_client import client_from_env
 
         self._storage = client_from_env()
-        from sim.stack.feedback import feedback_client
-        self._feedback = feedback_client()
+        from sim.stack.load_observation import observer_from_env
+        self._load_observer = observer_from_env()
         self._layer_runner = None
         from sim.stack.layerwise import transfer_mode, LayerRunner
         if transfer_mode(self.cfg) != "bulk":
             if self._storage is None:
                 raise ValueError("layerwise requires shared storage service")
             self._layer_runner = LayerRunner(self.cfg,self._storage,self.worker_id,
-                                            self.clock,self._feedback,self._layer_event)
+                                            self.clock,self._load_observer,self._layer_event)
         CURRENT = self
 
     def _layer_event(self,event,**values):
@@ -195,8 +195,8 @@ class SimExecutor(Executor):
         for rid in out.finished_req_ids:
             self._prompt_len.pop(rid, None)
             self._base_computed.pop(rid, None)
-            if self._feedback is not None:
-                self._feedback.forget(rid)
+            if self._load_observer is not None:
+                self._load_observer.forget(rid)
             if layer_runner is not None:
                 layer_runner.forget(rid)
 
@@ -216,9 +216,9 @@ class SimExecutor(Executor):
         timing = None
         sleep_elapsed_s = 0.0
         if ids:
-            if self._feedback is not None and layer_runner is None:
+            if self._load_observer is not None and layer_runner is None:
                 for rid in ids:
-                    self._feedback.starting(rid)
+                    self._load_observer.starting(rid)
             timing = estimate_step(self.compute, shapes, decode)
             if layer_runner is not None and decode:
                 raise ValueError("layerwise stack supports prefill-only (max_tokens=1)")
@@ -238,9 +238,9 @@ class SimExecutor(Executor):
             # KV 接收完成附在 ModelRunnerOutput 上，走真实 update_from_output。
             rids = self._storage.finished(self.worker_id)
             if rids:
-                if self._feedback is not None:
+                if self._load_observer is not None:
                     for rid in rids:
-                        self._feedback.completed(rid)
+                        self._load_observer.completed(rid)
                 from vllm.v1.outputs import KVConnectorOutput
 
                 model_output.kv_connector_output = KVConnectorOutput(
@@ -297,8 +297,8 @@ class SimExecutor(Executor):
         return None
 
     def shutdown(self) -> None:
-        if self._feedback is not None:
-            self._feedback.close()
+        if self._load_observer is not None:
+            self._load_observer.close()
         if self._step_log is not None:
             self._step_log.close()
             self._step_log = None

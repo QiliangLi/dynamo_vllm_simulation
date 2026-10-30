@@ -27,13 +27,15 @@ def normalize_config(config):
     """补齐旧配置的显式默认值，并在创建真实引擎前校验实验参数。"""
     c = deepcopy(config)
     if c["compute"].get("mode") == "glm5_d950pr":
-        from sim.timing_models.prefill_time_batch import VERSION
+        from sim.timing_models.prefill_time_batch import VERSION, DIRECT_SUM_VERSION
         compute = c["compute"]
         compute.setdefault("tp", 1)
         compute.setdefault("dp", 8)
         compute.setdefault("ep", compute["tp"] * compute["dp"])
         compute.setdefault("kv_hbm_reuse", True)
         compute.setdefault("batch_time_model", VERSION)
+        if compute["batch_time_model"] == DIRECT_SUM_VERSION:
+            compute.setdefault("launch_saving_fraction", 1.0)
     normalize_ordering(c)
     if "cache_model" in c and c["cache_model"] != "first_seen":
         raise ValueError("cache_model only supports first_seen")

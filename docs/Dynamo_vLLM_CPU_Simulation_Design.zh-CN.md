@@ -1,5 +1,16 @@
 # 在 CPU 上运行真实 Dynamo / vLLM / vLLM-Ascend 调度代码：可行性与实施设计
 
+## 2026-10-30：与研究版运行代码同步
+
+当前实现已同步研究版的直接组合计时、四种加载反馈移除、强制准入释放等待移除，以及Dynamo Runtime最终答复/后台EOF收尾。
+进程栈只允许first_token释放。执行器的加载事实只写本地日志；在线账本不消费这些事实，排空后才合并报告副本。
+`admission.runtime.final.json`保留原始在线账本，`admission.final.json`标明离线观测来源，`admission_rpc.check.json`核对后台流排空。
+GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自动改写已有benchmark的计算模型。
+现有可运行Mooncake入口保留K1、block16、EDF、到达窗口、带宽和预热规则。当前运行不再发送旧的同步batch/合帧反馈。
+旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX及六秒synthetic输入仍按目录状态仅校验/导出；代码存在不等于其特殊合同已验收。
+核心代码同步校验：`python dynamo_vllm_cpu_sim/scripts/check_runtime_sync.py`；可加`--source`指定另一份仓库根目录核对双方文件。
+
+
 版本核对及工程验证日期：2026-09-24。配套代码见同目录；文中明确区分已交付实现、后续设计和实机校准任务。
 
 ## 1. 判断：可行，但“真实代码”必须定义到具体边界

@@ -26,6 +26,24 @@ from pathlib import Path
 REFERENCE = Path(__file__).with_name("glm5_d950pr_reference.py")
 REFERENCE_SHA256 = "ea76abe23c0a0c05b3633760358b70f876f4b20b9a8e18c92d10eac1a09c0b59"
 VERSION = "glm5_actual_batch_work_v2"
+DIRECT_SUM_VERSION = "glm5_direct_sum_v1"
+SUPPORTED_VERSIONS = (VERSION, DIRECT_SUM_VERSION)
+LAUNCH_COMPONENTS = ("indexer_score_us", "gather_us", "sparse_attention_us")
+
+
+def validate_batch_options(batch_time_model, launch_saving_fraction=None):
+    """只允许直接组合模式显式设置启动开销合并比例。"""
+    if batch_time_model not in SUPPORTED_VERSIONS:
+        raise ValueError("unsupported GLM batch_time_model; use frozen runtime for old results")
+    if batch_time_model == VERSION:
+        if launch_saving_fraction is not None:
+            raise ValueError("launch_saving_fraction requires glm5_direct_sum_v1")
+        return None
+    value = 1.0 if launch_saving_fraction is None else launch_saving_fraction
+    if (type(value) not in (int, float) or not math.isfinite(value)
+            or not 0 <= value <= 1):
+        raise ValueError("launch_saving_fraction must be finite and in [0, 1]")
+    return float(value)
 
 
 @lru_cache(maxsize=1)
@@ -149,7 +167,9 @@ def _moe_estimate(new_tokens, *, tp, dp, ep):
 
 def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
                    sparse_HBM_hit_ratio: float = 1.0,
-                   kv_hbm_reuse: bool = True) -> dict:
+                   kv_hbm_reuse: bool = True,
+                   batch_time_model: str = VERSION,
+                   launch_saving_fraction: float | None = None) -> dict:
     """返回本轮完整批次的模型时间与明细；部署参数不随请求数变化。
 
     每个输入为 (h+u, u)。分块 prefill 必须使用当前块结束时的 h+u。
@@ -161,8 +181,17 @@ def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
     不代表 120 GB/s 共享存储服务或其竞争。decode 的效率未定标。
     MoE 假设各 DP 副本本轮新 token 数相同，取估计最慢 EP rank；
     活跃专家是均匀独立路由的期望值，不是 Mooncake 提供的真实路由。
+
+    glm5_direct_sum_v1 逐请求调用默认单请求公式，再按层相加。
+    仅按 launch_saving_fraction 合并三个明确带 kernel_launch 的算子启动项。
+    不共享权重读取、通信启动或算子工作量；默认模式仍为实际工作量 v2。
     """
+    fraction = validate_batch_options(batch_time_model, launch_saving_fraction)
     rows = _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse)
+    if batch_time_model == DIRECT_SUM_VERSION:
+        return _estimate_direct_sum(rows, tp=tp, dp=dp, ep=ep,
+            sparse_HBM_hit_ratio=sparse_HBM_hit_ratio, kv_hbm_reuse=kv_hbm_reuse,
+            launch_saving_fraction=fraction)
     ref = _reference()
     m, g = ref.MODEL, ref.NPU
     active = [(length - new, new) for length, new in rows if new > 0]
@@ -279,9 +308,64 @@ def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
     }
 
 
+def _estimate_direct_sum(rows, *, tp, dp, ep, sparse_HBM_hit_ratio,
+                         kv_hbm_reuse, launch_saving_fraction):
+    """串行单请求之和，仅扣已在单请求公式内计入的重复 kernel 启动。"""
+    options = dict(tp=tp, dp=dp, ep=ep, sparse_HBM_hit_ratio=sparse_HBM_hit_ratio,
+                   kv_hbm_reuse=kv_hbm_reuse)
+    result = estimate_batch([], **options)
+    singles = [estimate_batch([row], **options) for row in rows]
+    active = [single for single in singles if single["batch_size"]]
+    count = len(active)
+    launch_us = _reference().NPU["kernel_launch"]
+    saved_per_component = max(0, count - 1) * launch_us * launch_saving_fraction
+    components = {name: math.fsum(single["components_us"][name] for single in singles)
+                  for name in result["components_us"]}
+    for name in LAUNCH_COMPONENTS:
+        components[name] -= saved_per_component
+    saved_per_layer = len(LAUNCH_COMPONENTS) * saved_per_component
+    dense = math.fsum(single["dense_layer_us"] for single in singles) - saved_per_layer
+    moe = math.fsum(single["moe_layer_us"] for single in singles) - saved_per_layer
+    layer_us = [dense] * result["dense_layers"] + [moe] * result["moe_layers"]
+    total_us = math.fsum(layer_us)
+    if not math.isfinite(total_us) or (count and min(layer_us) <= 0):
+        raise ValueError("nonpositive or nonfinite direct-sum modeled time")
+    # 每请求取自己的 MoE 临界路径，再求和。保留明细，避免误当成一次聚合路由。
+    moe_work = {"composition": "sum_of_singleton_critical_paths",
+                "singletons": [single["moe_work"] for single in active]}
+    for name in ("group_new_tokens", "group_routed_token_expert_work",
+                 "group_shared_token_expert_work", "group_expected_active_experts"):
+        moe_work[name] = sum(single["moe_work"][name] for single in active)
+    result.update(
+        model=DIRECT_SUM_VERSION, requests=[list(row) for row in rows],
+        shapes_h_u=[list(shape) for single in active for shape in single["shapes_h_u"]],
+        batch_size=count, components_us=components, moe_work=moe_work,
+        work={name: sum(single["work"][name] for single in singles)
+              for name in result["work"]},
+        dense_layer_us=dense, moe_layer_us=moe, layer_durations_us=layer_us,
+        total_us=total_us, total_ms=total_us / 1000, duration_s=total_us / 1e6,
+        per_layer_us=total_us / len(layer_us),
+        prefix_kv_bytes=sum(single["prefix_kv_bytes"] for single in singles),
+        per_layer_prefix_kv_gb=math.fsum(single["per_layer_prefix_kv_gb"] for single in singles),
+        batch_composition=dict(
+            singleton_model=VERSION, launch_saving_fraction=launch_saving_fraction,
+            launch_us=launch_us, launch_components=list(LAUNCH_COMPONENTS),
+            sum_singleton_total_us=math.fsum(single["total_us"] for single in singles),
+            saved_launch_us_per_layer=saved_per_layer,
+            saved_launch_us_total=saved_per_layer * len(layer_us)))
+    result["assumptions"].update(
+        batch="sum of same-deployment singleton times minus explicit duplicate kernel launches",
+        moe="independent singleton expert work and weight reads; no cross-request reuse",
+        expert_communication="sum of singleton dispatch/combine, including every startup",
+        indexer_pipeline_floor="retain each singleton pipeline floor",
+        launch_sharing="configurable assumption for three existing launch terms; no hardware calibration")
+    return result
+
+
 def per_batch(requests, *, dp: int, ep: int, tp: int = 1,
               sparse_HBM_hit_ratio: float = 1.0,
-              kv_hbm_reuse: bool = True) -> tuple[float, float]:
+              kv_hbm_reuse: bool = True, batch_time_model: str = VERSION,
+              launch_saving_fraction: float | None = None) -> tuple[float, float]:
     """与原 per_batch 相同的返回单位：(平均每层 us，每层前缀 KV GB)。
 
     批次大小由请求列表决定；不支持原 bs 覆盖。DP/EP 必须明确提供。
@@ -291,7 +375,8 @@ def per_batch(requests, *, dp: int, ep: int, tp: int = 1,
     """
     result = estimate_batch(requests, dp=dp, ep=ep, tp=tp,
                             sparse_HBM_hit_ratio=sparse_HBM_hit_ratio,
-                            kv_hbm_reuse=kv_hbm_reuse)
+                            kv_hbm_reuse=kv_hbm_reuse, batch_time_model=batch_time_model,
+                            launch_saving_fraction=launch_saving_fraction)
     return result["per_layer_us"], result["per_layer_prefix_kv_gb"]
 
 

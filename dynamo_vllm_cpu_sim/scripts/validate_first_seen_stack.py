@@ -17,8 +17,8 @@ def main():
     p.add_argument("--trace-dir",required=True,type=Path)
     p.add_argument("--output",required=True,type=Path)
     p.add_argument("--python",required=True,type=Path)
-    p.add_argument("--cases",nargs="+",choices=["immediate","tfs_first_token","tfs_load_done"],
-                   default=["immediate","tfs_first_token","tfs_load_done"])
+    p.add_argument("--cases",nargs="+",choices=["immediate","tfs_first_token"],
+                   default=["immediate","tfs_first_token"])
     a = p.parse_args()
     out = a.output.resolve()
     out.mkdir(parents=True,exist_ok=False)
@@ -41,7 +41,7 @@ def main():
     results = {}
     for case in a.cases:
         mode = "immediate" if case=="immediate" else "tfs"
-        release = "load_done" if case=="tfs_load_done" else "first_token"
+        release = "first_token"
         results[case] = run_one(cfg,out/"prepared/trace.jsonl",out/case,a.python,mode,release,2)
         write(out/"summary.json",results)
     assert len({r["actual_submitted_read_bytes"] for r in results.values()})==1

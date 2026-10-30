@@ -11,9 +11,40 @@ sys.path.insert(0, str(ROOT))
 from sim.stack.admission_service import UUID_RE
 
 
+def check_permit_ledger(events, permits):
+    """Allow same-worker overlap, but account for every grant and release."""
+    active = set()
+    max_forced_per_worker = 0
+    for event in events:
+        if event['event'] == 'admission_reserved':
+            token = event['permit_id']
+            assert token not in active
+            assert event['held_before'] == len(active)
+            active.add(token)
+            assert event['held_after'] == len(active)
+            worker_counts = {}
+            for token in active:
+                permit = permits[token]
+                if permit.get('forced'):
+                    worker_counts[permit['worker']] = worker_counts.get(permit['worker'], 0) + 1
+            max_forced_per_worker = max(max_forced_per_worker, max(worker_counts.values(), default=0))
+        elif event['event'] == 'admission_released':
+            own = [token for token in active if permits[token]['id'] == event['id']]
+            assert len(own) == 1, 'release must close exactly one active request permit'
+            assert event['held_before'] == len(active)
+            active.remove(own[0])
+            assert event['held_after'] == len(active)
+    assert not active, 'unreleased permits remain'
+    return max_forced_per_worker
+
+
 def check(folder, status=None):
     folder = Path(folder)
     status = status or json.loads((folder/'admission.final.json').read_text())
+    if status.get('execution_feedback') == 'disabled':
+        from sim.stack.load_observation import with_local_observations
+        status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
+        assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
     events, records, hints, permits = (status[k] for k in ('events','records','storage_hints','permits'))
     assert status['status'] == 'ready' and not status['invalid_reasons']
     rpc = status.get('rpc')
@@ -23,6 +54,7 @@ def check(folder, status=None):
         assert json.loads((folder/'admission.rpc.json').read_text()) == rpc
     aliases = {uuid.UUID(e['engine_uuid']).hex:e['id'] for e in events if e['event']=='request_correlated'}
     received, responses, skipped, forced = {}, [], [], {}
+    forced_rounds = set()
     for path in sorted(folder.glob('worker*.read_admission.jsonl')):
         full_rounds = set()
         for line in path.read_text().splitlines():
@@ -55,6 +87,8 @@ def check(folder, status=None):
                 assert hints[rid]['is_heavy_read']
                 skipped.append(row)
             elif row['event'] == 'idle_bypass_committed':
+                assert (path.name, row['round']) not in forced_rounds, 'multiple forces in one scheduler round'
+                forced_rounds.add((path.name, row['round']))
                 assert rid not in forced and hints[rid]['is_heavy_read']
                 assert row['admission_waited'] is False
                 assert row['allocation_completed_mono'] <= row['decision_mono'] <= row['monotonic_ns']/1e9
@@ -96,19 +130,10 @@ def check(folder, status=None):
         else:
             assert e['reason'] == 'normal'
             assert e['cap'] is None or e['held_after']<=e['cap']
-    # Exact per-worker ledger sweep: exception debt counts toward normal held.
-    active_forced = {}
-    force_tokens = {p['permit_id']:p for p in permits.values() if p.get('forced')}
-    for e in events:
-        if e['event'] == 'admission_reserved' and e.get('permit_id') in force_tokens:
-            p = force_tokens[e['permit_id']]
-            assert p['worker'] not in active_forced
-            active_forced[p['worker']] = p['permit_id']
-        elif e['event'] == 'admission_released':
-            for token,p in force_tokens.items():
-                if p['id'] == e['id'] and active_forced.get(p['worker']) == token:
-                    del active_forced[p['worker']]
-    assert not active_forced and not status.get('pending_engine_events')
+    # Sweep every permit independently. Same-worker forced leases may overlap;
+    # every outstanding lease must still count toward normal admission held.
+    max_forced_per_worker = check_permit_ledger(events, permits)
+    assert not status.get('pending_engine_events')
     durations = [r['duration_ns']/1e6 for r in responses]
     return dict(status='pass', requests=len(records), hints_received=len(received),
                 rpc_transport=rpc['transport'] if rpc else 'legacy_unix',
@@ -117,6 +142,7 @@ def check(folder, status=None):
                 skipped_heavy_requests=len(skipped), leaked_permits=0,
                 rolled_back=sum(p['state']=='rolled_back' for p in permits.values()),
                 forced_grants=len(forced), forced_over_cap=sum(e['reason']=='idle_bypass' and e.get('over_cap',False) for e in grants),
+                max_unreleased_forced_per_worker=max_forced_per_worker,
                 acquire_rpc_mean_wall_ms=statistics.mean(durations) if durations else 0,
                 acquire_rpc_p50_wall_ms=statistics.median(durations) if durations else 0,
                 acquire_rpc_p95_wall_ms=sorted(durations)[int(.95*(len(durations)-1))] if durations else 0,

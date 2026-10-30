@@ -70,12 +70,13 @@ class LateLedgerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.acquire(s,'a')['permit_id'],a['permit_id'])
         self.assertEqual(self.acquire(s,'b',1)['reason'],'full')
         self.assertEqual(s.controller.held,1)
-        s.receive(self.raw(s,'a','load_submitted',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=0))
-        s.receive(self.raw(s,'a','load_completed','e2',dict(attempt_id=1),worker=0))
+        self.assertEqual(s.controller.permits[a['permit_id']]['state'],'reserved')
         self.assertEqual(self.acquire(s,'b',1)['reason'],'full')
         s.local_event('first_token','a')
         self.assertTrue(self.acquire(s,'b',1)['granted'])
         self.assertEqual(s.controller.permits[a['permit_id']]['state'],'released')
+        with self.assertRaises(ValueError):
+            self.acquire(s,'a',key='new-key-after-token')
 
     async def test_rollback_idempotency_and_new_attempt_key(self):
         s = self.state()
@@ -88,11 +89,11 @@ class LateLedgerTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.acquire(s,'a')['granted'])
         retry = self.acquire(s,'a',key='retry')
         self.assertNotEqual(retry['permit_id'],a['permit_id'])
-        s.receive(self.raw(s,'a','load_submitted',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=0))
+        s.local_event('first_token','a')
         with self.assertRaises(ValueError):
             self.rollback(s,'a',retry['permit_id'])
 
-    async def test_unpermitted_read_and_bad_metadata_fail(self):
+    async def test_removed_feedback_and_bad_metadata_fail(self):
         s = self.state()
         with self.assertRaises(ValueError):
             s.receive(self.raw(s,'a','load_submitted',payload=dict(attempt_id=1,submitted_read_bytes=1024),worker=0))
