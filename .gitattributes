@@ -4,5 +4,7 @@
 *.json text eol=lf
 *.jsonl text eol=lf
 *.csv text eol=lf
+# This benchmark hashes its README as part of the frozen payload.
+/benchmark/synthetic_abc_360_6s_12_90GBps/README.md text eol=lf
 # Preserve raw runtime output, including trailing blanks emitted by dependencies.
 *.log -whitespace
