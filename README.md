@@ -6,6 +6,8 @@
 
 已归档报告见[报告目录](report/报告目录.md)，通用规则见[report/README.md](report/README.md)。报告按benchmark分组，子目录列明创建时间与实际比较方案；历史模型和研究版运行边界在各报告开头标注。
 
+可共享的自编技能放在[skills](skills/README.md)。用途、依赖和入口见[技能目录](skills/技能目录.md)，AI使用与维护见[agent.md](skills/agent.md)。
+
 ---
 
 # Dynamo / vLLM CPU 调度仿真
