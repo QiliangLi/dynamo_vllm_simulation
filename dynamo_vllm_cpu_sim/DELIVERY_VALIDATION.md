@@ -1,6 +1,16 @@
 # 分支交付验证
 
 
+## 2026-10-30：ABC / ABCD 新增100 GB/s版本
+
+新增 mooncake_abc_360_4s_12_100GBps 与 mooncake_abcd_360_4s_12_100GBps。
+各自的请求数据、CSV和历史配置与90 GB/s来源逐字节一致；只改变当前配置的磁盘、共享链路和准入参考带宽为100e9。
+运行器及结果校验改为读取所选benchmark的带宽，不再固定90 GB/s；T0/期限在准备与回放时重新计算。
+六份共2160条输入校验通过；两个新版本的导出、冻结配置与720条画像准备通过，未加载原生执行器。
+完整268项WSL单元测试、7项Windows目录测试通过。旧90 GB/s负载、通用README和agent.md保持不变。
+没有新的性能结果。检查记录见 [BENCHMARK_100GB_CHECK.json](BENCHMARK_100GB_CHECK.json)。
+
+
 ## 2026-10-30：标准化 benchmark 文件夹
 
 按“来源_特征_请求数_窗口_实例数_带宽”命名，四份负载及附录统一见 [Benchmark目录](../benchmark/benchmark目录.md)。

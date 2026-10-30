@@ -74,6 +74,39 @@ class BenchmarkCatalogTests(unittest.TestCase):
 
 
 class RunnerBoundaryTests(unittest.TestCase):
+    def test_100gb_variants_preserve_requests_and_change_only_capacity(self):
+        for feature in ('abc','abcd'):
+            old=REPO/f'benchmark/mooncake_{feature}_360_4s_12_90GBps'
+            new=REPO/f'benchmark/mooncake_{feature}_360_4s_12_100GBps'
+            self.assertEqual(manager.verify_case(new.name)['shared_storage_Bps'],100e9)
+            for filename in ('trace.jsonl.gz','requests.csv','config.historical.json'):
+                self.assertEqual(manager.sha(old/filename),manager.sha(new/filename))
+            cfg=manager.read(new/'config.json')
+            cfg['storage']['disk_Bps']=cfg['storage']['shared_link_Bps']=cfg['admission']['reference_bandwidth_Bps']=90e9
+            self.assertEqual(cfg,manager.read(old/'config.json'))
+
+    def test_audit_records_selected_capacity_and_rejects_mismatch(self):
+        spec=importlib.util.spec_from_file_location('benchmark_runner_capacity_test',REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py')
+        runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);run=root/'package/results/direct/run';run.mkdir(parents=True)
+            profile=dict(id='conversation:L1',n=32,h=16,u=16,read_bytes=64,deadline_width_s=1)
+            cfg=dict(wall_time_scale=1,request_ordering='edf',storage=dict(disk_Bps=100e9,shared_link_Bps=100e9),
+                     admission=dict(reference_bandwidth_Bps=100e9,idle_bypass=False))
+            state=dict(records={'conversation:L1':dict(state='FINISHED',lease_open=False,submitted_read_bytes=64,
+                first_token_s=.2,profile=dict(arrival_s=0,deadline_s=1,prompt_tokens=32,estimated_remote_tokens=16))},
+                fatal=False,invalid_reasons=[],pending_engine_events=[],snapshot=dict(pending_ids=[],heavy_held=0))
+            objects={root/'profiles.json':[profile],root/'manifest.json':dict(case='capacity-test',shared_storage_Bps=100e9),
+                     run/'config.json':cfg,run/'admission.final.json':state,
+                     run.parent/'driver.json':dict(status='passed',guards=[],alive=[]),
+                     run/'measured/report.json':dict(n_total=1,n_ok=1,n_skipped=0)}
+            for path,value in objects.items():
+                path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(value),encoding='utf-8')
+            self.assertEqual(runner.audit(root,'direct',True)['shared_storage_Bps'],100e9)
+            cfg['storage']['disk_Bps']=90e9
+            (run/'config.json').write_text(json.dumps(cfg),encoding='utf-8')
+            with self.assertRaises(AssertionError):runner.audit(root,'direct',True)
+
     def test_export_only_case_is_rejected_before_native_or_environment_access(self):
         r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
                           '--case','agentx_random_360_12s_12_180GBps','--dynamo-python','missing-overlay'],

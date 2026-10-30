@@ -1,5 +1,8 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
+
+标准benchmark运行器从所选负载的config.json/manifest.json读取共享池带宽，并校验名称一致；不将带宽固定为90 GB/s。完整名单及支持状态见[Benchmark目录](../benchmark/benchmark目录.md)。
+
 本分支最新入口：[实验分支使用说明](../docs/实验分支使用说明.md)。
 固定输入位于仓库根benchmark，统一运行器为`scripts/run_benchmark.py`。
 新增[AgentX360固定输入](../benchmark/agentx_random_360_12s_12_180GBps/README.md)：360条、12秒、180GB/s、12实例。可校验及导出；当前交付运行器尚不支持其直接组合计时、关闭反馈及长上下文合同，显式选择会在启动前拒绝。`--case all`只选择目录中支持完整运行的负载。

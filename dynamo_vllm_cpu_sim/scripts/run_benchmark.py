@@ -53,8 +53,9 @@ def prepare(case,folder,overlay):
     manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
     cfg=read(inp/'config.json');cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
-    assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==90e9
-    assert cfg['admission']['reference_bandwidth_Bps']==90e9
+    bandwidth=manifest['shared_storage_Bps']
+    assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
+    assert cfg['admission']['reference_bandwidth_Bps']==bandwidth
     write(inp/'config.json',cfg)
     sys.path.insert(0,str(package))
     from sim.request_profile import normalize_config,build_profile
@@ -101,7 +102,10 @@ def audit(folder,arm,smoke):
         assert sum(r['submitted_read_bytes'] for r in records.values())==manifest['read_bytes']
         warm=read(run/'warmup.check.json')
         assert warm['requests']==72 and warm['coverage']==list(range(12))
-    assert cfg['wall_time_scale']==1 and cfg['storage']['disk_Bps']==90e9
+    bandwidth=manifest['shared_storage_Bps']
+    assert cfg['wall_time_scale']==1
+    assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
+    assert cfg['admission']['reference_bandwidth_Bps']==bandwidth
     assert cfg['request_ordering']=='edf'
     assert cfg['admission']['idle_bypass'] is False
     if arm!='direct':
@@ -109,7 +113,7 @@ def audit(folder,arm,smoke):
         assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
     ts=sorted(ttft);n=len(ts)
     result=dict(status='passed',case=manifest['case'],arm=arm,smoke=smoke,requests=n,
-        warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=90e9,
+        warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=bandwidth,
         mean_ttft_ms=sum(ts)/n,p95_ttft_ms=ts[math.ceil(n*.95)-1],slo_pct=slo/n*100,
         completion_ms=(max(r['first_token_s'] for r in records.values())-min(r['profile']['arrival_s'] for r in records.values()))*1000,
         measured_read_bytes=sum(r['submitted_read_bytes'] for r in records.values()))
