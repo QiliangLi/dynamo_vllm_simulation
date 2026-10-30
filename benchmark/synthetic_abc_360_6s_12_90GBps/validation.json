@@ -1,0 +1,144 @@
+{
+  "status": "passed",
+  "requests_checked": 2520,
+  "K": 1,
+  "cases": [
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "requests": 360,
+      "input_tokens": 23255872,
+      "hit_tokens": 22588592,
+      "new_tokens": 667280,
+      "read_bytes": 2480769527808,
+      "class_counts": {
+        "B": 270,
+        "A": 90
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 12.0,
+      "shared_storage_Bps": 180000000000.0,
+      "portable_runner_status": "export_only"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "hit_tokens": 4913056,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 240,
+        "B": 90,
+        "C": 30
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 4.0,
+      "shared_storage_Bps": 100000000000.0,
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "hit_tokens": 4913056,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 240,
+        "B": 90,
+        "C": 30
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 4.0,
+      "shared_storage_Bps": 90000000000.0,
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "hit_tokens": 4913056,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 220,
+        "B": 90,
+        "D": 20,
+        "C": 30
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 4.0,
+      "shared_storage_Bps": 100000000000.0,
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "hit_tokens": 4913056,
+      "new_tokens": 204699,
+      "read_bytes": 539571462144,
+      "class_counts": {
+        "A": 220,
+        "B": 90,
+        "D": 20,
+        "C": 30
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 4.0,
+      "shared_storage_Bps": 90000000000.0,
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "mooncake_random_360_4s_12_90GBps",
+      "requests": 360,
+      "input_tokens": 5117755,
+      "hit_tokens": 4910208,
+      "new_tokens": 207547,
+      "read_bytes": 539258683392,
+      "class_counts": {
+        "B": 270,
+        "A": 90
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 4.0,
+      "shared_storage_Bps": 90000000000.0,
+      "portable_runner_status": "supported"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "requests": 360,
+      "input_tokens": 5132040,
+      "hit_tokens": 4813440,
+      "new_tokens": 318600,
+      "read_bytes": 528631234560,
+      "class_counts": {
+        "B": 120,
+        "A": 120,
+        "C": 120
+      },
+      "original_trace_match": true,
+      "arrival_window_s": 6.0,
+      "shared_storage_Bps": 90000000000.0,
+      "portable_runner_status": "export_only"
+    }
+  ],
+  "new_case_checks": {
+    "source_trace_byte_identical": true,
+    "source_trace_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6",
+    "gzip_crc_and_content": true,
+    "full_arm_contract_exported": true,
+    "default_config_is_actual_direct": true,
+    "first_planned_arrival_s": 0.00503337572724873,
+    "origin_gap_preserved": true,
+    "old_six_cases_and_generic_docs_unchanged": true,
+    "export_only_blocked_before_native_access": true,
+    "existing_export_refused": true,
+    "performance_simulations_run": 0,
+    "unit_tests": 272,
+    "unit_status": "passed",
+    "windows_catalog_tests": 11,
+    "unit_log_sha256": "31cd56f7726902dc10d927fc665c144eb3878f9ae7a035b302d6a5a1a86d260b"
+  },
+  "unit_log_summary": "272 tests passed in 87.751 seconds (WSL Python3.12)"
+}

@@ -72,6 +72,41 @@ class BenchmarkCatalogTests(unittest.TestCase):
             self.assertEqual(manager.read(output/'config.json'),manager.read(self.folder/'config.json'))
             with self.assertRaises(FileExistsError):manager.export(self.name,output,quiet=True)
 
+    def synthetic_origin_fixture(self, first_arrival=.25):
+        rows=[dict(id=f'r{i}',class_id='R',arrival_s=t,prompt_token_ids=[1]*32,
+                   hit_tokens=16,u_tokens=16,remote_prefix_tokens=16,output_tokens=1,
+                   original_seed416_arrival_s=source)
+              for i,(t,source) in enumerate(((first_arrival,.25),(1.,1.)))]
+        raw=''.join(json.dumps(r)+'\n' for r in rows).encode()
+        (self.folder/'trace.jsonl.gz').write_bytes(gzip.compress(raw))
+        with (self.folder/'requests.csv').open('w',newline='') as f:
+            writer=csv.DictWriter(f,fieldnames=['id','class_id','arrival_s','source_timestamp',
+                'input_tokens','hit_tokens','new_tokens','read_bytes']);writer.writeheader()
+            for r in rows:
+                writer.writerow(dict(id=r['id'],class_id='R',arrival_s=r['arrival_s'],
+                    source_timestamp=r['original_seed416_arrival_s'],input_tokens=32,
+                    hit_tokens=16,new_tokens=16,read_bytes=64))
+        self.m.update(allocation_scope='synthetic_abc',
+            class_shapes=dict(R=dict(hit_tokens=16,new_tokens=16)),
+            arrival_mapping=dict(mode='scale_from_origin',source_time_unit='seconds',
+                source_origin_s=0,source_last_s=1,target_origin_s=0,target_last_s=1),
+            original_trace_sha256=hashlib.sha256(raw).hexdigest())
+        self.save_manifest()
+
+    def test_synthetic_origin_mapping_preserves_nonzero_first_arrival(self):
+        self.synthetic_origin_fixture()
+        self.assertEqual(manager.verify_case(self.name)['requests'],2)
+
+    def test_synthetic_rescaled_first_arrival_is_rejected_even_with_updated_hashes(self):
+        self.synthetic_origin_fixture(first_arrival=0.)
+        with self.assertRaises(AssertionError):manager.verify_case(self.name)
+
+    def test_synthetic_shape_mismatch_is_rejected_even_with_updated_hashes(self):
+        self.synthetic_origin_fixture()
+        self.m['class_shapes']['R']=dict(hit_tokens=0,new_tokens=32)
+        self.save_manifest()
+        with self.assertRaises(AssertionError):manager.verify_case(self.name)
+
 
 class RunnerBoundaryTests(unittest.TestCase):
     def test_100gb_variants_preserve_requests_and_change_only_capacity(self):
@@ -110,6 +145,14 @@ class RunnerBoundaryTests(unittest.TestCase):
     def test_export_only_case_is_rejected_before_native_or_environment_access(self):
         r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
                           '--case','agentx_random_360_12s_12_180GBps','--dynamo-python','missing-overlay'],
+                         capture_output=True,text=True,encoding='utf-8')
+        self.assertNotEqual(r.returncode,0)
+        self.assertIn('仅支持校验',r.stderr)
+        self.assertNotIn('Build the weighted',r.stderr)
+
+    def test_synthetic_case_is_export_only_before_native_access(self):
+        r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
+                          '--case','synthetic_abc_360_6s_12_90GBps','--dynamo-python','missing-overlay'],
                          capture_output=True,text=True,encoding='utf-8')
         self.assertNotEqual(r.returncode,0)
         self.assertIn('仅支持校验',r.stderr)

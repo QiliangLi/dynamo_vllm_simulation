@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "benchmark_format_version": 1,
+  "case": "synthetic_abc_360_6s_12_90GBps",
+  "source": "synthetic",
+  "feature": "abc",
+  "description": "原seed416人工ABC到达顺序，固定A30720/259、B9392/2048、C0/348；最新GLM78层读算重定标，6秒从时间0起算，首请求间隔保留。",
+  "requests": 360,
+  "input_tokens": 5132040,
+  "hit_tokens": 4813440,
+  "new_tokens": 318600,
+  "read_bytes": 528631234560,
+  "class_counts": {
+    "B": 120,
+    "A": 120,
+    "C": 120
+  },
+  "new_pct": 6.208057614515865,
+  "class_shapes": {
+    "A": {
+      "hit_tokens": 30720,
+      "new_tokens": 259
+    },
+    "B": {
+      "hit_tokens": 9392,
+      "new_tokens": 2048
+    },
+    "C": {
+      "hit_tokens": 0,
+      "new_tokens": 348
+    }
+  },
+  "allocation_scope": "synthetic_abc",
+  "block_size": 16,
+  "arrival_window_s": 6,
+  "arrival_mapping": {
+    "mode": "scale_from_origin",
+    "source_time_unit": "seconds",
+    "source_origin_s": 0,
+    "source_last_s": 3.6119999999999997,
+    "target_origin_s": 0,
+    "target_last_s": 6
+  },
+  "first_planned_arrival_s": 0.00503337572724873,
+  "planned_first_to_last_span_s": 5.9949666242727515,
+  "shared_storage_Bps": 90000000000.0,
+  "K": 1,
+  "workers": 12,
+  "max_input_tokens": 30979,
+  "synthetic_hit_allocation": true,
+  "output_length_used_for_work": false,
+  "hash_ids_used_for_hits": false,
+  "source_dataset": "E26f synthetic C_A seed416, frozen block16 ABC request order",
+  "source_first_line": 1,
+  "source_last_line": 360,
+  "original_trace_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6",
+  "historical_config_sha256": "da5000241cb26c04f122b547f1bdff1b4a56ab05de95ad80b3396e1ee0f09203",
+  "historical_DV_commit": "b6aca299ec9888d25435c94013f05d73fd8fa825",
+  "historical_config_sanitized": true,
+  "label_semantics": "Fixed synthetic read/compute classes; not online P75 heavy classification",
+  "timing": {
+    "batch_model": "glm5_direct_sum_v1",
+    "launch_saving_fraction": 1.0,
+    "tp": 1,
+    "dp": 8,
+    "ep": 8,
+    "reference_compute_instance_s": 70.0470584676,
+    "long_context_formula_extrapolation": false
+  },
+  "execution_feedback": "disabled",
+  "portable_runner_status": "export_only",
+  "runner_profile": null,
+  "portable_runner_reason": "交付运行器仍为batch-v2和同步执行反馈；尚未移植本负载的direct_sum、禁用四反馈及Dynamo Runtime最终答复/后台EOF合同。",
+  "files_sha256": {
+    "trace.jsonl.gz": "f7c4ca8cbd1f65c9b52c9a8cf9e97c1ec0bdd01807213c145ea2a06fb2399b03",
+    "requests.csv": "741b8c5e34af329e5e0097d1fa4336345aecc6d6db4514f96429ca519ec6a84f",
+    "config.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
+    "config.historical.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
+    "run_contract.json": "5d6df30f9c21bf6dd6130008170c4836ab489f1d050c88eed48d1e187523fc44",
+    "README.md": "44c685fc0c10c9847bace0c59b3f2ad6f5bf9ba9beba6e3cb1d31c4c58ae4f44",
+    "provenance.json": "355a1767a7da7adf8d294e20fbb5c0aea016b17944cac6bed8e1889b4d1c6a5b",
+    "validation.json": "23aa0ac19f4599081c73cca10af42d434d51e381ef2832984a7e69d7a29eb084"
+  }
+}
