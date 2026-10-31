@@ -47,7 +47,8 @@ def environment():
                       OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                       VLLM_ALLOW_LONG_MAX_MODEL_LEN='1', VLLM_LOGGING_LEVEL='ERROR',
                       DYN_TCP_RPC_HOST='127.0.0.1')
-    for key in ('SIM_FINE_TRACE_DIR', 'DYN_WAITING_SCORE_FACTOR', 'DYN_WAITING_SCORE_READY'):
+    for key in ('SIM_FINE_TRACE_DIR', 'DYN_WAITING_SCORE_FACTOR', 'DYN_WAITING_SCORE_READY',
+                'DYN_LEASE_LOADING_SLOTS', 'SIM_STACK_LEASE_EVENTS'):
         os.environ.pop(key, None)
     sys.path[:0] = [str(ROOT), str(ROOT/'scripts')]
 
@@ -73,12 +74,20 @@ def run(arm, smoke=False):
     main = load_trace(ROOT/'results/input360/trace.jsonl')
     cfg = read(ROOT/'results/input360/config.json')
     new = arm in ('new-tfs','idle-bypass')
+    lease = arm == 'lease'
     cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
-                            placement='scheduler' if new else 'gateway',
-                            classification='arrival' if new else 'dynamic',
+                            placement='scheduler' if (new or lease) else 'gateway',
+                            classification=('bandwidth_line' if lease
+                                            else 'arrival' if new else 'dynamic'),
                             idle_bypass=arm=='idle-bypass',aging_enabled=False)
+    if lease:
+        # tfs-lease：释放语义改为读开始/末层读毕事件记账。
+        cfg['admission']['release_on'] = 'lease_events'
+        tuning = os.environ.get('BENCH_LEASE_JSON')
+        if tuning:
+            cfg.setdefault('lease', {}).update(json.loads(tuning))
     cfg.update(policy='priority',request_ordering='edf')
-    cfg['routing_accounting'].update(enabled=new,waiting_factor=ALPHA)
+    cfg['routing_accounting'].update(enabled=new or lease,waiting_factor=ALPHA)
     if smoke:
         main = [dict(r,arrival_s=0.) for label in sorted({r['class_id'] for r in main}) for r in sorted((v for v in main if v['class_id']==label),key=lambda v:len(v['prompt_token_ids']))[::max(1,len([v for v in main if v['class_id']==label])-1)]]
         cfg['workers'] = 2
@@ -234,15 +243,18 @@ def run(arm, smoke=False):
     subprocess.Popen=launch;httpx.AsyncClient=Client;replay_http.replay=replay;run_tfs_stack.verify=verify;thread.start()
     try:
         with (case/'driver.log').open('w') as stream,contextlib.redirect_stdout(stream):
-            check=run_tfs_stack.run_one(cfg,combined,case/'run',Path(sys.executable),cfg['admission']['mode'],'first_token',cfg['workers'])
+            check=run_tfs_stack.run_one(cfg,combined,case/'run',Path(sys.executable),
+                                    cfg['admission']['mode'],cfg['admission']['release_on'],cfg['workers'])
         assert check['requests']==len(warm+main)
         assert check['workers']==list(range(cfg['workers'])),check['workers']
         assert check['actual_submitted_read_bytes']==sum(r['hit_tokens']*cfg['storage']['kv_bytes_per_token'] for r in warm+main)
-        if new:
+        if new or lease:
             from check_edf_priority import check as budget_check
             from check_routing_accounting import check as score_check
+            # lease 冒烟只有少量请求，可能没有可采样的等待折扣决策；正式运行仍强制。
             write(case/'run/edf_priority.check.json',budget_check(case/'run'))
-            write(case/'run/routing.score.check.json',score_check(case/'run',require_discount=ALPHA<1))
+            write(case/'run/routing.score.check.json',score_check(case/'run',
+                require_discount=ALPHA<1 and not (lease and smoke)))
         result.update(status='passed',check=check)
     except BaseException:
         result['error']=traceback.format_exc();raise

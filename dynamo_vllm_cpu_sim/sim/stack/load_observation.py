@@ -67,8 +67,11 @@ def with_local_observations(status, paths):
 
     Old frozen reports are passed through unchanged. New reports retain the raw
     runtime snapshot separately and label the source of their execution fields.
+    lease_events 臂同样只做离线 join：在线通道只有两条租约控制消息，
+    不回填 load_attempts 等执行字段。
     """
-    if status.get('execution_feedback') != 'disabled' or status.get('load_observation_source') == 'offline_worker_logs':
+    if (status.get('execution_feedback') not in ('disabled', 'lease_events')
+            or status.get('load_observation_source') == 'offline_worker_logs'):
         return status
     result = deepcopy(status)
     aliases = {uuid.UUID(e['engine_uuid']).hex: e['id'] for e in status['events']

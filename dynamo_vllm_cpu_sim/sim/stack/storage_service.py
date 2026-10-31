@@ -215,6 +215,16 @@ class Service:
         rids = self._finished.pop(worker, [])
         return {"ok": True, "rids": rids}
 
+    def op_stats_compact(self) -> dict:
+        """轻量计数快照：账房周期对账用，不导出逐读历史。"""
+        self._advance_to_wall()
+        snap = self.store.snapshot()
+        return {"ok": True, "timestamp_s": snap["timestamp_s"],
+                "disk_bytes_transferred": snap["disk_bytes_transferred"],
+                "disk_rates_Bps": snap["disk_rates_Bps"],
+                "bytes_transferred": self.store.bytes_transferred,
+                "pending_reads": len(self.store.pending)}
+
     def op_stats(self) -> dict:
         self._advance_to_wall()
         snap = self.store.snapshot()
@@ -268,7 +278,7 @@ def handle(conn: socket.socket, service: Service) -> None:
         with service._lock:
             try:
                 op = req.get("op")
-                if op not in ('gc_control', 'stats'):
+                if op not in ('gc_control', 'stats', 'stats_compact'):
                     service.gc_window.check()
                 if op == 'gc_control':
                     resp = service.op_gc_control(req['action'], req.get('collect', True))
@@ -296,6 +306,8 @@ def handle(conn: socket.socket, service: Service) -> None:
                     resp = service.layer_state.status(req["worker"],req["rids"],req["layer"])
                 elif op == "stats":
                     resp = service.op_stats()
+                elif op == "stats_compact":
+                    resp = service.op_stats_compact()
                 else:
                     resp = {"ok": False, "error": f"unknown op {op!r}"}
             except Exception as exc:  # noqa: BLE001

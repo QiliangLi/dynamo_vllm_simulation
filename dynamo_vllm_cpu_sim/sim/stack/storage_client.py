@@ -70,6 +70,9 @@ class StorageClient:
     def stats(self) -> dict:
         return self._call({"op": "stats"})
 
+    def stats_compact(self) -> dict:
+        return self._call({"op": "stats_compact"})
+
     def gc_begin(self):
         return self._call(dict(op='gc_control', action='begin'))['gc_window']
 

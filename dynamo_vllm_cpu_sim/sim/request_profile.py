@@ -64,19 +64,54 @@ def normalize_config(config):
         a.update(mode="tfs", aging_enabled=False)
     if a["mode"] not in ("immediate", "slack_only", "quota_fcfs", "tfs"):
         raise ValueError("unknown admission.mode")
-    if a["release_on"] not in ("first_token", "load_done"):
-        raise ValueError("release_on must be first_token or load_done")
-    if a["placement"] not in ("gateway", "scheduler") or a["classification"] not in ("dynamic", "arrival"):
+    if a["release_on"] not in ("first_token", "load_done", "lease_events"):
+        raise ValueError("release_on must be first_token, load_done or lease_events")
+    if a["placement"] not in ("gateway", "scheduler") or a["classification"] not in (
+            "dynamic", "arrival", "bandwidth_line"):
         raise ValueError("invalid admission placement or classification")
     if (not isinstance(a["retry_interval_wall_s"], (int, float))
             or not math.isfinite(a["retry_interval_wall_s"]) or a["retry_interval_wall_s"] < 0):
         raise ValueError("retry_interval_wall_s must be finite and nonnegative")
     if a["placement"] == "scheduler":
-        if (a["classification"] != "arrival" or a["mode"] != "tfs"
-                or a["release_on"] != "first_token" or a["aging_enabled"]):
-            raise ValueError("scheduler admission v1 requires tfs/arrival/first_token/aging off")
+        v1 = (a["classification"] == "arrival" and a["release_on"] == "first_token")
+        lease = (a["classification"] == "bandwidth_line" and a["release_on"] == "lease_events")
+        if not v1 and not lease or a["mode"] != "tfs" or a["aging_enabled"]:
+            raise ValueError("scheduler admission requires tfs and aging off; "
+                             "v1 pairs arrival+first_token, lease pairs bandwidth_line+lease_events")
         if c.get("scheduler", "upstream") != "upstream":
             raise ValueError("scheduler admission v1 supports the pinned upstream scheduler only")
+    if a["classification"] == "bandwidth_line":
+        sc = c["storage"]
+        if (a["mode"] != "tfs" or a["placement"] != "scheduler" or a["aging_enabled"]
+                or sc["disks"] != 1):
+            raise ValueError("lease admission requires tfs, scheduler placement, "
+                             "aging off and the single shared pool contract")
+        lease = {"line_factor_heavy": 0.1, "line_factor_normal": 1.1,
+                 "line_factor_exception": 1.5, "compute_slots": 4,
+                 "loading_slots_per_worker": 4, "ttl_slack_factor": 30.0,
+                 "ttl_margin_s": 0.05, "reconcile_interval_s": 0.05,
+                 "reconcile_tolerance": 0.1}
+        lease.update(c.get("lease", {}))
+        for key in ("line_factor_heavy", "line_factor_normal", "line_factor_exception",
+                    "ttl_slack_factor", "reconcile_interval_s"):
+            if (not isinstance(lease[key], (int, float)) or not math.isfinite(lease[key])
+                    or lease[key] <= 0):
+                raise ValueError(f"lease.{key} must be finite and positive")
+        for key in ("compute_slots", "loading_slots_per_worker"):
+            if (not isinstance(lease[key], int) or isinstance(lease[key], bool)
+                    or lease[key] <= 0):
+                raise ValueError(f"lease.{key} must be a positive integer")
+        for key in ("ttl_margin_s", "reconcile_tolerance"):
+            if (not isinstance(lease[key], (int, float)) or not math.isfinite(lease[key])
+                    or lease[key] < 0):
+                raise ValueError(f"lease.{key} must be finite and nonnegative")
+        if lease["reconcile_interval_s"] <= 0:
+            raise ValueError("lease.reconcile_interval_s must be positive")
+        lease["disks"] = sc["disks"]
+        a["lease"] = lease
+        a["disk_Bps"] = sc["disk_Bps"]
+        a["block_size"] = c["block_size"]
+        a["heavy_line_Bps"] = sc["disk_Bps"] * lease["line_factor_heavy"]
     if type(a['idle_bypass']) is not bool:
         raise ValueError('admission.idle_bypass must be boolean')
     if a['idle_bypass'] and (a['placement'] != 'scheduler'

@@ -1202,3 +1202,27 @@ worker卡数，不能随实际batch变化。GLM画像为`glm5_reference_v3`，�
 
 相关测试为`test_batch_feedback`、`test_coalesced_feedback`、`test_trace_io`、
 `test_gateway_triage`及既有许可、TCP、层屏障和准入测试。完整原始记录留本机，不推送token数组。
+
+## 2026-10-31：tfs-lease 第四臂（存储带宽租约调度）
+
+完整设计：[存储带宽租约调度实现方案](../docs/存储带宽租约调度实现方案-20261031.md)。
+`run_benchmark.py --arm tfs-lease` 启用第四臂；direct/tfs-a01/tfs-a1 三臂行为不变。
+四项技术对应的实现事实：
+
+- 轻重线由盘带宽派生（`lease.line_factor_heavy=0.1`），到达时冻结进 hint v2
+  （`storage_hint.py`），与 P75 负载统计解耦；标签只决定协议路径。
+- 许可判定改为每盘 B/s 账本五步放行（`sim/stack/lease_ledger.py`）：
+  判定线 `1.1×`、例外带 `1.5×`、条件 (a)(b) 与空账护栏；例外路的拉伸预测
+  复用 `weighted_waterfill` 同一函数，与存储分配同构。
+- 释放语义 `release_on=lease_events`：读开始（首层 submit）加账、末层读毕
+  （末层 ready）减账，经两条在线控制消息（`sim/stack/lease_events.py`）；
+  first token 只记录不释放。TTL 与周期对账（storage `stats_compact`）兜底。
+- 双信号路由折算为 `waiting_factor=1/m`（默认 0.25）的既有折扣机制；
+  计分补齐从获准后移到读开始；等带宽条数 > `2×lease.loading_slots_per_worker`
+  时 Rust overlay 钳位该实例（env `DYN_LEASE_LOADING_SLOTS`，未设置不生效）。
+
+配置段 `lease.*` 见 `sim/request_profile.py` 的 normalize 校验；当前合同限定
+单共享池（disks=1）。审计新增 `scripts/check_lease_accounting.py`，输出
+`lease_accounting.check.json`（放行上界回放、释放时机、消息计数、虚占窗口）。
+单元测试 `tests/test_lease_ledger.py`、`tests/test_lease_admission.py`。
+租约账本与速率仍是仿真量；GLM5 解析计时不属于实机测量。

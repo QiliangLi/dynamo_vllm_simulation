@@ -28,18 +28,32 @@ UUID_RE = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{
 class AdmissionState:
     def __init__(self, config, log_path=None):
         self.config = normalize_config(config)
-        if self.config['admission']['release_on'] != 'first_token':
-            raise ValueError('process stack requires release_on=first_token; execution feedback RPCs were removed')
+        self.lease = self.config['admission']['classification'] == 'bandwidth_line'
+        if self.config['admission']['release_on'] not in (
+                'first_token', 'lease_events' if self.lease else 'first_token'):
+            raise ValueError('process stack requires release_on=first_token; '
+                             'execution feedback RPCs were removed (lease_events only with bandwidth_line)')
         self.clock = TimeScale.from_config(self.config)
         controller_class = AdmissionController
         if self.config["compute"].get("mode") == "sa_e26f":
             from sim.sa_admission import SAAdmission
             controller_class = SAAdmission
-        if self.config["admission"]["classification"] == "arrival":
+        if self.lease:
+            from sim.stack.lease_admission import FrozenLeaseAdmission
+            controller_class = FrozenLeaseAdmission
+        elif self.config["admission"]["classification"] == "arrival":
             from sim.stack.read_admission import FrozenAdmission, FrozenSAAdmission
             controller_class = (FrozenSAAdmission if self.config["compute"].get("mode") == "sa_e26f"
                                 else FrozenAdmission)
         self.controller = controller_class(self.config["admission"])
+        self.storage_stats = None
+        self.last_reconcile_s = None
+        self.reconcile_mark = None
+        if self.lease:
+            socket_path = os.environ.get('SIM_STACK_STORAGE_SOCKET')
+            if socket_path:
+                from sim.stack.storage_client import StorageClient
+                self.storage_stats = StorageClient(socket_path)
         self.origin = time.monotonic()
         self.aliases = {}
         self.futures = {}
@@ -122,7 +136,8 @@ class AdmissionState:
                                     decision_s=self.clock.to_model(issued-self.origin))
             result = self.controller.acquire(rid, raw["worker_id"], raw["acquisition_key"],
                 raw["load_attempt_id"], validate_hint(raw["storage_hint"]), now, **force_fields)
-            if result['granted'] and self.routing_score is not None:
+            if result['granted'] and self.routing_score is not None and not self.lease:
+                # lease 臂的计分补齐后移到读开始（lease_started）事件。
                 kwargs = dict(allow_closed=True) if forced else {}
                 reply = self.routing_score.exchange('activate',raw['request_id'],permit_id=result['permit_id'], **kwargs)
                 self.log_event('routing_score_force_already_closed' if reply.get('already_closed') else 'routing_score_activated',
@@ -135,6 +150,32 @@ class AdmissionState:
                 self.log_event('routing_score_rolled_back',id=rid,permit_id=raw['permit_id'],
                                duration_wall_ns=reply['duration_wall_ns'])
             result = dict(released=True)
+        elif raw['op'] in ('lease_started', 'lease_completed'):
+            if not self.lease:
+                raise ValueError('lease events require the bandwidth_line lease arm')
+            if not isinstance(raw.get('permit_id'), str):
+                raise ValueError('lease events carry a permit identity')
+            occurred = now
+            if raw.get('clock_id') is not None and raw['clock_id'] == clock_id():
+                mono = raw.get('occurred_mono')
+                if type(mono) not in (int, float) or not math.isfinite(mono):
+                    raise ValueError('invalid lease event time')
+                occurred = min(now, self.clock.to_model(mono - self.origin))
+            permit_id = raw['permit_id']
+            if raw['op'] == 'lease_started':
+                result = self.controller.lease_started(rid, raw['worker_id'], permit_id,
+                                                       occurred, now, f'{permit_id}:started')
+                if self.routing_score is not None:
+                    kwargs = dict(allow_closed=True)
+                    reply = self.routing_score.exchange('activate', raw['request_id'],
+                                                        permit_id=permit_id, **kwargs)
+                    self.log_event('routing_score_force_already_closed' if reply.get('already_closed')
+                                   else 'routing_score_activated', id=rid, permit_id=permit_id,
+                                   duration_wall_ns=reply['duration_wall_ns'])
+            else:
+                result = self.controller.lease_completed(rid, raw['worker_id'], permit_id,
+                                                         occurred, now, f'{permit_id}:completed')
+                result = dict(released=True, **result)
         elif raw['op'] == 'routing_ready' and self.routing_score is not None:
             record = self.controller.records[rid]
             if (not self.controller.hints[rid]['is_heavy_read'] or record.lease_open
@@ -232,15 +273,50 @@ class AdmissionState:
                 targets.append(wake)
             if self.delayed:
                 targets.append(self.delayed[0][0])
+            if self.lease:
+                self._lease_tick(now)
+                lease_wake = self.controller.lease_next_deadline(self.now())
+                if lease_wake is not None:
+                    targets.append(lease_wake)
+                if self.last_reconcile_s is not None:
+                    targets.append(self.last_reconcile_s
+                                   + self.config['admission']['lease']['reconcile_interval_s'])
             try:
                 await asyncio.wait_for(self.wakeup.wait(),max(0.001,self.clock.to_wall(min(targets)-now)))
             except asyncio.TimeoutError:
                 pass
 
+    def _lease_tick(self, now):
+        """TTL 兜底回收 + 周期对账；对账失败不终止运行（下一周期重试）。"""
+        expired = self.controller.lease_sweep(now)
+        if expired:
+            self.wakeup.set()
+        if self.storage_stats is None:
+            return
+        interval = self.config['admission']['lease']['reconcile_interval_s']
+        if self.last_reconcile_s is not None and now < self.last_reconcile_s + interval - 1e-12:
+            return
+        try:
+            stats = self.storage_stats.stats_compact()
+            transferred = list(stats['disk_bytes_transferred'])
+            sample_s = stats['timestamp_s']
+            mark = self.reconcile_mark
+            self.reconcile_mark = (sample_s, transferred)
+            self.last_reconcile_s = now
+            if mark is not None:
+                dt = sample_s - mark[0]
+                if dt > 1e-6:
+                    rate = max(0.0, (transferred[0] - mark[1][0]) / dt)
+                    self.controller.lease_reconcile(rate, now)
+        except Exception as exc:  # noqa: BLE001 - 对账是兜底通道，失败只记录。
+            self.log_event('lease_reconcile_error', error=f'{type(exc).__name__}: {exc}')
+
     def snapshot(self):
         self.deliver()
         return dict(status="failed" if self.fatal else "ready",fatal=self.fatal,
-                    execution_feedback='disabled', origin_monotonic_s=self.origin,
+                    execution_feedback='lease_events' if self.lease else 'disabled',
+                    origin_monotonic_s=self.origin,
+                    lease=self.controller.lease_snapshot() if self.lease else None,
                     rpc=self.rpc_info,
                     routing_score=self.routing_score.snapshot() if self.routing_score is not None else None,
                     permits=getattr(self.controller,"permits",{}),
@@ -344,6 +420,8 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
             await app.state.client.aclose()
             if state.routing_score is not None:
                 state.routing_score.close()
+            if state.storage_stats is not None:
+                state.storage_stats.close()
             if native is not None:
                 await native.close()
             if server is not None:

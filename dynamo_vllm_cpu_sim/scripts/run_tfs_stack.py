@@ -26,7 +26,8 @@ def write(path,value):
 
 def save_admission_snapshot(folder, status):
     """Keep each final refresh's raw ledger and its offline report copy separate."""
-    if status.get('execution_feedback') == 'disabled' and not status.get('load_observation_source'):
+    if (status.get('execution_feedback') in ('disabled', 'lease_events')
+            and not status.get('load_observation_source')):
         from sim.stack.load_observation import with_local_observations
         write(folder/'admission.runtime.final.json', status)
         status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
@@ -68,7 +69,7 @@ def frontend_has_workers(snapshot, expected):
 
 
 def verify(folder,status,report,storage):
-    if status.get('execution_feedback') == 'disabled':
+    if status.get('execution_feedback') in ('disabled', 'lease_events'):
         status = save_admission_snapshot(folder, status)
         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
     records = status["records"]
@@ -234,6 +235,9 @@ def verify(folder,status,report,storage):
     if config["admission"].get("placement") == "scheduler":
         from check_read_admission import check as check_read_admission
         write(folder/"read_admission.check.json", check_read_admission(folder, status))
+    if config["admission"].get("classification") == "bandwidth_line":
+        from check_lease_accounting import check as check_lease
+        write(folder/"lease_accounting.check.json", check_lease(folder, status, config))
     return summary
 
 
@@ -248,6 +252,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
     cfg.setdefault("admission",{}).update(mode=mode,release_on=release)
     from sim.request_profile import normalize_config
     cfg = normalize_config(cfg)
+    lease_mode = cfg['admission']['classification'] == 'bandwidth_line'
     if cfg['routing_accounting']['enabled'] and not cfg['routing_accounting'].get('python_path'):
         raise ValueError('weighted accounting needs the isolated patched Dynamo python_path; see weighted-routing build instructions')
     if cfg['routing_accounting'].get('python_path'):
@@ -298,7 +303,8 @@ def run_one(config,trace,output,python,mode,release,workers=2):
         os.environ.pop(key,None)
     for key in ('SIM_STACK_ADMISSION_ENDPOINT','SIM_STACK_ADMISSION_SOCKET','SIM_STACK_ADMISSION_TIMEOUT_S',
                 'SIM_STACK_ADMISSION_INSTANCE_ID','SIM_STACK_ADMISSION_LEDGER_EPOCH',
-                'SIM_STACK_ROUTING_SCORE_READY','DYN_WAITING_SCORE_FACTOR','DYN_WAITING_SCORE_READY'):
+                'SIM_STACK_ROUTING_SCORE_READY','DYN_WAITING_SCORE_FACTOR','DYN_WAITING_SCORE_READY',
+                'SIM_STACK_LEASE_EVENTS','DYN_LEASE_LOADING_SLOTS'):
         env.pop(key,None)
     if cfg['routing_accounting']['enabled']:
         env['SIM_STACK_ROUTING_SCORE_READY'] = str(folder/'routing.score.identity.json')
@@ -365,6 +371,13 @@ def run_one(config,trace,output,python,mode,release,workers=2):
             write(folder/"readiness.latest.json",readiness)
             return frontend_has_workers(readiness,expected)
         for w in range(workers):
+            worker_env = dict(SIM_STACK_WORKER_ID=str(w),SIM_STACK_TOKEN_ID="290",DYN_SYSTEM_PORT=str(29111+w),
+                     SIM_STACK_STORAGE_SOCKET=str(storage_socket),
+                     SIM_STACK_ADMISSION_ENDPOINT=rpc['endpoint'],
+                     SIM_STACK_ADMISSION_TIMEOUT_S=str(cfg['admission']['rpc_timeout_wall_s']),
+                     SIM_STACK_STEP_LOG=str(folder/f"worker{w}.steps.jsonl"),**rpc_identity)
+            if lease_mode:
+                worker_env['SIM_STACK_LEASE_EVENTS'] = '1'
             launch(f"worker{w}",["scripts/stack_vllm_worker.py","--model","configs/model",
                 "--served-model-name","sim-opt","--endpoint","dyn://dynamo.backend.generate",
                 "--dtype","float32","--max-model-len",str(cfg["max_model_len"]),
@@ -372,11 +385,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
                 "--max-num-seqs",str(cfg["max_num_seqs"]),"--max-num-batched-tokens",str(cfg["max_num_batched_tokens"]),
                 "--enforce-eager","--seed","0","--no-enable-prefix-caching",
                 "--kv-transfer-config",'{"kv_connector":"SimConnector","kv_role":"kv_both"}'],
-                dict(SIM_STACK_WORKER_ID=str(w),SIM_STACK_TOKEN_ID="290",DYN_SYSTEM_PORT=str(29111+w),
-                     SIM_STACK_STORAGE_SOCKET=str(storage_socket),
-                     SIM_STACK_ADMISSION_ENDPOINT=rpc['endpoint'],
-                     SIM_STACK_ADMISSION_TIMEOUT_S=str(cfg['admission']['rpc_timeout_wall_s']),
-                     SIM_STACK_STEP_LOG=str(folder/f"worker{w}.steps.jsonl"),**rpc_identity))
+                worker_env)
         # Start the frontend after worker registration, so file discovery can
         # read a complete initial snapshot. Some macOS incremental file-watch
         # updates did not reach the frontend in the acceptance preflights.
@@ -393,6 +402,8 @@ def run_one(config,trace,output,python,mode,release,workers=2):
             frontend_env.update(DYN_WAITING_SCORE_FACTOR=str(rc['waiting_factor']),
                                 DYN_WAITING_SCORE_READY=env['SIM_STACK_ROUTING_SCORE_READY'],
                                 PYTHONPATH=str(Path(rc['python_path']).resolve())+os.pathsep+str(ROOT))
+            if lease_mode:
+                frontend_env['DYN_LEASE_LOADING_SLOTS'] = str(cfg['admission']['lease']['loading_slots_per_worker'])
         if cfg["router_mode"] == "kv":
             # Targeted native diagnostics, not a replacement selection algorithm.
             frontend_env["DYN_LOG"] = ("info,dynamo_kv_router::scheduling::selector=debug,"
@@ -506,7 +517,7 @@ def main():
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--python",type=Path,default=Path(sys.executable))
     parser.add_argument("--mode",choices=["immediate","tfs","quota_fcfs","slack_only"],default="tfs")
-    parser.add_argument("--release-on",choices=["first_token"],default="first_token")
+    parser.add_argument("--release-on",choices=["first_token","lease_events"],default="first_token")
     parser.add_argument("--workers",type=int,default=2)
     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
     parser.add_argument("--kv-mode",choices=["bulk","layer_serial","layer_pipeline"],help="KV loading/execution mode")

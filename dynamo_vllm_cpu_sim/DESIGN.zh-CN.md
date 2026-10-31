@@ -1030,3 +1030,23 @@ GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式
 属于显式实验运行时，不新增真实存储传感器或张量执行。profile/T0在当前配置下重算。
 存储对拍测试使用tests/fixtures实际冻结源码与原SHA，不依赖作者历史results。
 具体路径从仓库根docs/实验分支使用说明.md进入。新鲜依赖安装与Linux/WSL全流程尚未在本轮验证。
+
+## 2026-10-31：tfs-lease 第四臂——存储带宽租约调度（带宽账本+事件记账）
+
+设计输入：`docs/存储带宽租约调度实现方案-20261031.md`（源自外部仓库四项技术规格）。
+行为边界变化，两份 DESIGN 同步记录；direct/tfs-a01/tfs-a1 三臂语义不变。
+
+- 分类：新增 `admission.classification=bandwidth_line`，轻重线=盘带宽×0.1
+  （`lease.line_factor_heavy`），到达冻结进 hint v2（demand_Bps/remote_blocks/份额表）。
+  P75 路径保留给三臂；标签只决定协议路径，不参与排序。
+- 许可：`FrozenLeaseAdmission`（`sim/stack/lease_admission.py`）以每盘 B/s 账本
+  （`sim/stack/lease_ledger.py`）五步放行：判定线 1.1×/例外带 1.5×/条件(a)(b)/
+  空账护栏；例外路拉伸预测复用 `weighted_waterfill`（与 GroupedStorage 同构）。
+  每实例加载位 `lease.loading_slots_per_worker` 满时拒绝 reason=worker_loading_full。
+- 释放：`release_on=lease_events` 下 first token 只记录不释放；读开始（首层 submit）
+  加账、末层读毕减账，两条在线控制消息（`sim/stack/lease_events.py`），TTL 兜底
+  回收，账房周期拉 storage `stats_compact` 对账校正轻读聚合。
+- 路由：双信号 A+B·S̄/m 折算为既有折扣 waiting_factor=1/m（0.25）；计分补齐后移到
+  读开始事件；等带宽条数>2×加载位时 Rust overlay 返回大额负折扣钳位该实例。
+- 边界：当前合同限定 disks=1；多盘仅结构预留。消息走本机回环真实壁钟 RPC；
+  速率与账本均为仿真量。审计 `check_lease_accounting.py` 回放放行上界与释放时机。

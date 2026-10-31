@@ -195,6 +195,8 @@ class SimExecutor(Executor):
         for rid in out.finished_req_ids:
             self._prompt_len.pop(rid, None)
             self._base_computed.pop(rid, None)
+            from sim.stack import lease_events
+            lease_events.forget(rid)
             if self._load_observer is not None:
                 self._load_observer.forget(rid)
             if layer_runner is not None:
@@ -241,6 +243,9 @@ class SimExecutor(Executor):
                 if self._load_observer is not None:
                     for rid in rids:
                         self._load_observer.completed(rid)
+                from sim.stack import lease_events
+                for rid in rids:
+                    lease_events.notify_completed(rid)
                 from vllm.v1.outputs import KVConnectorOutput
 
                 model_output.kv_connector_output = KVConnectorOutput(

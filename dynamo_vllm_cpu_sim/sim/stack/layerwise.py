@@ -2,6 +2,8 @@
 import math
 import time
 
+from sim.stack import lease_events
+
 MODES = ("bulk", "layer_serial", "layer_pipeline")
 
 
@@ -124,8 +126,11 @@ class LayerRunner:
                           completed_model_s=result["completed_s"][rid])
                 if layer == self.spec["layers"]-1:
                     self.resident.add(rid)
+                    # 末层读毕：先落离线观测时间戳，再发租约减账事件，
+                    # 保证审计口径 load_done_s ≤ released_s。
                     if self.observer:
                         self.observer.completed(rid)
+                    lease_events.notify_completed(rid)
             waiting = [rid for rid in waiting if (rid,layer) not in self.ready]
             if waiting:
                 time.sleep(.0005)  # Actual implementation polling, not modeled IO latency.
@@ -137,6 +142,9 @@ class LayerRunner:
             for rid in ids:
                 self.observer.starting(rid)
         self._submit(ids,0,step=step,compute_s=durations[0])
+        # 首层读实际提交 = 读开始；只对持租约的重发事件，轻读零消息。
+        for rid in ids:
+            lease_events.notify_started(rid)
         for layer,duration in enumerate(durations):
             self._wait(ids,layer)
             begin = time.monotonic()
@@ -158,3 +166,4 @@ class LayerRunner:
         self.resident.discard(rid)
         self.ready = {key for key in self.ready if key[0]!=rid}
         self.submitted = {key for key in self.submitted if key[0]!=rid}
+        lease_events.forget(rid)

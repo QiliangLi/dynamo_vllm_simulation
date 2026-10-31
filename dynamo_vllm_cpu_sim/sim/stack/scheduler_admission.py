@@ -15,8 +15,11 @@ import textwrap
 import time
 
 from sim.stack.storage_hint import validate_hint
+from sim.stack import lease_events
 
 SCHEDULE_SHA256 = "b6a0770641b37718aecf9bd94dc28b6fcca8e944e99a706bf4005b0b5a674914"
+# 账房可重试拒绝：额度满 / 每实例加载位满。
+DEFERRABLE_REASONS = frozenset({"full", "worker_loading_full"})
 
 
 class ReadGate:
@@ -114,9 +117,10 @@ class ReadGate:
                  duration_ns=time.monotonic_ns()-start, **response)
         if response["granted"]:
             self.permits[rid] = response["permit_id"]
+            lease_events.permit_granted(rid, response["permit_id"])
             self.pending_allocation.add(rid)
             return True
-        if response.get("reason") != "full":
+        if response.get("reason") not in DEFERRABLE_REASONS:
             raise RuntimeError(f"unexpected acquire response: {response}")
         self.full = True
         self.full_until = time.monotonic()+self.retry_interval
@@ -129,6 +133,7 @@ class ReadGate:
             return
         self.client.control("rollback", rid, permit_id=permit)
         del self.permits[rid]
+        lease_events.permit_removed(rid)
         self.pending_allocation.discard(rid)
         self.generations[rid] = self.generations.get(rid, 0)+1
         self.log("read_permit_rollback", request_id=rid, permit_id=permit)

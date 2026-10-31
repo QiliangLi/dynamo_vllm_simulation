@@ -28,6 +28,10 @@ def create(*args, **kwargs):
     state = app.state.admission
     nominal = state.controller.c['reference_bandwidth_Bps']
     state.controller.c['reference_bandwidth_Bps'] = nominal * 1e6
+    lease = getattr(state.controller, 'ledger', None)
+    if lease is not None:
+        # 预热阶段租约账本放行不受线限制；正式窗口前恢复并重置正式计数。
+        lease.warmup = True
     done = False
 
     @app.post('/diagnostic/warmup/finish')
@@ -43,13 +47,20 @@ def create(*args, **kwargs):
         assert all(rid.startswith('warmup-') for rid in excluded)
         state.controller.c['reference_bandwidth_Bps'] = nominal
         state.controller.theta = state.controller.cap = None
+        if lease is not None:
+            assert not lease.open, 'warmup leases must drain before the formal window'
+            lease.warmup = False
+            lease.counters = dict.fromkeys(lease.counters, 0)
+            lease.service_samples = []
         # Keep completed rows, hints, permits and journal for the full-run audit.
         # The next real arrival derives threshold/cap only from measured history.
         state.log_event('warmup_finished', excluded_history_ids=sorted(excluded),
-                        reference_bandwidth_Bps=nominal, native_score_drained=score is not None)
+                        reference_bandwidth_Bps=nominal, native_score_drained=score is not None,
+                        lease_formal_reset=lease is not None)
         done = True
         result = dict(status='pass', excluded_history_ids=sorted(excluded),
-                      reference_bandwidth_Bps=nominal, pending=0, held=0, score_drained=score is not None)
+                      reference_bandwidth_Bps=nominal, pending=0, held=0, score_drained=score is not None,
+                      lease_formal_reset=lease is not None)
         (Path(os.environ['SIM_STACK_CONFIG']).parent/'warmup.history.check.json').write_text(json.dumps(result,indent=2)+'\n')
         return result
 

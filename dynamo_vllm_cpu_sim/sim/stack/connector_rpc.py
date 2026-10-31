@@ -100,6 +100,8 @@ class SimConnectorRpc(KVConnectorBase_V1):
             if observer is not None:
                 observer.submitted(request.request_id,
                                    num_external_tokens*self.cfg["storage"]["kv_bytes_per_token"])
+            from sim.stack import lease_events
+            lease_events.notify_started(request.request_id)
             self.external_tokens[request.request_id] = num_external_tokens
 
     def build_connector_meta(self, scheduler_output):

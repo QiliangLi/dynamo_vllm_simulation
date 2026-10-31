@@ -16,7 +16,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 REPO=ROOT.parent
-ARMS={'direct':1.,'tfs-a01':.1,'tfs-a1':1.}
+ARMS={'direct':1.,'tfs-a01':.1,'tfs-a1':1.,'tfs-lease':.25}
 read=lambda p:json.loads(Path(p).read_text())
 
 
@@ -86,7 +86,7 @@ def audit(folder,arm,smoke):
     assert driver['status']=='passed' and not driver['guards'] and not driver['alive']
     assert len(records)==client['n_total']==client['n_ok'] and not client['n_skipped']
     assert not state['fatal'] and not state['invalid_reasons'] and not state.get('pending_engine_events')
-    if state.get('execution_feedback')=='disabled':
+    if state.get('execution_feedback') in ('disabled','lease_events'):
         raw=read(run/'admission.runtime.final.json')
         assert state['load_observation_source']=='offline_worker_logs'
         assert all(r['load_attempts']==0 and r['submitted_read_bytes']==0 for r in raw['records'].values())
@@ -115,8 +115,15 @@ def audit(folder,arm,smoke):
     assert cfg['request_ordering']=='edf'
     assert cfg['admission']['idle_bypass'] is False
     if arm!='direct':
-        assert cfg['admission']['placement']=='scheduler' and cfg['admission']['classification']=='arrival'
+        assert cfg['admission']['placement']=='scheduler'
+        assert cfg['admission']['classification']==('bandwidth_line' if arm=='tfs-lease' else 'arrival')
         assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
+    if arm=='tfs-lease':
+        assert cfg['admission']['release_on']=='lease_events'
+        lease_check=read(run/'lease_accounting.check.json')
+        assert lease_check['status']=='passed' and lease_check['open_entries']==0
+        assert lease_check['first_token_releases']==0
+        assert read(run/'read_admission.check.json')['status']=='pass'
     ts=sorted(ttft);n=len(ts)
     result=dict(status='passed',case=manifest['case'],arm=arm,smoke=smoke,requests=n,
         warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=bandwidth,
@@ -138,7 +145,7 @@ def execute(folder,arm,overlay,smoke):
     runtime=load_module('benchmark_runtime',package/'scripts/benchmark_runtime.py')
     runtime.A=folder;runtime.ROOT=package;runtime.OVERLAY=overlay
     runtime.CASE_NAME=arm;runtime.ALPHA=ARMS[arm]
-    runtime.run('immediate' if arm=='direct' else 'new-tfs',smoke=smoke)
+    runtime.run('immediate' if arm=='direct' else 'lease' if arm=='tfs-lease' else 'new-tfs',smoke=smoke)
     result=audit(folder,arm,smoke)
     print(json.dumps(result,ensure_ascii=False),flush=True)
 

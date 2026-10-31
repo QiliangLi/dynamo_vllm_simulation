@@ -11,17 +11,22 @@ sys.path.insert(0, str(ROOT))
 from sim.stack.admission_service import UUID_RE
 
 
-def check_permit_ledger(events, permits):
-    """Allow same-worker overlap, but account for every grant and release."""
+def check_permit_ledger(events, permits, lease_arm=False):
+    """Allow same-worker overlap, but account for every grant and release.
+
+    lease 臂的 held_* 字段是 B/s 份额和，不是条数；只核对发放/释放配对与终态清零。
+    """
     active = set()
     max_forced_per_worker = 0
     for event in events:
         if event['event'] == 'admission_reserved':
             token = event['permit_id']
             assert token not in active
-            assert event['held_before'] == len(active)
+            if not lease_arm:
+                assert event['held_before'] == len(active)
             active.add(token)
-            assert event['held_after'] == len(active)
+            if not lease_arm:
+                assert event['held_after'] == len(active)
             worker_counts = {}
             for token in active:
                 permit = permits[token]
@@ -31,9 +36,11 @@ def check_permit_ledger(events, permits):
         elif event['event'] == 'admission_released':
             own = [token for token in active if permits[token]['id'] == event['id']]
             assert len(own) == 1, 'release must close exactly one active request permit'
-            assert event['held_before'] == len(active)
+            if not lease_arm:
+                assert event['held_before'] == len(active)
             active.remove(own[0])
-            assert event['held_after'] == len(active)
+            if not lease_arm:
+                assert event['held_after'] == len(active)
     assert not active, 'unreleased permits remain'
     return max_forced_per_worker
 
@@ -41,7 +48,9 @@ def check_permit_ledger(events, permits):
 def check(folder, status=None):
     folder = Path(folder)
     status = status or json.loads((folder/'admission.final.json').read_text())
-    if status.get('execution_feedback') == 'disabled':
+    config = json.loads((folder/'config.json').read_text())
+    lease_arm = config['admission'].get('classification') == 'bandwidth_line'
+    if status.get('execution_feedback') in ('disabled', 'lease_events'):
         from sim.stack.load_observation import with_local_observations
         status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
@@ -78,7 +87,7 @@ def check(folder, status=None):
                         assert row['rpc_server_pid'] == rpc['server_pid'] != row['rpc_client_pid']
                         assert row['rpc_bridge'] == 'thread'
                 if not row['granted']:
-                    assert row['reason'] == 'full'
+                    assert row['reason'] in ('full', 'worker_loading_full')
                     full_rounds.add(row['round'])
                 else:
                     assert permits[row['permit_id']]['id'] == rid
@@ -109,8 +118,14 @@ def check(folder, status=None):
             p = completed[0]
             assert p['worker'] == rec['worker_id']
             assert forwarded['t'] <= p['granted_s'] <= rec['load_submit_s']
-            assert rec['load_done_s'] <= rec['first_token_s'] <= p['released_s']
-            assert p['release_reason'] == 'first_token'
+            if lease_arm:
+                # lease 臂：末层读毕即释放，先于首 token。
+                assert rec['load_done_s'] <= p['released_s'] <= rec['first_token_s']
+                assert p['release_reason'] in ('lease_completed', 'request_finished',
+                                               'lease_expired')
+            else:
+                assert rec['load_done_s'] <= rec['first_token_s'] <= p['released_s']
+                assert p['release_reason'] == 'first_token'
         elif not hints[rid]['is_heavy_read']:
             assert not own
     for p in permits.values():
@@ -119,7 +134,8 @@ def check(folder, status=None):
     assert len(grants) == len(permits)
     for e in grants:
         assert e['placement']=='scheduler' and e['heavy']
-        assert e['held_after']==e['held_before']+1
+        if not lease_arm:
+            assert e['held_after']==e['held_before']+1
         if e['reason'] == 'idle_bypass':
             assert configured_idle(folder) and e['id'] in forced
             assert e['proof'] == forced[e['id']]['proof']
@@ -128,11 +144,13 @@ def check(folder, status=None):
             assert not any(r['request_id'] == forced[e['id']]['request_id']
                            and r['round'] == forced[e['id']]['round'] for r in responses)
         else:
-            assert e['reason'] == 'normal'
+            assert e['reason'] in ('normal', 'lease')
             assert e['cap'] is None or e['held_after']<=e['cap']
+            if not lease_arm:
+                assert e['held_after']==e['held_before']+1
     # Sweep every permit independently. Same-worker forced leases may overlap;
     # every outstanding lease must still count toward normal admission held.
-    max_forced_per_worker = check_permit_ledger(events, permits)
+    max_forced_per_worker = check_permit_ledger(events, permits, lease_arm=lease_arm)
     assert not status.get('pending_engine_events')
     durations = [r['duration_ns']/1e6 for r in responses]
     return dict(status='pass', requests=len(records), hints_received=len(received),

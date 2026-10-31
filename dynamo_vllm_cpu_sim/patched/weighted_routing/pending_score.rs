@@ -29,6 +29,9 @@ struct Ledger {
     epoch: String,
     entries: HashMap<String, Entry>,
     waiting: HashMap<WorkerWithDpRank, usize>,
+    // 双信号路由的囤积信号：等带宽重读"条数"（区别于 token 量的 waiting）。
+    waiting_counts: HashMap<WorkerWithDpRank, usize>,
+    loading_limit: Option<usize>,
     events: Vec<Value>,
     origin: Instant,
 }
@@ -37,7 +40,8 @@ impl Ledger {
     fn new(factor: f64) -> Self {
         assert!(factor.is_finite() && (0.0..=1.0).contains(&factor));
         Self { factor, epoch:Uuid::new_v4().to_string(), entries:HashMap::new(),
-            waiting:HashMap::new(), events:Vec::new(), origin:Instant::now() }
+              waiting:HashMap::new(), waiting_counts:HashMap::new(),
+              loading_limit:None, events:Vec::new(), origin:Instant::now() }
     }
     fn event(&mut self, kind:&str, id:&str) {
         let e = &self.entries[id];
@@ -66,6 +70,7 @@ impl Ledger {
         }
         e.worker=Some(worker);e.attempt=Some(attempt);e.phase=Phase::Waiting;
         *self.waiting.entry(worker).or_default()+=tokens;
+        *self.waiting_counts.entry(worker).or_default()+=1;
         self.event("bound_waiting",id);Ok(())
     }
     fn activate(&mut self,id:&str,permit:&str) -> Result<(),String> {
@@ -76,6 +81,8 @@ impl Ledger {
             return Err("stale activation or request is not waiting".into());
         }
         *self.waiting.get_mut(&e.worker.unwrap()).unwrap()-=e.tokens;
+        let worker=e.worker.unwrap();
+        if let Some(count)=self.waiting_counts.get_mut(&worker) {*count-=1;}
         e.phase=Phase::Active;e.permit=Some(permit.into());
         self.event("activated",id);Ok(())
     }
@@ -86,13 +93,18 @@ impl Ledger {
             return Err("rollback does not own current activation".into());
         }
         e.retired.insert(permit.into());e.permit=None;e.phase=Phase::Waiting;
-        *self.waiting.entry(e.worker.unwrap()).or_default()+=e.tokens;
+        let worker=e.worker.unwrap();
+        *self.waiting.entry(worker).or_default()+=e.tokens;
+        *self.waiting_counts.entry(worker).or_default()+=1;
         self.event("rolled_back",id);Ok(())
     }
     fn finish(&mut self,id:&str,worker:WorkerWithDpRank,attempt:AttemptId) {
         let Some(e)=self.entries.get_mut(id) else {return;};
         if e.worker!=Some(worker) || e.attempt!=Some(attempt) || e.phase==Phase::Closed {return;}
-        if e.phase==Phase::Waiting {*self.waiting.get_mut(&worker).unwrap()-=e.tokens;}
+        if e.phase==Phase::Waiting {
+            *self.waiting.get_mut(&worker).unwrap()-=e.tokens;
+            if let Some(count)=self.waiting_counts.get_mut(&worker) {*count-=1;}
+        }
         e.phase=Phase::Closed;self.event("closed",id);
     }
     fn snapshot(&self) -> Value {
@@ -101,7 +113,9 @@ impl Ledger {
             "waiting":self.entries.values().filter(|e|e.phase==Phase::Waiting).count(),
             "active":self.entries.values().filter(|e|e.phase==Phase::Active).count(),
             "closed":self.entries.values().filter(|e|e.phase==Phase::Closed).count(),
+            "loading_limit":self.loading_limit,
             "waiting_workers":self.waiting.iter().map(|(w,n)|json!({"worker_id":w.worker_id,"dp_rank":w.dp_rank,"tokens":n})).collect::<Vec<_>>(),
+            "waiting_counts":self.waiting_counts.iter().map(|(w,n)|json!({"worker_id":w.worker_id,"dp_rank":w.dp_rank,"requests":n})).collect::<Vec<_>>(),
             "events":self.events})
     }
     fn control(&mut self,v:&Value) -> Result<Value,String> {
@@ -137,7 +151,13 @@ fn service()->Option<&'static Service> {
     SERVICE.get_or_init(|| {
         let factor=match std::env::var("DYN_WAITING_SCORE_FACTOR") {Ok(v)=>v,Err(_)=>return None};
         let factor:f64=factor.parse().expect("invalid waiting score factor");
-        let ledger=Arc::new(Mutex::new(Ledger::new(factor)));
+        let mut ledger=Ledger::new(factor);
+        // 硬反压阈值（条数）：仅 lease 臂的 frontend 环境注入；未设置则不钳位。
+        if let Ok(v)=std::env::var("DYN_LEASE_LOADING_SLOTS") {
+            let limit:usize=v.parse().expect("invalid loading slots");
+            ledger.loading_limit=Some(limit);
+        }
+        let ledger=Arc::new(Mutex::new(ledger));
         let listener=TcpListener::bind("127.0.0.1:0").expect("bind score ledger");
         let ready=std::env::var("DYN_WAITING_SCORE_READY").expect("score ready path required");
         let epoch=ledger.lock().unwrap().epoch.clone();
@@ -187,6 +207,12 @@ pub fn finish(raw:&str,worker:WorkerWithDpRank,attempt:AttemptId) {
 pub fn discount(worker:WorkerWithDpRank,block_size:u32)->f64 {
     let Some(s)=service() else {return 0.;};
     let ledger=s.ledger.lock().unwrap();
+    // 硬反压：等带宽重读条数 > 2×加载位上限 → 返回大额负折扣，
+    // 经 scorer 的减法把该实例 logit 抬到饱和，argmin 不再选中。
+    if let Some(limit)=ledger.loading_limit {
+        let count=ledger.waiting_counts.get(&worker).copied().unwrap_or(0);
+        if count>2*limit {return -1e12;}
+    }
     token_discount_blocks(ledger.waiting.get(&worker).copied().unwrap_or(0),ledger.factor,block_size)
 }
 
@@ -231,5 +257,14 @@ mod tests {
         assert_eq!(token_discount_blocks(43139,0.,16),2696.1875);
         assert_eq!(token_discount_blocks(43139,1.,16),0.);
         assert_eq!(token_discount_blocks(0,0.1,16),0.);
+    }
+    #[test]
+    fn waiting_counts_track_requests_not_tokens() {
+        let mut l=Ledger::new(0.25);let id=id();let w=WorkerWithDpRank::new(7,0);let a=AttemptId::new(1);
+        l.register(&id,100).unwrap();l.bind(&id,w,a,100).unwrap();
+        assert_eq!(l.waiting_counts[&w],1);
+        l.activate(&id,"p1").unwrap();assert_eq!(l.waiting_counts.get(&w),None);
+        l.rollback(&id,"p1").unwrap();assert_eq!(l.waiting_counts[&w],1);
+        l.finish(&id,w,a);assert_eq!(l.waiting_counts.get(&w),None);
     }
 }

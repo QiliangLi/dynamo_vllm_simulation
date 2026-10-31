@@ -194,7 +194,9 @@ class AdmissionController:
             r.state = "FINISHED"
             if r.finish_s is None:
                 r.finish_s = event.occurred_s
-        release = kind in ("first_token", "request_finished") or (
+        # lease_events 模式：first_token 只记录不释放；完成事件兜底释放。
+        release = kind == "request_finished" or (
+            kind == "first_token" and self.c["release_on"] != "lease_events") or (
             self.c["release_on"] == "load_done" and kind in ("load_completed", "no_external_load"))
         if release and r.lease_open:
             before = self.held
