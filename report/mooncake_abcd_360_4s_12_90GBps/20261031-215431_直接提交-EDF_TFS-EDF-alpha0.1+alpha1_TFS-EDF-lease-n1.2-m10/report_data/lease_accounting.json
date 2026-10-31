@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "permits": 223,
+  "open_entries": 0,
+  "permit_states": {
+    "released": 223
+  },
+  "release_reasons": {
+    "lease_completed": 223
+  },
+  "heavy_peak_Bps": 124939089242.91379,
+  "heavy_peak_open_entries": 7,
+  "exception_Bps": 135000000000.0,
+  "line_Bps": 108000000000.0,
+  "grants": 223,
+  "lease_started": 223,
+  "lease_completed": 223,
+  "rolled_back": 0,
+  "first_token_releases": 0,
+  "messages_per_heavy": 4.0,
+  "grant_to_start_max_s": 0.037762291000035475,
+  "grant_to_start_mean_s": 0.00787945452915585,
+  "counters": {
+    "normal": 222,
+    "exception": 1,
+    "guardrail_empty": 0,
+    "denied_exception_band": 5068,
+    "denied_condition_a": 108,
+    "denied_condition_b": 2194,
+    "denied_loading": 0,
+    "started": 223,
+    "completed": 223,
+    "ttl_expired": 0,
+    "reconciles": 199
+  },
+  "delta_s": 0.43593875810666666,
+  "light_rate_final_Bps": 249589411.73676726,
+  "reconcile_events": 199,
+  "ttl_expired": 0
+}

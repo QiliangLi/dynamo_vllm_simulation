@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "report_id": "mooncake_random_360_4s_12_90GBps/20261031-215432_直接提交-EDF_TFS-EDF-alpha0.1+alpha1_TFS-EDF-lease-n1.2-m10",
+  "study_id": "tfs-lease-fourarm-20261031",
+  "benchmark_id": "mooncake_random_360_4s_12_90GBps",
+  "related_benchmark_ids": [
+    "mooncake_abc_360_4s_12_100GBps",
+    "mooncake_abc_360_4s_12_90GBps",
+    "mooncake_abcd_360_4s_12_100GBps",
+    "mooncake_abcd_360_4s_12_90GBps"
+  ],
+  "title": "mooncake_random_360_4s_12_90GBps：存储带宽租约第四臂（tfs-lease）四臂同轮对照",
+  "created_at": "2026-10-31T21:54:32+08:00",
+  "timezone": "Asia/Shanghai",
+  "experiment_dates": [
+    "2026-10-31"
+  ],
+  "schemes": [
+    {
+      "id": "direct",
+      "label": "直接提交 EDF",
+      "ordering": "edf",
+      "alpha": null
+    },
+    {
+      "id": "a01",
+      "label": "TFS EDF α=0.1",
+      "ordering": "edf",
+      "alpha": 0.1
+    },
+    {
+      "id": "a1",
+      "label": "TFS EDF α=1",
+      "ordering": "edf",
+      "alpha": 1
+    },
+    {
+      "id": "lease",
+      "label": "TFS EDF lease(n1.2×m10)",
+      "ordering": "edf",
+      "alpha": 0.1,
+      "lease": {
+        "line_factor_normal": 1.2,
+        "compute_slots": 10
+      }
+    }
+  ],
+  "compatibility": "matched_input_and_model",
+  "benchmark_input_sha256": "57b23ce7ac589220f23a5ce7b1ba768f786fa9506c41d58ddbb3ffa62f315f9b",
+  "simulations_run": 0,
+  "performance_recomputed": false,
+  "source": {
+    "runtime_entry": "dynamo_vllm_cpu_sim/scripts/run_benchmark.py --case all --arm all",
+    "source_runs": [
+      "lease-final-r3",
+      "lease-formal-r1"
+    ],
+    "code_commit": "e54fc65893d738ef07daebe49fd913f97a9cf902(+调参默认值提交)"
+  },
+  "files": {
+    "figure/slo.png": {
+      "sha256": "f366b4ae9094599a46fe41c0bab39054fd120525aa27571c47caef12588164fe",
+      "bytes": 29011
+    },
+    "figure/ttft_mean_p95.png": {
+      "sha256": "a43ebffade64d36d748e511b662beda57a4af9ca5d4ea8eee2a28caa2f1be55e",
+      "bytes": 52814
+    },
+    "report.md": {
+      "sha256": "d2c5857ae56863ae65906fd9623162c0db09d3d076836c3f8ddca2ff47ec6d39",
+      "bytes": 5430
+    },
+    "report_data/direct_ttft.csv.gz": {
+      "sha256": "469e70a697a4b4b5e2e88a46b331d904aeea4aad2b3c4b34e25f2a38727069ad",
+      "bytes": 4100
+    },
+    "report_data/four_arm_summary.csv": {
+      "sha256": "8fafa64af7faeef1eadcc04c6a8b03604bdc00035650195111bfb4116c959cc8",
+      "bytes": 222
+    },
+    "report_data/lease_accounting.json": {
+      "sha256": "3ca8cb07f182d6633e96f5e39a66cbc09573e0dec4fb3d726efcb2b07d30582b",
+      "bytes": 962
+    },
+    "report_data/tfs-a01_ttft.csv.gz": {
+      "sha256": "f958ce2525fcb2ee957dd388b3b5628a238556d9e5b2e0b94a0f7b9fa83732c5",
+      "bytes": 4203
+    },
+    "report_data/tfs-a1_ttft.csv.gz": {
+      "sha256": "3eacfc2840fb9b33b5ef22d78b585c423ae593a4d50703ddf21df2c158a7e50b",
+      "bytes": 4160
+    },
+    "report_data/tfs-lease_ttft.csv.gz": {
+      "sha256": "ea79d8a042b4420b1d6b45c6012d6f7cba43c60bcae290f6a84818ee40f5c18b",
+      "bytes": 4165
+    },
+    "reproduce/README.md": {
+      "sha256": "443bc932bd15e3df2d68352460add6576ce258e3f362cdd962bd22d05d6ccf55",
+      "bytes": 419
+    }
+  },
+  "figures": [
+    {
+      "path": "figure/slo.png",
+      "source_sha256": "f366b4ae9094599a46fe41c0bab39054fd120525aa27571c47caef12588164fe",
+      "width": 832,
+      "height": 546
+    },
+    {
+      "path": "figure/ttft_mean_p95.png",
+      "source_sha256": "a43ebffade64d36d748e511b662beda57a4af9ca5d4ea8eee2a28caa2f1be55e",
+      "width": 1664,
+      "height": 546
+    }
+  ],
+  "source_files": {}
+}
