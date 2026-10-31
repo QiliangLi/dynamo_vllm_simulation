@@ -86,8 +86,11 @@ def normalize_config(config):
                 or sc["disks"] != 1):
             raise ValueError("lease admission requires tfs, scheduler placement, "
                              "aging off and the single shared pool contract")
-        lease = {"line_factor_heavy": 0.1, "line_factor_normal": 1.1,
-                 "line_factor_exception": 1.5, "compute_slots": 4,
+        # 2026-10-31 调参定标（三轮重复采样）：normal=1.2 与 m=10（f=0.1）在
+        # mean/p95/完成时间全面优于 1.1/m=4，SLO 在轮间噪声内；random 对
+        # normal≥1.5 有 SLO 悬崖（同刻峰值≈1.5×容量），不得放宽到 1.5 以上。
+        lease = {"line_factor_heavy": 0.1, "line_factor_normal": 1.2,
+                 "line_factor_exception": 1.5, "compute_slots": 10,
                  "loading_slots_per_worker": 4, "ttl_slack_factor": 30.0,
                  "ttl_margin_s": 0.05, "reconcile_interval_s": 0.05,
                  "reconcile_tolerance": 0.1}

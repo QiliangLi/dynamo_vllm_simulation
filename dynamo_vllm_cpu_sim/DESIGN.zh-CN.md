@@ -1040,13 +1040,15 @@ GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式
   （`lease.line_factor_heavy`），到达冻结进 hint v2（demand_Bps/remote_blocks/份额表）。
   P75 路径保留给三臂；标签只决定协议路径，不参与排序。
 - 许可：`FrozenLeaseAdmission`（`sim/stack/lease_admission.py`）以每盘 B/s 账本
-  （`sim/stack/lease_ledger.py`）五步放行：判定线 1.1×/例外带 1.5×/条件(a)(b)/
-  空账护栏；例外路拉伸预测复用 `weighted_waterfill`（与 GroupedStorage 同构）。
+  （`sim/stack/lease_ledger.py`）五步放行：判定线 1.2×（调参定标）/例外带 1.5×/
+  条件(a)(b)/空账护栏；条件(a)只保护"不加候选仍可达标"的在读者，已注定超期
+  者不再否决；例外路拉伸预测复用 `weighted_waterfill`（与 GroupedStorage 同构）。
   每实例加载位 `lease.loading_slots_per_worker` 满时拒绝 reason=worker_loading_full。
 - 释放：`release_on=lease_events` 下 first token 只记录不释放；读开始（首层 submit）
   加账、末层读毕减账，两条在线控制消息（`sim/stack/lease_events.py`），TTL 兜底
   回收，账房周期拉 storage `stats_compact` 对账校正轻读聚合。
-- 路由：双信号 A+B·S̄/m 折算为既有折扣 waiting_factor=1/m（0.25）；计分补齐后移到
-  读开始事件；等带宽条数>2×加载位时 Rust overlay 返回大额负折扣钳位该实例。
+- 路由：双信号 A+B·S̄/m 折算为既有折扣 waiting_factor=1/m（默认 m=10 即 0.1，
+  三轮重复采样定标）；计分补齐后移到读开始事件；等带宽条数>2×加载位时
+  Rust overlay 返回大额负折扣钳位该实例。
 - 边界：当前合同限定 disks=1；多盘仅结构预留。消息走本机回环真实壁钟 RPC；
   速率与账本均为仿真量。审计 `check_lease_accounting.py` 回放放行上界与释放时机。

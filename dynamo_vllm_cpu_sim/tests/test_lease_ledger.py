@@ -59,12 +59,19 @@ class FiveStepTests(unittest.TestCase):
         self.assertEqual(d["path"], "guardrail_empty")
 
     def test_condition_a_protects_inflight_deadline(self):
-        # R3 期限马上到：任何拉伸都推它过线 → 拒候选。
-        self.led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03,
-                             deadline=0.03 + 0.001))
+        # R3 独占时可按期完成（solo≈0.021读+0.03算=0.051≤0.055），加候选被
+        # 拉伸后超期 → 拒候选。
+        self.led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03, deadline=0.055))
         d = self.led.evaluate(entry("R4", 20 * GB, 20, 600e6, 0.03, deadline=100.0), [], 0.0)
         self.assertFalse(d["granted"])
         self.assertEqual(self.led.counters["denied_condition_a"], 1)
+
+    def test_condition_a_ignores_already_doomed_inflight(self):
+        # R3 即使不加候选也注定超期（solo≈0.051>0.04）：不再否决他人。
+        self.led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03, deadline=0.04))
+        d = self.led.evaluate(entry("R4", 20 * GB, 20, 600e6, 0.03, deadline=100.0), [], 0.0)
+        self.assertTrue(d["granted"])
+        self.assertEqual(d["path"], "exception")
 
     def test_condition_b_protects_urgent_queue(self):
         self.led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03, deadline=100.0))

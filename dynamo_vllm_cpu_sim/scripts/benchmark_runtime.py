@@ -87,7 +87,13 @@ def run(arm, smoke=False):
         if tuning:
             cfg.setdefault('lease', {}).update(json.loads(tuning))
     cfg.update(policy='priority',request_ordering='edf')
-    cfg['routing_accounting'].update(enabled=new or lease,waiting_factor=ALPHA)
+    # 双信号折扣 f=1/m 与 lease.compute_slots 联动；m 的默认值在 normalize
+    # 阶段注入，这里用 probe 归一化读取生效值（调参 JSON 可覆盖）。
+    factor = ALPHA
+    if lease:
+        from sim.request_profile import normalize_config as _normalize_probe
+        factor = round(1.0 / _normalize_probe(cfg)['admission']['lease']['compute_slots'], 6)
+    cfg['routing_accounting'].update(enabled=new or lease,waiting_factor=factor)
     if smoke:
         main = [dict(r,arrival_s=0.) for label in sorted({r['class_id'] for r in main}) for r in sorted((v for v in main if v['class_id']==label),key=lambda v:len(v['prompt_token_ids']))[::max(1,len([v for v in main if v['class_id']==label])-1)]]
         cfg['workers'] = 2

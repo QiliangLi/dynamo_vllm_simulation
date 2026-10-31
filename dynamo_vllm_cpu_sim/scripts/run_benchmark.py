@@ -117,7 +117,12 @@ def audit(folder,arm,smoke):
     if arm!='direct':
         assert cfg['admission']['placement']=='scheduler'
         assert cfg['admission']['classification']==('bandwidth_line' if arm=='tfs-lease' else 'arrival')
-        assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
+        if arm=='tfs-lease':
+            # f=1/m 与 lease.compute_slots 联动；默认 m=4 即 0.25。
+            assert cfg['routing_accounting']['waiting_factor']==round(
+                1.0/cfg['admission']['lease']['compute_slots'],6)
+        else:
+            assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
     if arm=='tfs-lease':
         assert cfg['admission']['release_on']=='lease_events'
         lease_check=read(run/'lease_accounting.check.json')

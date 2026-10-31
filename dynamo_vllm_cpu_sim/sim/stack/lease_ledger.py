@@ -148,12 +148,21 @@ class LeaseLedger:
             self.counters["denied_exception_band"] += 1
             return dict(granted=False, reason="full", path=None, k=k,
                         sum_after=sum_after, detail="exception band")
-        # 步3-4 条件(a)：同构重放预测在读者完成时刻。
-        entries = [e for e in self.open.values() if e.disk == disk] + [cand]
-        for entry, remaining, completion in self.predict(entries, now):
-            if entry is cand:
+        # 步3-4 条件(a)：同构重放预测在读者完成时刻。只有"不加候选仍能达标"
+        # 的在读者才有一票否决权——已注定超期者不再阻塞他人（饱和工况实测
+        # 修正：否则少数巨请求长期否决全部新进入，mean TTFT 单调劣化）。
+        current_entries = [e for e in self.open.values() if e.disk == disk]
+        doomed = set()
+        for entry, remaining, completion in self.predict(current_entries, now):
+            remaining_compute = entry.service_s * (
+                remaining / entry.read_bytes if entry.read_bytes else 0.)
+            if completion + remaining_compute > entry.deadline_s + 1e-9:
+                doomed.add(entry.rid)
+        for entry, remaining, completion in self.predict(current_entries + [cand], now):
+            if entry is cand or entry.rid in doomed:
                 continue
-            remaining_compute = entry.service_s * (remaining / entry.read_bytes if entry.read_bytes else 0.)
+            remaining_compute = entry.service_s * (
+                remaining / entry.read_bytes if entry.read_bytes else 0.)
             if completion + remaining_compute > entry.deadline_s + 1e-9:
                 self.counters["denied_condition_a"] += 1
                 return dict(granted=False, reason="full", path=None, k=k,
