@@ -241,6 +241,7 @@
       }
     }
   },
-  "portable_runner_status": "export_only",
-  "portable_runner_reason": "交付运行器仍为batch-v2和同步执行反馈；尚未移植本负载的direct_sum、禁用四反馈及Dynamo Runtime最终答复/后台EOF合同。"
+  "portable_runner_status": "supported",
+  "portable_runner_reason": "统一运行器读取人工ABC六秒专用合同；三方案有效配置、计划时间原点、形状、P75配额及执行链路逐项验收。",
+  "runner_profile": "synthetic_abc360_v1"
 }

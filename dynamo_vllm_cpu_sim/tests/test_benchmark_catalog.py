@@ -150,10 +150,10 @@ class RunnerBoundaryTests(unittest.TestCase):
         self.assertNotIn('仅支持校验',r.stderr)
         self.assertIn('Build the weighted',r.stderr)
 
-    def test_synthetic_case_is_export_only_before_native_access(self):
+    def test_synthetic_reaches_native_environment_check(self):
         r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
                           '--case','synthetic_abc_360_6s_12_90GBps','--dynamo-python','missing-overlay'],
                          capture_output=True,text=True,encoding='utf-8')
         self.assertNotEqual(r.returncode,0)
-        self.assertIn('仅支持校验',r.stderr)
-        self.assertNotIn('Build the weighted',r.stderr)
+        self.assertNotIn('仅支持校验',r.stderr)
+        self.assertIn('Build the weighted',r.stderr)

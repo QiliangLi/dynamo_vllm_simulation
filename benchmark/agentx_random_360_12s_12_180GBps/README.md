@@ -41,7 +41,7 @@ python3 benchmark/manage.py export agentx_random_360_12s_12_180GBps --output tem
 ## 运行与验收
 
 2026-11-02：统一交付运行器已接入本负载。状态为 `supported`，可按名称或旧别名
-`agentx360_12s_180gb` 运行，也纳入 `--case all`。六秒 synthetic 负载仍只支持校验和导出。
+`agentx360_12s_180gb` 运行，也纳入 `--case all`。六秒 synthetic 负载也已接入其独立运行合同，具体条件见对应负载README。
 依赖准备与原生加权Dynamo构建见仓库 `docs/实验分支使用说明.md`。
 
 在仓库的 `dynamo_vllm_cpu_sim/` 目录执行。每次指定新的输出目录：

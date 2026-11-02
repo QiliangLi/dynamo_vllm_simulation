@@ -1,5 +1,6 @@
 """Portable K=1 benchmark runner: frozen inputs, 72 warmups, native stack and audits."""
 import argparse
+from collections import Counter
 from copy import deepcopy
 import csv
 import gzip
@@ -52,6 +53,17 @@ def effective_config(cfg,manifest,contract=None):
         assert overrides=={'compute':{'context_length_limit':300481}}
         cfg['compute'].update(overrides['compute'])
     return cfg
+
+
+def audit_synthetic_plan(profiles,manifest,contract):
+    rows=sorted(profiles.values(),key=lambda p:p['arrival_s'])
+    assert len(rows)==360 and Counter(p['class_id'] for p in rows)=={'A':120,'B':120,'C':120}
+    assert rows[0]['arrival_s']==contract['first_planned_arrival_s']>0
+    assert rows[-1]['arrival_s']==contract['last_planned_arrival_s']==6
+    for p in rows:
+        shape=manifest['class_shapes'][p['class_id']]
+        assert (p['h'],p['u'],p['n'])==(shape['hit_tokens'],shape['new_tokens'],sum(shape.values()))
+    assert math.isclose(math.fsum(p['compute_s'] for p in rows),manifest['timing']['reference_compute_instance_s'],rel_tol=1e-12)
 
 
 def prepare(case,folder,overlay):
@@ -133,13 +145,15 @@ def audit(folder,arm,smoke):
     if arm!='direct':
         assert cfg['admission']['placement']=='scheduler' and cfg['admission']['classification']=='arrival'
         assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
-    if manifest.get('runner_profile')=='agentx360_v1':
+    if manifest.get('runner_profile') in ('agentx360_v1','synthetic_abc360_v1'):
         from sim.request_profile import normalize_config
         contract=read(folder/'package/results/input360/run_contract.json')
         expected=effective_config(contract['arms'][arm],manifest,contract)
         expected['routing_accounting']['python_path']=cfg['routing_accounting']['python_path']
         if smoke:expected['workers']=2
-        assert cfg==normalize_config(expected), 'effective AgentX config differs from frozen arm contract'
+        assert cfg==normalize_config(expected), 'effective config differs from frozen arm contract'
+        assert state['execution_feedback']=='disabled'
+    if manifest.get('runner_profile')=='agentx360_v1':
         assert cfg['compute']['context_length_limit']==300481
         assert state['execution_feedback']=='disabled'
         assert contract['startup']=={'admission_ready_timeout_wall_s':180}
@@ -151,6 +165,20 @@ def audit(folder,arm,smoke):
         long_steps=[r['timing'] for r in steps if (r.get('timing') or {}).get('max_input_length',0)>131072]
         assert long_steps and all(t['formula_context_extrapolation'] and t['context_length_limit']==300481
                                   for t in long_steps), 'long-context execution was not observed'
+    if manifest.get('runner_profile')=='synthetic_abc360_v1':
+        audit_synthetic_plan(profiles,manifest,contract)
+        assert len(records)==(6 if smoke else 360)
+        assert Counter(profiles[r]['class_id'] for r in records)==dict.fromkeys(('A','B','C'),2 if smoke else 120)
+        assert 'context_length_limit' not in cfg['compute']
+        if not smoke:
+            assert state['snapshot']['heavy_cap']==contract['expected_stable_heavy_cap']==3
+            assert math.isclose(state['snapshot']['heavy_threshold_Bps']/1e9,contract['expected_stable_threshold_GBps'],rel_tol=1e-12)
+            planned=[json.loads(line) for line in (run.parent/'measured_trace.jsonl').read_text().splitlines()]
+            assert [r['id'] for r in planned]==list(profiles), 'request order changed'
+            assert all(r['arrival_s']==profiles[r['id']]['arrival_s'] for r in planned), 'arrival plan changed'
+        if not (run/'edf_priority.check.json').exists():
+            checker=load_module('synthetic_edf_check',folder/'package/scripts/check_edf_priority.py')
+            write(run/'edf_priority.check.json',checker.check(run))
     ts=sorted(ttft);n=len(ts)
     result=dict(status='passed',case=manifest['case'],arm=arm,smoke=smoke,requests=n,
         warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=bandwidth,
@@ -163,6 +191,11 @@ def audit(folder,arm,smoke):
                       maximum_executed_context=300480,
                       long_context_requests=sum(profiles[r]['n']>131072 for r in records),
                       context_extrapolation=True,execution_feedback='disabled')
+    if manifest.get('runner_profile')=='synthetic_abc360_v1':
+        result.update(execution_feedback='disabled',context_extrapolation=False,
+            class_counts=dict(Counter(profiles[r]['class_id'] for r in records)),
+            planned_first_arrival_s=min(p['arrival_s'] for p in profiles.values()),planned_last_arrival_s=6,
+            final_heavy_cap=state['snapshot']['heavy_cap'],final_heavy_threshold_Bps=state['snapshot']['heavy_threshold_Bps'])
     write(run/'benchmark.check.json',result)
     return result
 

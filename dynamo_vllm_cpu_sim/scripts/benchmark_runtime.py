@@ -94,7 +94,7 @@ def run(arm, smoke=False):
                             idle_bypass=arm=='idle-bypass',aging_enabled=False)
     cfg.update(policy='priority',request_ordering='edf')
     cfg['routing_accounting'].update(enabled=new)
-    if new or contract.get('runner_profile')!='agentx360_v1':
+    if new or contract.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
         cfg['routing_accounting']['waiting_factor']=ALPHA
     if smoke:
         main = smoke_requests(main, long_context=cfg['compute'].get('context_length_limit',131072)>131072)

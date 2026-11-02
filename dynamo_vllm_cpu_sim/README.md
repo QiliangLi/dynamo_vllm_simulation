@@ -7,7 +7,7 @@
 `admission.runtime.final.json`保留原始在线账本，`admission.final.json`标明离线观测来源，`admission_rpc.check.json`核对后台流排空。
 GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自动改写已有benchmark的计算模型。
 现有可运行Mooncake入口保留K1、block16、EDF、到达窗口、带宽和预热规则。当前运行不再发送旧的同步batch/合帧反馈。
-旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX已于2026-11-02完成专用入口接入；六秒synthetic仍仅校验/导出。
+旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX已于2026-11-02完成专用入口接入；六秒synthetic也已接入专用运行合同，见2026-11-02追加说明。
 核心代码同步校验：`python dynamo_vllm_cpu_sim/scripts/check_runtime_sync.py`；可加`--source`指定另一份仓库根目录核对双方文件。
 
 
@@ -1215,3 +1215,13 @@ AgentX360已接入run_benchmark.py，读取agentx360_v1合同。导出的原始�
 GroupedStorage诊断累计字节使用Kahan补偿求和；不改变读取状态、速率与完成时间。
 命令和输入SHA见benchmark/agentx_random_360_12s_12_180GBps/README.md，
 验证摘要见dynamo_vllm_cpu_sim/AGENTX_VALIDATION.json。历史章节按日期解释。
+
+## 2026-11-02：人工ABC六秒统一入口
+
+synthetic_abc_360_6s_12_90GBps读取synthetic_abc360_v1专用合同，已纳入--case all。
+12实例、6秒、90GB/s、direct_sum、四类执行反馈关闭；每方案72预热及360正式。
+不修改原始输入、三方案历史配置、约5.03ms的首请求间隔或固定A/B/C形状。
+最长30979 token不需长上下文外推；不注入AgentX的长度或启动预算。
+验收逐项比较有效配置，并核对到达原点/顺序、独立公式、层屏障、EDF、P75配额3、
+RPC流排空、记账归零及所属进程退出。实际命令见该benchmark README，
+摘要见dynamo_vllm_cpu_sim/SYNTHETIC_ABC_VALIDATION.json。历史报告不随本次改写。

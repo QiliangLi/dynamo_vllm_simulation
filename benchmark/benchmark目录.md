@@ -10,7 +10,7 @@
 | [mooncake_abcd_360_4s_12_100GBps](mooncake_abcd_360_4s_12_100GBps/README.md) | mooncake / abcd | 360 / 4s | 12 / 100 GB/s | 204699（3.999781%） | 539.571462 | A:220/B:90/C:30/D:20 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_abcd_360_4s_12_90GBps](mooncake_abcd_360_4s_12_90GBps/README.md) | mooncake / abcd | 360 / 4s | 12 / 90 GB/s | 204699（3.999781%） | 539.571462 | A:220/B:90/C:30/D:20 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_random_360_4s_12_90GBps](mooncake_random_360_4s_12_90GBps/README.md) | mooncake / random | 360 / 4s | 12 / 90 GB/s | 207547（4.055431%） | 539.258683 | A:90/B:270 | glm5_actual_batch_work_v2 / disabled | 可运行 |
-| [synthetic_abc_360_6s_12_90GBps](synthetic_abc_360_6s_12_90GBps/README.md) | synthetic / abc | 360 / 6s | 12 / 90 GB/s | 318600（6.208058%） | 528.631235 | A:120/B:120/C:120 | glm5_direct_sum_v1 / disabled | 仅校验、导出 |
+| [synthetic_abc_360_6s_12_90GBps](synthetic_abc_360_6s_12_90GBps/README.md) | synthetic / abc | 360 / 6s | 12 / 90 GB/s | 318600（6.208058%） | 528.631235 | A:120/B:120/C:120 | glm5_direct_sum_v1 / disabled | 可运行 |
 
 ## 来源与构造说明
 
