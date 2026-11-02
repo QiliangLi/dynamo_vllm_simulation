@@ -1,5 +1,7 @@
 """Portable K=1 benchmark runner: frozen inputs, 72 warmups, native stack and audits."""
 import argparse
+from collections import Counter
+from copy import deepcopy
 import csv
 import gzip
 import hashlib
@@ -17,6 +19,14 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 REPO=ROOT.parent
 ARMS={'direct':1.,'tfs-a01':.1,'tfs-a1':1.,'tfs-lease':.25}
+# 合同型负载（AgentX/人工ABC）按冻结 run_contract 只提供三个臂；tfs-lease 仅加入
+# 标准Mooncake负载（无 run_contract 的 arms 段）。
+CONTRACT_ONLY_ARMS=('direct','tfs-a01','tfs-a1')
+def arms_for_case(case):
+    manifest=read(REPO/'benchmark'/case/'manifest.json')
+    if manifest.get('runner_profile') in ('agentx360_v1','synthetic_abc360_v1'):
+        return CONTRACT_ONLY_ARMS
+    return tuple(ARMS)
 read=lambda p:json.loads(Path(p).read_text())
 
 
@@ -42,6 +52,28 @@ MANAGER=load_module('benchmark_manage',REPO/'benchmark/manage.py')
 CASES=MANAGER.case_names(supported_only=True)
 
 
+def effective_config(cfg,manifest,contract=None):
+    """Explicit AgentX formula guard; exported/historical configs stay frozen."""
+    cfg=deepcopy(cfg)
+    if manifest.get('runner_profile')=='agentx360_v1':
+        assert contract and contract['long_context_formula_extrapolation'] is True
+        overrides=contract['runtime_overrides']
+        assert overrides=={'compute':{'context_length_limit':300481}}
+        cfg['compute'].update(overrides['compute'])
+    return cfg
+
+
+def audit_synthetic_plan(profiles,manifest,contract):
+    rows=sorted(profiles.values(),key=lambda p:p['arrival_s'])
+    assert len(rows)==360 and Counter(p['class_id'] for p in rows)=={'A':120,'B':120,'C':120}
+    assert rows[0]['arrival_s']==contract['first_planned_arrival_s']>0
+    assert rows[-1]['arrival_s']==contract['last_planned_arrival_s']==6
+    for p in rows:
+        shape=manifest['class_shapes'][p['class_id']]
+        assert (p['h'],p['u'],p['n'])==(shape['hit_tokens'],shape['new_tokens'],sum(shape.values()))
+    assert math.isclose(math.fsum(p['compute_s'] for p in rows),manifest['timing']['reference_compute_instance_s'],rel_tol=1e-12)
+
+
 def prepare(case,folder,overlay):
     package=folder/'package';package.mkdir(parents=True)
     for name in ('sim','scripts','configs','patched'):
@@ -51,7 +83,9 @@ def prepare(case,folder,overlay):
     inp=package/'results/input360'
     MANAGER.export(case,inp,quiet=True)
     manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
-    cfg=read(inp/'config.json');cfg['routing_accounting']['python_path']=str(overlay)
+    contract=read(inp/'run_contract.json') if (inp/'run_contract.json').exists() else None
+    cfg=effective_config(read(inp/'config.json'),manifest,contract)
+    cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
     bandwidth=manifest['shared_storage_Bps']
     assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
@@ -85,6 +119,8 @@ def audit(folder,arm,smoke):
     records={k:v for k,v in state['records'].items() if k in profiles}
     assert driver['status']=='passed' and not driver['guards'] and not driver['alive']
     assert len(records)==client['n_total']==client['n_ok'] and not client['n_skipped']
+    if 'requests' in client:
+        assert set(records)==set(client['requests']), 'formal IDs differ from HTTP client'
     assert not state['fatal'] and not state['invalid_reasons'] and not state.get('pending_engine_events')
     if state.get('execution_feedback') in ('disabled','lease_events'):
         raw=read(run/'admission.runtime.final.json')
@@ -118,7 +154,7 @@ def audit(folder,arm,smoke):
         assert cfg['admission']['placement']=='scheduler'
         assert cfg['admission']['classification']==('bandwidth_line' if arm=='tfs-lease' else 'arrival')
         if arm=='tfs-lease':
-            # f=1/m 与 lease.compute_slots 联动；默认 m=4 即 0.25。
+            # f=1/m 与 lease.compute_slots 联动；默认 m=10 即 0.1。
             assert cfg['routing_accounting']['waiting_factor']==round(
                 1.0/cfg['admission']['lease']['compute_slots'],6)
         else:
@@ -129,12 +165,58 @@ def audit(folder,arm,smoke):
         assert lease_check['status']=='passed' and lease_check['open_entries']==0
         assert lease_check['first_token_releases']==0
         assert read(run/'read_admission.check.json')['status']=='pass'
+    if manifest.get('runner_profile') in ('agentx360_v1','synthetic_abc360_v1'):
+        from sim.request_profile import normalize_config
+        contract=read(folder/'package/results/input360/run_contract.json')
+        assert arm in contract['arms'], f'{arm} 不在该负载的冻结运行合同内'
+        expected=effective_config(contract['arms'][arm],manifest,contract)
+        expected['routing_accounting']['python_path']=cfg['routing_accounting']['python_path']
+        if smoke:expected['workers']=2
+        assert cfg==normalize_config(expected), 'effective config differs from frozen arm contract'
+        assert state['execution_feedback']=='disabled'
+    if manifest.get('runner_profile')=='agentx360_v1':
+        assert cfg['compute']['context_length_limit']==300481
+        assert state['execution_feedback']=='disabled'
+        assert contract['startup']=={'admission_ready_timeout_wall_s':180}
+        assert cfg['admission']['rpc_timeout_wall_s']==5.0
+        assert client['requests'] and all(k.startswith('agentx:') for k in client['requests'])
+        assert max(profiles[r]['n'] for r in records)==300480
+        assert len(records)==(6 if smoke else 360)
+        steps=[json.loads(line) for p in run.glob('worker*.steps.jsonl') for line in p.read_text().splitlines() if line.strip()]
+        long_steps=[r['timing'] for r in steps if (r.get('timing') or {}).get('max_input_length',0)>131072]
+        assert long_steps and all(t['formula_context_extrapolation'] and t['context_length_limit']==300481
+                                  for t in long_steps), 'long-context execution was not observed'
+    if manifest.get('runner_profile')=='synthetic_abc360_v1':
+        audit_synthetic_plan(profiles,manifest,contract)
+        assert len(records)==(6 if smoke else 360)
+        assert Counter(profiles[r]['class_id'] for r in records)==dict.fromkeys(('A','B','C'),2 if smoke else 120)
+        assert 'context_length_limit' not in cfg['compute']
+        if not smoke:
+            assert state['snapshot']['heavy_cap']==contract['expected_stable_heavy_cap']==3
+            assert math.isclose(state['snapshot']['heavy_threshold_Bps']/1e9,contract['expected_stable_threshold_GBps'],rel_tol=1e-12)
+            planned=[json.loads(line) for line in (run.parent/'measured_trace.jsonl').read_text().splitlines()]
+            assert [r['id'] for r in planned]==list(profiles), 'request order changed'
+            assert all(r['arrival_s']==profiles[r['id']]['arrival_s'] for r in planned), 'arrival plan changed'
+        if not (run/'edf_priority.check.json').exists():
+            checker=load_module('synthetic_edf_check',folder/'package/scripts/check_edf_priority.py')
+            write(run/'edf_priority.check.json',checker.check(run))
     ts=sorted(ttft);n=len(ts)
     result=dict(status='passed',case=manifest['case'],arm=arm,smoke=smoke,requests=n,
         warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=bandwidth,
         mean_ttft_ms=sum(ts)/n,p95_ttft_ms=ts[math.ceil(n*.95)-1],slo_pct=slo/n*100,
         completion_ms=(max(r['first_token_s'] for r in records.values())-min(r['profile']['arrival_s'] for r in records.values()))*1000,
         measured_read_bytes=sum(r['submitted_read_bytes'] for r in records.values()))
+    if manifest.get('runner_profile')=='agentx360_v1':
+        assert max(t['max_input_length'] for t in long_steps)==300480
+        result.update(formula_context_limit=300481,long_context_steps_including_warmup=len(long_steps),
+                      maximum_executed_context=300480,
+                      long_context_requests=sum(profiles[r]['n']>131072 for r in records),
+                      context_extrapolation=True,execution_feedback='disabled')
+    if manifest.get('runner_profile')=='synthetic_abc360_v1':
+        result.update(execution_feedback='disabled',context_extrapolation=False,
+            class_counts=dict(Counter(profiles[r]['class_id'] for r in records)),
+            planned_first_arrival_s=min(p['arrival_s'] for p in profiles.values()),planned_last_arrival_s=6,
+            final_heavy_cap=state['snapshot']['heavy_cap'],final_heavy_threshold_Bps=state['snapshot']['heavy_threshold_Bps'])
     write(run/'benchmark.check.json',result)
     return result
 
@@ -170,9 +252,9 @@ def main(args):
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     write(output/'benchmark.verify.json',verified)
     cases=CASES if args.case=='all' else (args.case,)
-    arms=tuple(ARMS) if args.arm=='all' else (args.arm,)
     for case in cases:prepare(case,output/case,overlay)
-    jobs=[dict(case=c,arm=a) for c in cases for a in arms]
+    jobs=[dict(case=c,arm=a) for c in cases
+          for a in (arms_for_case(c) if args.arm=='all' else (args.arm,))]
     random.Random(args.seed).shuffle(jobs)
     write(output/'plan.json',dict(seed=args.seed,jobs=jobs,smoke=args.smoke,repeats=1,K=1,
         preparation='72 warmups in three phases; warm history excluded; formal GC window reset',

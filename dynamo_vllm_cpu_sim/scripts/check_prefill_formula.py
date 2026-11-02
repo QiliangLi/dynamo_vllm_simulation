@@ -136,6 +136,11 @@ def manual(shapes, hit=1.0, overhead=0.0, *, tp=1, dp=8, ep=8, reuse=True):
 
 def manual_timing(timing):
     """按事件的公式版本审计；无版本字段的历史事件保留旧语义。"""
+    if 'context_length_limit' in timing:
+        maximum=max(h+u for h,u in timing['shapes'])
+        limit=timing['context_length_limit']
+        assert type(limit) is int and maximum<=limit<=300481
+        assert timing['formula_context_extrapolation'] is (maximum>131072)
     version = timing.get('batch_time_model')
     args = (timing['shapes'],timing['sparse_HBM_hit_ratio'],timing['engine_overhead_s'])
     if version is None:

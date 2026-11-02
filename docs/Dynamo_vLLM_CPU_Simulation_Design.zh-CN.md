@@ -7,7 +7,7 @@
 `admission.runtime.final.json`保留原始在线账本，`admission.final.json`标明离线观测来源，`admission_rpc.check.json`核对后台流排空。
 GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自动改写已有benchmark的计算模型。
 现有可运行Mooncake入口保留K1、block16、EDF、到达窗口、带宽和预热规则。当前运行不再发送旧的同步batch/合帧反馈。
-旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX及六秒synthetic输入仍按目录状态仅校验/导出；代码存在不等于其特殊合同已验收。
+旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX已于2026-11-02完成专用入口接入；六秒synthetic也已接入专用运行合同，见2026-11-02追加说明。
 核心代码同步校验：`python dynamo_vllm_cpu_sim/scripts/check_runtime_sync.py`；可加`--source`指定另一份仓库根目录核对双方文件。
 
 
@@ -1020,6 +1020,7 @@ GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式
 活动许可按请求索引；JSONL流式解析仅复用不可变整数，保留独立可变数组。
 日志64KiB缓冲不改变内存控制事件。正常关闭flush；强杀失败日志可能缺尾。
 说明见`../docs/TFS前置分诊与反馈开销对照-20261029.md`，实测结果见VALIDATION。
+说明见`TFS前置分诊与反馈开销对照-20261029.md`，实测结果见包内VALIDATION。
 
 
 ## 2026-10-30：独立实验分支交付入口
@@ -1052,3 +1053,25 @@ GLM画像升级glm5_reference_v3。singleton T0与执行批次使用同一公式
   Rust overlay 返回大额负折扣钳位该实例。
 - 边界：当前合同限定 disks=1；多盘仅结构预留。消息走本机回环真实壁钟 RPC；
   速率与账本均为仿真量。审计 `check_lease_accounting.py` 回放放行上界与释放时机。
+## 2026-11-02：AgentX360统一入口
+
+AgentX360已接入run_benchmark.py，读取agentx360_v1合同。导出的原始配置保持不变；
+冻结运行配置显式增加compute.context_length_limit=300481。默认仍限131072；
+所有公式系数保持原值，超出原范围的事件标明formula_context_extrapolation。
+禁止把本次解析外推写成实机长上下文定标。
+冒烟2实例6请求覆盖最长300480；正式三组各12实例、72预热、360请求、12秒、180GB/s。
+验收包含有效配置逐项比较、客户端与账本ID集合、最长请求执行、独立公式、层屏障、
+预热排空/历史重置、离线观测、RPC流排空、路由与许可归零及进程退出。
+GroupedStorage诊断累计字节使用Kahan补偿求和；不改变读取状态、速率与完成时间。
+命令和输入SHA见benchmark/agentx_random_360_12s_12_180GBps/README.md，
+验证摘要见dynamo_vllm_cpu_sim/AGENTX_VALIDATION.json。历史章节按日期解释。
+
+## 2026-11-02：人工ABC六秒统一入口
+
+synthetic_abc_360_6s_12_90GBps读取synthetic_abc360_v1专用合同，已纳入--case all。
+12实例、6秒、90GB/s、direct_sum、四类执行反馈关闭；每方案72预热及360正式。
+不修改原始输入、三方案历史配置、约5.03ms的首请求间隔或固定A/B/C形状。
+最长30979 token不需长上下文外推；不注入AgentX的长度或启动预算。
+验收逐项比较有效配置，并核对到达原点/顺序、独立公式、层屏障、EDF、P75配额3、
+RPC流排空、记账归零及所属进程退出。实际命令见该benchmark README，
+摘要见dynamo_vllm_cpu_sim/SYNTHETIC_ABC_VALIDATION.json。历史报告不随本次改写。

@@ -52,8 +52,21 @@ class GroupedStorage(Storage):
     """
     def __init__(self, config, block_size):
         super().__init__(config, block_size)
+        self._byte_correction = 0.0
+        self._disk_byte_correction = [0.0] * self.c["disks"]
         if self.policy != "max_min_fair":
             raise ValueError("grouped reads require max_min_fair")
+
+    def _account_transfer(self, disk, transferred):
+        # Kahan summation only changes diagnostic byte counters, not read state.
+        value = transferred - self._byte_correction
+        total = self.bytes_transferred + value
+        self._byte_correction = (total - self.bytes_transferred) - value
+        self.bytes_transferred = total
+        value = transferred - self._disk_byte_correction[disk]
+        total = self.disk_bytes_transferred[disk] + value
+        self._disk_byte_correction[disk] = (total - self.disk_bytes_transferred[disk]) - value
+        self.disk_bytes_transferred[disk] = total
 
     def submit(self, now, key, blocks, demand=None):
         assert abs(now - self.now) < 1e-9 and key not in self.pending and blocks
@@ -150,8 +163,7 @@ class GroupedStorage(Storage):
             per_block = min(read.remaining, rate * (target - self.now))
             read.remaining -= per_block
             transferred = per_block * read.block_count
-            self.bytes_transferred += transferred
-            self.disk_bytes_transferred[path[0]] += transferred
+            self._account_transfer(path[0], transferred)
         for disk, rate in by_disk.items():
             self.disk_peak_Bps[disk] = max(self.disk_peak_Bps[disk], rate)
         self.now = target

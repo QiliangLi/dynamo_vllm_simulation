@@ -4,13 +4,13 @@
 
 | Benchmark（点击查看说明） | 来源 / 特征 | 请求数 / 窗口 | 实例 / 带宽 | 新计算 token（比例） | 读取 GB | 类别数量 | 计算模型 / 反馈 | 支持状态 |
 |---|---|---|---|---|---|---|---|---|
-| [agentx_random_360_12s_12_180GBps](agentx_random_360_12s_12_180GBps/README.md) | agentx / random | 360 / 12s | 12 / 180 GB/s | 667280（2.869297%） | 2480.769528 | A:90/B:270 | glm5_direct_sum_v1 / disabled | 仅校验、导出 |
+| [agentx_random_360_12s_12_180GBps](agentx_random_360_12s_12_180GBps/README.md) | agentx / random | 360 / 12s | 12 / 180 GB/s | 667280（2.869297%） | 2480.769528 | A:90/B:270 | glm5_direct_sum_v1 / disabled | 可运行 |
 | [mooncake_abc_360_4s_12_100GBps](mooncake_abc_360_4s_12_100GBps/README.md) | mooncake / abc | 360 / 4s | 12 / 100 GB/s | 204699（3.999781%） | 539.571462 | A:240/B:90/C:30 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_abc_360_4s_12_90GBps](mooncake_abc_360_4s_12_90GBps/README.md) | mooncake / abc | 360 / 4s | 12 / 90 GB/s | 204699（3.999781%） | 539.571462 | A:240/B:90/C:30 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_abcd_360_4s_12_100GBps](mooncake_abcd_360_4s_12_100GBps/README.md) | mooncake / abcd | 360 / 4s | 12 / 100 GB/s | 204699（3.999781%） | 539.571462 | A:220/B:90/C:30/D:20 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_abcd_360_4s_12_90GBps](mooncake_abcd_360_4s_12_90GBps/README.md) | mooncake / abcd | 360 / 4s | 12 / 90 GB/s | 204699（3.999781%） | 539.571462 | A:220/B:90/C:30/D:20 | glm5_actual_batch_work_v2 / disabled | 可运行 |
 | [mooncake_random_360_4s_12_90GBps](mooncake_random_360_4s_12_90GBps/README.md) | mooncake / random | 360 / 4s | 12 / 90 GB/s | 207547（4.055431%） | 539.258683 | A:90/B:270 | glm5_actual_batch_work_v2 / disabled | 可运行 |
-| [synthetic_abc_360_6s_12_90GBps](synthetic_abc_360_6s_12_90GBps/README.md) | synthetic / abc | 360 / 6s | 12 / 90 GB/s | 318600（6.208058%） | 528.631235 | A:120/B:120/C:120 | glm5_direct_sum_v1 / disabled | 仅校验、导出 |
+| [synthetic_abc_360_6s_12_90GBps](synthetic_abc_360_6s_12_90GBps/README.md) | synthetic / abc | 360 / 6s | 12 / 90 GB/s | 318600（6.208058%） | 528.631235 | A:120/B:120/C:120 | glm5_direct_sum_v1 / disabled | 可运行 |
 
 ## 来源与构造说明
 

@@ -68,16 +68,16 @@
     "long_context_formula_extrapolation": false
   },
   "execution_feedback": "disabled",
-  "portable_runner_status": "export_only",
-  "runner_profile": null,
-  "portable_runner_reason": "direct_sum、禁用四反馈、强制释放等待修订与最终答复/后台EOF代码已同步；本负载专用合同尚未通过交付运行器完整验收，仍只校验和导出。长上下文与诊断计数边界见README。",
+  "portable_runner_status": "supported",
+  "runner_profile": "synthetic_abc360_v1",
+  "portable_runner_reason": "统一运行器读取人工ABC六秒专用合同；三方案有效配置、计划时间原点、形状、P75配额及执行链路逐项验收。",
   "files_sha256": {
     "trace.jsonl.gz": "f7c4ca8cbd1f65c9b52c9a8cf9e97c1ec0bdd01807213c145ea2a06fb2399b03",
     "requests.csv": "741b8c5e34af329e5e0097d1fa4336345aecc6d6db4514f96429ca519ec6a84f",
     "config.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
     "config.historical.json": "df479ae6aacd0d77ccf2fd478c2b736358f35b45911e0660556dcd8aa40628c6",
-    "run_contract.json": "5d6df30f9c21bf6dd6130008170c4836ab489f1d050c88eed48d1e187523fc44",
-    "README.md": "4c099a3d419b42b880673605855d4eb90acd555c92269ca4b6ea527050aad506",
+    "run_contract.json": "87bdc9a48d388ed076a87988f682c0ed94da8f2b71c82e72d823da02596cfbac",
+    "README.md": "1032a59ac0debec4e1cfe2c9bcd0937c4986f10178637c7f6a55fe20c451923b",
     "provenance.json": "355a1767a7da7adf8d294e20fbb5c0aea016b17944cac6bed8e1889b4d1c6a5b",
     "validation.json": "23aa0ac19f4599081c73cca10af42d434d51e381ef2832984a7e69d7a29eb084"
   }
