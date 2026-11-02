@@ -101,8 +101,11 @@ def run(arm, smoke=False):
         tuning = os.environ.get('BENCH_LEASE_JSON')
         if tuning:
             cfg.setdefault('lease', {}).update(json.loads(tuning))
-        cfg['admission']['release_on'] = cfg.setdefault('lease', {}).pop(
-            'release_on', 'lease_events')
+        lease_cfg = cfg.setdefault('lease', {})
+        cfg['admission']['release_on'] = lease_cfg.pop('release_on', 'lease_events')
+        # 吞吐调参：允许加大额度full的重试退避（默认2ms），减少调度线程RPC空转。
+        if 'retry_interval_wall_s' in lease_cfg:
+            cfg['admission']['retry_interval_wall_s'] = lease_cfg.pop('retry_interval_wall_s')
     cfg.update(policy='priority',request_ordering='edf')
     cfg['routing_accounting'].update(enabled=new or lease)
     if lease:

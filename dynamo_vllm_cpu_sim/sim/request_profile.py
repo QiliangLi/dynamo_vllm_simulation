@@ -95,7 +95,9 @@ def normalize_config(config):
                  "line_factor_exception": 1.5, "compute_slots": 10,
                  "loading_slots_per_worker": 4, "ttl_slack_factor": 30.0,
                  "ttl_margin_s": 0.05, "reconcile_interval_s": 0.05,
-                 "reconcile_tolerance": 0.1}
+                 "reconcile_tolerance": 0.1,
+                 # 吞吐模式开关（默认保持期限保护）：关闭后例外路不再因条件(a)/(b)压后。
+                 "protect_inflight": True, "protect_urgent": True}
         lease.update(c.get("lease", {}))
         for key in ("line_factor_heavy", "line_factor_normal", "line_factor_exception",
                     "ttl_slack_factor", "reconcile_interval_s"):
@@ -110,6 +112,9 @@ def normalize_config(config):
             if (not isinstance(lease[key], (int, float)) or not math.isfinite(lease[key])
                     or lease[key] < 0):
                 raise ValueError(f"lease.{key} must be finite and nonnegative")
+        for key in ("protect_inflight", "protect_urgent"):
+            if type(lease[key]) is not bool:
+                raise ValueError(f"lease.{key} must be boolean")
         if lease["reconcile_interval_s"] <= 0:
             raise ValueError("lease.reconcile_interval_s must be positive")
         lease["disks"] = sc["disks"]

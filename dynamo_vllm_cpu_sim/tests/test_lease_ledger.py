@@ -12,7 +12,7 @@ def lease_config(**over):
     cfg = dict(line_factor_heavy=0.1, line_factor_normal=1.1, line_factor_exception=1.5,
                compute_slots=4, loading_slots_per_worker=4, ttl_slack_factor=1.5,
                ttl_margin_s=0.05, reconcile_interval_s=0.05, reconcile_tolerance=0.1,
-               disks=1)
+               protect_inflight=True, protect_urgent=True, disks=1)
     cfg.update(over)
     return cfg
 
@@ -72,6 +72,19 @@ class FiveStepTests(unittest.TestCase):
         d = self.led.evaluate(entry("R4", 20 * GB, 20, 600e6, 0.03, deadline=100.0), [], 0.0)
         self.assertTrue(d["granted"])
         self.assertEqual(d["path"], "exception")
+
+    def test_throughput_mode_skips_condition_ab(self):
+        # 吞吐模式：protect_inflight/protect_urgent 关闭后，条件(a)(b)不再否决。
+        led = LeaseLedger(lease_config(protect_inflight=False, protect_urgent=False), 30 * GB, 1)
+        # 条件(a)场景：R3 独占可达标，加候选被拉伸后超期——吞吐模式下仍放行。
+        led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03, deadline=0.055))
+        urgents = [dict(rid="R5", share_Bps=20 * GB, deadline_s=0.05, service_s=0.04)]
+        d = led.evaluate(entry("R4", 20 * GB, 20, 600e6, 0.03, deadline=100.0),
+                         urgents, 0.0)
+        self.assertTrue(d["granted"])
+        self.assertEqual(d["path"], "exception")
+        self.assertEqual(led.counters["denied_condition_a"], 0)
+        self.assertEqual(led.counters["denied_condition_b"], 0)
 
     def test_condition_b_protects_urgent_queue(self):
         self.led.admit(entry("R3", 21 * GB, 21, 630e6, 0.03, deadline=100.0))

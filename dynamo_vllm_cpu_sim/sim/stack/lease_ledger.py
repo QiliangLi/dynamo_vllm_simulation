@@ -43,6 +43,9 @@ class LeaseLedger:
         self.exception_Bps = self.disk_Bps * lease_config["line_factor_exception"]
         self.heavy_line_Bps = self.disk_Bps * lease_config["line_factor_heavy"]
         self.loading_slots = lease_config["loading_slots_per_worker"]
+        # 吞吐模式：关闭后在读/紧迫期限保护（条件a/b），例外路只受例外带约束。
+        self.protect_inflight = lease_config.get("protect_inflight", True)
+        self.protect_urgent = lease_config.get("protect_urgent", True)
         self.ttl_slack = lease_config["ttl_slack_factor"]
         self.ttl_margin_s = lease_config["ttl_margin_s"]
         self.reconcile_interval_s = lease_config["reconcile_interval_s"]
@@ -151,29 +154,33 @@ class LeaseLedger:
         # 步3-4 条件(a)：同构重放预测在读者完成时刻。只有"不加候选仍能达标"
         # 的在读者才有一票否决权——已注定超期者不再阻塞他人（饱和工况实测
         # 修正：否则少数巨请求长期否决全部新进入，mean TTFT 单调劣化）。
-        current_entries = [e for e in self.open.values() if e.disk == disk]
-        doomed = set()
-        for entry, remaining, completion in self.predict(current_entries, now):
-            remaining_compute = entry.service_s * (
-                remaining / entry.read_bytes if entry.read_bytes else 0.)
-            if completion + remaining_compute > entry.deadline_s + 1e-9:
-                doomed.add(entry.rid)
-        for entry, remaining, completion in self.predict(current_entries + [cand], now):
-            if entry is cand or entry.rid in doomed:
-                continue
-            remaining_compute = entry.service_s * (
-                remaining / entry.read_bytes if entry.read_bytes else 0.)
-            if completion + remaining_compute > entry.deadline_s + 1e-9:
-                self.counters["denied_condition_a"] += 1
-                return dict(granted=False, reason="full", path=None, k=k,
-                            sum_after=sum_after, detail=f"condition a:{entry.rid}")
+        # 吞吐模式（protect_inflight=False）：跳过条件(a)，例外路只受例外带约束。
+        if self.protect_inflight:
+            current_entries = [e for e in self.open.values() if e.disk == disk]
+            doomed = set()
+            for entry, remaining, completion in self.predict(current_entries, now):
+                remaining_compute = entry.service_s * (
+                    remaining / entry.read_bytes if entry.read_bytes else 0.)
+                if completion + remaining_compute > entry.deadline_s + 1e-9:
+                    doomed.add(entry.rid)
+            for entry, remaining, completion in self.predict(current_entries + [cand], now):
+                if entry is cand or entry.rid in doomed:
+                    continue
+                remaining_compute = entry.service_s * (
+                    remaining / entry.read_bytes if entry.read_bytes else 0.)
+                if completion + remaining_compute > entry.deadline_s + 1e-9:
+                    self.counters["denied_condition_a"] += 1
+                    return dict(granted=False, reason="full", path=None, k=k,
+                                sum_after=sum_after, detail=f"condition a:{entry.rid}")
         # 步5 条件(b)：队内紧迫者不被推过线（候选占用计入回落预测）。
-        for j in urgents:
-            free = self.free_time_for(j["share_Bps"], now, candidate=cand)
-            if free > j["deadline_s"] - j["service_s"] + 1e-9:
-                self.counters["denied_condition_b"] += 1
-                return dict(granted=False, reason="full", path=None, k=k,
-                            sum_after=sum_after, detail=f"condition b:{j['rid']}")
+        # 吞吐模式（protect_urgent=False）：跳过。
+        if self.protect_urgent:
+            for j in urgents:
+                free = self.free_time_for(j["share_Bps"], now, candidate=cand)
+                if free > j["deadline_s"] - j["service_s"] + 1e-9:
+                    self.counters["denied_condition_b"] += 1
+                    return dict(granted=False, reason="full", path=None, k=k,
+                                sum_after=sum_after, detail=f"condition b:{j['rid']}")
         return self._grant(cand, now, "exception", k)
 
     def _grant(self, cand, now, path, k):
