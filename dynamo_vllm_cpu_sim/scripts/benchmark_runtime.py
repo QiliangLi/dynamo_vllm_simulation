@@ -6,6 +6,7 @@ timing formulas and layer barriers remain in the simulator modules.
 import argparse
 import asyncio
 import contextlib
+from copy import deepcopy
 import hashlib
 import json
 import math
@@ -27,6 +28,7 @@ import psutil
 A = ROOT = OVERLAY = None
 CASE_NAME = None
 ALPHA = 1.0
+ARM_CONFIG = None
 
 
 def smoke_requests(rows, long_context=False):
@@ -83,19 +85,20 @@ def run(arm, smoke=False):
     case.mkdir(exist_ok=False)
     from sim.trace_io import load_trace
     main = load_trace(ROOT/'results/input360/trace.jsonl')
-    cfg = read(ROOT/'results/input360/config.json')
+    cfg = deepcopy(ARM_CONFIG) if ARM_CONFIG is not None else read(ROOT/'results/input360/config.json')
     contract_path=ROOT/'results/input360/run_contract.json'
     contract=read(contract_path) if contract_path.exists() else {}
     startup=contract.get('startup',{})
     new = arm in ('new-tfs','idle-bypass')
-    cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
-                            placement='scheduler' if new else 'gateway',
-                            classification='arrival' if new else 'dynamic',
-                            idle_bypass=arm=='idle-bypass',aging_enabled=False)
-    cfg.update(policy='priority',request_ordering='edf')
-    cfg['routing_accounting'].update(enabled=new)
-    if new or contract.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
-        cfg['routing_accounting']['waiting_factor']=ALPHA
+    if ARM_CONFIG is None:
+        cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
+                                placement='scheduler' if new else 'gateway',
+                                classification='arrival' if new else 'dynamic',
+                                idle_bypass=arm=='idle-bypass',aging_enabled=False)
+        cfg.update(policy='priority',request_ordering='edf')
+        cfg['routing_accounting'].update(enabled=new)
+        if new or contract.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
+            cfg['routing_accounting']['waiting_factor']=ALPHA
     if smoke:
         main = smoke_requests(main, long_context=cfg['compute'].get('context_length_limit',131072)>131072)
         cfg['workers'] = 2
@@ -257,10 +260,11 @@ def run(arm, smoke=False):
         assert check['requests']==len(warm+main)
         assert check['workers']==list(range(cfg['workers'])),check['workers']
         assert check['actual_submitted_read_bytes']==sum(r['hit_tokens']*cfg['storage']['kv_bytes_per_token'] for r in warm+main)
-        if new:
+        if cfg['request_ordering']=='edf':
             from check_edf_priority import check as budget_check
-            from check_routing_accounting import check as score_check
             write(case/'run/edf_priority.check.json',budget_check(case/'run'))
+        if new:
+            from check_routing_accounting import check as score_check
             write(case/'run/routing.score.check.json',score_check(case/'run',require_discount=ALPHA<1))
         result.update(status='passed',check=check)
     except BaseException:

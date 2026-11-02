@@ -1,0 +1,1975 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "date": "2026-11-02",
+  "delivery_base": "d693b79c737658490f5fc87f349dfa7368ebe27a",
+  "research_commit": "09312a5b956c6120e4dc448afee1e2f9cbffdfbc",
+  "full_regression_tests": 336,
+  "full_regression_log_sha256": "f1ad12885d9e5c0e4f7d6e73c5df2d7dd87aa8d0011bc56a63da25fe291150dc",
+  "accepted_smokes": 6,
+  "accepted_formal_runs": 30,
+  "formal_requests": 10800,
+  "warmup_requests": 2160,
+  "repeats_per_combination": 1,
+  "r2_attempt_failures": 0,
+  "retained_r1_failure": {
+    "phase": "last smoke before any formal run",
+    "reason": "1-second sampling missed positive short native reservation",
+    "correction": "allow positive native raw_prefill_blocks as extra evidence, retaining score/minimum/final-zero checks",
+    "runtime_strategy_changed": false
+  },
+  "native_binary_sha256": "1f7a8f31ce5d76825f3ec6783b398c5f25600dddbb6a26840732b33417548f27",
+  "max_bandwidth_replay_completion_error_s": 7.105427357601002e-15,
+  "cross_arm_disk_byte_distribution_identical": true,
+  "source_package_matches_current_delivery_runtime": true,
+  "topology": "independent HRW disks; no shared link; per-disk max-min; no bandwidth borrowing",
+  "admission": "global scalar TFS, unchanged reference bandwidth; no per-disk-aware policy",
+  "simulations_are": "CPU wall-clock with formula compute; not GPU/NPU measured performance",
+  "large_raw_events_published": false,
+  "runs": [
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T20:44:16.433722+08:00",
+      "finished_at": "2026-11-02T20:47:49.638877+08:00",
+      "check": {
+        "status": "passed",
+        "case": "agentx_random_360_12s_12_180GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 180000000000.0,
+        "mean_ttft_ms": 17908.333691669446,
+        "p95_ttft_ms": 30691.53179500006,
+        "slo_pct": 3.0555555555555554,
+        "completion_ms": 45209.20371399995,
+        "measured_read_bytes": 2480769527808,
+        "formula_context_limit": 300481,
+        "long_context_steps_including_warmup": 133,
+        "maximum_executed_context": 300480,
+        "long_context_requests": 39,
+        "context_extrapolation": true,
+        "execution_feedback": "disabled",
+        "storage_disks": 6,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          537262522368,
+          500064694272,
+          518458896384,
+          483490934784,
+          484415213568,
+          481364742144
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 6,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 27456,
+        "disks": 6,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          444736241664,
+          413189517312,
+          427029098496,
+          398260482048,
+          400745140224,
+          396809048064
+        ],
+        "per_disk_integral_error_bytes": [
+          2.15716552734375,
+          2.1546630859375,
+          2.111328125,
+          2.0811767578125,
+          2.128173828125,
+          2.1932373046875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T21:09:53.835875+08:00",
+      "finished_at": "2026-11-02T21:13:31.609073+08:00",
+      "check": {
+        "status": "passed",
+        "case": "agentx_random_360_12s_12_180GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 180000000000.0,
+        "mean_ttft_ms": 16134.499530469442,
+        "p95_ttft_ms": 27877.620831999593,
+        "slo_pct": 5.0,
+        "completion_ms": 47939.4848779998,
+        "measured_read_bytes": 2480769527808,
+        "formula_context_limit": 300481,
+        "long_context_steps_including_warmup": 132,
+        "maximum_executed_context": 300480,
+        "long_context_requests": 39,
+        "context_extrapolation": true,
+        "execution_feedback": "disabled",
+        "storage_disks": 6,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          537262522368,
+          500064694272,
+          518458896384,
+          483490934784,
+          484415213568,
+          481364742144
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 6,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 27456,
+        "disks": 6,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          444736241664,
+          413189517312,
+          427029098496,
+          398260482048,
+          400745140224,
+          396809048064
+        ],
+        "per_disk_integral_error_bytes": [
+          2.01348876953125,
+          1.98968505859375,
+          2.04736328125,
+          2.0428466796875,
+          2.0816650390625,
+          2.0341796875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T21:22:45.443642+08:00",
+      "finished_at": "2026-11-02T21:26:04.032280+08:00",
+      "check": {
+        "status": "passed",
+        "case": "agentx_random_360_12s_12_180GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 180000000000.0,
+        "mean_ttft_ms": 15302.127687394424,
+        "p95_ttft_ms": 29165.520919999835,
+        "slo_pct": 5.555555555555555,
+        "completion_ms": 39945.468260999856,
+        "measured_read_bytes": 2480769527808,
+        "formula_context_limit": 300481,
+        "long_context_steps_including_warmup": 133,
+        "maximum_executed_context": 300480,
+        "long_context_requests": 39,
+        "context_extrapolation": true,
+        "execution_feedback": "disabled",
+        "storage_disks": 6,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          537262522368,
+          500064694272,
+          518458896384,
+          483490934784,
+          484415213568,
+          481364742144
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 6,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 27456,
+        "disks": 6,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          444736241664,
+          413189517312,
+          427029098496,
+          398260482048,
+          400745140224,
+          396809048064
+        ],
+        "per_disk_integral_error_bytes": [
+          2.45947265625,
+          2.514892578125,
+          2.4298095703125,
+          2.4559326171875,
+          2.5015869140625,
+          2.53173828125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T21:14:44.135641+08:00",
+      "finished_at": "2026-11-02T21:18:10.505919+08:00",
+      "check": {
+        "status": "passed",
+        "case": "agentx_random_360_12s_12_180GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 180000000000.0,
+        "mean_ttft_ms": 14655.711438572229,
+        "p95_ttft_ms": 30727.89405200001,
+        "slo_pct": 5.833333333333333,
+        "completion_ms": 46409.8214999999,
+        "measured_read_bytes": 2480769527808,
+        "formula_context_limit": 300481,
+        "long_context_steps_including_warmup": 132,
+        "maximum_executed_context": 300480,
+        "long_context_requests": 39,
+        "context_extrapolation": true,
+        "execution_feedback": "disabled",
+        "storage_disks": 6,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          537262522368,
+          500064694272,
+          518458896384,
+          483490934784,
+          484415213568,
+          481364742144
+        ],
+        "disk_peak_Bps": [
+          30000000000.000027,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 6,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 27456,
+        "disks": 6,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          444736241664,
+          413189517312,
+          427029098496,
+          398260482048,
+          400745140224,
+          396809048064
+        ],
+        "per_disk_integral_error_bytes": [
+          2.3963623046875,
+          2.54815673828125,
+          2.4775390625,
+          2.2474365234375,
+          2.45428466796875,
+          2.4771728515625
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.6702880859375e-05
+      },
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T20:47:49.668944+08:00",
+      "finished_at": "2026-11-02T20:51:21.807422+08:00",
+      "check": {
+        "status": "passed",
+        "case": "agentx_random_360_12s_12_180GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 180000000000.0,
+        "mean_ttft_ms": 14715.26750304167,
+        "p95_ttft_ms": 30139.024447000113,
+        "slo_pct": 3.888888888888889,
+        "completion_ms": 44379.57858300001,
+        "measured_read_bytes": 2480769527808,
+        "formula_context_limit": 300481,
+        "long_context_steps_including_warmup": 132,
+        "maximum_executed_context": 300480,
+        "long_context_requests": 39,
+        "context_extrapolation": true,
+        "execution_feedback": "disabled",
+        "storage_disks": 6,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          537262522368,
+          500064694272,
+          518458896384,
+          483490934784,
+          484415213568,
+          481364742144
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 6,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 27456,
+        "disks": 6,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          444736241664,
+          413189517312,
+          427029098496,
+          398260482048,
+          400745140224,
+          396809048064
+        ],
+        "per_disk_integral_error_bytes": [
+          2.4197998046875,
+          2.4151611328125,
+          2.43408203125,
+          2.3148193359375,
+          2.484130859375,
+          2.56414794921875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T21:18:10.518313+08:00",
+      "finished_at": "2026-11-02T21:19:22.528163+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_100GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 5661.738130672204,
+        "p95_ttft_ms": 10143.957897999826,
+        "slo_pct": 3.6111111111111107,
+        "completion_ms": 14549.418596000123,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166885036032,
+          167703883776,
+          158334578688,
+          145795313664
+        ],
+        "disk_peak_Bps": [
+          25000000000.000027,
+          25000000000.000023,
+          25000000000.000027,
+          25000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140400758784,
+          141767847936,
+          133916749824,
+          123486105600
+        ],
+        "per_disk_integral_error_bytes": [
+          0.644866943359375,
+          0.61737060546875,
+          0.65228271484375,
+          0.7082061767578125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.6702880859375e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T21:07:37.767212+08:00",
+      "finished_at": "2026-11-02T21:08:51.271701+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_100GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 5612.875404255553,
+        "p95_ttft_ms": 10689.571624999644,
+        "slo_pct": 3.3333333333333335,
+        "completion_ms": 15883.232117000261,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166885036032,
+          167703883776,
+          158334578688,
+          145795313664
+        ],
+        "disk_peak_Bps": [
+          25000000000.00002,
+          25000000000.00002,
+          25000000000.000023,
+          25000000000.000027
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140400758784,
+          141767847936,
+          133916749824,
+          123486105600
+        ],
+        "per_disk_integral_error_bytes": [
+          0.635467529296875,
+          0.65362548828125,
+          0.6476593017578125,
+          0.685638427734375
+        ],
+        "max_completion_error_s": 7.105427357601002e-15,
+        "max_rate_roundoff_Bps": 2.6702880859375e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T20:54:49.988281+08:00",
+      "finished_at": "2026-11-02T20:56:00.569989+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_100GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 3674.406998716661,
+        "p95_ttft_ms": 8386.550082999975,
+        "slo_pct": 6.666666666666667,
+        "completion_ms": 12762.580822000018,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166885036032,
+          167703883776,
+          158334578688,
+          145795313664
+        ],
+        "disk_peak_Bps": [
+          25000000000.00001,
+          25000000000.000015,
+          25000000000.00001,
+          25000000000.00001
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140400758784,
+          141767847936,
+          133916749824,
+          123486105600
+        ],
+        "per_disk_integral_error_bytes": [
+          1.233734130859375,
+          1.20855712890625,
+          1.2583770751953125,
+          1.2855224609375
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.52587890625e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T20:57:09.414649+08:00",
+      "finished_at": "2026-11-02T20:58:22.405463+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_100GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 3834.4485447611064,
+        "p95_ttft_ms": 8703.799527000001,
+        "slo_pct": 4.166666666666666,
+        "completion_ms": 12658.359928999971,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166885036032,
+          167703883776,
+          158334578688,
+          145795313664
+        ],
+        "disk_peak_Bps": [
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.00002,
+          25000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140400758784,
+          141767847936,
+          133916749824,
+          123486105600
+        ],
+        "per_disk_integral_error_bytes": [
+          1.14404296875,
+          1.098052978515625,
+          1.1436309814453125,
+          1.1860504150390625
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T21:00:41.418288+08:00",
+      "finished_at": "2026-11-02T21:01:54.809635+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_100GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 5000.903420752779,
+        "p95_ttft_ms": 10018.605512000022,
+        "slo_pct": 3.6111111111111107,
+        "completion_ms": 13782.894835999969,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166885036032,
+          167703883776,
+          158334578688,
+          145795313664
+        ],
+        "disk_peak_Bps": [
+          25000000000.000015,
+          25000000000.00002,
+          25000000000.00002,
+          25000000000.00001
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140400758784,
+          141767847936,
+          133916749824,
+          123486105600
+        ],
+        "per_disk_integral_error_bytes": [
+          1.083648681640625,
+          1.078704833984375,
+          1.1107635498046875,
+          1.145721435546875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T20:40:41.483553+08:00",
+      "finished_at": "2026-11-02T20:41:51.501555+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_100GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 5338.407057544441,
+        "p95_ttft_ms": 9599.510362000046,
+        "slo_pct": 2.7777777777777777,
+        "completion_ms": 13815.726874999997,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166955323392,
+          168225767424,
+          158385537024,
+          145658253312
+        ],
+        "disk_peak_Bps": [
+          25000000000.000015,
+          25000000000.00002,
+          25000000000.00002,
+          25000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140260184064,
+          142121041920,
+          133925535744,
+          123264700416
+        ],
+        "per_disk_integral_error_bytes": [
+          0.7166748046875,
+          0.68402099609375,
+          0.6976470947265625,
+          0.7478790283203125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T20:58:22.420973+08:00",
+      "finished_at": "2026-11-02T20:59:35.279762+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_100GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 5691.036681802777,
+        "p95_ttft_ms": 10182.698184999936,
+        "slo_pct": 2.5,
+        "completion_ms": 15095.990911000172,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166955323392,
+          168225767424,
+          158385537024,
+          145658253312
+        ],
+        "disk_peak_Bps": [
+          25000000000.00002,
+          25000000000.00002,
+          25000000000.00002,
+          25000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140260184064,
+          142121041920,
+          133925535744,
+          123264700416
+        ],
+        "per_disk_integral_error_bytes": [
+          0.780426025390625,
+          0.74920654296875,
+          0.7926788330078125,
+          0.81005859375
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T21:21:31.183094+08:00",
+      "finished_at": "2026-11-02T21:22:45.436394+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_100GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 4254.132632152797,
+        "p95_ttft_ms": 8263.266459000079,
+        "slo_pct": 3.3333333333333335,
+        "completion_ms": 12965.423310000006,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166955323392,
+          168225767424,
+          158385537024,
+          145658253312
+        ],
+        "disk_peak_Bps": [
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140260184064,
+          142121041920,
+          133925535744,
+          123264700416
+        ],
+        "per_disk_integral_error_bytes": [
+          1.096282958984375,
+          1.08831787109375,
+          1.1081695556640625,
+          1.161773681640625
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.52587890625e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T21:13:31.631943+08:00",
+      "finished_at": "2026-11-02T21:14:44.127532+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_100GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 4230.007907855562,
+        "p95_ttft_ms": 9055.807319999985,
+        "slo_pct": 4.444444444444445,
+        "completion_ms": 12112.063880999813,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166955323392,
+          168225767424,
+          158385537024,
+          145658253312
+        ],
+        "disk_peak_Bps": [
+          25000000000.00002,
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140260184064,
+          142121041920,
+          133925535744,
+          123264700416
+        ],
+        "per_disk_integral_error_bytes": [
+          0.9586181640625,
+          0.909271240234375,
+          0.9378204345703125,
+          0.9503936767578125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T21:04:12.836422+08:00",
+      "finished_at": "2026-11-02T21:05:23.098653+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_100GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 100000000000.0,
+        "mean_ttft_ms": 4338.711048972226,
+        "p95_ttft_ms": 8623.96475499986,
+        "slo_pct": 2.7777777777777777,
+        "completion_ms": 12099.165829999947,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 4,
+        "disk_Bps": 25000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          166955323392,
+          168225767424,
+          158385537024,
+          145658253312
+        ],
+        "disk_peak_Bps": [
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.000015,
+          25000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 4,
+        "disk_GBps": 25,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 4,
+        "disk_Bps": 25000000000.0,
+        "per_disk_bytes": [
+          140260184064,
+          142121041920,
+          133925535744,
+          123264700416
+        ],
+        "per_disk_integral_error_bytes": [
+          0.941558837890625,
+          0.92364501953125,
+          0.9268035888671875,
+          0.9866180419921875
+        ],
+        "max_completion_error_s": 7.105427357601002e-15,
+        "max_rate_roundoff_Bps": 1.52587890625e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T20:56:00.574536+08:00",
+      "finished_at": "2026-11-02T20:57:09.406655+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_90GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 4258.8171774666735,
+        "p95_ttft_ms": 7661.119923000115,
+        "slo_pct": 4.722222222222222,
+        "completion_ms": 11958.752001999983,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217513021440,
+          215075807232,
+          206129983488
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.00002,
+          30000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          183226847232,
+          182054805504,
+          174289809408
+        ],
+        "per_disk_integral_error_bytes": [
+          0.6446533203125,
+          0.652587890625,
+          0.674591064453125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T21:05:23.106211+08:00",
+      "finished_at": "2026-11-02T21:06:33.988061+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_90GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 4173.962048300006,
+        "p95_ttft_ms": 7669.026468000084,
+        "slo_pct": 3.3333333333333335,
+        "completion_ms": 12336.661831000129,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217513021440,
+          215075807232,
+          206129983488
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          183226847232,
+          182054805504,
+          174289809408
+        ],
+        "per_disk_integral_error_bytes": [
+          0.61737060546875,
+          0.624664306640625,
+          0.636444091796875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T20:43:04.964369+08:00",
+      "finished_at": "2026-11-02T20:44:16.426022+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_90GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 2627.563953977782,
+        "p95_ttft_ms": 7171.470591000002,
+        "slo_pct": 11.11111111111111,
+        "completion_ms": 11562.013352000009,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217513021440,
+          215075807232,
+          206129983488
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.000015,
+          30000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          183226847232,
+          182054805504,
+          174289809408
+        ],
+        "per_disk_integral_error_bytes": [
+          1.460418701171875,
+          1.39141845703125,
+          1.45989990234375
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T21:26:04.052447+08:00",
+      "finished_at": "2026-11-02T21:27:14.424913+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_90GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3020.9512779499896,
+        "p95_ttft_ms": 7365.724633999889,
+        "slo_pct": 7.222222222222221,
+        "completion_ms": 11179.85341099984,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217513021440,
+          215075807232,
+          206129983488
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.000023,
+          30000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          183226847232,
+          182054805504,
+          174289809408
+        ],
+        "per_disk_integral_error_bytes": [
+          1.256011962890625,
+          1.304229736328125,
+          1.37335205078125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T21:03:00.583814+08:00",
+      "finished_at": "2026-11-02T21:04:12.817785+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abc_360_4s_12_90GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3463.964920877783,
+        "p95_ttft_ms": 7575.809725999989,
+        "slo_pct": 2.2222222222222223,
+        "completion_ms": 11582.873562999794,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217513021440,
+          215075807232,
+          206129983488
+        ],
+        "disk_peak_Bps": [
+          30000000000.000015,
+          30000000000.00002,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          183226847232,
+          182054805504,
+          174289809408
+        ],
+        "per_disk_integral_error_bytes": [
+          1.2662353515625,
+          1.265869140625,
+          1.338409423828125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T21:20:25.068527+08:00",
+      "finished_at": "2026-11-02T21:21:31.166760+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_90GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3958.224093705554,
+        "p95_ttft_ms": 7073.490609999681,
+        "slo_pct": 4.444444444444445,
+        "completion_ms": 10894.779387999733,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217448005632,
+          215710150656,
+          206066724864
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.000027,
+          30000000000.000023
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          182908796928,
+          182478286848,
+          174184378368
+        ],
+        "per_disk_integral_error_bytes": [
+          0.648040771484375,
+          0.650390625,
+          0.66082763671875
+        ],
+        "max_completion_error_s": 7.105427357601002e-15,
+        "max_rate_roundoff_Bps": 2.6702880859375e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T20:51:21.824848+08:00",
+      "finished_at": "2026-11-02T20:52:34.132949+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_90GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3920.9879940277788,
+        "p95_ttft_ms": 7510.2820120000615,
+        "slo_pct": 4.166666666666666,
+        "completion_ms": 12987.364264999997,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217448005632,
+          215710150656,
+          206066724864
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000023,
+          30000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          182908796928,
+          182478286848,
+          174184378368
+        ],
+        "per_disk_integral_error_bytes": [
+          0.754425048828125,
+          0.751220703125,
+          0.751190185546875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T20:52:34.146072+08:00",
+      "finished_at": "2026-11-02T20:53:41.224336+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_90GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 2985.4505701277735,
+        "p95_ttft_ms": 6258.0278210000415,
+        "slo_pct": 7.5,
+        "completion_ms": 10918.658109999797,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217448005632,
+          215710150656,
+          206066724864
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000015,
+          30000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          182908796928,
+          182478286848,
+          174184378368
+        ],
+        "per_disk_integral_error_bytes": [
+          1.16583251953125,
+          1.133636474609375,
+          1.1988525390625
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T20:41:51.503945+08:00",
+      "finished_at": "2026-11-02T20:43:04.960634+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_90GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3423.644602580553,
+        "p95_ttft_ms": 7296.960442,
+        "slo_pct": 3.888888888888889,
+        "completion_ms": 10952.084972999955,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217448005632,
+          215710150656,
+          206066724864
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.00002,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          182908796928,
+          182478286848,
+          174184378368
+        ],
+        "per_disk_integral_error_bytes": [
+          1.0225830078125,
+          1.037506103515625,
+          1.0408935546875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T20:53:41.229750+08:00",
+      "finished_at": "2026-11-02T20:54:49.982079+08:00",
+      "check": {
+        "status": "passed",
+        "case": "mooncake_abcd_360_4s_12_90GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3201.4437089611183,
+        "p95_ttft_ms": 6853.759685000114,
+        "slo_pct": 5.277777777777778,
+        "completion_ms": 10653.105632000006,
+        "measured_read_bytes": 539571462144,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          217448005632,
+          215710150656,
+          206066724864
+        ],
+        "disk_peak_Bps": [
+          30000000000.00002,
+          30000000000.000015,
+          30000000000.00002
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 25740,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          182908796928,
+          182478286848,
+          174184378368
+        ],
+        "per_disk_integral_error_bytes": [
+          1.052215576171875,
+          1.05328369140625,
+          1.083953857421875
+        ],
+        "max_completion_error_s": 7.105427357601002e-15,
+        "max_rate_roundoff_Bps": 1.9073486328125e-05
+      },
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "direct-fcfs",
+      "started_at": "2026-11-02T21:08:51.277763+08:00",
+      "finished_at": "2026-11-02T21:09:53.830106+08:00",
+      "check": {
+        "status": "passed",
+        "case": "synthetic_abc_360_6s_12_90GBps",
+        "arm": "direct-fcfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3518.52893933889,
+        "p95_ttft_ms": 5763.412371999948,
+        "slo_pct": 2.5,
+        "completion_ms": 11187.843290999808,
+        "measured_read_bytes": 528631234560,
+        "execution_feedback": "disabled",
+        "context_extrapolation": false,
+        "class_counts": {
+          "B": 120,
+          "A": 120,
+          "C": 120
+        },
+        "planned_first_arrival_s": 0.00503337572724873,
+        "planned_last_arrival_s": 6,
+        "final_heavy_cap": 3,
+        "final_heavy_threshold_Bps": 28432690921.586624,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          221405184000,
+          208247390208,
+          204704907264
+        ],
+        "disk_peak_Bps": [
+          30000000000.00004,
+          30000000000.000034,
+          30000000000.000053
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 18720,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          184504320000,
+          173539491840,
+          170587422720
+        ],
+        "per_disk_integral_error_bytes": [
+          0.407257080078125,
+          0.49127197265625,
+          0.453857421875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 5.340576171875e-05
+      },
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "direct",
+      "started_at": "2026-11-02T21:19:22.535084+08:00",
+      "finished_at": "2026-11-02T21:20:25.060924+08:00",
+      "check": {
+        "status": "passed",
+        "case": "synthetic_abc_360_6s_12_90GBps",
+        "arm": "direct",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 3413.015814036114,
+        "p95_ttft_ms": 5766.041377999954,
+        "slo_pct": 2.7777777777777777,
+        "completion_ms": 11705.646764999983,
+        "measured_read_bytes": 528631234560,
+        "execution_feedback": "disabled",
+        "context_extrapolation": false,
+        "class_counts": {
+          "B": 120,
+          "A": 120,
+          "C": 120
+        },
+        "planned_first_arrival_s": 0.00503337572724873,
+        "planned_last_arrival_s": 6,
+        "final_heavy_cap": 3,
+        "final_heavy_threshold_Bps": 28432690921.586624,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          221405184000,
+          208247390208,
+          204704907264
+        ],
+        "disk_peak_Bps": [
+          30000000000.00004,
+          30000000000.00004,
+          30000000000.000042
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 18720,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          184504320000,
+          173539491840,
+          170587422720
+        ],
+        "per_disk_integral_error_bytes": [
+          0.443084716796875,
+          0.510650634765625,
+          0.480499267578125
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 4.1961669921875e-05
+      },
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "old-tfs",
+      "started_at": "2026-11-02T21:06:33.997084+08:00",
+      "finished_at": "2026-11-02T21:07:37.757772+08:00",
+      "check": {
+        "status": "passed",
+        "case": "synthetic_abc_360_6s_12_90GBps",
+        "arm": "old-tfs",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 1968.8961559944546,
+        "p95_ttft_ms": 6486.913669999922,
+        "slo_pct": 48.61111111111111,
+        "completion_ms": 10709.32912399985,
+        "measured_read_bytes": 528631234560,
+        "execution_feedback": "disabled",
+        "context_extrapolation": false,
+        "class_counts": {
+          "B": 120,
+          "A": 120,
+          "C": 120
+        },
+        "planned_first_arrival_s": 0.00503337572724873,
+        "planned_last_arrival_s": 6,
+        "final_heavy_cap": 3,
+        "final_heavy_threshold_Bps": 28432690921.586624,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          221405184000,
+          208247390208,
+          204704907264
+        ],
+        "disk_peak_Bps": [
+          30000000000.000008,
+          30000000000.000008,
+          30000000000.000008
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 18720,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          184504320000,
+          173539491840,
+          170587422720
+        ],
+        "per_disk_integral_error_bytes": [
+          0.871124267578125,
+          1.3358154296875,
+          1.443572998046875
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 7.62939453125e-06
+      },
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a01",
+      "started_at": "2026-11-02T20:59:35.285851+08:00",
+      "finished_at": "2026-11-02T21:00:41.408084+08:00",
+      "check": {
+        "status": "passed",
+        "case": "synthetic_abc_360_6s_12_90GBps",
+        "arm": "tfs-a01",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 2231.6659695666594,
+        "p95_ttft_ms": 7455.366228999992,
+        "slo_pct": 33.33333333333333,
+        "completion_ms": 10714.491420000058,
+        "measured_read_bytes": 528631234560,
+        "execution_feedback": "disabled",
+        "context_extrapolation": false,
+        "class_counts": {
+          "B": 120,
+          "A": 120,
+          "C": 120
+        },
+        "planned_first_arrival_s": 0.00503337572724873,
+        "planned_last_arrival_s": 6,
+        "final_heavy_cap": 3,
+        "final_heavy_threshold_Bps": 28432690921.586624,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          221405184000,
+          208247390208,
+          204704907264
+        ],
+        "disk_peak_Bps": [
+          30000000000.000015,
+          30000000000.000015,
+          30000000000.000015
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 18720,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          184504320000,
+          173539491840,
+          170587422720
+        ],
+        "per_disk_integral_error_bytes": [
+          0.852142333984375,
+          1.176177978515625,
+          1.2265625
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 1.52587890625e-05
+      },
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a1",
+      "started_at": "2026-11-02T21:01:54.817381+08:00",
+      "finished_at": "2026-11-02T21:03:00.574783+08:00",
+      "check": {
+        "status": "passed",
+        "case": "synthetic_abc_360_6s_12_90GBps",
+        "arm": "tfs-a1",
+        "smoke": false,
+        "requests": 360,
+        "warmup_requests": 72,
+        "K": 1,
+        "shared_storage_Bps": 90000000000.0,
+        "mean_ttft_ms": 2783.402240063885,
+        "p95_ttft_ms": 7916.997590999927,
+        "slo_pct": 20.27777777777778,
+        "completion_ms": 11598.78685800004,
+        "measured_read_bytes": 528631234560,
+        "execution_feedback": "disabled",
+        "context_extrapolation": false,
+        "class_counts": {
+          "B": 120,
+          "A": 120,
+          "C": 120
+        },
+        "planned_first_arrival_s": 0.00503337572724873,
+        "planned_last_arrival_s": 6,
+        "final_heavy_cap": 3,
+        "final_heavy_threshold_Bps": 28432690921.586624,
+        "storage_disks": 3,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "disk_bytes_including_warmup": [
+          221405184000,
+          208247390208,
+          204704907264
+        ],
+        "disk_peak_Bps": [
+          30000000000.000023,
+          30000000000.000008,
+          30000000000.000008
+        ]
+      },
+      "storage_layout": {
+        "disks": 3,
+        "disk_GBps": 30,
+        "shared_link_Bps": null
+      },
+      "bandwidth_replay": {
+        "status": "passed",
+        "layer_reads": 18720,
+        "disks": 3,
+        "disk_Bps": 30000000000.0,
+        "per_disk_bytes": [
+          184504320000,
+          173539491840,
+          170587422720
+        ],
+        "per_disk_integral_error_bytes": [
+          0.801422119140625,
+          1.15826416015625,
+          1.16156005859375
+        ],
+        "max_completion_error_s": 0.0,
+        "max_rate_roundoff_Bps": 2.288818359375e-05
+      },
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6"
+    }
+  ],
+  "post_full_regression_tests": 338,
+  "post_full_regression_log_sha256": "c866c18d08b599ca8e1316b33be2937416d9bcd76b9e7029e7bc9b48f654d289",
+  "report_reference_compatibility_tests": 2,
+  "report_archive": {
+    "new_reports": 6,
+    "images_visual_reviewed": 48,
+    "all_archive_entries_verified": 14,
+    "overview": "report/agentx_random_360_12s_12_180GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1/overview.md",
+    "manifests": {
+      "agentx_random_360_12s_12_180GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "4ddfa4489d9ec22fd987bce7b7a40c474d8a44892962da55ea8e0b7ae701db8e",
+      "mooncake_abc_360_4s_12_100GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "fac6bdd1b251ba9d657240e33e10afe4c9f3acf7c4416f3c7e6c4d2f1b1ae415",
+      "mooncake_abcd_360_4s_12_100GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "166529ed9320b2e2c9785434e72950cf2a403a4def445a595c87f35f1b3e5fb0",
+      "mooncake_abc_360_4s_12_90GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "86f5a988f4b20f35271794d3c4914de4ce23d88db3b815642576731f768563c1",
+      "mooncake_abcd_360_4s_12_90GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "4b4862413ef8764740cb6d400fb8f9bdeecd44b3710ff992f56601715128d15e",
+      "synthetic_abc_360_6s_12_90GBps/20261102-214828_多盘_直接FCFS+EDF_旧TFS-EDF_新TFS-EDF-a0.1+a1": "1ef1cefa5764b6f82990734153baa79eaefab4c69b2e7ad337d6d30d4bca114e"
+    },
+    "compact_redraw_pngs_identical": 8,
+    "raw_events_included": false
+  }
+}

@@ -18,7 +18,8 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 REPO=ROOT.parent
-ARMS={'direct':1.,'tfs-a01':.1,'tfs-a1':1.}
+ARMS={'direct-fcfs':1.,'direct':1.,'old-tfs':1.,'tfs-a01':.1,'tfs-a1':1.}
+DEFAULT_ARMS=('direct','tfs-a01','tfs-a1')
 read=lambda p:json.loads(Path(p).read_text())
 
 
@@ -55,6 +56,30 @@ def effective_config(cfg,manifest,contract=None):
     return cfg
 
 
+def apply_storage_layout(cfg,layout=None):
+    cfg=deepcopy(cfg)
+    if layout is not None:
+        assert set(layout)=={'disks','disk_Bps'} and type(layout['disks']) is int and layout['disks']>1
+        assert type(layout['disk_Bps']) in (int,float) and math.isfinite(layout['disk_Bps']) and layout['disk_Bps']>0
+        total=cfg['admission']['reference_bandwidth_Bps']
+        assert layout['disks']*layout['disk_Bps']==total, 'layout must retain total reference bandwidth'
+        cfg['storage'].update(**layout,shared_link_Bps=None)
+    return cfg
+
+
+def arm_config(cfg,arm,manifest):
+    cfg=deepcopy(cfg);new=arm in ('tfs-a01','tfs-a1')
+    cfg['admission'].update(mode='tfs' if new or arm=='old-tfs' else 'immediate',
+        placement='scheduler' if new else 'gateway',classification='arrival' if new else 'dynamic',
+        idle_bypass=False,aging_enabled=False)
+    cfg.update(policy='fcfs' if arm=='direct-fcfs' else 'priority',
+               request_ordering='fcfs' if arm=='direct-fcfs' else 'edf')
+    cfg['routing_accounting'].update(enabled=new)
+    if new or manifest.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
+        cfg['routing_accounting']['waiting_factor']=ARMS[arm]
+    return cfg
+
+
 def audit_synthetic_plan(profiles,manifest,contract):
     rows=sorted(profiles.values(),key=lambda p:p['arrival_s'])
     assert len(rows)==360 and Counter(p['class_id'] for p in rows)=={'A':120,'B':120,'C':120}
@@ -66,7 +91,7 @@ def audit_synthetic_plan(profiles,manifest,contract):
     assert math.isclose(math.fsum(p['compute_s'] for p in rows),manifest['timing']['reference_compute_instance_s'],rel_tol=1e-12)
 
 
-def prepare(case,folder,overlay):
+def prepare(case,folder,overlay,layout=None):
     package=folder/'package';package.mkdir(parents=True)
     for name in ('sim','scripts','configs','patched'):
         shutil.copytree(ROOT/name,package/name,ignore=shutil.ignore_patterns('__pycache__'))
@@ -76,13 +101,17 @@ def prepare(case,folder,overlay):
     MANAGER.export(case,inp,quiet=True)
     manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
     contract=read(inp/'run_contract.json') if (inp/'run_contract.json').exists() else None
-    cfg=effective_config(read(inp/'config.json'),manifest,contract)
+    cfg=apply_storage_layout(effective_config(read(inp/'config.json'),manifest,contract),layout)
     cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
     bandwidth=manifest['shared_storage_Bps']
-    assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
+    assert cfg['storage']['disks']*cfg['storage']['disk_Bps']==bandwidth
+    assert cfg['storage']['shared_link_Bps']==(None if layout else bandwidth)
     assert cfg['admission']['reference_bandwidth_Bps']==bandwidth
     write(inp/'config.json',cfg)
+    write(folder/'experiment.json',dict(storage_layout=layout,audit_queue_policy=True,
+          admission_scope='global scalar reference bandwidth; no per-disk admission or routing',
+          original_benchmark_input_sha256=manifest['original_trace_sha256']))
     sys.path.insert(0,str(package))
     from sim.request_profile import normalize_config,build_profile
     cfg=normalize_config(cfg)
@@ -101,11 +130,13 @@ def prepare(case,folder,overlay):
                   for p in (package/name).rglob('*') if p.is_file() and '__pycache__' not in p.parts}
     write(folder/'frozen.json',dict(files=fingerprints,input_sha256=sha(inp/'trace.jsonl'),
         config_sha256=sha(inp/'config.json'),native_sha256=sha(overlay/'dynamo/_core.abi3.so'),K=1,
-        native_build_sha256=sha(overlay.parent/'build.json')))
+        native_build_sha256=sha(overlay.parent/'build.json'),experiment_sha256=sha(folder/'experiment.json')))
 
 
-def audit(folder,arm,smoke):
-    run=folder/f'package/results/{arm}/run';cfg=read(run/'config.json');state=read(run/'admission.final.json')
+def audit(folder,arm,smoke,run_name=None):
+    run=folder/f'package/results/{run_name or arm}/run';cfg=read(run/'config.json');state=read(run/'admission.final.json')
+    variant=read(folder/'experiment.json') if (folder/'experiment.json').exists() else {}
+    layout=variant.get('storage_layout')
     driver=read(run.parent/'driver.json');client=read(run/'measured/report.json')
     profiles={r['id']:r for r in read(folder/'profiles.json')};manifest=read(folder/'manifest.json')
     records={k:v for k,v in state['records'].items() if k in profiles}
@@ -138,17 +169,37 @@ def audit(folder,arm,smoke):
         assert warm['requests']==72 and warm['coverage']==list(range(12))
     bandwidth=manifest['shared_storage_Bps']
     assert cfg['wall_time_scale']==1
-    assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
+    if layout:
+        assert cfg['storage']['disks']==layout['disks'] and cfg['storage']['disk_Bps']==layout['disk_Bps']
+        assert cfg['storage']['disks']*cfg['storage']['disk_Bps']==bandwidth and cfg['storage']['shared_link_Bps'] is None
+    else:assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
     assert cfg['admission']['reference_bandwidth_Bps']==bandwidth
-    assert cfg['request_ordering']=='edf'
+    assert cfg['request_ordering']==('fcfs' if arm=='direct-fcfs' else 'edf')
     assert cfg['admission']['idle_bypass'] is False
-    if arm!='direct':
+    if arm in ('tfs-a01','tfs-a1'):
         assert cfg['admission']['placement']=='scheduler' and cfg['admission']['classification']=='arrival'
         assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
+    if arm=='old-tfs':assert cfg['admission']['placement']=='gateway' and cfg['admission']['classification']=='dynamic' and not cfg['routing_accounting']['enabled']
+    if variant.get('audit_queue_policy'):
+        from sim.request_profile import normalize_config
+        base=read(folder/'package/results/input360/config.json')
+        assert cfg==normalize_config({**arm_config(base,arm,manifest),**({'workers':2} if smoke else {})})
+        policies={}
+        for p in (run/'fine_trace').glob('trace-*.jsonl'):
+            ready=read(p.parent/p.name.replace('trace-','ready-').replace('.jsonl','.json'))
+            for line in p.open():
+                event=json.loads(line)
+                if event['event']=='native_queue_policy':
+                    policies[int(ready['worker'])]=event
+        expected_policy='fcfs' if arm=='direct-fcfs' else 'priority'
+        expected_queue='FCFSRequestQueue' if arm=='direct-fcfs' else 'PriorityRequestQueue'
+        assert set(policies)==set(range(cfg['workers']))
+        assert all(p['policy']==expected_policy and p['queue_type']==expected_queue for p in policies.values()),policies
+        write(run/'native_queue_policy.check.json',dict(status='passed',policy=expected_policy,queue_type=expected_queue,workers=sorted(policies)))
     if manifest.get('runner_profile') in ('agentx360_v1','synthetic_abc360_v1'):
         from sim.request_profile import normalize_config
         contract=read(folder/'package/results/input360/run_contract.json')
-        expected=effective_config(contract['arms'][arm],manifest,contract)
+        expected=apply_storage_layout(arm_config(effective_config(contract['arms']['direct'],manifest,contract),arm,manifest),layout)
         expected['routing_accounting']['python_path']=cfg['routing_accounting']['python_path']
         if smoke:expected['workers']=2
         assert cfg==normalize_config(expected), 'effective config differs from frozen arm contract'
@@ -176,7 +227,7 @@ def audit(folder,arm,smoke):
             planned=[json.loads(line) for line in (run.parent/'measured_trace.jsonl').read_text().splitlines()]
             assert [r['id'] for r in planned]==list(profiles), 'request order changed'
             assert all(r['arrival_s']==profiles[r['id']]['arrival_s'] for r in planned), 'arrival plan changed'
-        if not (run/'edf_priority.check.json').exists():
+        if cfg['request_ordering']=='edf' and not (run/'edf_priority.check.json').exists():
             checker=load_module('synthetic_edf_check',folder/'package/scripts/check_edf_priority.py')
             write(run/'edf_priority.check.json',checker.check(run))
     ts=sorted(ttft);n=len(ts)
@@ -196,23 +247,29 @@ def audit(folder,arm,smoke):
             class_counts=dict(Counter(profiles[r]['class_id'] for r in records)),
             planned_first_arrival_s=min(p['arrival_s'] for p in profiles.values()),planned_last_arrival_s=6,
             final_heavy_cap=state['snapshot']['heavy_cap'],final_heavy_threshold_Bps=state['snapshot']['heavy_threshold_Bps'])
+    if layout:
+        storage=read(run/'storage.final.json')
+        result.update(storage_disks=layout['disks'],disk_Bps=layout['disk_Bps'],shared_link_Bps=None,
+                      disk_bytes_including_warmup=storage['disk_bytes_submitted'],disk_peak_Bps=storage['disk_peak_Bps'])
     write(run/'benchmark.check.json',result)
     return result
 
 
-def execute(folder,arm,overlay,smoke):
+def execute(folder,arm,overlay,smoke,run_name=None):
     frozen=read(folder/'frozen.json');package=folder/'package'
     assert all(sha(package/name)==expected for name,expected in frozen['files'].items())
     assert sha(package/'results/input360/trace.jsonl')==frozen['input_sha256']
     assert sha(package/'results/input360/config.json')==frozen['config_sha256']
     assert sha(overlay/'dynamo/_core.abi3.so')==frozen['native_sha256']
     assert sha(overlay.parent/'build.json')==frozen['native_build_sha256']
+    if 'experiment_sha256' in frozen:assert sha(folder/'experiment.json')==frozen['experiment_sha256']
     sys.path[:0]=[str(package),str(package/'scripts')]
     runtime=load_module('benchmark_runtime',package/'scripts/benchmark_runtime.py')
     runtime.A=folder;runtime.ROOT=package;runtime.OVERLAY=overlay
-    runtime.CASE_NAME=arm;runtime.ALPHA=ARMS[arm]
-    runtime.run('immediate' if arm=='direct' else 'new-tfs',smoke=smoke)
-    result=audit(folder,arm,smoke)
+    runtime.CASE_NAME=run_name or arm;runtime.ALPHA=ARMS[arm]
+    runtime.ARM_CONFIG=arm_config(read(package/'results/input360/config.json'),arm,read(folder/'manifest.json'))
+    runtime.run('new-tfs' if arm in ('tfs-a01','tfs-a1') else 'old-tfs' if arm=='old-tfs' else 'immediate',smoke=smoke)
+    result=audit(folder,arm,smoke,run_name)
     print(json.dumps(result,ensure_ascii=False),flush=True)
 
 
@@ -225,14 +282,18 @@ def main(args):
     assert (overlay/'dynamo/_core.abi3.so').is_file(),'Build the weighted Dynamo overlay first'
     assert (overlay.parent/'build.json').is_file(),'Overlay build receipt is required'
     if args._execute:
-        execute(args._execute.resolve(),args.arm,overlay,args.smoke);return
+        execute(args._execute.resolve(),args.arm,overlay,args.smoke,args._run_name);return
     assert (ROOT/'.venv').is_dir() and (ROOT/'upstream').is_dir(),'Bootstrap dependencies first'
     verified=MANAGER.verify()
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     write(output/'benchmark.verify.json',verified)
     cases=CASES if args.case=='all' else (args.case,)
-    arms=tuple(ARMS) if args.arm=='all' else (args.arm,)
-    for case in cases:prepare(case,output/case,overlay)
+    arms=DEFAULT_ARMS if args.arm=='all' else tuple(ARMS) if args.arm=='all-five' else (args.arm,)
+    layout=None
+    if args.disks is not None or args.disk_gbps is not None:
+        assert args.disks is not None and args.disk_gbps is not None
+        layout=dict(disks=args.disks,disk_Bps=args.disk_gbps*1e9)
+    for case in cases:prepare(case,output/case,overlay,layout)
     jobs=[dict(case=c,arm=a) for c in cases for a in arms]
     random.Random(args.seed).shuffle(jobs)
     write(output/'plan.json',dict(seed=args.seed,jobs=jobs,smoke=args.smoke,repeats=1,K=1,
@@ -266,10 +327,13 @@ def main(args):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--case',default='mooncake_abc_360_4s_12_90GBps',help='Benchmark目录中的名称；all只选择当前支持完整运行的负载。')
-    p.add_argument('--arm',choices=(*ARMS,'all'),default='direct')
+    p.add_argument('--arm',choices=(*ARMS,'all','all-five'),default='direct')
+    p.add_argument('--disks',type=int,help='Independent HRW disks; requires --disk-gbps and unchanged total bandwidth')
+    p.add_argument('--disk-gbps',type=float,help='Per-disk decimal GB/s; no global shared link')
     p.add_argument('--output',type=Path,default=ROOT/'results/benchmark_runs/run')
     p.add_argument('--dynamo-python',type=Path,required=True)
     p.add_argument('--smoke',action='store_true',help='Two instances, two members per available class, no warmup; correctness only')
     p.add_argument('--seed',type=int,default=20261029)
     p.add_argument('--_execute',type=Path,help=argparse.SUPPRESS)
+    p.add_argument('--_run-name',help=argparse.SUPPRESS)
     main(p.parse_args())

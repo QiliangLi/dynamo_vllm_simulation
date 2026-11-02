@@ -1225,3 +1225,19 @@ synthetic_abc_360_6s_12_90GBps读取synthetic_abc360_v1专用合同，已纳入-
 验收逐项比较有效配置，并核对到达原点/顺序、独立公式、层屏障、EDF、P75配额3、
 RPC流排空、记账归零及所属进程退出。实际命令见该benchmark README，
 摘要见dynamo_vllm_cpu_sim/SYNTHETIC_ABC_VALIDATION.json。历史报告不随本次改写。
+
+## 2026-11-02：多盘矩阵的原生队列观测与短运行验收
+
+fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，用于区分真实FCFS和priority队列。
+该观测不改变排序、KV分配或执行策略。运行期指标仍按原1秒频率采样。
+短冒烟可能完全落在两次采样之间；check_stack_routing在此情形下允许用原生selector日志中
+明确的正raw_prefill_blocks交叉证明已保留负载。原生候选比较、最小分选择及最终零账本仍必须通过。
+同时缺少正采样与正原生日志时继续失败，不把非零加权分数当作资源预留证据。
+336项完整回归及6组分盘冒烟通过；保留一次因指标采样遗漏导致的旧验收失败记录。
+共享运行文件与交付分支同步；五方案入口、分盘参数、矩阵驱动和报告适配器为交付专用资源。
+
+## 2026-11-02：独立多盘五方案入口
+
+六负载的30组正式运行和6组冒烟已通过；每组12实例、72预热后360正式，K=1。新增`direct-fcfs`、`old-tfs`、`all-five`及显式分盘参数；原`--arm all`仍为三方案。旧TFS使用EDF，四类执行反馈和强制准入关闭。逐盘拓扑保持总参考带宽不变，TFS仍为全局配额，未增加逐盘压力策略。
+
+运行、验收及重绘方法见[独立多盘五方案矩阵](../docs/独立多盘五方案矩阵-20261102.md)，小型运行证据见[DISK_MATRIX_VALIDATION.json](DISK_MATRIX_VALIDATION.json)。大规模原始事件不公开。
