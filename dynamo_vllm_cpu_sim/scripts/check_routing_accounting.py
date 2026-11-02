@@ -42,7 +42,9 @@ def check(folder,require_discount=False):
         assert abs(expected-values['weighted'])<1e-6
         assert values['discount']>0 and values['weighted']<values['scale']*max(0,values['raw_prefill']-values['overlap'])+values['raw_decode']
         scores+=1
-    if require_discount and native['factor']<1:assert scores>0,'no observed native discounted candidate score'
+    if require_discount and native['factor']<1 and native['registered']>0:
+        assert scores>0,'no observed native discounted candidate score'
+    # 消融轮（如无轻重判定）可能零 heavy 注册：无等待即无折扣可采样，不视为失败。
     return dict(status='passed',factor=native['factor'],heavy=len(heavy),requests=len(state['records']),
         transitions=dict(Counter(e['event'] for e in events)),native_worker_selection=True,
         full_resource_gauges_drained=True,score_ledger_drained=True,

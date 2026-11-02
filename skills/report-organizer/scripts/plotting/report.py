@@ -137,11 +137,19 @@ def render_figures(data, result, output, dpi=160):
     available=[c for c in cases if c.get('comp') is not None]
     if available:
         timeline_render(available,out/(FIGURES[1]+'.png'),'图2｜'+data['title']+'｜在线轻重时间线',dpi);generated.append(FIGURES[1]+'.png')
-        fig,(box,heat)=plt.subplots(1,2,figsize=(max(14,max(c['summary']['workers'] for c in available)*.25+7),max(5.3,len(available)*.52+2)),gridspec_kw={'width_ratios':[1,1.6]})
+        wide=max(14,max(c['summary']['workers'] for c in available)*.25+7)
+        if len(available)>8:
+            # 多方案时左右并排会把箱线图压得过窄：改为上下堆叠，箱线图占全宽。
+            fig,(box,heat)=plt.subplots(2,1,figsize=(wide,max(10.6,len(available)*.42+8)),gridspec_kw={'height_ratios':[1,1.2]})
+        else:
+            fig,(box,heat)=plt.subplots(1,2,figsize=(wide,max(5.3,len(available)*.52+2)),gridspec_kw={'width_ratios':[1,1.6]})
         values=[[a['model_s']/c['summary']['span_s']*100 for a in c['accounts']] for c in available]
         bp=box.boxplot(values,patch_artist=True,showmeans=True,meanprops=dict(marker='D',markerfacecolor=style.UTIL_MEAN_COLOR,markeredgecolor=style.UTIL_MEAN_COLOR),medianprops=dict(color='black'))
         for patch in bp['boxes']:patch.set(facecolor=style.UTIL_BOX_COLOR,alpha=.8)
-        box.set(xticks=range(1,len(available)+1),xticklabels=[wrapped(c['summary']['label'],12) for c in available],ylim=(0,100),ylabel='名义计算时间 / 本方案完成窗口（%）',title='各实例计算占比分布');box.tick_params(axis='x',labelsize=8);box.grid(axis='y',alpha=.16)
+        box_labels=[c['summary']['label'] for c in available] if len(available)>8 else [wrapped(c['summary']['label'],12) for c in available]
+        box.set(xticks=range(1,len(available)+1),xticklabels=box_labels,ylim=(0,100),ylabel='名义计算时间 / 本方案完成窗口（%）',title='各实例计算占比分布');box.tick_params(axis='x',labelsize=8)
+        if len(available)>8: box.tick_params(axis='x',rotation=90)
+        box.grid(axis='y',alpha=.16)
         matrix=np.full((len(available),max(len(v) for v in values)),np.nan)
         for i,v in enumerate(values):matrix[i,:len(v)]=v
         cmap=plt.get_cmap(style.HEATMAP['cmap']).copy();cmap.set_bad('#eeeeee')

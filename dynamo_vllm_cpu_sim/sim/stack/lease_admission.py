@@ -181,6 +181,14 @@ class FrozenLeaseAdmission(FrozenClassification, AdmissionController):
             return dict(completed=True, replay=True)
         self.lease_events_seen.add(event_id)
         permit = self._permit_of(rid, worker, permit_id)
+        if self.c["release_on"] != "lease_events":
+            # 消融口径（释放回首次 token）：读毕事件只记录，租约由 first_token 释放。
+            permit["completed_s"] = occurred_s
+            self.ledger.counters["completed"] += 1
+            self._log("lease_completed_recorded", now_s, id=rid, worker=worker,
+                      permit_id=permit_id, occurred_s=occurred_s,
+                      release_on=self.c["release_on"])
+            return dict(completed=True, replay=False, ablation=True)
         if permit["state"] not in ("reserved", "submitted"):
             # 请求已完成兜底释放或 TTL 回收后，迟到的读毕事件只记录，不重复减账。
             self._log("lease_completed_late", now_s, id=rid, worker=worker,

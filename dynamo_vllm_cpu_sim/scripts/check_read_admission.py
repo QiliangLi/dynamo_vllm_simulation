@@ -118,11 +118,15 @@ def check(folder, status=None):
             p = completed[0]
             assert p['worker'] == rec['worker_id']
             assert forwarded['t'] <= p['granted_s'] <= rec['load_submit_s']
-            if lease_arm:
+            if lease_arm and config['admission']['release_on'] == 'lease_events':
                 # lease 臂：末层读毕即释放，先于首 token。
                 assert rec['load_done_s'] <= p['released_s'] <= rec['first_token_s']
                 assert p['release_reason'] in ('lease_completed', 'request_finished',
                                                'lease_expired')
+            elif lease_arm:
+                # 消融轮（release_on=first_token）：与 v1 相同口径。
+                assert rec['load_done_s'] <= rec['first_token_s'] <= p['released_s']
+                assert p['release_reason'] == 'first_token'
             else:
                 assert rec['load_done_s'] <= rec['first_token_s'] <= p['released_s']
                 assert p['release_reason'] == 'first_token'

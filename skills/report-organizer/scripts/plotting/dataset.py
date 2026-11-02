@@ -114,7 +114,7 @@ def validate_dataset(data):
                 require(type(row['worker']) is int and 0 <= row['worker'] < workers and -1e-6 <= row['start'] <= row['end'] <= span+1e-6, '执行区间无效。')
             require(all(r['state'] in ('heavy','light','mixed') for r in case['comp']), '计算状态只能是heavy/light/mixed，禁止用历史A/B替代。')
             require(all(r['state'] == 'io' for r in case['io']), 'IO区间状态无效。')
-            require(summary.get('rule') in ('arrival','dynamic') and type(summary.get('classification_reference_only')) is bool, '时间线缺少分类规则及参考标记。')
+            require(summary.get('rule') in ('arrival','dynamic','bandwidth_line') and type(summary.get('classification_reference_only')) is bool, '时间线缺少分类规则及参考标记。')
             for worker in range(workers):
                 cc = [(r['start'],r['end']) for r in case['comp'] if r['worker']==worker]
                 model = length(cc)

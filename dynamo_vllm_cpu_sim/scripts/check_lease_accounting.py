@@ -15,7 +15,7 @@ def check(folder, status=None, config=None):
     if status is None:
         status = json.loads((folder/'admission.final.json').read_text())
     assert config['admission']['classification'] == 'bandwidth_line'
-    assert config['admission']['release_on'] == 'lease_events'
+    assert config['admission']['release_on'] in ('lease_events', 'first_token')
     lease_cfg = config['admission']['lease']
     disk_Bps = config['storage']['disk_Bps']
     exception_Bps = disk_Bps * lease_cfg['line_factor_exception']
@@ -38,11 +38,13 @@ def check(folder, status=None, config=None):
     states = Counter(p['state'] for p in permits.values())
     assert set(states) <= {'released', 'rolled_back'}, states
     reasons = Counter(p.get('release_reason') for p in permits.values() if p['state'] == 'released')
-    assert 'first_token' not in reasons, reasons
+    if config['admission']['release_on'] == 'lease_events':
+        assert 'first_token' not in reasons, reasons
     for token, p in permits.items():
         if p['state'] == 'released':
             assert p.get('release_reason') in ('lease_completed', 'request_finished',
-                                               'lease_expired', 'no_external_load'), (token, p)
+                                               'lease_expired', 'no_external_load',
+                                               'first_token'), (token, p)
     first_token_releases = sum(1 for r in status['records'].values()
                                if r.get('lease_release_reason') == 'first_token')
 

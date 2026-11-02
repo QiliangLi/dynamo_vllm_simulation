@@ -119,7 +119,8 @@ class Classifier:
     def __init__(self, status, config):
         admission = config.get('admission', {})
         self.rule = admission.get('classification')
-        require(self.rule in ('arrival', 'dynamic'), '缺少可识别的 admission.classification；不使用历史 A/B 猜测。')
+        require(self.rule in ('arrival', 'dynamic', 'bandwidth_line'),
+                '缺少可识别的 admission.classification；不使用历史 A/B 猜测。')
         self.reference_only = admission.get('mode') == 'immediate'
         self.sa = config.get('compute', {}).get('mode') == 'sa_e26f'
         self.status = status
@@ -133,7 +134,8 @@ class Classifier:
         return self.thresholds[index]
 
     def at(self, request_id, gateway_model_time):
-        if self.rule == 'arrival':
+        if self.rule in ('arrival', 'bandwidth_line'):
+            # bandwidth_line（tfs-lease 臂）与 arrival 同为到达冻结 hint（v2），布尔重读标记同源。
             hint = self.status.get('storage_hints', {}).get(request_id, {})
             require(type(hint.get('is_heavy_read')) is bool, f'{request_id} 缺少布尔重读标记，不能用历史 A/B 替代。')
             return 'heavy' if hint['is_heavy_read'] else 'light'

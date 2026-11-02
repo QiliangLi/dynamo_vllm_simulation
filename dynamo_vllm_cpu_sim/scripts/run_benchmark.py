@@ -160,10 +160,11 @@ def audit(folder,arm,smoke):
         else:
             assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
     if arm=='tfs-lease':
-        assert cfg['admission']['release_on']=='lease_events'
+        assert cfg['admission']['release_on'] in ('lease_events','first_token')
         lease_check=read(run/'lease_accounting.check.json')
         assert lease_check['status']=='passed' and lease_check['open_entries']==0
-        assert lease_check['first_token_releases']==0
+        if cfg['admission']['release_on']=='lease_events':
+            assert lease_check['first_token_releases']==0
         assert read(run/'read_admission.check.json')['status']=='pass'
     if manifest.get('runner_profile') in ('agentx360_v1','synthetic_abc360_v1'):
         from sim.request_profile import normalize_config

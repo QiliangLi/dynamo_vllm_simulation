@@ -1,0 +1,2893 @@
+{
+  "abc90-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "direct"
+    }
+  },
+  "abc90-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "abc90-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "abc90-tfs-lease": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-lease"
+    }
+  },
+  "abc100-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct"
+    }
+  },
+  "abc100-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "abc100-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "abc100-tfs-lease": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 100000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 10000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-lease"
+    }
+  },
+  "abcd90-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "direct"
+    }
+  },
+  "abcd90-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "abcd90-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "abcd90-tfs-lease": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-lease"
+    }
+  },
+  "abcd100-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "direct"
+    }
+  },
+  "abcd100-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "abcd100-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "abcd100-tfs-lease": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 100000000000.0,
+        "shared_link_Bps": 100000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 100000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 100000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 10000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-lease"
+    }
+  },
+  "random90-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_random_360_4s_12_90GBps",
+      "arm": "direct"
+    }
+  },
+  "random90-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_random_360_4s_12_90GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "random90-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_random_360_4s_12_90GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "random90-tfs-lease": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_random_360_4s_12_90GBps",
+      "arm": "tfs-lease"
+    }
+  },
+  "synth6s-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    },
+    "run_metadata": {
+      "benchmark": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "direct"
+    }
+  },
+  "synth6s-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    },
+    "run_metadata": {
+      "benchmark": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "synth6s-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 12258,
+      "max_model_len": 50000,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "sparse_HBM_hit_ratio": 1.0,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run",
+        "max_min_read_representation": "grouped"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "wall_time_scale": 1.0,
+      "router_mode": "kv",
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      }
+    },
+    "run_metadata": {
+      "benchmark": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "agentx12s-direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 180000000000.0,
+        "shared_link_Bps": 180000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "benchmark": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct"
+    }
+  },
+  "agentx12s-tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 180000000000.0,
+        "shared_link_Bps": 180000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "benchmark": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a01"
+    }
+  },
+  "agentx12s-tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 180000000000.0,
+        "shared_link_Bps": 180000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "benchmark": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a1"
+    }
+  },
+  "abc90-no-classify": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 1000000000,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9e+19
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "line_factor_heavy": 1000000000
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "ablation": "no-classify"
+    }
+  },
+  "abc90-no-dual-route": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 1,
+          "loading_slots_per_worker": 1000000,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "compute_slots": 1,
+        "loading_slots_per_worker": 1000000
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "ablation": "no-dual-route"
+    }
+  },
+  "abc90-no-exception": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.2,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "line_factor_exception": 1.2
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "ablation": "no-exception"
+    }
+  },
+  "abc90-no-events": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {}
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abc_360_4s_12_90GBps",
+      "ablation": "no-events"
+    }
+  },
+  "abcd90-no-classify": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 1000000000,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9e+19
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "line_factor_heavy": 1000000000
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "ablation": "no-classify"
+    }
+  },
+  "abcd90-no-dual-route": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 1,
+          "loading_slots_per_worker": 1000000,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "compute_slots": 1,
+        "loading_slots_per_worker": 1000000
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "ablation": "no-dual-route"
+    }
+  },
+  "abcd90-no-exception": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "lease_events",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.2,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {
+        "line_factor_exception": 1.2
+      }
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "ablation": "no-exception"
+    }
+  },
+  "abcd90-no-events": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 120634,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_actual_batch_work_v2",
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true
+      },
+      "storage": {
+        "disks": 1,
+        "paths_per_disk": 128,
+        "disk_Bps": 90000000000.0,
+        "shared_link_Bps": 90000000000.0,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 90000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "bandwidth_line",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "unix",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false,
+        "lease": {
+          "line_factor_heavy": 0.1,
+          "line_factor_normal": 1.2,
+          "line_factor_exception": 1.5,
+          "compute_slots": 10,
+          "loading_slots_per_worker": 4,
+          "ttl_slack_factor": 30.0,
+          "ttl_margin_s": 0.05,
+          "reconcile_interval_s": 0.05,
+          "reconcile_tolerance": 0.1,
+          "disks": 1
+        },
+        "disk_Bps": 90000000000.0,
+        "block_size": 16,
+        "heavy_line_Bps": 9000000000.0
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/root/dv-repo/dynamo_vllm_cpu_sim/build/weighted-dynamo-8/python"
+      },
+      "request_ordering": "edf",
+      "experiment": {
+        "batch_feedback": true,
+        "coalesced_feedback": false
+      },
+      "lease": {}
+    },
+    "run_metadata": {
+      "benchmark": "mooncake_abcd_360_4s_12_90GBps",
+      "ablation": "no-events"
+    }
+  }
+}

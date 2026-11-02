@@ -74,10 +74,12 @@ def normalize_config(config):
         raise ValueError("retry_interval_wall_s must be finite and nonnegative")
     if a["placement"] == "scheduler":
         v1 = (a["classification"] == "arrival" and a["release_on"] == "first_token")
-        lease = (a["classification"] == "bandwidth_line" and a["release_on"] == "lease_events")
+        lease = (a["classification"] == "bandwidth_line"
+                 and a["release_on"] in ("lease_events", "first_token"))
         if not v1 and not lease or a["mode"] != "tfs" or a["aging_enabled"]:
             raise ValueError("scheduler admission requires tfs and aging off; "
-                             "v1 pairs arrival+first_token, lease pairs bandwidth_line+lease_events")
+                             "v1 pairs arrival+first_token, lease pairs bandwidth_line"
+                             "+lease_events（first_token 仅用于事件记账消融）")
         if c.get("scheduler", "upstream") != "upstream":
             raise ValueError("scheduler admission v1 supports the pinned upstream scheduler only")
     if a["classification"] == "bandwidth_line":

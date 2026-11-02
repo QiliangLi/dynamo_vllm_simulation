@@ -96,11 +96,13 @@ def run(arm, smoke=False):
                                             else 'arrival' if new else 'dynamic'),
                             idle_bypass=arm=='idle-bypass',aging_enabled=False)
     if lease:
-        # tfs-lease：释放语义改为读开始/末层读毕事件记账；BENCH_LEASE_JSON 为调参入口。
-        cfg['admission']['release_on'] = 'lease_events'
+        # tfs-lease：释放语义改为读开始/末层读毕事件记账；BENCH_LEASE_JSON 为调参/
+        # 消融入口（release_on=first_token 仅用于事件记账消融轮）。
         tuning = os.environ.get('BENCH_LEASE_JSON')
         if tuning:
             cfg.setdefault('lease', {}).update(json.loads(tuning))
+        cfg['admission']['release_on'] = cfg.setdefault('lease', {}).pop(
+            'release_on', 'lease_events')
     cfg.update(policy='priority',request_ordering='edf')
     cfg['routing_accounting'].update(enabled=new or lease)
     if lease:

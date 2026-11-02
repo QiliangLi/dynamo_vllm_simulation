@@ -1,0 +1,432 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 4,
+  "requests": 1440,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1836
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1760
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "直接提交 EDF": "#999999",
+    "TFS EDF α=0.1": "#5b9bd5",
+    "TFS EDF α=1": "#ed7d31",
+    "TFS EDF lease(n1.2×m10)": "#70ad47"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 9.235289815000016,
+  "bin_ms": 10,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "direct": {
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/config.json": {
+        "sha256": "4f6449705be4b156f0d74efb4f3249281c1fc889cd75453435f303c32197e025",
+        "bytes": 1824
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/admission.final.json": {
+        "sha256": "cf087d50965bdd136077a02487898a92d0b7c3227caca1fc0ee7c91a68378129",
+        "bytes": 2072599
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/storage.final.json": {
+        "sha256": "5848e4308b8cb135f9c0123d69ef98a9ba431f3fb6f0c9e028e35c35ea795f1c",
+        "bytes": 37842693
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/measured/report.json": {
+        "sha256": "694dbaf6d43e5cb09cbdc9caf0b7de9362e698e0e24ca32eb1b428d70b3c5951",
+        "bytes": 136151
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker0.steps.jsonl": {
+        "sha256": "00c617cfa9a673a996f620a3dc5daee6483b005014988e0945cbeada666ddd7c",
+        "bytes": 2208590
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker1.steps.jsonl": {
+        "sha256": "d7b5d0aac507362e1b26f99e0e02659d2e4ff48df9bf0326d6e750d8feeb2814",
+        "bytes": 1879017
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker10.steps.jsonl": {
+        "sha256": "50a51199131485fc81017896302d1c9cae5c51427cd2822c88e6d91ccfc56d38",
+        "bytes": 1578137
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker11.steps.jsonl": {
+        "sha256": "c35d87934bc0e90b8af41ada9b5daa13fe5592998054a4f5bc7282cfdc5b8dc7",
+        "bytes": 2105438
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker2.steps.jsonl": {
+        "sha256": "f3a8c9ce1cccb6685e89ff45d15e89d7efababc800c1bc695c96b0dd10905dbe",
+        "bytes": 1982551
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker3.steps.jsonl": {
+        "sha256": "b497ccef19c07cffcd38a1edee74f8a8695def0fb5c6507c5d21446ca4145558",
+        "bytes": 1629847
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker4.steps.jsonl": {
+        "sha256": "475197a0204fd7f9dafea70b9f27dd4c12cb2a79fc1bcd97ee1535be580b763d",
+        "bytes": 2057193
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker5.steps.jsonl": {
+        "sha256": "eb183c16081df728ceb6ffafaf1dc600106e53d7f6b76599da156343a9902810",
+        "bytes": 1637678
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker6.steps.jsonl": {
+        "sha256": "102b63429a00a569650a82f3752e1739c9bee66a0e6e215951b6400fb121df8c",
+        "bytes": 1960135
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker7.steps.jsonl": {
+        "sha256": "6f0ba1d2667ff254d86c4783565c26b5137ba2d89edf5c5d19cc30b136018122",
+        "bytes": 2213777
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker8.steps.jsonl": {
+        "sha256": "1be822c5af1188a7516faa66b47828b614cb6d721a0c9ee08f88e65f52b414e1",
+        "bytes": 1809674
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/direct/run/worker9.steps.jsonl": {
+        "sha256": "807b69964236d33144c8969c83582f48f9f21a178a7e4e32dd4950119a8fd66c",
+        "bytes": 1718184
+      }
+    },
+    "tfs-a01": {
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/config.json": {
+        "sha256": "b9c822817c62c19e3fab5fc4356a655d2fb62a8d1f55a63d9303b6f0faeec0c2",
+        "bytes": 1819
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/admission.final.json": {
+        "sha256": "141335ea17d9e82b267a557c4b5da44eba02767f81413e92b78c4a8f9b0cc528",
+        "bytes": 3336515
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/storage.final.json": {
+        "sha256": "8198cb449f9770b641980177d9a0e9eb12b57b7403cccd522c7f42d4adea47a5",
+        "bytes": 37834120
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/measured/report.json": {
+        "sha256": "647ce8e1f75da7211715129fc21a11670bd5c56c51cecc8b7c6c6332f23f6efb",
+        "bytes": 136387
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker0.steps.jsonl": {
+        "sha256": "04c739235ef7f22c53046a5b89d7dbc2ccae3071fdb19aea7cef5825d83cbb2c",
+        "bytes": 2310413
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker1.steps.jsonl": {
+        "sha256": "5d89d9353125086b3e0ff0cf0b81ef66219611598258e7f4e33d599382926d7e",
+        "bytes": 1985056
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker10.steps.jsonl": {
+        "sha256": "35f99ba213e5696af7f6c01a336d1b065201f6a5219ce3be192a18ef18578440",
+        "bytes": 1890672
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker11.steps.jsonl": {
+        "sha256": "aecea13df079676969c7b2ba1d28a7211292245bbdfd9d3e6b2ecbd020d4a6dd",
+        "bytes": 2148734
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker2.steps.jsonl": {
+        "sha256": "7debd7d3f6e5cdf2c3d278e7b39218d248aed6cd9ecd3662dfe0a19fd1e7ac4d",
+        "bytes": 2375423
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker3.steps.jsonl": {
+        "sha256": "aa24ea3b7c63eed214e12cdf30ace03765d20c07677510c3663414b9067a2c03",
+        "bytes": 1621883
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker4.steps.jsonl": {
+        "sha256": "79861a13cb1ba098643ca49a929837bb251cfadf8defc96e135312edb3c961b7",
+        "bytes": 2249421
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker5.steps.jsonl": {
+        "sha256": "603a401b19ee3fc2037dd7012c9f090801012e2211ea296934ac15607578405e",
+        "bytes": 2140381
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker6.steps.jsonl": {
+        "sha256": "0e9c4bc4c597cacac602d6ec6f7bc3a7e8270e34327373ac75a7f36ddf66c281",
+        "bytes": 2268849
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker7.steps.jsonl": {
+        "sha256": "9c0ef098ff9d5f25c1b98145a4bd6ccfd943da3be014769d5282c37326418c60",
+        "bytes": 1910891
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker8.steps.jsonl": {
+        "sha256": "7747ef67d3371c4b9db58caa74d61a0981c5a3dae8a0d0d4332befb64d535233",
+        "bytes": 1997847
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a01/run/worker9.steps.jsonl": {
+        "sha256": "dc909bded0dcca3266dc21f0226734939cc4b1f18e2738d8874656c388ba0d14",
+        "bytes": 2241433
+      }
+    },
+    "tfs-a1": {
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/config.json": {
+        "sha256": "e104d958c8ff0ba543040d66bc9ea53cb6783571c1fb369f9dbc14c334b11a71",
+        "bytes": 1819
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/admission.final.json": {
+        "sha256": "7a95cade81765249aad989c74aa0527a18d1d02332ba32e41afb2789a30f3cdf",
+        "bytes": 3232864
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/storage.final.json": {
+        "sha256": "31753430287513fdc778c25a7597f5c5b21772526a6b5c5eb25ede76a0f4b7fd",
+        "bytes": 37844895
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/measured/report.json": {
+        "sha256": "8d580dd121de4f9a655d12b79de096d6d1dc0c86c046f04be2fa69cb8cd820ed",
+        "bytes": 136372
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker0.steps.jsonl": {
+        "sha256": "cfc7a5c43418c96c1ca3cc0def5eedef6ee9e1f353e9cbeea796806ef1f18df6",
+        "bytes": 2326615
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker1.steps.jsonl": {
+        "sha256": "bb8ecbabfb123e33a2a9526582d11aecd3b17b1cacbae6697ba45d35fda550ec",
+        "bytes": 2042334
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker10.steps.jsonl": {
+        "sha256": "725e5f918b342d6706b04ecf76c113d43b5b7ee8a3aa0900540005133c8b413f",
+        "bytes": 2301368
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker11.steps.jsonl": {
+        "sha256": "21fd17ed3e680f85c7daf0981107afbeb0f617c4b17534377ab6444e71131310",
+        "bytes": 1606692
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker2.steps.jsonl": {
+        "sha256": "301abc6d5e11be53e2352c4ca2a3e67bbefaabc7fb3a9da7956cdc65e502686c",
+        "bytes": 1917992
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker3.steps.jsonl": {
+        "sha256": "b9be095cddbb68bbf2a0420f5ddd53ed8f6deab4c92ec0d888f12a808cf2e68b",
+        "bytes": 1895793
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker4.steps.jsonl": {
+        "sha256": "fe351b43d73c9f54057df0e9ad5e5be927637e8b2c9b2d45fcbe972d484adb90",
+        "bytes": 2152701
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker5.steps.jsonl": {
+        "sha256": "3e45bea959eacfc52ffafe309a5da2380eeb628e2fc7f61839647f3c84c76a07",
+        "bytes": 2022340
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker6.steps.jsonl": {
+        "sha256": "b51f9b329a9c1b06669a1b5fc39d76e31cf3593627e3ad810426f3717e97d481",
+        "bytes": 2753095
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker7.steps.jsonl": {
+        "sha256": "1433f45c72c75dbfa8216994cb89339e984186ced6d68b3ee4495bfa5fa1d2bf",
+        "bytes": 1727944
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker8.steps.jsonl": {
+        "sha256": "3e7d07e59dea7e585e9633ab755bd6dc57fd04f9f08a7c0f46011d8eccdd6ade",
+        "bytes": 1992174
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-a1/run/worker9.steps.jsonl": {
+        "sha256": "450e94281de126bc5a67c716bdfea3b25c90f6527e14b8cea26010aeaab05b58",
+        "bytes": 2069321
+      }
+    },
+    "tfs-lease": {
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/config.json": {
+        "sha256": "a009c9562dcf5540f169a6a3cd7685ca6fd6961a6e0f9a211329f5ecba84d121",
+        "bytes": 2250
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/admission.final.json": {
+        "sha256": "0277d4c0d4a9830c3b39af7fb3f4d47381744dd3747594a519ad655605a9d181",
+        "bytes": 6902786
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/storage.final.json": {
+        "sha256": "b44a7207ce437a4f25db708999f778412b641de9ffd68e098f3f7abcd95db49b",
+        "bytes": 37847371
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/measured/report.json": {
+        "sha256": "ba971206dc80148f296dcb05c8b137129ed3eeb94b983d7472cdfc8233078b1a",
+        "bytes": 136479
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker0.steps.jsonl": {
+        "sha256": "c1f82708fa52ced203ebd2802581e87151274bd3262457c7113a869d7c02a865",
+        "bytes": 1621402
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker1.steps.jsonl": {
+        "sha256": "a3538889bda56f2477419d2fb75c6f559af6117040a626c825644442e80bf243",
+        "bytes": 2173491
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker10.steps.jsonl": {
+        "sha256": "355ba20e72a2a8d49a63209209c928f7b2e192132fe74fb8f6f2ef47fe2246a4",
+        "bytes": 1785819
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker11.steps.jsonl": {
+        "sha256": "6256136028781ffb0bc9921d01143c142ab2d9317a0d6ae008871ff561c1b2b4",
+        "bytes": 1842455
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker2.steps.jsonl": {
+        "sha256": "8bc92d01f24ea6bb9c044810e4d3f36b10ad77d27af3f719c2f365a46ee00192",
+        "bytes": 2149594
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker3.steps.jsonl": {
+        "sha256": "7f84ee4cd19453d8b0570038e96a89f45c4b319f707d00ec6b30fed37cd760ce",
+        "bytes": 2264276
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker4.steps.jsonl": {
+        "sha256": "471dcf3e6001a8d4db44978bcf3cd81d5dc888281f56c6f8f0e781202122c9ce",
+        "bytes": 2275170
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker5.steps.jsonl": {
+        "sha256": "a22d67ca8d8bbd392414a3f1440eced4e1744349af42263becbe818989078b56",
+        "bytes": 2592196
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker6.steps.jsonl": {
+        "sha256": "99a905a8511e21f8136cf4ab976b4455c0ee721be79abbf9965ca18410ef22ce",
+        "bytes": 1419880
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker7.steps.jsonl": {
+        "sha256": "79b2386dd427923b0833b7605cfeeadb7abad3c99c6124992b7e502dffd6804e",
+        "bytes": 2425906
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker8.steps.jsonl": {
+        "sha256": "491955a1c44eef2869a0d2dd55f6960c18261a8fc653404c8b10b9174d7f50c7",
+        "bytes": 2283107
+      },
+      "/root/dv-repo/dynamo_vllm_cpu_sim/results/benchmark_runs/lease-final-r3/mooncake_abc_360_4s_12_90GBps/package/results/tfs-lease/run/worker9.steps.jsonl": {
+        "sha256": "dcbf525d089060c16f75e3750f8ef33ca56debe4c14ccbe8af7b28f1ea4567e1",
+        "bytes": 2719278
+      }
+    }
+  },
+  "dataset_input": null,
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "080d5f62d8e3d071d624f46196c7c3667a8b2571dd697b296e34dabe90489ffd",
+      "bytes": 57620
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "52801a127c9f3d004a73c28177c1021f2d02148f1214ff1a213247031f325e3e",
+      "bytes": 271668
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "3bede20e73ca834c220fd8efd0c20098488b8eb3f47e7d7268b84edf72d48dd1",
+      "bytes": 107000
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "882db65cc262c74ffebd1dfd9ebb57d0a48a31757d3e7d81806c8c0048598256",
+      "bytes": 589981
+    },
+    "figure/05_cdf.png": {
+      "sha256": "fcb223e75ccae75e3ee210533741c7b203be1baeb81e64373190116f2390a135",
+      "bytes": 121570
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "e099614b8b63fe66a60ac1cfe45018bdfebf9574022888eeb80784df3711681d",
+      "bytes": 157704
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "41c61aa8c171b61fd3e4546ffac949a0d831269875a24aecfce251e2c20f6984",
+      "bytes": 69980
+    },
+    "report.md": {
+      "sha256": "401ffe7a389188ff16335627c576fce717015a07ce9e8a8fb81697163862542a",
+      "bytes": 7084
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "20c9fdef05d78378a1ae2f24029ebcb4fedb0e566f045632613883523f27ffce",
+      "bytes": 220335
+    },
+    "report_data/cdf.csv": {
+      "sha256": "ea003821f36c6ece5db0b7b72116fcecfb539e5a320ad35a202e838ecf74e043",
+      "bytes": 156756
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "d0ab2d829b7d813cd2c58b9a4106c116dc919ccc9eb601848be2f7fd096f44e6",
+      "bytes": 1444
+    },
+    "report_data/configuration.json": {
+      "sha256": "a39db451a268e42277b45e778a0aa0039debac5a2a8ff54e2fe7689fdfa2d2fd",
+      "bytes": 9403
+    },
+    "report_data/dataset.json": {
+      "sha256": "205e10d152144444e8547aa64bf448f9941cc6a99806fcfc378d869f46f83f37",
+      "bytes": 89045364
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "9df8bbbe065437fe3894583ff8ecb97a8f91a274787b7bc56d8fe856d0d3ce2e",
+      "bytes": 5038
+    },
+    "report_data/layers.csv": {
+      "sha256": "92245144ff5d0cc9d50f1fbd93e56fc750931f3d75de02045460b1eae87a7069",
+      "bytes": 6808210
+    },
+    "report_data/requests.csv": {
+      "sha256": "cfd604e6c469e0c944bd84d0834d82cfe9a0b6203ac6dcfdb2c9536aadad3668",
+      "bytes": 257081
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "f96a758b80f93c4137581ce62c8e42fa645b9b4f2276dbaf14650e7fe2d5fffa",
+      "bytes": 1232
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "e93f706faebdea38591d8d5f4defd1e14d924746b6dcda07ad241bf4b897c148",
+      "bytes": 10939
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "bf38f95d026dc36572a8850826e78719ecedf90e647498fc1daef5469bf9b554",
+      "bytes": 23291
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "24267aafa519d32800301238e6ea464835e08997e16a8a4ac6f9152e6119c81b",
+      "bytes": 18882
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    }
+  }
+}

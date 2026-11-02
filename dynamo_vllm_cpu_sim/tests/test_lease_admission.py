@@ -177,6 +177,30 @@ class LeaseAdmissionTests(unittest.IsolatedAsyncioTestCase):
         late_start = self.state.control(raw)
         self.assertTrue(late_start["started"] and late_start.get("late"))
 
+    async def test_ablation_release_on_first_token(self):
+        # 消融口径：lease 臂保留账本与事件，但释放回到首 token（v1 语义）。
+        cfg = config()
+        cfg["admission"]["release_on"] = "first_token"
+        state = AdmissionState(cfg)
+        self.state = state
+        self.arrive("a", remote=32)
+        reply, _ = self.acquire("a")
+        self.assertTrue(reply["granted"])
+        token = reply["permit_id"]
+        self.state.control(self.raw("a", "lease_started", permit_id=token,
+                                    occurred_mono=time.monotonic(), clock_id=clock_id()))
+        self.state.local_event("first_token", "a")
+        self.state.deliver()
+        self.assertFalse(self.state.controller.records["a"].lease_open)
+        self.assertEqual(self.state.controller.records["a"].lease_release_reason,
+                         "first_token")
+        self.assertEqual(self.state.controller.ledger.heavy_sum(), 0.0)
+        # 该模式下读毕事件只记录（不重复释放）。
+        rec = self.state.control(self.raw("a", "lease_completed", permit_id=token,
+                                          occurred_mono=time.monotonic(), clock_id=clock_id()))
+        self.assertTrue(rec["completed"] and rec.get("ablation"))
+        self.assertFalse(self.state.controller.records["a"].lease_open)
+
     async def test_warmup_bypass_grants_without_line(self):
         self.arrive("a", remote=32)
         self.state.controller.ledger.warmup = True
