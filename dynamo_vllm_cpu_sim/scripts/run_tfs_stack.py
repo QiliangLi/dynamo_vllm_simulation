@@ -237,7 +237,9 @@ def verify(folder,status,report,storage):
     return summary
 
 
-def run_one(config,trace,output,python,mode,release,workers=2):
+def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startup_timeout_s=40):
+    if type(admission_startup_timeout_s) not in (int,float) or not 0<admission_startup_timeout_s<=600:
+        raise ValueError('admission_startup_timeout_s must be finite and in (0,600]')
     folder = Path(output).resolve()
     folder.mkdir(parents=True,exist_ok=False)
     cfg = deepcopy(config)
@@ -352,7 +354,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
                             *listener_args,"--feedback-ready-file",str(rpc_ready),
                             "--event-log",str(folder/"admission.events.jsonl")],
                dict(SIM_STACK_STORAGE_SOCKET=str(storage_socket),DYN_SYSTEM_PORT='-1'))
-        wait_for(lambda:rpc_ready.exists(),40)
+        wait_for(lambda:rpc_ready.exists(),admission_startup_timeout_s)
         rpc = json.loads(rpc_ready.read_text())
         assert rpc['transport'] == cfg['admission']['rpc_transport']
         rpc_identity = (dict(SIM_STACK_ADMISSION_INSTANCE_ID=str(rpc['instance_id']),

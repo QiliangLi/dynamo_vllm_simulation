@@ -60,9 +60,31 @@ def verify_case(name):
         assert c['portable_runner_status']==m['portable_runner_status']
         assert c['formal_requests']==count and c['K']==m['K'] and c['arms']['direct']==cfg
     if m['portable_runner_status']=='supported':
-        assert m['runner_profile']=='mooncake360_v1'
-        assert (count,window,workers)==(360,4,12)
-        assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
+        if m['runner_profile']=='mooncake360_v1':
+            assert (count,window,workers)==(360,4,12)
+            assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
+        elif m['runner_profile']=='agentx360_v1':
+            assert (source,count,window,workers,bandwidth)==('agentx',360,12,12,180e9)
+            assert cfg['compute']['batch_time_model']=='glm5_direct_sum_v1'
+            assert cfg['compute']['launch_saving_fraction']==1
+            assert cfg['max_model_len']==c['formula_max_context_guard']==300481
+            assert c['long_context_formula_extrapolation'] and c['diagnostic_kahan_counters']
+            assert c['warmup_requests']==72 and c['warmups_per_phase']==24
+            assert c['warmup_phases']==['small','median','large']
+            assert all(c[k] is True for k in ('drain_before_formal','reset_classification_history',
+                'reset_formal_gc_window','admission_rpc_final_reply','background_eof'))
+            assert m['execution_feedback']==c['execution_feedback']=='disabled'
+            assert c['runtime_overrides']=={'compute':{'context_length_limit':300481}}
+            assert c['startup']=={'admission_ready_timeout_wall_s':180}
+            assert set(c['arms'])=={'direct','tfs-a01','tfs-a1'}
+            for arm,expected in c['arms'].items():
+                candidate=json.loads(json.dumps(cfg))
+                if arm!='direct':
+                    candidate['admission'].update(mode='tfs',placement='scheduler',classification='arrival')
+                    candidate['routing_accounting'].update(enabled=True,waiting_factor=.1 if arm=='tfs-a01' else 1.)
+                assert candidate==expected,arm
+        else:
+            raise ValueError('unknown runner_profile')
     with (folder/'requests.csv').open(encoding='utf-8',newline='') as f:table=list(csv.DictReader(f))
     digest=hashlib.sha256();totals=Counter();classes=Counter();arrivals=[];timestamps=[];max_input=0
     pattern=m.get('token_pattern');mapping=m.get('arrival_mapping')

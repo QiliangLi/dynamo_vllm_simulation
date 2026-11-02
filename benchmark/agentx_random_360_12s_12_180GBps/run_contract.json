@@ -228,6 +228,15 @@
       "request_ordering": "edf"
     }
   },
-  "portable_runner_status": "export_only",
-  "portable_runner_reason": "Delivered runner uses batch-v2/synchronous feedback and has a 131072 context guard; do not silently substitute it."
+  "portable_runner_status": "supported",
+  "portable_runner_reason": "统一运行器支持AgentX360专用合同；显式外推长度上限300481，保留冻结公式系数、输入和三方案配置。",
+  "runner_profile": "agentx360_v1",
+  "runtime_overrides": {
+    "compute": {
+      "context_length_limit": 300481
+    }
+  },
+  "startup": {
+    "admission_ready_timeout_wall_s": 180
+  }
 }

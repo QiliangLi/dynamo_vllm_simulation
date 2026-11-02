@@ -29,6 +29,18 @@ CASE_NAME = None
 ALPHA = 1.0
 
 
+def smoke_requests(rows, long_context=False):
+    """Retain class extremes; AgentX additionally exercises median contexts."""
+    selected=[]
+    for label in sorted({r['class_id'] for r in rows}):
+        members=sorted((r for r in rows if r['class_id']==label),key=lambda r:len(r['prompt_token_ids']))
+        indices={0,len(members)-1}
+        if long_context:indices.add((len(members)-1)//2)
+        for i in sorted(indices):
+            selected.append(dict(members[i],arrival_s=0.))
+    return selected
+
+
 def read(p):
     return json.loads(Path(p).read_text())
 
@@ -72,15 +84,20 @@ def run(arm, smoke=False):
     from sim.trace_io import load_trace
     main = load_trace(ROOT/'results/input360/trace.jsonl')
     cfg = read(ROOT/'results/input360/config.json')
+    contract_path=ROOT/'results/input360/run_contract.json'
+    contract=read(contract_path) if contract_path.exists() else {}
+    startup=contract.get('startup',{})
     new = arm in ('new-tfs','idle-bypass')
     cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
                             placement='scheduler' if new else 'gateway',
                             classification='arrival' if new else 'dynamic',
                             idle_bypass=arm=='idle-bypass',aging_enabled=False)
     cfg.update(policy='priority',request_ordering='edf')
-    cfg['routing_accounting'].update(enabled=new,waiting_factor=ALPHA)
+    cfg['routing_accounting'].update(enabled=new)
+    if new or contract.get('runner_profile')!='agentx360_v1':
+        cfg['routing_accounting']['waiting_factor']=ALPHA
     if smoke:
-        main = [dict(r,arrival_s=0.) for label in sorted({r['class_id'] for r in main}) for r in sorted((v for v in main if v['class_id']==label),key=lambda v:len(v['prompt_token_ids']))[::max(1,len([v for v in main if v['class_id']==label])-1)]]
+        main = smoke_requests(main, long_context=cfg['compute'].get('context_length_limit',131072)>131072)
         cfg['workers'] = 2
     cfg = normalize_config(cfg)
     warm=[]; phases=[]
@@ -234,7 +251,9 @@ def run(arm, smoke=False):
     subprocess.Popen=launch;httpx.AsyncClient=Client;replay_http.replay=replay;run_tfs_stack.verify=verify;thread.start()
     try:
         with (case/'driver.log').open('w') as stream,contextlib.redirect_stdout(stream):
-            check=run_tfs_stack.run_one(cfg,combined,case/'run',Path(sys.executable),cfg['admission']['mode'],'first_token',cfg['workers'])
+            options=({'admission_startup_timeout_s':startup['admission_ready_timeout_wall_s']}
+                     if startup else {})
+            check=run_tfs_stack.run_one(cfg,combined,case/'run',Path(sys.executable),cfg['admission']['mode'],'first_token',cfg['workers'],**options)
         assert check['requests']==len(warm+main)
         assert check['workers']==list(range(cfg['workers'])),check['workers']
         assert check['actual_submitted_read_bytes']==sum(r['hit_tokens']*cfg['storage']['kv_bytes_per_token'] for r in warm+main)

@@ -71,7 +71,8 @@ class GLM5ComputeTimeModel(ComputeTimeModel):
             sparse_HBM_hit_ratio=compute.get("sparse_HBM_hit_ratio", 1.0),
             kv_hbm_reuse=compute.get("kv_hbm_reuse", True),
             batch_time_model=compute.get("batch_time_model", VERSION),
-            launch_saving_fraction=compute.get("launch_saving_fraction"))
+            launch_saving_fraction=compute.get("launch_saving_fraction"),
+            context_length_limit=compute.get("context_length_limit"))
         components = batch["components_us"]
         dense, moe = batch["dense_layer_us"], batch["moe_layer_us"]
         m = ref.MODEL
@@ -93,6 +94,8 @@ class GLM5ComputeTimeModel(ComputeTimeModel):
                 "reference_tp": tp, "reference_dp": dp, "reference_ep": ep,
                 "reference_total_bs": bs * dp,
                 "max_input_length": max(h + u for h, u in shapes),
+                "context_length_limit": compute.get("context_length_limit", ref.MODEL["max_seq_len"]),
+                "formula_context_extrapolation": max(h + u for h, u in shapes) > ref.MODEL["max_seq_len"],
                 "max_u_tokens": max(u for _, u in shapes),
                 "real_prefill_tokens": n, "padded_prefill_tokens": n,
                 "sparse_HBM_hit_ratio": compute.get("sparse_HBM_hit_ratio", 1.0),

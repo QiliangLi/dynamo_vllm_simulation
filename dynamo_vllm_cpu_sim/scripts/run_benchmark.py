@@ -1,5 +1,6 @@
 """Portable K=1 benchmark runner: frozen inputs, 72 warmups, native stack and audits."""
 import argparse
+from copy import deepcopy
 import csv
 import gzip
 import hashlib
@@ -42,6 +43,17 @@ MANAGER=load_module('benchmark_manage',REPO/'benchmark/manage.py')
 CASES=MANAGER.case_names(supported_only=True)
 
 
+def effective_config(cfg,manifest,contract=None):
+    """Explicit AgentX formula guard; exported/historical configs stay frozen."""
+    cfg=deepcopy(cfg)
+    if manifest.get('runner_profile')=='agentx360_v1':
+        assert contract and contract['long_context_formula_extrapolation'] is True
+        overrides=contract['runtime_overrides']
+        assert overrides=={'compute':{'context_length_limit':300481}}
+        cfg['compute'].update(overrides['compute'])
+    return cfg
+
+
 def prepare(case,folder,overlay):
     package=folder/'package';package.mkdir(parents=True)
     for name in ('sim','scripts','configs','patched'):
@@ -51,7 +63,9 @@ def prepare(case,folder,overlay):
     inp=package/'results/input360'
     MANAGER.export(case,inp,quiet=True)
     manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
-    cfg=read(inp/'config.json');cfg['routing_accounting']['python_path']=str(overlay)
+    contract=read(inp/'run_contract.json') if (inp/'run_contract.json').exists() else None
+    cfg=effective_config(read(inp/'config.json'),manifest,contract)
+    cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
     bandwidth=manifest['shared_storage_Bps']
     assert cfg['storage']['disk_Bps']==cfg['storage']['shared_link_Bps']==bandwidth
@@ -85,6 +99,8 @@ def audit(folder,arm,smoke):
     records={k:v for k,v in state['records'].items() if k in profiles}
     assert driver['status']=='passed' and not driver['guards'] and not driver['alive']
     assert len(records)==client['n_total']==client['n_ok'] and not client['n_skipped']
+    if 'requests' in client:
+        assert set(records)==set(client['requests']), 'formal IDs differ from HTTP client'
     assert not state['fatal'] and not state['invalid_reasons'] and not state.get('pending_engine_events')
     if state.get('execution_feedback')=='disabled':
         raw=read(run/'admission.runtime.final.json')
@@ -117,12 +133,36 @@ def audit(folder,arm,smoke):
     if arm!='direct':
         assert cfg['admission']['placement']=='scheduler' and cfg['admission']['classification']=='arrival'
         assert cfg['routing_accounting']['waiting_factor']==ARMS[arm]
+    if manifest.get('runner_profile')=='agentx360_v1':
+        from sim.request_profile import normalize_config
+        contract=read(folder/'package/results/input360/run_contract.json')
+        expected=effective_config(contract['arms'][arm],manifest,contract)
+        expected['routing_accounting']['python_path']=cfg['routing_accounting']['python_path']
+        if smoke:expected['workers']=2
+        assert cfg==normalize_config(expected), 'effective AgentX config differs from frozen arm contract'
+        assert cfg['compute']['context_length_limit']==300481
+        assert state['execution_feedback']=='disabled'
+        assert contract['startup']=={'admission_ready_timeout_wall_s':180}
+        assert cfg['admission']['rpc_timeout_wall_s']==5.0
+        assert client['requests'] and all(k.startswith('agentx:') for k in client['requests'])
+        assert max(profiles[r]['n'] for r in records)==300480
+        assert len(records)==(6 if smoke else 360)
+        steps=[json.loads(line) for p in run.glob('worker*.steps.jsonl') for line in p.read_text().splitlines() if line.strip()]
+        long_steps=[r['timing'] for r in steps if (r.get('timing') or {}).get('max_input_length',0)>131072]
+        assert long_steps and all(t['formula_context_extrapolation'] and t['context_length_limit']==300481
+                                  for t in long_steps), 'long-context execution was not observed'
     ts=sorted(ttft);n=len(ts)
     result=dict(status='passed',case=manifest['case'],arm=arm,smoke=smoke,requests=n,
         warmup_requests=0 if smoke else 72,K=1,shared_storage_Bps=bandwidth,
         mean_ttft_ms=sum(ts)/n,p95_ttft_ms=ts[math.ceil(n*.95)-1],slo_pct=slo/n*100,
         completion_ms=(max(r['first_token_s'] for r in records.values())-min(r['profile']['arrival_s'] for r in records.values()))*1000,
         measured_read_bytes=sum(r['submitted_read_bytes'] for r in records.values()))
+    if manifest.get('runner_profile')=='agentx360_v1':
+        assert max(t['max_input_length'] for t in long_steps)==300480
+        result.update(formula_context_limit=300481,long_context_steps_including_warmup=len(long_steps),
+                      maximum_executed_context=300480,
+                      long_context_requests=sum(profiles[r]['n']>131072 for r in records),
+                      context_extrapolation=True,execution_feedback='disabled')
     write(run/'benchmark.check.json',result)
     return result
 

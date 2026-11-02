@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "status": "passed_with_retained_failed_attempts",
+  "case": "agentx_random_360_12s_12_180GBps",
+  "delivery_base": "bb39fa0ca696c17976e20e09ccace282f8e014d3",
+  "runner_profile": "agentx360_v1",
+  "research_commit": "f4215cbe2c9db94ab2241d7cc492b72209dbc165",
+  "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707",
+  "preserved_payload_sha256": {
+    "trace.jsonl.gz": "cd355604cf86395922cd560d2fb6fdd9ad1086bb789abb66a5a786488e040253",
+    "requests.csv": "fc36e7ce5acc6dfbed83d164e79145bee49f009fe19c36095dbc970f16c915ec",
+    "config.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
+    "config.historical.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad"
+  },
+  "historical_three_arm_configs_unchanged": true,
+  "runtime_overrides": {
+    "compute": {
+      "context_length_limit": 300481
+    }
+  },
+  "startup": {
+    "admission_ready_timeout_wall_s": 180
+  },
+  "original_reference_context_limit": 131072,
+  "formula_coefficients_unchanged": true,
+  "extrapolation_not_hardware_calibration": true,
+  "unit_tests": {
+    "tests": 323,
+    "status": "passed"
+  },
+  "smoke": {
+    "status": "passed",
+    "case": "agentx_random_360_12s_12_180GBps",
+    "arm": "tfs-a01",
+    "smoke": true,
+    "requests": 6,
+    "warmup_requests": 0,
+    "K": 1,
+    "shared_storage_Bps": 180000000000.0,
+    "mean_ttft_ms": 1290.9631948333147,
+    "p95_ttft_ms": 5352.707416000044,
+    "slo_pct": 100.0,
+    "completion_ms": 5366.926586999966,
+    "measured_read_bytes": 78229831680,
+    "formula_context_limit": 300481,
+    "long_context_steps_including_warmup": 3,
+    "maximum_executed_context": 300480,
+    "long_context_requests": 2,
+    "context_extrapolation": true,
+    "execution_feedback": "disabled",
+    "checks": {
+      "check.json": {
+        "status": "pass",
+        "sha256": "ee21daeb3811357fd721fc84837da1cacb4938f4e68de989a4fb4b68dede9b35"
+      },
+      "formula_check.json": {
+        "status": "pass",
+        "sha256": "d3adb65e1da0690ea4554156017abfff7242594a665f78e31fafc2d20730b038"
+      },
+      "layer_check.json": {
+        "status": "pass",
+        "sha256": "6e2964c547a9a827d386c0117549524d7eccf6dd0d453c8ade496c159deb4896"
+      },
+      "hit_check.json": {
+        "status": "pass",
+        "sha256": "2cb0f49db5ff2f7c1235fe5f0cc5485d10e9fd0657e76247d8901de907e4670a"
+      },
+      "admission_rpc.check.json": {
+        "status": "passed",
+        "sha256": "e79567b677f9411bf4441548970d8244f6d53cf15e248f813c0c6131efc16cb6"
+      },
+      "read_admission.check.json": {
+        "status": "pass",
+        "sha256": "b5a0b5c0cb31959a04ee9da44618bbe788c2d50d30c52098870c8e463a0e771e"
+      },
+      "routing.score.check.json": {
+        "status": "passed",
+        "sha256": "e2d2785532f065de5fbef163ac216759b73ce43cf40f5ae6e5531bc55861fb8e"
+      },
+      "edf_priority.check.json": {
+        "status": "passed",
+        "sha256": "5e0f344ef0599b24832b591f473a754197214140995561b0cf1206fe409388e9"
+      }
+    },
+    "driver_wall_s": 26.854601126000034,
+    "min_available_gib": 18.923324584960938,
+    "peak_children_rss_gib": 4.016551971435547,
+    "guards": [],
+    "remaining_processes": [],
+    "gateway_preparation_s": 1.2822932200000423
+  },
+  "formal": [
+    {
+      "status": "passed",
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 180000000000.0,
+      "mean_ttft_ms": 4975.411736902778,
+      "p95_ttft_ms": 9929.889902000014,
+      "slo_pct": 14.166666666666666,
+      "completion_ms": 26651.66469600001,
+      "measured_read_bytes": 2480769527808,
+      "formula_context_limit": 300481,
+      "long_context_steps_including_warmup": 133,
+      "maximum_executed_context": 300480,
+      "long_context_requests": 39,
+      "context_extrapolation": true,
+      "execution_feedback": "disabled",
+      "checks": {
+        "check.json": {
+          "status": "pass",
+          "sha256": "f50be7870bdd54c909613b4b8940eb90a7c02e220348048833afb319b594ce99"
+        },
+        "formula_check.json": {
+          "status": "pass",
+          "sha256": "3d7ba71a1ad3ca2f1c94a4bd4c2b9e46437de9338dec5af947f0ec3fc2762cd2"
+        },
+        "layer_check.json": {
+          "status": "pass",
+          "sha256": "efe8bc207ac815fb07c17f5b30e99a2fbf4241ca201473b3f88426dc7cc5854e"
+        },
+        "hit_check.json": {
+          "status": "pass",
+          "sha256": "49e2b68b8fa6f5351c01e56941ed8aab7cd2712b9c6080edb1902dc7c69dbd0f"
+        },
+        "admission_rpc.check.json": {
+          "status": "passed",
+          "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7"
+        },
+        "warmup.check.json": {
+          "status": "pass",
+          "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59"
+        },
+        "warmup.history.check.json": {
+          "status": "pass",
+          "sha256": "d85b27cd60e23cc0a6aea50e2e1dfc6c4ae9836f7079c8caa352c5331ae738f2"
+        }
+      },
+      "driver_wall_s": 166.00362966199998,
+      "min_available_gib": 3.0372543334960938,
+      "peak_children_rss_gib": 22.18395233154297,
+      "guards": [],
+      "remaining_processes": [],
+      "gateway_preparation_s": 38.069597768999984
+    },
+    {
+      "status": "passed",
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 180000000000.0,
+      "mean_ttft_ms": 2717.0212665972176,
+      "p95_ttft_ms": 8591.783325000051,
+      "slo_pct": 34.44444444444444,
+      "completion_ms": 26323.667107000005,
+      "measured_read_bytes": 2480769527808,
+      "formula_context_limit": 300481,
+      "long_context_steps_including_warmup": 134,
+      "maximum_executed_context": 300480,
+      "long_context_requests": 39,
+      "context_extrapolation": true,
+      "execution_feedback": "disabled",
+      "checks": {
+        "check.json": {
+          "status": "pass",
+          "sha256": "61e535c6fe48f834eea3885a7233270ec555228df1a45680b2aafcf4000e83aa"
+        },
+        "formula_check.json": {
+          "status": "pass",
+          "sha256": "23485de353806ce13cc43760d9c3bb871813e6b5fd23dd58a2f1e2cd8af12965"
+        },
+        "layer_check.json": {
+          "status": "pass",
+          "sha256": "4b6f0b506206a674b360f2a73fc544e8cc6c4d820c836520088756b9f7b21a1c"
+        },
+        "hit_check.json": {
+          "status": "pass",
+          "sha256": "7d576d493e5dd48f88b89c0e25f0b64cc5c08321f675f621e43611b1a8cb8ebf"
+        },
+        "admission_rpc.check.json": {
+          "status": "passed",
+          "sha256": "a16117f36c5dbb5dfb64762bab5bd4f5e878a35755e03c7fc78a4576bf9140c6"
+        },
+        "warmup.check.json": {
+          "status": "pass",
+          "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59"
+        },
+        "warmup.history.check.json": {
+          "status": "pass",
+          "sha256": "508c230a2cecbb8d8a9f6d3b2cb197f28ddd233e53ff02b63d0472b1aa0aaf97"
+        },
+        "read_admission.check.json": {
+          "status": "pass",
+          "sha256": "ee3cc140e6e73fbb2d19cf4fd5ca1d24b775979db57801cfa970150a075f5f7d"
+        },
+        "routing.score.check.json": {
+          "status": "passed",
+          "sha256": "3d105a77ffc244264131be102e18e7e6f0e0d232056df890da2138c10fb9dce3"
+        },
+        "edf_priority.check.json": {
+          "status": "passed",
+          "sha256": "afa3d81a9da6883e2fd01d3eb633a770c7cef600de819d898a22b42e73dbcca6"
+        }
+      },
+      "driver_wall_s": 169.112865285,
+      "min_available_gib": 3.507091522216797,
+      "peak_children_rss_gib": 20.60257339477539,
+      "guards": [],
+      "remaining_processes": [],
+      "gateway_preparation_s": 38.68391262199998
+    },
+    {
+      "status": "passed",
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a1",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 180000000000.0,
+      "mean_ttft_ms": 2863.1035442333355,
+      "p95_ttft_ms": 7553.460375999975,
+      "slo_pct": 30.277777777777775,
+      "completion_ms": 28206.805392999966,
+      "measured_read_bytes": 2480769527808,
+      "formula_context_limit": 300481,
+      "long_context_steps_including_warmup": 134,
+      "maximum_executed_context": 300480,
+      "long_context_requests": 39,
+      "context_extrapolation": true,
+      "execution_feedback": "disabled",
+      "checks": {
+        "check.json": {
+          "status": "pass",
+          "sha256": "2f1b12cb365ced7e92e8190f1392126e271d76a9cfeddea6ff8d78ce7bca5394"
+        },
+        "formula_check.json": {
+          "status": "pass",
+          "sha256": "1c134a8f7ff961d68d977e938bf648086360c0dafd1048f6da2c95dd90cc91c5"
+        },
+        "layer_check.json": {
+          "status": "pass",
+          "sha256": "d8fce44ad113fc94686ff958427c6e3aeff61b525efc37465065cb85c828af4e"
+        },
+        "hit_check.json": {
+          "status": "pass",
+          "sha256": "12272057a27fc777d4cd43f27fe36ffd8268592a5b2d9b0433d58e523fa6e1f2"
+        },
+        "admission_rpc.check.json": {
+          "status": "passed",
+          "sha256": "d76873c7f88a1b98e0809c2a02a79cef08c6040cd286dbdce4517ca7acbe80d2"
+        },
+        "warmup.check.json": {
+          "status": "pass",
+          "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59"
+        },
+        "warmup.history.check.json": {
+          "status": "pass",
+          "sha256": "508c230a2cecbb8d8a9f6d3b2cb197f28ddd233e53ff02b63d0472b1aa0aaf97"
+        },
+        "read_admission.check.json": {
+          "status": "pass",
+          "sha256": "ddd4cc86a53abb8b4c5d1758e3f26a21629f7fc933768330ab7aa603b2ccd49e"
+        },
+        "routing.score.check.json": {
+          "status": "passed",
+          "sha256": "b0278b69fd4f41344754afa5dcd2a7220ce472a7cfcb2bb9e8c5826c861016d4"
+        },
+        "edf_priority.check.json": {
+          "status": "passed",
+          "sha256": "be2f2e40870c7dd38f6acf21267d0c7608755b60bb7246aa77cd5ab975c40acc"
+        }
+      },
+      "driver_wall_s": 166.02859117700007,
+      "min_available_gib": 3.5699234008789062,
+      "peak_children_rss_gib": 20.851768493652344,
+      "guards": [],
+      "remaining_processes": [],
+      "gateway_preparation_s": 36.98264579800002
+    }
+  ],
+  "failed_attempts": [
+    {
+      "attempt": "formal",
+      "reason": "gateway preparation exceeded old 40s startup bound",
+      "driver_status": "failed",
+      "http_requests_completed": 0,
+      "wall_s": 53.919490070999984,
+      "remaining_processes": []
+    },
+    {
+      "attempt": "formal-r2",
+      "reason": "432 requests completed; strict arm audit detected rewritten inactive direct waiting_factor",
+      "driver_status": "passed",
+      "http_requests_completed": 432,
+      "wall_s": 162.472028365,
+      "remaining_processes": []
+    }
+  ],
+  "formal_requests": 1080,
+  "warmup_requests": 216,
+  "shared_runtime_files": 196,
+  "platform": "WSL Linux x86_64; reused pinned dependencies and weighted native build",
+  "limitations": [
+    "not a fresh bootstrap validation",
+    "not native Windows process execution",
+    "not GPU/NPU measurement",
+    "one accepted run per arm; no stable performance ranking"
+  ],
+  "raw_runtime_events_published": false
+}

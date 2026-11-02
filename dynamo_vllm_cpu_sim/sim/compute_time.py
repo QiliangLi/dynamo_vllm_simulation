@@ -32,7 +32,7 @@ def validate_compute(compute):
         tp, dp = compute.get("tp", 1), compute.get("dp", 8)
         _validate([], tp, dp, compute.get("ep", tp * dp),
                   compute.get("sparse_HBM_hit_ratio", 1.0),
-                  compute.get("kv_hbm_reuse", True))
+                  compute.get("kv_hbm_reuse", True), compute.get("context_length_limit"))
         for key, default in (("engine_overhead_s", 0.0), ("sparse_HBM_hit_ratio", 1.0)):
             value = compute.get(key, default)
             if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:

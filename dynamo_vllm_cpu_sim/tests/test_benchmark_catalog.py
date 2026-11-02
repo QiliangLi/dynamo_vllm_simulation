@@ -142,13 +142,13 @@ class RunnerBoundaryTests(unittest.TestCase):
             (run/'config.json').write_text(json.dumps(cfg),encoding='utf-8')
             with self.assertRaises(AssertionError):runner.audit(root,'direct',True)
 
-    def test_export_only_case_is_rejected_before_native_or_environment_access(self):
+    def test_agentx_reaches_native_environment_check(self):
         r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
                           '--case','agentx_random_360_12s_12_180GBps','--dynamo-python','missing-overlay'],
                          capture_output=True,text=True,encoding='utf-8')
         self.assertNotEqual(r.returncode,0)
-        self.assertIn('仅支持校验',r.stderr)
-        self.assertNotIn('Build the weighted',r.stderr)
+        self.assertNotIn('仅支持校验',r.stderr)
+        self.assertIn('Build the weighted',r.stderr)
 
     def test_synthetic_case_is_export_only_before_native_access(self):
         r=subprocess.run([sys.executable,'-X','utf8',str(REPO/'dynamo_vllm_cpu_sim/scripts/run_benchmark.py'),
