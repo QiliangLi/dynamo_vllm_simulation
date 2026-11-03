@@ -1256,3 +1256,6 @@ fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，
 ## 可选 C++ 独立盘后端（2026-11-03）
 
 `--storage-backend cpp` 把存储进度与逐盘带宽缓存交给 C++；默认仍为 Python。仅支持 Linux 独立盘 grouped max-min、逐层 poll/locked。原准入、路由、组批、0.5 ms 轮询及服务锁保持不变。配置、构建与验收边界见[使用说明](../docs/CPP独立盘存储后端-20261103.md)。
+
+六负载五策略矩阵也接受 `scripts/run_disk_matrix.py --storage-backend cpp`。
+后端写入冻结计划；恢复运行必须保持后端一致。完整命令见[矩阵说明](../docs/独立多盘五方案矩阵-20261102.md)。

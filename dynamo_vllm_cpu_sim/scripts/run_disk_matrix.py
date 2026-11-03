@@ -32,16 +32,19 @@ def main(args):
         output.mkdir(parents=True,exist_ok=False)
         verified=runner.MANAGER.verify();runner.write(output/'benchmark.verify.json',verified)
         for case,(n,speed) in LAYOUTS.items():
-            runner.prepare(case,output/case,overlay,dict(disks=n,disk_Bps=speed*1e9))
+            runner.prepare(case,output/case,overlay,dict(disks=n,disk_Bps=speed*1e9),args.storage_backend)
         jobs=[dict(case=c,arm=a) for c in LAYOUTS for a in runner.ARMS]
         random.Random(args.seed).shuffle(jobs)
         runner.write(output/'plan.json',dict(created_at=stamp(),seed=args.seed,jobs=jobs,
             repeats=1,formal_requests=10800,warmup_requests=2160,arms=list(runner.ARMS),
+            storage_backend=args.storage_backend,
             layouts={c:dict(disks=n,disk_GBps=s,shared_link_Bps=None) for c,(n,s) in LAYOUTS.items()},
             ordering='FCFS only for direct-fcfs; EDF for other four arms',
             scope='independent disks, HRW placement, per-disk max-min; global scalar TFS admission'))
         runner.write(output/'attempts.json',[])
     plan=runner.read(output/'plan.json');attempts=runner.read(output/'attempts.json')
+    if plan.get('storage_backend','python') != args.storage_backend:
+        raise ValueError('resume storage backend differs from frozen plan')
     smoke_jobs=[dict(case=c,arm=a,smoke=True) for c,a in SMOKES.items()]
     jobs=smoke_jobs+[dict(**j,smoke=False) for j in plan['jobs']]
     for job in jobs:
@@ -85,4 +88,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--dynamo-python',type=Path,required=True)
     p.add_argument('--seed',type=int,default=20261102);p.add_argument('--resume',action='store_true')
+    p.add_argument('--storage-backend',choices=['python','cpp'],default='python')
     main(p.parse_args())

@@ -18,6 +18,7 @@ read=lambda p:json.loads(Path(p).read_text())
 
 
 def build(matrix,case,output):
+    plan=read(matrix/'plan.json')
     attempts=read(matrix/'attempts.json')
     selected={r['arm']:r for r in attempts if r['case']==case and not r['smoke'] and r['returncode']==0}
     assert set(selected)==set(LABELS)
@@ -25,7 +26,7 @@ def build(matrix,case,output):
     for arm in LABELS:
         run=matrix/case/f"package/results/{selected[arm]['run_name']}/run"
         spec['cases'].append(dict(id=arm,path=str(run),label=LABELS[arm],color=COLORS[arm],
-            run_metadata=dict(seed=20261102,repeat=1,started_at=selected[arm]['started_at'],
+            run_metadata=dict(seed=plan['seed'],repeat=1,storage_backend=plan.get('storage_backend','python'),started_at=selected[arm]['started_at'],
                               finished_at=selected[arm]['finished_at'],run_name=selected[arm]['run_name'])))
     output.mkdir(parents=True,exist_ok=False)
     (output/'cases.json').write_text(json.dumps(spec,ensure_ascii=False,indent=2)+'\n')
@@ -85,14 +86,15 @@ def build(matrix,case,output):
     data['auxiliary_tables']=dict(auxiliary)
     cfg=data['cases'][0]['config'];manifest=read(matrix/case/'manifest.json')
     data.update(execution_boundary='本任务新跑：每方案12实例、72预热排空后360正式；下述制图阶段仅离线处理，不重跑实验。',
-        metadata={'实验日期':'2026-11-02','负载':case,'固定输入SHA256':manifest['original_trace_sha256'],
+        metadata={'实验日期':'、'.join(sorted({r['started_at'][:10] for r in selected.values()})),'负载':case,'固定输入SHA256':manifest['original_trace_sha256'],
+            '存储后端':plan.get('storage_backend','python'),
             '独立磁盘':f"{cfg['storage']['disks']}盘 × {cfg['storage']['disk_Bps']/1e9:g} GB/s；shared_link_Bps=null",
             '放置与分配':'真实KV块内容HRW哈希；盘内grouped max-min；盘间不借带宽',
             '准入范围':'TFS仍为总参考带宽的全局配额，没有按盘压力准入或路由',
             '排序':'仅直接准入FCFS使用FCFS；其余四方案实例内EDF；旧TFS保留网关准入规则',
             '计算模型':cfg['compute']['batch_time_model'],'窗口':f"{manifest['arrival_window_s']:g}秒计划到达；保留原时间原点",
             '实例与预算':f"12逻辑实例；seq={cfg['max_num_seqs']}；新token预算={cfg['max_num_batched_tokens']}；K=1",
-            '种子与重复':'输入固定；运行顺序seed20261102；每方案1次有效运行；无置信区间',
+            '种子与重复':f"输入固定；运行顺序seed{plan['seed']}；每方案1次有效运行；无置信区间",
             '带宽重建':'记录逐层提交时刻，在冻结存储模型离线重放；核对每次完成及每盘字节积分；逐盘图按10ms积分分桶',
             '反馈与释放':'四类执行反馈关闭；首token释放TFS；原始在线快照与离线执行观测分开',
             '宿主与边界':'WSL/Linux CPU壁钟仿真；名义计算占比不是GPU/NPU实测利用率'})
