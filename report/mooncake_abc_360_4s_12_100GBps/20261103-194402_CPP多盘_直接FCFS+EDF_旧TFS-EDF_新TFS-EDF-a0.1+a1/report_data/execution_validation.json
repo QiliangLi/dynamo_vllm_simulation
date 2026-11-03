@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "unit_tests": 348,
+  "unit_log_sha256": "bac0f48b073d638ab8615f43c8fe110159b67e87b5106128575d75c07e2ccaa5",
+  "accepted_smokes": 6,
+  "accepted_formal": 30,
+  "formal_requests": 10800,
+  "warmup_requests": 2160,
+  "failed_attempts": 0,
+  "backend": "cpp"
+}

@@ -2117,3 +2117,14 @@ fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，
 此前八轮性能实验保存在 report；本次交付验收是独立记录，不用于替换或择优更新性能结论。200个共享文件通过双侧SHA校验，7处交付适配差异及研究版SHA明确记录。
 
 [交付验收凭证](../docs/evidence/cpp-storage-delivery-20261103/validation.json) · [后端说明](../docs/CPP独立盘存储后端-20261103.md)
+
+
+## 2026-11-03：C++优化后六负载五策略重跑
+
+本轮348项完整回归、6组冒烟和30组正式验收全部通过，无失败或重试。共10800条正式请求、2160条预热请求。六组均显式选择C++独立盘后端；每组合一次有效运行，不以重复样本或稳定排名表述。
+
+Mooncake ABC/ABCD 90GB/s使用3×30，100GB/s使用4×25；AgentX180GB/s使用6×30；人工ABC90GB/s使用3×30。每组比较直接FCFS、直接EDF、旧TFS EDF、新TFS EDF α=0.1及α=1。原固定输入、到达、模型、预算与全局TFS配额合同保留。
+
+逐次检查请求、h/u/token/字节、公式、层屏障、真实队列、原生路由、许可和路由账本归零、RPC排空、进程退出及C++源码SHA。逐层完成时刻和逐盘积分通过Python参考模型重放，最大完成时刻差4.26e-14秒。48张新图逐张检查；公开归档另验图像、CSV、SHA和链接。
+
+六份完整报告和联合总览从report目录发现；每份均包含历史Python对照及单次运行限制。大型原始事件留在本机cpp-disk-matrix-20261103-r1审计目录，不随本次发布。详见[CPP_DISK_MATRIX_VALIDATION.json](CPP_DISK_MATRIX_VALIDATION.json)。

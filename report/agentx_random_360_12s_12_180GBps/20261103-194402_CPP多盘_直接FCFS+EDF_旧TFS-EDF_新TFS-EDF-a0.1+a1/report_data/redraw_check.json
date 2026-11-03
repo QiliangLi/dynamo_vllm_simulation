@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "images": [
+    {
+      "path": "figure/01_slo_bar.png",
+      "sha256": "bf578c262679c7d01736983c1f152431c1515573456f69cc40aa4e98dae40ae3",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/02_full-sort-ms.png",
+      "sha256": "8a106b1da4d6fb6377cf259ba36073b537ac69a556c92d3e80d9dadc698408b2",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/03_util_box_heatmap.png",
+      "sha256": "6d9e41e95083bcbec9d9b0d0d83763ddd7e5a7a617876e99ae7eee393a945eba",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/04_bandwidth.png",
+      "sha256": "420823bf78e4e3593fae9cd44476d7e8b9b268eaf965732ab85f5249f86fff3d",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/05_cdf.png",
+      "sha256": "1a0694bcff42a11eb6c86ebf73b16720d37c1c4032a640980c00b1bb6bfd6d76",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/06_cdf_by_class.png",
+      "sha256": "f17122caf31211fabddbe7d150109474d50fdef9b2595cce8dd0ab1ac27178e6",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/07_arrival_lateness.png",
+      "sha256": "735a04460eab4eabe6b0ad8bbed9cc247f6f693ab9fabee6420cb7b98cfc4175",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/08_per_disk_bandwidth.png",
+      "sha256": "8beb20b6931200c38d72cfc116f5cc74fabc208ed841f72c1d1258773955b0ac",
+      "byte_identical": true
+    }
+  ],
+  "source": "public compressed dataset",
+  "simulations_run": 0
+}
