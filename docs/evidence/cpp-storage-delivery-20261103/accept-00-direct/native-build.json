@@ -1,0 +1,13 @@
+{
+  "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "flags": [
+    "-O3",
+    "-DNDEBUG",
+    "-ffp-contract=off",
+    "-std=c++17",
+    "-shared",
+    "-fPIC"
+  ],
+  "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+}

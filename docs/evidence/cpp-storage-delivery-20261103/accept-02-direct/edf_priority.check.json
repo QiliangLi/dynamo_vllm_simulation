@@ -1,0 +1,574 @@
+{
+  "status": "passed",
+  "requests": 432,
+  "workers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "formula": "deadline",
+  "refresh": "each schedule, including running and skipped waiting",
+  "priority_unit": "model nanosecond",
+  "rounds": 188,
+  "request_updates": 851,
+  "native_heap_heads_checked": 186,
+  "expired_deadline_updates": 650,
+  "requests_refreshed_multiple_rounds": 205,
+  "requests_with_changing_priority": 0,
+  "fixed_deadlines": true,
+  "max_formula_error_s": 0.0,
+  "metadata_matches_arrived_profiles": true,
+  "samples": [
+    {
+      "worker": "10",
+      "round": 1,
+      "now_monotonic_s": 233.967081779,
+      "heads": {
+        "waiting": "b04be9a7-8825-4c17-b43a-55cdd02687e5-8c400979",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "b04be9a7-8825-4c17-b43a-55cdd02687e5-8c400979",
+          "queue": "waiting",
+          "now_s": 29.936735661,
+          "deadline_s": 30.575597689159977,
+          "T0_s": 0.17266657378999997,
+          "sort_deadline_s": 30.575597689159977,
+          "priority": 30575597689,
+          "arrival_s": 29.884931393999977
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 2,
+      "now_monotonic_s": 234.191409732,
+      "heads": {
+        "waiting": "7a4155f9-f608-4382-802f-8cc7165655ac-beb9d680",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "7a4155f9-f608-4382-802f-8cc7165655ac-beb9d680",
+          "queue": "waiting",
+          "now_s": 30.161063614,
+          "deadline_s": 30.591910946159985,
+          "T0_s": 0.17266657378999997,
+          "sort_deadline_s": 30.591910946159985,
+          "priority": 30591910946,
+          "arrival_s": 29.901244650999985
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 4,
+      "now_monotonic_s": 234.564812878,
+      "heads": {
+        "waiting": "86f24704-f079-4186-a745-c24504a4ebff-84391aa6",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "86f24704-f079-4186-a745-c24504a4ebff-84391aa6",
+          "queue": "waiting",
+          "now_s": 30.534466759999987,
+          "deadline_s": 30.786580596028973,
+          "T0_s": 0.07813899250724643,
+          "sort_deadline_s": 30.786580596028973,
+          "priority": 30786580596,
+          "arrival_s": 30.474024625999988
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 5,
+      "now_monotonic_s": 234.87645324,
+      "heads": {
+        "waiting": "736cbcd7-efc4-4a3e-a263-1aa52d671a42-86c6599f",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "736cbcd7-efc4-4a3e-a263-1aa52d671a42-86c6599f",
+          "queue": "waiting",
+          "now_s": 30.846107121999978,
+          "deadline_s": 30.793432614028962,
+          "T0_s": 0.07813899250724643,
+          "sort_deadline_s": 30.793432614028962,
+          "priority": 30793432614,
+          "arrival_s": 30.480876643999977
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 7,
+      "now_monotonic_s": 235.410246612,
+      "heads": {
+        "waiting": "d65378d9-74d4-4d94-ae6b-8904dd0f9e10-b0671210",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "d65378d9-74d4-4d94-ae6b-8904dd0f9e10-b0671210",
+          "queue": "waiting",
+          "now_s": 31.379900493999997,
+          "deadline_s": 31.607168034049188,
+          "T0_s": 0.0862005932622999,
+          "sort_deadline_s": 31.607168034049188,
+          "priority": 31607168034,
+          "arrival_s": 31.26236566099999
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 8,
+      "now_monotonic_s": 235.900838849,
+      "heads": {
+        "waiting": "437a561b-bf17-4867-9b27-f417e023a52e-868c62b2",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "437a561b-bf17-4867-9b27-f417e023a52e-868c62b2",
+          "queue": "waiting",
+          "now_s": 31.870492730999985,
+          "deadline_s": 31.664181588049196,
+          "T0_s": 0.0862005932622999,
+          "sort_deadline_s": 31.664181588049196,
+          "priority": 31664181588,
+          "arrival_s": 31.319379214999998
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 10,
+      "now_monotonic_s": 236.989637779,
+      "heads": {
+        "waiting": "3f7112e2-4acf-4056-b7dc-97bbbac3346d-8edcaaab",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "3f7112e2-4acf-4056-b7dc-97bbbac3346d-8edcaaab",
+          "queue": "waiting",
+          "now_s": 32.95929166099998,
+          "deadline_s": 33.14032850407445,
+          "T0_s": 0.05127419851861775,
+          "sort_deadline_s": 33.14032850407445,
+          "priority": 33140328504,
+          "arrival_s": 32.93523170999998
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 11,
+      "now_monotonic_s": 237.351830811,
+      "heads": {
+        "waiting": "0e68f0e7-f55d-495e-9892-a3df37ccaba1-bc90a37d",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "0e68f0e7-f55d-495e-9892-a3df37ccaba1-bc90a37d",
+          "queue": "waiting",
+          "now_s": 33.321484693,
+          "deadline_s": 33.397194609257674,
+          "T0_s": 0.09115406631441887,
+          "sort_deadline_s": 33.397194609257674,
+          "priority": 33397194609,
+          "arrival_s": 33.032578344
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 12,
+      "now_monotonic_s": 237.80945256,
+      "heads": {
+        "waiting": "2b0d2313-f855-4d45-bab9-20a0eb120487-9a670cc0",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "2b0d2313-f855-4d45-bab9-20a0eb120487-9a670cc0",
+          "queue": "waiting",
+          "now_s": 33.779106442,
+          "deadline_s": 33.68657365805587,
+          "T0_s": 0.09310535651396872,
+          "sort_deadline_s": 33.68657365805587,
+          "priority": 33686573658,
+          "arrival_s": 33.314152232
+        },
+        {
+          "request_id": "ee7d8c2c-af21-4605-96a2-c8b2b66f8e99-b7f3789a",
+          "queue": "waiting",
+          "now_s": 33.779106442,
+          "deadline_s": 33.751668412068966,
+          "T0_s": 0.08166013826724644,
+          "sort_deadline_s": 33.751668412068966,
+          "priority": 33751668412,
+          "arrival_s": 33.42502785899998
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 13,
+      "now_monotonic_s": 238.414330617,
+      "heads": {
+        "waiting": "774c98fa-15e2-49fc-9982-da36fa6b31b5-b5411378",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "774c98fa-15e2-49fc-9982-da36fa6b31b5-b5411378",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 34.15132509677766,
+          "T0_s": 0.08819370919441887,
+          "sort_deadline_s": 34.15132509677766,
+          "priority": 34151325097,
+          "arrival_s": 33.798550259999985
+        },
+        {
+          "request_id": "afc5a3f6-e7fd-4437-ac3e-6052f1b8926f-b8f8d63c",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 34.16584008309587,
+          "T0_s": 0.09329780877396872,
+          "sort_deadline_s": 34.16584008309587,
+          "priority": 34165840083,
+          "arrival_s": 33.792648848
+        },
+        {
+          "request_id": "7bca9d33-af52-4ae9-bad1-b92d9c338953-8518ff85",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 34.647016810415856,
+          "T0_s": 0.0933649988539687,
+          "sort_deadline_s": 34.647016810415856,
+          "priority": 34647016810,
+          "arrival_s": 34.27355681499998
+        },
+        {
+          "request_id": "5eedbe2c-dafd-4c5a-bfa1-2be32dc7cd94-8c07aa31",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 34.900657581087486,
+          "T0_s": 0.18028275702187502,
+          "sort_deadline_s": 34.900657581087486,
+          "priority": 34900657581,
+          "arrival_s": 34.17952655299999
+        },
+        {
+          "request_id": "01e46e8c-efa8-46a2-9bc4-9ca19b0ef167-a2f4929c",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 34.52622615520158,
+          "T0_s": 0.0875883760503959,
+          "sort_deadline_s": 34.52622615520158,
+          "priority": 34526226155,
+          "arrival_s": 34.17587265099999
+        },
+        {
+          "request_id": "4c89fe51-3014-4a0e-8d08-44b7d71e5076-89ed20c2",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 35.31154404671998,
+          "T0_s": 0.30795076768,
+          "sort_deadline_s": 35.31154404671998,
+          "priority": 35311544047,
+          "arrival_s": 34.07974097599998
+        },
+        {
+          "request_id": "79043506-5068-49c6-b64d-d038d619ac3f-9673f989",
+          "queue": "waiting",
+          "now_s": 34.38398449899998,
+          "deadline_s": 35.27112259539999,
+          "T0_s": 0.24931677234999997,
+          "sort_deadline_s": 35.27112259539999,
+          "priority": 35271122595,
+          "arrival_s": 34.27385550599999
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 14,
+      "now_monotonic_s": 239.369225374,
+      "heads": {
+        "waiting": "46f021be-76ab-4054-b2d2-3cd09bf6bac4-9f29d6d3",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "46f021be-76ab-4054-b2d2-3cd09bf6bac4-9f29d6d3",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 34.727537944654486,
+          "T0_s": 0.09090602966362508,
+          "sort_deadline_s": 34.727537944654486,
+          "priority": 34727537945,
+          "arrival_s": 34.36391382599999
+        },
+        {
+          "request_id": "17f43b7e-ebee-4b2a-b223-7bbeb376f2f1-b4c0b092",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 34.75448163526655,
+          "T0_s": 0.0977063493166439,
+          "sort_deadline_s": 34.75448163526655,
+          "priority": 34754481635,
+          "arrival_s": 34.363656237999976
+        },
+        {
+          "request_id": "79043506-5068-49c6-b64d-d038d619ac3f-9673f989",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 35.27112259539999,
+          "T0_s": 0.24931677234999997,
+          "sort_deadline_s": 35.27112259539999,
+          "priority": 35271122595,
+          "arrival_s": 34.27385550599999
+        },
+        {
+          "request_id": "4c89fe51-3014-4a0e-8d08-44b7d71e5076-89ed20c2",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 35.31154404671998,
+          "T0_s": 0.30795076768,
+          "sort_deadline_s": 35.31154404671998,
+          "priority": 35311544047,
+          "arrival_s": 34.07974097599998
+        },
+        {
+          "request_id": "5eedbe2c-dafd-4c5a-bfa1-2be32dc7cd94-8c07aa31",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 34.900657581087486,
+          "T0_s": 0.18028275702187502,
+          "sort_deadline_s": 34.900657581087486,
+          "priority": 34900657581,
+          "arrival_s": 34.17952655299999
+        },
+        {
+          "request_id": "043db353-df47-4018-8583-96d71e82198b-8db42f4a",
+          "queue": "waiting",
+          "now_s": 35.338879255999984,
+          "deadline_s": 35.28502570330897,
+          "T0_s": 0.08067043682724644,
+          "sort_deadline_s": 35.28502570330897,
+          "priority": 35285025703,
+          "arrival_s": 34.962343955999984
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 15,
+      "now_monotonic_s": 240.63238248,
+      "heads": {
+        "waiting": "043db353-df47-4018-8583-96d71e82198b-8db42f4a",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "043db353-df47-4018-8583-96d71e82198b-8db42f4a",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.28502570330897,
+          "T0_s": 0.08067043682724644,
+          "sort_deadline_s": 35.28502570330897,
+          "priority": 35285025703,
+          "arrival_s": 34.962343955999984
+        },
+        {
+          "request_id": "4c89fe51-3014-4a0e-8d08-44b7d71e5076-89ed20c2",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.31154404671998,
+          "T0_s": 0.30795076768,
+          "sort_deadline_s": 35.31154404671998,
+          "priority": 35311544047,
+          "arrival_s": 34.07974097599998
+        },
+        {
+          "request_id": "24a16bb3-851f-4611-8cc0-ff1d89b59ebe-a1749ee2",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.724316654217674,
+          "T0_s": 0.08999700755441888,
+          "sort_deadline_s": 35.724316654217674,
+          "priority": 35724316654,
+          "arrival_s": 35.364328623999995
+        },
+        {
+          "request_id": "8a20f362-0dad-46ef-9bfe-998f792abd66-b1aefd42",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.63428974179446,
+          "T0_s": 0.05046046219861776,
+          "sort_deadline_s": 35.63428974179446,
+          "priority": 35634289742,
+          "arrival_s": 35.43244789299999
+        },
+        {
+          "request_id": "6ffb9713-1ba9-4275-96a5-f47952a85fb1-831e710a",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.746638814814716,
+          "T0_s": 0.08059735670368064,
+          "sort_deadline_s": 35.746638814814716,
+          "priority": 35746638815,
+          "arrival_s": 35.42424938799999
+        },
+        {
+          "request_id": "3f89b8c1-3a1d-474c-a6f6-17be0a5279cb-ad074d9b",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.26740353884,
+          "T0_s": 0.22553053370999995,
+          "sort_deadline_s": 36.26740353884,
+          "priority": 36267403539,
+          "arrival_s": 35.365281404
+        },
+        {
+          "request_id": "7b9494b2-1201-4937-929c-9db893965ab3-acb0c66f",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.12535388355,
+          "T0_s": 0.18039656388749997,
+          "sort_deadline_s": 36.12535388355,
+          "priority": 36125353884,
+          "arrival_s": 35.403767628
+        },
+        {
+          "request_id": "3fe632d5-5dc8-4e52-a4f5-84a4d4a2dabf-b6f4c697",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.07266259719443,
+          "T0_s": 0.0610354785486095,
+          "sort_deadline_s": 36.07266259719443,
+          "priority": 36072662597,
+          "arrival_s": 35.828520682999994
+        },
+        {
+          "request_id": "c7057ed2-591e-46ed-b274-ba7fece00d47-a30cda0c",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 35.76009850831967,
+          "T0_s": 0.0938059718299188,
+          "sort_deadline_s": 35.76009850831967,
+          "priority": 35760098508,
+          "arrival_s": 35.384874620999994
+        },
+        {
+          "request_id": "5fd8362b-3c35-49b0-bed2-f3c35c1630d8-923b9143",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.27597529251999,
+          "T0_s": 0.22001046362999996,
+          "sort_deadline_s": 36.27597529251999,
+          "priority": 36275975293,
+          "arrival_s": 35.395933437999986
+        },
+        {
+          "request_id": "4f31b88c-c896-434d-baef-7db3202c6100-86fcafe4",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.212789469799986,
+          "T0_s": 0.18804729795,
+          "sort_deadline_s": 36.212789469799986,
+          "priority": 36212789470,
+          "arrival_s": 35.46060027799999
+        },
+        {
+          "request_id": "d9024264-5330-4f4b-8ee9-3e9c507c1c23-ab14068c",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.50873872599998,
+          "T0_s": 0.19651754674999997,
+          "sort_deadline_s": 36.50873872599998,
+          "priority": 36508738726,
+          "arrival_s": 35.72266853899998
+        },
+        {
+          "request_id": "cfd6fc28-1928-4274-8f27-439282aaa728-91c1c32a",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.45901956834999,
+          "T0_s": 0.18130702758749997,
+          "sort_deadline_s": 36.45901956834999,
+          "priority": 36459019568,
+          "arrival_s": 35.733791457999985
+        },
+        {
+          "request_id": "733a7501-5786-4986-8fb0-533a965da55c-808a03fb",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.67543918583998,
+          "T0_s": 0.23707157170999998,
+          "sort_deadline_s": 36.67543918583998,
+          "priority": 36675439186,
+          "arrival_s": 35.727152898999975
+        },
+        {
+          "request_id": "3d9c4e59-5cde-465c-ad54-db80f2a4a367-af238200",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.489541996399986,
+          "T0_s": 0.17971372635000002,
+          "sort_deadline_s": 36.489541996399986,
+          "priority": 36489541996,
+          "arrival_s": 35.770687090999985
+        },
+        {
+          "request_id": "424ef096-2510-4b0b-9a24-bb61620fb575-adf0229b",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.61350638748749,
+          "T0_s": 0.180965601871875,
+          "sort_deadline_s": 36.61350638748749,
+          "priority": 36613506387,
+          "arrival_s": 35.88964397999999
+        },
+        {
+          "request_id": "eb991eac-43dd-43e5-b469-e840adb4fafa-ae01c92f",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.243725080199994,
+          "T0_s": 0.21700578755,
+          "sort_deadline_s": 36.243725080199994,
+          "priority": 36243725080,
+          "arrival_s": 35.37570192999999
+        },
+        {
+          "request_id": "8fd96729-2bb0-4ee0-8c5b-cb2afed9cad8-9c0fd28e",
+          "queue": "waiting",
+          "now_s": 36.60203636199998,
+          "deadline_s": 36.75374049905587,
+          "T0_s": 0.09349937901396871,
+          "sort_deadline_s": 36.75374049905587,
+          "priority": 36753740499,
+          "arrival_s": 36.379742983
+        }
+      ]
+    }
+  ]
+}

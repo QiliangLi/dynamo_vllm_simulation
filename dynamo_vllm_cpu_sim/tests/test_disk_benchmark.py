@@ -42,3 +42,16 @@ class DiskBenchmarkTests(unittest.TestCase):
             folder=ROOT.parent/'benchmark'/name;m=json.loads((folder/'manifest.json').read_text(encoding='utf-8'))
             c=json.loads((folder/'run_contract.json').read_text(encoding='utf-8'))
             for arm,expected in c['arms'].items():self.assertEqual(runner.arm_config(c['arms']['direct'],arm,m),expected)
+
+
+class NativeBackendContractTests(unittest.TestCase):
+    def test_backend_selection_preserves_config_and_rejects_shared_link(self):
+        cfg=json.loads((ROOT.parent/'benchmark/mooncake_abc_360_4s_12_100GBps/config.json').read_text(encoding='utf-8'))
+        self.assertEqual(runner.apply_storage_backend(cfg),cfg)
+        with self.assertRaises(ValueError):runner.apply_storage_backend(cfg,'cpp')
+        disks=runner.apply_storage_layout(cfg,dict(disks=4,disk_Bps=25e9))
+        cpp=runner.apply_storage_backend(disks,'cpp')
+        self.assertEqual(cpp['storage']['backend'],'cpp')
+        expected=json.loads(json.dumps(cpp));expected['storage'].pop('backend')
+        self.assertEqual(expected,disks)
+        with self.assertRaises(ValueError):runner.apply_storage_backend(disks,'other')

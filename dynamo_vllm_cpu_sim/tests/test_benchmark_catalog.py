@@ -132,7 +132,7 @@ class RunnerBoundaryTests(unittest.TestCase):
                 first_token_s=.2,profile=dict(arrival_s=0,deadline_s=1,prompt_tokens=32,estimated_remote_tokens=16))},
                 fatal=False,invalid_reasons=[],pending_engine_events=[],snapshot=dict(pending_ids=[],heavy_held=0))
             objects={root/'profiles.json':[profile],root/'manifest.json':dict(case='capacity-test',shared_storage_Bps=100e9),
-                     run/'config.json':cfg,run/'admission.final.json':state,
+                     run/'config.json':cfg,run/'admission.final.json':state,run/'storage.final.json':{},
                      run.parent/'driver.json':dict(status='passed',guards=[],alive=[]),
                      run/'measured/report.json':dict(n_total=1,n_ok=1,n_skipped=0)}
             for path,value in objects.items():

@@ -1,0 +1,925 @@
+{
+  "status": "passed",
+  "case": "mooncake_abc_360_4s_12_100GBps",
+  "formal_runs": 8,
+  "smokes": 2,
+  "source_diff": {
+    "sim/native/grouped_storage.cpp": {
+      "before": null,
+      "after": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377"
+    },
+    "scripts/run_benchmark.py": {
+      "before": "12b05341c66948866ee12f847d80a59a3f88441a00c25f639cca2c143f4d372a",
+      "after": "ed3d10cac78a7129f84dc0a001a32f3b91098b6a99add991268e754a5946318f"
+    },
+    "sim/cpp_grouped_storage.py": {
+      "before": null,
+      "after": "74cfd3ac063ee090d262efbcffa543edde24e0fe978fdfc51fe996adbc0598e3"
+    },
+    "scripts/run_tfs_stack.py": {
+      "before": "f4439621dadc2888c0b1be8bac08d289d1d93f19ac9ac843e4936b1f9293d9cb",
+      "after": "b62beeae08237408f0c7377c13682916a848ccc7c29dc3265ad5a2a0bdd18e5a"
+    },
+    "sim/stack/storage_service.py": {
+      "before": "0f1cb2c25336485eef8f71af86ccf41567a566352eef9e59394b7aeaa0519ce1",
+      "after": "fc79a68530dd55c4592818b3229ca1fd4391c0700d2a5c64fbbebb0820de5a89"
+    }
+  },
+  "aggregation": "Arithmetic mean over two runs per strategy and implementation; reverse within-strategy order on repeat 2; no confidence interval",
+  "runs": [
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 3979.8022917916683,
+      "p95_ttft_ms": 7464.697372999979,
+      "slo_pct": 4.444444444444445,
+      "completion_ms": 11533.489432999999,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000023,
+        25000000000.00002,
+        25000000000.000027,
+        25000000000.00002
+      ],
+      "variant": "python",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-02-python-direct-r1/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 38.2406677475234,
+      "model_compute_pct": 27.6301663152841,
+      "mean_bandwidth_GBps": 46.783019595107135,
+      "no_global_inflight_io_pct": 50.69657609055604,
+      "no_global_inflight_io_s": 5.8470842462970865,
+      "io_active_s": 5.686405186702913,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 94.88797305646344,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 7.03869156258231,
+        "p50_ms": 6.7251114789321775,
+        "p95_ms": 14.587309959964045
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 9048,
+          "mean_ms": 2.419571261273209,
+          "p50_ms": 1.600759,
+          "p95_ms": 8.048734
+        },
+        "storage_rpc.layer_status": {
+          "calls": 13072,
+          "mean_ms": 4.716642925795594,
+          "p50_ms": 2.98006,
+          "p95_ms": 13.209626
+        },
+        "storage_service.layer_submit": {
+          "calls": 9048,
+          "mean_ms": 2.422624554818744,
+          "p50_ms": 1.623846,
+          "p95_ms": 8.080993
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 9048,
+          "mean_ms": 1.529436063770999,
+          "p50_ms": 0.9759804999999999,
+          "p95_ms": 6.18341
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 9048,
+          "mean_ms": 0.22765738837312113,
+          "p50_ms": 0.119168,
+          "p95_ms": 0.79959
+        },
+        "storage_service.layer_status": {
+          "calls": 13072,
+          "mean_ms": 4.062422143512852,
+          "p50_ms": 2.3591100000000003,
+          "p95_ms": 12.546791
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 13072,
+          "mean_ms": 3.00734085250918,
+          "p50_ms": 1.3638385,
+          "p95_ms": 11.522345999999999
+        },
+        "storage_service.layer_status.process": {
+          "calls": 13072,
+          "mean_ms": 0.39947485205018357,
+          "p50_ms": 0.0872305,
+          "p95_ms": 2.107803
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 2226.3853374833325,
+      "p95_ttft_ms": 4374.915876999978,
+      "slo_pct": 5.555555555555555,
+      "completion_ms": 9066.023584999983,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002
+      ],
+      "variant": "cpp",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-03-cpp-direct-r1/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 38.68923368223105,
+      "model_compute_pct": 35.56247980853443,
+      "mean_bandwidth_GBps": 59.51577966736571,
+      "no_global_inflight_io_pct": 37.1857494877908,
+      "no_global_inflight_io_s": 3.3712688188221236,
+      "io_active_s": 5.694754766177859,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 94.74884947611949,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 3.161901409520723,
+        "p50_ms": 1.5283604700897513,
+        "p95_ms": 13.685870467334382
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 9516,
+          "mean_ms": 1.5441738950189157,
+          "p50_ms": 1.224957,
+          "p95_ms": 4.168654
+        },
+        "storage_rpc.layer_status": {
+          "calls": 25964,
+          "mean_ms": 1.1482696392697582,
+          "p50_ms": 0.792138,
+          "p95_ms": 3.5216629999999998
+        },
+        "storage_service.layer_submit": {
+          "calls": 9516,
+          "mean_ms": 1.4605190080916353,
+          "p50_ms": 1.1698979999999999,
+          "p95_ms": 3.963736
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 9516,
+          "mean_ms": 1.1790099056326189,
+          "p50_ms": 0.9128274999999999,
+          "p95_ms": 3.437626
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 9516,
+          "mean_ms": 0.1546718789407314,
+          "p50_ms": 0.1294065,
+          "p95_ms": 0.34336
+        },
+        "storage_service.layer_status": {
+          "calls": 25964,
+          "mean_ms": 1.0217092487675243,
+          "p50_ms": 0.7192324999999999,
+          "p95_ms": 3.072956
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 25964,
+          "mean_ms": 0.8300556750500694,
+          "p50_ms": 0.5471754999999999,
+          "p95_ms": 2.681523
+        },
+        "storage_service.layer_status.process": {
+          "calls": 25964,
+          "mean_ms": 0.08591832845478355,
+          "p50_ms": 0.06231199999999999,
+          "p95_ms": 0.228941
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 1894.3256685027775,
+      "p95_ttft_ms": 4769.363198000008,
+      "slo_pct": 9.444444444444445,
+      "completion_ms": 8514.501438999958,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000015,
+        25000000000.000015,
+        25000000000.00002,
+        25000000000.000015
+      ],
+      "variant": "cpp",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-04-cpp-tfs-a01-r1/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 42.65100414507162,
+      "model_compute_pct": 41.74349339049601,
+      "mean_bandwidth_GBps": 63.370881549510145,
+      "no_global_inflight_io_pct": 32.10552476881276,
+      "no_global_inflight_io_s": 2.73362536843905,
+      "io_active_s": 5.7808760705609075,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 93.33731696684623,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 3.7268214800506896,
+        "p50_ms": 2.0324427675006973,
+        "p95_ms": 13.25186216001839
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 13884,
+          "mean_ms": 1.2723733092048402,
+          "p50_ms": 0.8662355,
+          "p95_ms": 4.409427
+        },
+        "storage_rpc.layer_status": {
+          "calls": 19255,
+          "mean_ms": 1.0921873475980264,
+          "p50_ms": 0.49470700000000006,
+          "p95_ms": 4.001696
+        },
+        "storage_service.layer_submit": {
+          "calls": 13884,
+          "mean_ms": 1.183619968164794,
+          "p50_ms": 0.80941,
+          "p95_ms": 4.1115379999999995
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 13884,
+          "mean_ms": 0.9365497382598674,
+          "p50_ms": 0.5430005,
+          "p95_ms": 3.4725189999999997
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 13884,
+          "mean_ms": 0.13845700957937193,
+          "p50_ms": 0.10200850000000002,
+          "p95_ms": 0.376596
+        },
+        "storage_service.layer_status": {
+          "calls": 19255,
+          "mean_ms": 0.9582797370553102,
+          "p50_ms": 0.40650000000000003,
+          "p95_ms": 3.564892
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 19255,
+          "mean_ms": 0.7746292379122306,
+          "p50_ms": 0.20589800000000003,
+          "p95_ms": 3.059091
+        },
+        "storage_service.layer_status.process": {
+          "calls": 19255,
+          "mean_ms": 0.08601359132692807,
+          "p50_ms": 0.049787000000000005,
+          "p95_ms": 0.271619
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 3426.5166917416636,
+      "p95_ttft_ms": 7721.524520000003,
+      "slo_pct": 2.7777777777777777,
+      "completion_ms": 11378.750454999989,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00001,
+        25000000000.000015,
+        25000000000.000023,
+        25000000000.00002
+      ],
+      "variant": "python",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-05-python-tfs-a01-r1/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.724532089070905,
+      "model_compute_pct": 30.557347702691246,
+      "mean_bandwidth_GBps": 47.41921920845926,
+      "no_global_inflight_io_pct": 49.13829068939508,
+      "no_global_inflight_io_s": 5.5913234753987595,
+      "io_active_s": 5.7874269796012285,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 93.23166651532908,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 6.086780615135731,
+        "p50_ms": 5.635268013701733,
+        "p95_ms": 15.10016664024505
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 12870,
+          "mean_ms": 1.9924155407148405,
+          "p50_ms": 0.5629735,
+          "p95_ms": 7.567264
+        },
+        "storage_rpc.layer_status": {
+          "calls": 16849,
+          "mean_ms": 2.3584857998100777,
+          "p50_ms": 0.41316200000000003,
+          "p95_ms": 9.510598
+        },
+        "storage_service.layer_submit": {
+          "calls": 12870,
+          "mean_ms": 2.0280661063714063,
+          "p50_ms": 0.5641624999999999,
+          "p95_ms": 7.694705
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 12870,
+          "mean_ms": 1.4336061915306915,
+          "p50_ms": 0.0116405,
+          "p95_ms": 6.251487
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 12870,
+          "mean_ms": 0.21181427762237762,
+          "p50_ms": 0.07205399999999999,
+          "p95_ms": 0.843417
+        },
+        "storage_service.layer_status": {
+          "calls": 16849,
+          "mean_ms": 1.9220195059053948,
+          "p50_ms": 0.336886,
+          "p95_ms": 8.429547000000001
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 16849,
+          "mean_ms": 1.4559907333372901,
+          "p50_ms": 0.011086,
+          "p95_ms": 7.268793
+        },
+        "storage_service.layer_status.process": {
+          "calls": 16849,
+          "mean_ms": 0.20527342423882725,
+          "p50_ms": 0.056871,
+          "p95_ms": 0.687387
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 2151.869495177782,
+      "p95_ttft_ms": 4528.6443310000095,
+      "slo_pct": 5.833333333333333,
+      "completion_ms": 8775.772375999964,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000023,
+        25000000000.000023,
+        25000000000.000023,
+        25000000000.000023
+      ],
+      "variant": "cpp",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-06-cpp-direct-r2/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 38.40134630137975,
+      "model_compute_pct": 36.46530532780605,
+      "mean_bandwidth_GBps": 61.48421347158267,
+      "no_global_inflight_io_pct": 35.23684470757596,
+      "no_global_inflight_io_s": 3.0923052840214567,
+      "io_active_s": 5.683467091978507,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 94.93702583508167,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 2.8990515271851005,
+        "p50_ms": 1.3994252117264239,
+        "p95_ms": 10.81585103471383
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 9672,
+          "mean_ms": 1.5760185312241521,
+          "p50_ms": 1.210844,
+          "p95_ms": 4.397735
+        },
+        "storage_rpc.layer_status": {
+          "calls": 26658,
+          "mean_ms": 1.1045155148173156,
+          "p50_ms": 0.7592715,
+          "p95_ms": 3.411556
+        },
+        "storage_service.layer_submit": {
+          "calls": 9672,
+          "mean_ms": 1.483484608974359,
+          "p50_ms": 1.1574990000000003,
+          "p95_ms": 4.211501
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 9672,
+          "mean_ms": 1.2121249811827959,
+          "p50_ms": 0.907529,
+          "p95_ms": 3.672975
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 9672,
+          "mean_ms": 0.14954126023573203,
+          "p50_ms": 0.1258605,
+          "p95_ms": 0.331492
+        },
+        "storage_service.layer_status": {
+          "calls": 26658,
+          "mean_ms": 0.9845737793157776,
+          "p50_ms": 0.697735,
+          "p95_ms": 2.999853
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 26658,
+          "mean_ms": 0.7996214244504464,
+          "p50_ms": 0.5295055,
+          "p95_ms": 2.5789060000000004
+        },
+        "storage_service.layer_status.process": {
+          "calls": 26658,
+          "mean_ms": 0.08297317398154401,
+          "p50_ms": 0.059567,
+          "p95_ms": 0.223935
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 4167.296157316669,
+      "p95_ttft_ms": 7897.957713999972,
+      "slo_pct": 4.444444444444445,
+      "completion_ms": 13742.04668499999,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.000023,
+        25000000000.00002
+      ],
+      "variant": "python",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-07-python-direct-r2/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 38.06026904499642,
+      "model_compute_pct": 23.0801798289993,
+      "mean_bandwidth_GBps": 39.26427223777113,
+      "no_global_inflight_io_pct": 58.55887198025934,
+      "no_global_inflight_io_s": 8.047187525736618,
+      "io_active_s": 5.694859159263373,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 94.74711262460671,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 7.9264356632987845,
+        "p50_ms": 7.672429292522764,
+        "p95_ms": 15.60366305174199
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 3.0839113651009757,
+          "p50_ms": 2.0176589999999996,
+          "p95_ms": 9.451163000000001
+        },
+        "storage_rpc.layer_status": {
+          "calls": 12267,
+          "mean_ms": 5.693391316132714,
+          "p50_ms": 4.120627,
+          "p95_ms": 14.326281999999999
+        },
+        "storage_service.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 3.097282477308827,
+          "p50_ms": 2.042063,
+          "p95_ms": 9.623592
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 8814,
+          "mean_ms": 2.2765758991377356,
+          "p50_ms": 1.4974855,
+          "p95_ms": 7.80562
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 8814,
+          "mean_ms": 0.28896965588835943,
+          "p50_ms": 0.137178,
+          "p95_ms": 1.133966
+        },
+        "storage_service.layer_status": {
+          "calls": 12267,
+          "mean_ms": 4.956090442814054,
+          "p50_ms": 3.045959,
+          "p95_ms": 13.730345
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 12267,
+          "mean_ms": 3.9442445209912775,
+          "p50_ms": 2.0260700000000003,
+          "p95_ms": 12.863481
+        },
+        "storage_service.layer_status.process": {
+          "calls": 12267,
+          "mean_ms": 0.41256750648080215,
+          "p50_ms": 0.09668800000000001,
+          "p95_ms": 2.2284829999999998
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 3379.1010913972227,
+      "p95_ttft_ms": 7700.745410999957,
+      "slo_pct": 2.5,
+      "completion_ms": 11294.067491000078,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000015,
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.000015
+      ],
+      "variant": "python",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-08-python-tfs-a01-r2/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.457905457556755,
+      "model_compute_pct": 30.589736227001023,
+      "mean_bandwidth_GBps": 47.77476870701978,
+      "no_global_inflight_io_pct": 48.68924402710171,
+      "no_global_inflight_io_s": 5.498996081278591,
+      "io_active_s": 5.795071409721487,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 93.10868218790975,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 5.8741830634515395,
+        "p50_ms": 5.574531063370358,
+        "p95_ms": 13.262980611166597
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 13104,
+          "mean_ms": 1.996705277701465,
+          "p50_ms": 0.7106084999999999,
+          "p95_ms": 7.364161999999999
+        },
+        "storage_rpc.layer_status": {
+          "calls": 17714,
+          "mean_ms": 2.285311505645252,
+          "p50_ms": 0.3641005,
+          "p95_ms": 9.469076999999999
+        },
+        "storage_service.layer_submit": {
+          "calls": 13104,
+          "mean_ms": 2.0442421550671552,
+          "p50_ms": 0.7200925,
+          "p95_ms": 7.6565069999999995
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 13104,
+          "mean_ms": 1.4430722537393164,
+          "p50_ms": 0.0109545,
+          "p95_ms": 5.986357
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 13104,
+          "mean_ms": 0.21934591742979243,
+          "p50_ms": 0.069017,
+          "p95_ms": 0.837122
+        },
+        "storage_service.layer_status": {
+          "calls": 17714,
+          "mean_ms": 1.8582794697979,
+          "p50_ms": 0.3048925,
+          "p95_ms": 8.127232999999999
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 17714,
+          "mean_ms": 1.4520413111098567,
+          "p50_ms": 0.010141,
+          "p95_ms": 7.137906999999999
+        },
+        "storage_service.layer_status.process": {
+          "calls": 17714,
+          "mean_ms": 0.1850774224342328,
+          "p50_ms": 0.050319499999999996,
+          "p95_ms": 0.584711
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 1532.412209930553,
+      "p95_ttft_ms": 4215.832428999988,
+      "slo_pct": 15.0,
+      "completion_ms": 7868.410944000061,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000015,
+        25000000000.000015,
+        25000000000.000015,
+        25000000000.000015
+      ],
+      "variant": "cpp",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-09-cpp-tfs-a01-r2/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 42.23839593247772,
+      "model_compute_pct": 44.73414457833444,
+      "mean_bandwidth_GBps": 68.57438763483015,
+      "no_global_inflight_io_pct": 26.81208864787704,
+      "no_global_inflight_io_s": 2.109685317484555,
+      "io_active_s": 5.758725626515506,
+      "layer_reads": 25740,
+      "bandwidth_while_io_active_GBps": 93.69633094856862,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 3.050687426353213,
+        "p50_ms": 1.74330924157573,
+        "p95_ms": 9.88575092598154
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 14118,
+          "mean_ms": 0.918941390069415,
+          "p50_ms": 0.5135149999999999,
+          "p95_ms": 3.016104
+        },
+        "storage_rpc.layer_status": {
+          "calls": 20676,
+          "mean_ms": 0.7447223980460437,
+          "p50_ms": 0.2735215,
+          "p95_ms": 2.7265800000000002
+        },
+        "storage_service.layer_submit": {
+          "calls": 14118,
+          "mean_ms": 0.8433122742598103,
+          "p50_ms": 0.460177,
+          "p95_ms": 2.795143
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 14118,
+          "mean_ms": 0.6345839029607593,
+          "p50_ms": 0.242671,
+          "p95_ms": 2.3307330000000004
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 14118,
+          "mean_ms": 0.11504947265901685,
+          "p50_ms": 0.088643,
+          "p95_ms": 0.284605
+        },
+        "storage_service.layer_status": {
+          "calls": 20676,
+          "mean_ms": 0.6314189585993423,
+          "p50_ms": 0.2199585,
+          "p95_ms": 2.302381
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 20676,
+          "mean_ms": 0.4788135594892629,
+          "p50_ms": 0.0697825,
+          "p95_ms": 1.949543
+        },
+        "storage_service.layer_status.process": {
+          "calls": 20676,
+          "mean_ms": 0.07031125261172373,
+          "p50_ms": 0.04334299999999999,
+          "p95_ms": 0.20381300000000002
+        }
+      }
+    }
+  ],
+  "summary": [
+    {
+      "arm": "direct",
+      "variant": "python",
+      "repeats": 2,
+      "completion_ms": 12637.768058999995,
+      "mean_ttft_ms": 4073.549224554169,
+      "p95_ttft_ms": 7681.327543499976,
+      "slo_pct": 4.444444444444445,
+      "model_compute_pct": 25.3551730721417,
+      "mean_bandwidth_GBps": 43.023645916439136,
+      "no_global_inflight_io_pct": 54.627724035407695,
+      "no_global_inflight_io_s": 6.947135886016852,
+      "io_active_s": 5.690632172983143,
+      "bandwidth_while_io_active_GBps": 94.81754284053508,
+      "completion_runs_ms": [
+        11533.489432999999,
+        13742.04668499999
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 2.7517413131870923,
+        "storage_rpc.layer_status": 5.205017120964154,
+        "storage_service.layer_submit": 2.759953516063786,
+        "storage_service.layer_submit.lock": 1.9030059814543674,
+        "storage_service.layer_submit.process": 0.25831352213074027,
+        "storage_service.layer_status": 4.509256293163453,
+        "storage_service.layer_status.lock": 3.4757926867502285,
+        "storage_service.layer_status.process": 0.40602117926549286
+      }
+    },
+    {
+      "arm": "direct",
+      "variant": "cpp",
+      "repeats": 2,
+      "completion_ms": 8920.897980499973,
+      "mean_ttft_ms": 2189.127416330557,
+      "p95_ttft_ms": 4451.780103999994,
+      "slo_pct": 5.694444444444445,
+      "model_compute_pct": 36.013892568170235,
+      "mean_bandwidth_GBps": 60.49999656947419,
+      "no_global_inflight_io_pct": 36.211297097683385,
+      "no_global_inflight_io_s": 3.23178705142179,
+      "io_active_s": 5.689110929078183,
+      "bandwidth_while_io_active_GBps": 94.84293765560058,
+      "completion_runs_ms": [
+        9066.023584999983,
+        8775.772375999964
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 1.560096213121534,
+        "storage_rpc.layer_status": 1.126392577043537,
+        "storage_service.layer_submit": 1.4720018085329971,
+        "storage_service.layer_submit.lock": 1.1955674434077075,
+        "storage_service.layer_submit.process": 0.1521065695882317,
+        "storage_service.layer_status": 1.0031415140416509,
+        "storage_service.layer_status.lock": 0.8148385497502579,
+        "storage_service.layer_status.process": 0.08444575121816378
+      }
+    },
+    {
+      "arm": "tfs-a01",
+      "variant": "python",
+      "repeats": 2,
+      "completion_ms": 11336.408973000034,
+      "mean_ttft_ms": 3402.8088915694434,
+      "p95_ttft_ms": 7711.134965499979,
+      "slo_pct": 2.638888888888889,
+      "model_compute_pct": 30.573541964846136,
+      "mean_bandwidth_GBps": 47.59699395773952,
+      "no_global_inflight_io_pct": 48.91376735824839,
+      "no_global_inflight_io_s": 5.545159778338675,
+      "io_active_s": 5.791249194661358,
+      "bandwidth_while_io_active_GBps": 93.17017435161941,
+      "completion_runs_ms": [
+        11378.750454999989,
+        11294.067491000078
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 1.9945604092081528,
+        "storage_rpc.layer_status": 2.321898652727665,
+        "storage_service.layer_submit": 2.0361541307192805,
+        "storage_service.layer_submit.lock": 1.4383392226350038,
+        "storage_service.layer_submit.process": 0.21558009752608503,
+        "storage_service.layer_status": 1.8901494878516474,
+        "storage_service.layer_status.lock": 1.4540160222235734,
+        "storage_service.layer_status.process": 0.19517542333653004
+      }
+    },
+    {
+      "arm": "tfs-a01",
+      "variant": "cpp",
+      "repeats": 2,
+      "completion_ms": 8191.4561915000095,
+      "mean_ttft_ms": 1713.3689392166652,
+      "p95_ttft_ms": 4492.597813499999,
+      "slo_pct": 12.222222222222221,
+      "model_compute_pct": 43.238818984415225,
+      "mean_bandwidth_GBps": 65.97263459217015,
+      "no_global_inflight_io_pct": 29.4588067083449,
+      "no_global_inflight_io_s": 2.4216553429618024,
+      "io_active_s": 5.769800848538207,
+      "bandwidth_while_io_active_GBps": 93.51682395770743,
+      "completion_runs_ms": [
+        8514.501438999958,
+        7868.410944000061
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 1.0956573496371276,
+        "storage_rpc.layer_status": 0.918454872822035,
+        "storage_service.layer_submit": 1.0134661212123022,
+        "storage_service.layer_submit.lock": 0.7855668206103134,
+        "storage_service.layer_submit.process": 0.1267532411191944,
+        "storage_service.layer_status": 0.7948493478273262,
+        "storage_service.layer_status.lock": 0.6267213987007467,
+        "storage_service.layer_status.process": 0.07816242196932591
+      }
+    }
+  ]
+}

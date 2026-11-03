@@ -17,6 +17,7 @@ import subprocess
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 REPO=ROOT.parent
 ARMS={'direct-fcfs':1.,'direct':1.,'old-tfs':1.,'tfs-a01':.1,'tfs-a1':1.}
 DEFAULT_ARMS=('direct','tfs-a01','tfs-a1')
@@ -91,7 +92,20 @@ def audit_synthetic_plan(profiles,manifest,contract):
     assert math.isclose(math.fsum(p['compute_s'] for p in rows),manifest['timing']['reference_compute_instance_s'],rel_tol=1e-12)
 
 
-def prepare(case,folder,overlay,layout=None):
+def apply_storage_backend(cfg, backend="python"):
+    cfg=deepcopy(cfg)
+    if backend not in ("python","cpp"):raise ValueError("unknown storage backend")
+    if backend=="cpp":
+        from sim.cpp_grouped_storage import storage_class
+        sc=cfg["storage"]
+        if sc.get("shared_link_Bps") is not None:raise ValueError("cpp requires explicit independent disks (--disks/--disk-gbps)")
+        cfg["storage"]["backend"]="cpp"
+        grouped=sc.get("bandwidth_policy")=="max_min_fair" and sc.get("max_min_read_representation","grouped")=="grouped"
+        storage_class(cfg,grouped,sc.get("bandwidth_policy")=="sa_max_min")
+    return cfg
+
+
+def prepare(case,folder,overlay,layout=None,backend="python"):
     package=folder/'package';package.mkdir(parents=True)
     for name in ('sim','scripts','configs','patched'):
         shutil.copytree(ROOT/name,package/name,ignore=shutil.ignore_patterns('__pycache__'))
@@ -101,7 +115,7 @@ def prepare(case,folder,overlay,layout=None):
     MANAGER.export(case,inp,quiet=True)
     manifest=read(inp/'manifest.json');assert sha(inp/'trace.jsonl')==manifest['original_trace_sha256']
     contract=read(inp/'run_contract.json') if (inp/'run_contract.json').exists() else None
-    cfg=apply_storage_layout(effective_config(read(inp/'config.json'),manifest,contract),layout)
+    cfg=apply_storage_backend(apply_storage_layout(effective_config(read(inp/'config.json'),manifest,contract),layout),backend)
     cfg['routing_accounting']['python_path']=str(overlay)
     assert cfg['wall_time_scale']==1 and cfg['workers']==12
     bandwidth=manifest['shared_storage_Bps']
@@ -109,7 +123,7 @@ def prepare(case,folder,overlay,layout=None):
     assert cfg['storage']['shared_link_Bps']==(None if layout else bandwidth)
     assert cfg['admission']['reference_bandwidth_Bps']==bandwidth
     write(inp/'config.json',cfg)
-    write(folder/'experiment.json',dict(storage_layout=layout,audit_queue_policy=True,
+    write(folder/'experiment.json',dict(storage_layout=layout,storage_backend=backend,audit_queue_policy=True,
           admission_scope='global scalar reference bandwidth; no per-disk admission or routing',
           original_benchmark_input_sha256=manifest['original_trace_sha256']))
     sys.path.insert(0,str(package))
@@ -137,6 +151,12 @@ def audit(folder,arm,smoke,run_name=None):
     run=folder/f'package/results/{run_name or arm}/run';cfg=read(run/'config.json');state=read(run/'admission.final.json')
     variant=read(folder/'experiment.json') if (folder/'experiment.json').exists() else {}
     layout=variant.get('storage_layout')
+    backend=variant.get('storage_backend','python')
+    assert cfg['storage'].get('backend','python')==backend
+    storage_snapshot=read(run/'storage.final.json')
+    assert storage_snapshot.get('storage_backend','python')==backend
+    if backend=='cpp':
+        assert storage_snapshot['native_build']['source_sha256']==sha(folder/'package/sim/native/grouped_storage.cpp')
     driver=read(run.parent/'driver.json');client=read(run/'measured/report.json')
     profiles={r['id']:r for r in read(folder/'profiles.json')};manifest=read(folder/'manifest.json')
     records={k:v for k,v in state['records'].items() if k in profiles}
@@ -200,6 +220,7 @@ def audit(folder,arm,smoke,run_name=None):
         from sim.request_profile import normalize_config
         contract=read(folder/'package/results/input360/run_contract.json')
         expected=apply_storage_layout(arm_config(effective_config(contract['arms']['direct'],manifest,contract),arm,manifest),layout)
+        expected=apply_storage_backend(expected,backend)
         expected['routing_accounting']['python_path']=cfg['routing_accounting']['python_path']
         if smoke:expected['workers']=2
         assert cfg==normalize_config(expected), 'effective config differs from frozen arm contract'
@@ -251,6 +272,7 @@ def audit(folder,arm,smoke,run_name=None):
         storage=read(run/'storage.final.json')
         result.update(storage_disks=layout['disks'],disk_Bps=layout['disk_Bps'],shared_link_Bps=None,
                       disk_bytes_including_warmup=storage['disk_bytes_submitted'],disk_peak_Bps=storage['disk_peak_Bps'])
+    result['storage_backend']=backend
     write(run/'benchmark.check.json',result)
     return result
 
@@ -293,7 +315,7 @@ def main(args):
     if args.disks is not None or args.disk_gbps is not None:
         assert args.disks is not None and args.disk_gbps is not None
         layout=dict(disks=args.disks,disk_Bps=args.disk_gbps*1e9)
-    for case in cases:prepare(case,output/case,overlay,layout)
+    for case in cases:prepare(case,output/case,overlay,layout,args.storage_backend)
     jobs=[dict(case=c,arm=a) for c in cases for a in arms]
     random.Random(args.seed).shuffle(jobs)
     write(output/'plan.json',dict(seed=args.seed,jobs=jobs,smoke=args.smoke,repeats=1,K=1,
@@ -328,6 +350,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--case',default='mooncake_abc_360_4s_12_90GBps',help='Benchmark目录中的名称；all只选择当前支持完整运行的负载。')
     p.add_argument('--arm',choices=(*ARMS,'all','all-five'),default='direct')
+    p.add_argument('--storage-backend',choices=['python','cpp'],default='python')
     p.add_argument('--disks',type=int,help='Independent HRW disks; requires --disk-gbps and unchanged total bandwidth')
     p.add_argument('--disk-gbps',type=float,help='Per-disk decimal GB/s; no global shared link')
     p.add_argument('--output',type=Path,default=ROOT/'results/benchmark_runs/run')

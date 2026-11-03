@@ -56,6 +56,14 @@ class GroupedStorage(Storage):
         self._disk_byte_correction = [0.0] * self.c["disks"]
         if self.policy != "max_min_fair":
             raise ValueError("grouped reads require max_min_fair")
+        self._invalidate_rates()
+
+    def _invalidate_rates(self):
+        # Remaining bytes change continuously; rates only change when the
+        # active set changes. Storage configuration is fixed for this instance.
+        self._cached_raw_rates = None
+        self._cached_rates = None
+        self._next_ready = math.inf
 
     def _account_transfer(self, disk, transferred):
         # Kahan summation only changes diagnostic byte counters, not read state.
@@ -87,18 +95,25 @@ class GroupedStorage(Storage):
             self.disk_bytes_submitted[disk] += count * self.block_bytes
             self.queues[(disk, first_path)].append(ReadGroup(
                 key, self.block_bytes, now + self.c["read_latency_s"], demand, count))
+        self._invalidate_rates()
 
     def _group_raw_rates(self):
+        if self._cached_raw_rates is not None and self._next_ready > self.now + 1e-12:
+            return self._cached_raw_rates
+        self._invalidate_rates()
         by_disk = defaultdict(list)
         for path, queue in self.queues.items():
             read = queue[0]
             if read.ready <= self.now + 1e-12:
                 by_disk[path[0]].append((path, read))
+            else:
+                self._next_ready = min(self._next_ready, read.ready)
         raw = {}
         for disk, items in by_disk.items():
             alloc = weighted_waterfill(self.c["disk_Bps"],
                 [r.demand for _, r in items], [r.block_count for _, r in items])
             raw.update(zip((p for p, _ in items), alloc))
+        self._cached_raw_rates = raw
         return raw
 
     def submit_counted(self, now, key, counts, block_bytes, demand, latency):
@@ -115,12 +130,15 @@ class GroupedStorage(Storage):
             self.path_seq[disk] += count
             self.disk_bytes_submitted[disk] += count*block_bytes
             self.queues[(disk,path)].append(ReadGroup(key,block_bytes,now+latency,demand,count,True))
+        self._invalidate_rates()
 
     def _group_rates(self):
         raw = self._group_raw_rates()
-        total = sum(rate * self.queues[p][0].block_count for p, rate in raw.items())
-        scale = self._link_scale(total)
-        return {p: rate * scale for p, rate in raw.items()}
+        if self._cached_rates is None:
+            total = sum(rate * self.queues[p][0].block_count for p, rate in raw.items())
+            scale = self._link_scale(total)
+            self._cached_rates = {p: rate * scale for p, rate in raw.items()}
+        return self._cached_rates
 
     def _expand_rates(self, rates):
         return {(disk, p): rate for (disk, start), rate in rates.items()
@@ -178,6 +196,8 @@ class GroupedStorage(Storage):
                 completed_groups.append(path)
         for path in completed_groups:
             del self.queues[path]
+        if completed_groups:
+            self._invalidate_rates()
         return done
 
     def snapshot(self):

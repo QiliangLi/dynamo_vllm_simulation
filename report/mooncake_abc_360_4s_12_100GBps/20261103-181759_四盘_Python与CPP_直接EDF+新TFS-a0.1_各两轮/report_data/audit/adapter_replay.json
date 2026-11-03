@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "reads": 25740,
+  "bytes": 539571462144.0,
+  "max_completion_error_s": 0.0,
+  "python_seconds": 4.545785105999997,
+  "cpp_python_adapter_seconds": 0.45392945599999734,
+  "native_snapshot": {
+    "placement": "hrw_sha256_content_hash",
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "shared_link_Bps": null,
+    "disk_rates_Bps": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "disk_peak_Bps": [
+      25000000000.000015,
+      25000000000.000015,
+      25000000000.00002,
+      25000000000.000015
+    ],
+    "disk_bytes_submitted": [
+      140400758784.0,
+      141767847936.0,
+      133916749824.0,
+      123486105600.0
+    ],
+    "disk_bytes_transferred": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "timestamp_s": 12.63216276976011,
+    "queued_reads": 0,
+    "active_paths": 0,
+    "bytes_remaining": 0.0,
+    "path_rates_Bps": {},
+    "storage_backend": "cpp",
+    "native_build": {
+      "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "flags": [
+        "-O3",
+        "-DNDEBUG",
+        "-ffp-contract=off",
+        "-std=c++17",
+        "-shared",
+        "-fPIC"
+      ],
+      "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+    },
+    "native_rate_rebuilds": 200951,
+    "native_waterfill_calls": 177362
+  }
+}

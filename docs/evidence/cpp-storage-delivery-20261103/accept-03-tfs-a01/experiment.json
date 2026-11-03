@@ -1,0 +1,10 @@
+{
+  "storage_layout": {
+    "disks": 4,
+    "disk_Bps": 25000000000.0
+  },
+  "storage_backend": "cpp",
+  "audit_queue_policy": true,
+  "admission_scope": "global scalar reference bandwidth; no per-disk admission or routing",
+  "original_benchmark_input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308"
+}

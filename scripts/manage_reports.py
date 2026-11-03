@@ -101,7 +101,8 @@ def verify(write=False):
                 benchmarks=len(benchmarks),reports=results,simulations_run=0)
 
 def catalog_text():
-    labels={'matched_input_and_model':'负载/模型对应；保留原运行版本',
+    labels={'storage_backend_comparison':'独立四盘；Python/C++；两策略各两轮',
+            'matched_input_and_model':'负载/模型对应；保留原运行版本',
             'historical_model_and_feedback':'历史模型/反馈版本',
             'research_runtime_export_only':'历史研究版结果；当时交付入口export_only',
             'current_multidisk_five_arm':'本任务新跑；独立多盘/五方案/原生队列验收'}

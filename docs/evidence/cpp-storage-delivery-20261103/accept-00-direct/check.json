@@ -1,0 +1,48 @@
+{
+  "status": "pass",
+  "requests": 6,
+  "workers": [
+    0,
+    1
+  ],
+  "central_wait_mean_s": 0.0012866508333454856,
+  "central_wait_max_s": 0.006212485000020251,
+  "held_heavy_peak": 3,
+  "peak_storage_pending": 3,
+  "actual_batch_sizes": [
+    1,
+    2,
+    1,
+    2
+  ],
+  "model_sum_s": 1.2878486959937065,
+  "formula_max_error_s": 1.1102230246251565e-16,
+  "ttft_mean_s": 0.5945381755000009,
+  "http_window_s": 1.1899725260000196,
+  "model_window_s": 1.1899726870000222,
+  "wall_time_scale": 1.0,
+  "actual_submitted_read_bytes": 13980155904,
+  "transfer_lower_bound_s": 0.14310506496,
+  "transfer_span_s": 1.0416412741199927,
+  "disk_bytes_submitted": [
+    3521396736,
+    3510853632,
+    3577626624,
+    3370278912
+  ],
+  "disk_peak_Bps": [
+    25000000000,
+    25000000000,
+    25000000000,
+    25000000000
+  ],
+  "release_reasons": {
+    "conversation:L155": "first_token",
+    "conversation:L49": "first_token",
+    "conversation:L323": "first_token",
+    "conversation:L247": "first_token",
+    "conversation:L217": "first_token",
+    "conversation:L98": "first_token"
+  },
+  "router_mode": "kv"
+}

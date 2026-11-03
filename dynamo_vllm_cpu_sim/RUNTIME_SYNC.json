@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "research_commit": "09312a5b956c6120e4dc448afee1e2f9cbffdfbc",
+  "research_commit": "d2ccf1921d92faddd2e6e5bb0f9d5890e90b8998",
   "research_base": "f4215cbe2c9db94ab2241d7cc492b72209dbc165",
-  "delivery_base": "d693b79c737658490f5fc87f349dfa7368ebe27a",
-  "scope": "All research-tracked sim/scripts/configs/patched/tests files; results and documentation excluded",
+  "delivery_base": "c0918d0514bf30716e13634a591613ed4960136f",
+  "scope": "Selected shared files; source_exceptions explicitly record retained poll/locked delivery adapters and omitted experimental notification code",
   "comparison": "SHA256 after CRLF-to-LF normalization",
   "delivery_only": "Portable benchmark/report/skill entrypoints and their tests remain additional delivery resources",
   "files_sha256": {
@@ -86,7 +86,7 @@
     "scripts/run_seed416_read_admission.py": "5247eb971525e4fb84ca8e2ce2e12c92ec328954bc7e0c146a731c7a30e10dd3",
     "scripts/run_stack_experiment.sh": "30ba7a9f3ee502b34fd609ac2e679b8305f6b435567baaec26cebeb9ef239812",
     "scripts/run_tfs_matrix.py": "b4a3ea712d54c12cf1a64c2be086c7dc3889ffe3bde7287d611ddb0d07e3b04d",
-    "scripts/run_tfs_stack.py": "f4439621dadc2888c0b1be8bac08d289d1d93f19ac9ac843e4936b1f9293d9cb",
+    "scripts/run_tfs_stack.py": "c10002b27a8101fd83f19d23c82ebce12935be8f9d435d2e47b3df989c58a22c",
     "scripts/stack_llm_smoke.py": "c37d8d3e309f6e6b737f8e41e5752ca390d8ed4baf2af8e7598eca678a892737",
     "scripts/stack_vllm_worker.py": "c9676aa1db31e8efba0db9d034f54da4f63ce5b1490c53c81e03dfea3f3743a2",
     "scripts/templates/sa_code_review.html": "c6a4222d67b3d8b92291c97e6096a2bba88a61c81354eb3e6b321271738165fc",
@@ -109,7 +109,7 @@
     "sim/connector.py": "17daaac2b7efb9ffe41b7ea678e19cd0273679724afc5d94fd0eb50489bb9f3f",
     "sim/control_events.py": "6e3e74eb7cdcef2739a1b6ae19e2c04af31c3a2ef7bd1299b6f580c049646e44",
     "sim/engine.py": "d694cb55b81afafed3b51ae31c870c9f8e70e5806c49cc474a66e3f80d1ff597",
-    "sim/grouped_storage.py": "bc5e8bbc2cb9e801f8c4c74cca671c5e699f4d2da478bc2e440f75e17c086827",
+    "sim/grouped_storage.py": "65e9cfc55b69a73c72be896be02b4a24a58c8d89eaa7cfd93d03a081b37de603",
     "sim/layer_aligned.py": "53eb7eeb7b27c46f948dc93e8ef4b0404f94613bf538218598e9fd227be72cde",
     "sim/mooncake.py": "4f4b68419260ac0ad809b099c987751b2e436e2eca16fb7922fabe8215a7557c",
     "sim/priority.py": "3cb7f8e3141a3c7a1295c712ebcaa8046f7d17d23d46684afb0aa8635f370f43",
@@ -145,7 +145,7 @@
     "sim/stack/storage_client.py": "5691d43ea2fd9c213aa4f0f1f824e68a6bba8eb6f0a34c6940406e11174c6694",
     "sim/stack/storage_gc.py": "a18773461e4664477dee1b17b67aad96f071291f521d31da9e3a32bf8f457422",
     "sim/stack/storage_hint.py": "6fc601144ed54c238dd7ca4c10be842d073921c1b6b1f5eeed1e0a28aaea2ef7",
-    "sim/stack/storage_service.py": "0f1cb2c25336485eef8f71af86ccf41567a566352eef9e59394b7aeaa0519ce1",
+    "sim/stack/storage_service.py": "fc79a68530dd55c4592818b3229ca1fd4391c0700d2a5c64fbbebb0820de5a89",
     "sim/storage.py": "797b8c0d0a1bcd39c73dbad01871acc1e350610cab9ffeb940b5faa9cf4baaca",
     "sim/tfs_metrics.py": "4a32a8b93b2bbbdde9e26825f7e53732bfebf5930b45f04c2fa99efa91fed320",
     "sim/timing_models/__init__.py": "064fc503ade2b5b8718f498dc1525667878270c278efc1dd8e4e41811905cf10",
@@ -202,6 +202,40 @@
     "tests/test_tfs_tools.py": "e0c18ad7b73d8af8ad714478bcb0afea9302a0692df436145c3aef76481e1862",
     "tests/test_time_scale_analysis.py": "732272350776ff356b31be763849439ad0197187ba1ba308ff628c26741c37a7",
     "tests/test_trace_io.py": "06c76ed80ae301b8581c651b15ebb8a70971856b8a51abadcc52d6f0e7ca4837",
-    "tests/test_context_extrapolation.py": "cd7385730619f7acea8329a4a4df5c7232767f09bad6924112ecd21fa064f142"
+    "tests/test_context_extrapolation.py": "cd7385730619f7acea8329a4a4df5c7232767f09bad6924112ecd21fa064f142",
+    "tests/test_storage_rate_cache.py": "2fcf129449d4ac2578abee7127f6431be826d8a7ec62b05c0a32ff0712f58ad7",
+    "sim/cpp_grouped_storage.py": "74cfd3ac063ee090d262efbcffa543edde24e0fe978fdfc51fe996adbc0598e3",
+    "sim/native/grouped_storage.cpp": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+    "tests/test_cpp_storage.py": "4de1954bf2f070007346922ed2ae75161cd893c2dcd4a3badd79c561591eaa9d"
+  },
+  "source_exceptions": {
+    "scripts/run_tfs_stack.py": {
+      "sha256": "f95bae318d810e6368cef8709f0bd58146e0a534b3f6ea0d8ffbc1e1acf01131",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/executor.py": {
+      "sha256": "3bd093e2977ed0377d8a8856ad505aa97471bcc0b7c33c86e74d989ab0d09369",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/layer_storage.py": {
+      "sha256": "31ab9cb0980f0c69497e77efdfd5f047704f90c451b0b7b6b1225327616d5b80",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/layerwise.py": {
+      "sha256": "75098f5fb2a82bac0e910bce9d28e03c811d9f734da926cf071e07aabecb8316",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/storage_client.py": {
+      "sha256": "7bde993ef44ffc5ea7bb3c407fdb427bcc0672b983ec5477bf083736b77c3cae",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/storage_service.py": {
+      "sha256": "f9dd3064762dfc1508de83d8fe9e33d2380ba3f24814e840909e2f91cffab5bf",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "tests/test_cpp_storage.py": {
+      "sha256": "0c247f308586296d93c483dc1b8e164dce989685a556f9bbe34ad2b802b8ebc7",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    }
   }
 }
