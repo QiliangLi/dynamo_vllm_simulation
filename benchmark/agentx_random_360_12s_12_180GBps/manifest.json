@@ -53,15 +53,15 @@
     "reference_compute_instance_s": 164.18052330065615,
     "long_context_formula_extrapolation": true
   },
-  "portable_runner_status": "export_only",
+  "portable_runner_status": "supported",
   "historical_config_sanitized": true,
   "files_sha256": {
     "trace.jsonl.gz": "cd355604cf86395922cd560d2fb6fdd9ad1086bb789abb66a5a786488e040253",
     "requests.csv": "fc36e7ce5acc6dfbed83d164e79145bee49f009fe19c36095dbc970f16c915ec",
     "config.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
     "config.historical.json": "c6bdf0535b4b254009861e4b09c717ab74ef4507bfed46e821319956b0b221ad",
-    "run_contract.json": "a0af327c08ae3de330df695ee35a84d81d0d9e9eb96ffc891bc69678ffdaf8f2",
-    "README.md": "7232b6462ccd5210f874b351234639b84f1f0fc2b13331a204071edebd028015"
+    "run_contract.json": "312f43f32b663f51f86eea35f2bd98cc2c1e363fdc9477fb60b9177d5e5b5290",
+    "README.md": "a43d4a3f53a36303b7191f38f3d55d96fc451b720f14f1b1dca33f9933e3bc53"
   },
   "aliases": [
     "agentx360_12s_180gb"
@@ -78,7 +78,7 @@
     1366,
     23748
   ],
-  "runner_profile": null,
+  "runner_profile": "agentx360_v1",
   "execution_feedback": "disabled",
-  "portable_runner_reason": "direct_sum、禁用四反馈、强制释放等待修订与最终答复/后台EOF代码已同步；本负载专用合同尚未通过交付运行器完整验收，仍只校验和导出。长上下文与诊断计数边界见README。"
+  "portable_runner_reason": "统一运行器支持AgentX360专用合同；显式外推长度上限300481，保留冻结公式系数、输入和三方案配置。"
 }

@@ -1,0 +1,162 @@
+{
+  "direct-python-r1": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      0.586090087890625,
+      0.567291259765625,
+      0.593841552734375,
+      0.62115478515625
+    ],
+    "max_completion_error_s": 7.105427357601002e-15,
+    "max_rate_roundoff_Bps": 2.6702880859375e-05
+  },
+  "direct-cpp-r1": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      0.4970703125,
+      0.453582763671875,
+      0.5751953125,
+      0.6993255615234375
+    ],
+    "max_completion_error_s": 7.105427357601002e-15,
+    "max_rate_roundoff_Bps": 1.9073486328125e-05
+  },
+  "direct-python-r2": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      0.6199951171875,
+      0.5855712890625,
+      0.6014862060546875,
+      0.6703643798828125
+    ],
+    "max_completion_error_s": 0.0,
+    "max_rate_roundoff_Bps": 2.288818359375e-05
+  },
+  "direct-cpp-r2": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      0.482696533203125,
+      0.46124267578125,
+      0.5869140625,
+      0.7197418212890625
+    ],
+    "max_completion_error_s": 0.0,
+    "max_rate_roundoff_Bps": 2.288818359375e-05
+  },
+  "tfs-a01-python-r1": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      1.099090576171875,
+      1.02593994140625,
+      1.1136016845703125,
+      1.1085968017578125
+    ],
+    "max_completion_error_s": 7.105427357601002e-15,
+    "max_rate_roundoff_Bps": 2.288818359375e-05
+  },
+  "tfs-a01-cpp-r1": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      1.049346923828125,
+      1.03021240234375,
+      1.101348876953125,
+      1.1910247802734375
+    ],
+    "max_completion_error_s": 0.0,
+    "max_rate_roundoff_Bps": 1.9073486328125e-05
+  },
+  "tfs-a01-python-r2": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      1.0921630859375,
+      1.062530517578125,
+      1.09674072265625,
+      1.1384429931640625
+    ],
+    "max_completion_error_s": 0.0,
+    "max_rate_roundoff_Bps": 1.9073486328125e-05
+  },
+  "tfs-a01-cpp-r2": {
+    "status": "passed",
+    "layer_reads": 25740,
+    "disks": 4,
+    "disk_Bps": 25000000000.0,
+    "per_disk_bytes": [
+      140400758784,
+      141767847936,
+      133916749824,
+      123486105600
+    ],
+    "per_disk_integral_error_bytes": [
+      0.96942138671875,
+      0.90478515625,
+      1.042724609375,
+      1.105224609375
+    ],
+    "max_completion_error_s": 7.105427357601002e-15,
+    "max_rate_roundoff_Bps": 1.52587890625e-05
+  }
+}

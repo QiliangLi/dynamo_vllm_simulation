@@ -15,10 +15,13 @@
 ## 必须保持的实验合同
 
 - 可运行Mooncake360 benchmark固定K=1、4秒到达和12个逻辑实例。单共享池带宽读取所选benchmark的config.json和manifest.json，并与名称核对，不写死为90 GB/s。
-- AgentX360固定输入另用12秒、180GB/s、12实例及direct_sum/关闭执行反馈；当前仅支持校验与导出，核心代码已同步，其长上下文及专用合同仍未完成交付入口验收。详见benchmark/agentx_random_360_12s_12_180GBps/README.md。
-- 冒烟使用2个实例和各类少量请求；不能把冒烟当作正式性能数据。
+- AgentX360固定输入另用12秒、180GB/s、12实例及direct_sum/关闭执行反馈；统一入口支持显式长上下文外推和专用启动/验收，读取run_contract.json，不套用Mooncake默认条件。详见benchmark/agentx_random_360_12s_12_180GBps/README.md。
+- 人工ABC六秒负载读取synthetic_abc360_v1合同：6秒、90GB/s、固定h/u、direct_sum；首请求前约5.03ms间隔必须保留，不注入AgentX外推参数。
+- 冒烟使用2个实例；Mooncake取各类最短/最长，AgentX另取中位共6条且含最长上下文；不能把冒烟当作正式性能数据。
 - 正式每组72预热排空后360请求，排除预热分类历史，重新开始正式GC窗口。
 - 三种策略共用EDF、模型、存储和反馈模式；α只改变等待重读评分系数。
+- 显式独立多盘矩阵另见[五方案合同](docs/独立多盘五方案矩阵-20261102.md)：仅direct-fcfs使用原生FCFS，其余四种均使用EDF；旧TFS保留网关/动态分类。原`--arm all`仍为三种，`all-five`才选择五种。
+- 分盘实验必须显式指定盘数和单盘GB/s，保持总参考带宽不变；原benchmark配置保持不变。独立盘不能借带宽，TFS仍是全局配额，不能声称已实现逐盘压力治理。
 - 保留原生Dynamo picker、完整资源预留和vLLM token预算/slot分配。
 - 输入JSONL的h/u、token值、顺序、到达时刻不能为获得预期结果而修改。
 - 人工A/B/C/D标签不等于TFS运行期P75分类。首token释放不是实际IO结束释放。

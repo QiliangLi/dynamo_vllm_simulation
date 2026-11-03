@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "removed_fields": [
+    "disk_actual_Bps",
+    "disk_demand_Bps"
+  ],
+  "removed_array_count": 1031890,
+  "source_sha256": "c326bd6a72ddfa09c611cf5dae70021e5a27c4b4c9642f4a526e652e8eeccf36",
+  "compact_uncompressed_sha256": "68dca3b45fedad8c1c296ffcbda92461e047cfa634857acb42af62ba09ed83db",
+  "original_run_summary_comparison": {
+    "status": "passed",
+    "numeric_checks": 225,
+    "source": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/CPP独立多盘六负载五方案-20261103/mooncake_abc_360_4s_12_90GBps/report_data/run_summary.csv",
+    "sha256": "614ec60eb7a4856028968b7b8d66c93902d1b248ab46ee51e51c8f0d1084fd0c",
+    "note": "只比较列出的同口径数值，不代表模型公式或运行实现已重新验收。"
+  },
+  "preserved": "aggregate events, request/compute/IO records, all clocks and per-disk 10ms integral table"
+}

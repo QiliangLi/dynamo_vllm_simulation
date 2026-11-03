@@ -1,0 +1,9 @@
+[
+  {
+    "file": "formula_check.json",
+    "sha256": "d0583acbf0f1d77729b5c00148c3cf2d71112084861b0a32e0fea8bfb17fe86a",
+    "bytes": 1231532,
+    "status": "pass",
+    "reason": "large per-step validation details retained locally"
+  }
+]

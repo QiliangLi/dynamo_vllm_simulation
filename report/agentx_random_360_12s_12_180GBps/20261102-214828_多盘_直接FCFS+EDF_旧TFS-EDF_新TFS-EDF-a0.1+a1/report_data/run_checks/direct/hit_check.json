@@ -1,0 +1,5190 @@
+{
+  "status": "pass",
+  "cache_model": "first_seen",
+  "requests": {
+    "warmup-small-00": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-01": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-02": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-03": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-04": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-05": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-06": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-07": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-08": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-09": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-10": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-11": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-12": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-13": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-14": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-15": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-16": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-17": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-18": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-19": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-20": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-21": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-22": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-small-23": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "warmup-median-00": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-01": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-02": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-03": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-04": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-05": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-06": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-07": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-08": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-09": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-10": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-11": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-12": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-13": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-14": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-15": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-16": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-17": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-18": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-19": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-20": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-21": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-22": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-median-23": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "warmup-large-00": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-01": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-02": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-03": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-04": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-05": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-06": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-07": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-08": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-09": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-10": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-11": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-12": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-13": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-14": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-15": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-16": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-17": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-18": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-19": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-20": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-21": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-22": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6016
+        ],
+        [
+          137984,
+          8192
+        ],
+        [
+          146176,
+          8192
+        ],
+        [
+          154368,
+          4352
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "warmup-large-23": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          8192
+        ],
+        [
+          140160,
+          8192
+        ],
+        [
+          148352,
+          8192
+        ],
+        [
+          156544,
+          2176
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "agentx:L2608": {
+      "hit_tokens": 26880,
+      "u_tokens": 1792,
+      "actual_shapes": [
+        [
+          26880,
+          1792
+        ]
+      ],
+      "read_bytes": 2952069120
+    },
+    "agentx:L2609": {
+      "hit_tokens": 36544,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          36544,
+          896
+        ]
+      ],
+      "read_bytes": 4013408256
+    },
+    "agentx:L2610": {
+      "hit_tokens": 47488,
+      "u_tokens": 1792,
+      "actual_shapes": [
+        [
+          47488,
+          1792
+        ]
+      ],
+      "read_bytes": 5215322112
+    },
+    "agentx:L2611": {
+      "hit_tokens": 54080,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          54080,
+          512
+        ]
+      ],
+      "read_bytes": 5939281920
+    },
+    "agentx:L2612": {
+      "hit_tokens": 27840,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          27840,
+          640
+        ]
+      ],
+      "read_bytes": 3057500160
+    },
+    "agentx:L2613": {
+      "hit_tokens": 37568,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          37568,
+          1152
+        ]
+      ],
+      "read_bytes": 4125868032
+    },
+    "agentx:L2614": {
+      "hit_tokens": 29184,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          29184,
+          640
+        ]
+      ],
+      "read_bytes": 3205103616
+    },
+    "agentx:L2615": {
+      "hit_tokens": 28672,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          28672,
+          2560
+        ]
+      ],
+      "read_bytes": 3148873728
+    },
+    "agentx:L2616": {
+      "hit_tokens": 51776,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          51776,
+          128
+        ]
+      ],
+      "read_bytes": 5686247424
+    },
+    "agentx:L2617": {
+      "hit_tokens": 54592,
+      "u_tokens": 3648,
+      "actual_shapes": [
+        [
+          54592,
+          3648
+        ]
+      ],
+      "read_bytes": 5995511808
+    },
+    "agentx:L2618": {
+      "hit_tokens": 16448,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          16448,
+          320
+        ]
+      ],
+      "read_bytes": 1806385152
+    },
+    "agentx:L2619": {
+      "hit_tokens": 250368,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          250368,
+          2560
+        ]
+      ],
+      "read_bytes": 27496415232
+    },
+    "agentx:L2620": {
+      "hit_tokens": 51904,
+      "u_tokens": 1024,
+      "actual_shapes": [
+        [
+          51904,
+          1024
+        ]
+      ],
+      "read_bytes": 5700304896
+    },
+    "agentx:L2621": {
+      "hit_tokens": 58240,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          58240,
+          1280
+        ]
+      ],
+      "read_bytes": 6396149760
+    },
+    "agentx:L2622": {
+      "hit_tokens": 31232,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          31232,
+          640
+        ]
+      ],
+      "read_bytes": 3430023168
+    },
+    "agentx:L2623": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2624": {
+      "hit_tokens": 52928,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          52928,
+          576
+        ]
+      ],
+      "read_bytes": 5812764672
+    },
+    "agentx:L2625": {
+      "hit_tokens": 59520,
+      "u_tokens": 1856,
+      "actual_shapes": [
+        [
+          59520,
+          1856
+        ]
+      ],
+      "read_bytes": 6536724480
+    },
+    "agentx:L2626": {
+      "hit_tokens": 31872,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          31872,
+          1152
+        ]
+      ],
+      "read_bytes": 3500310528
+    },
+    "agentx:L2627": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2628": {
+      "hit_tokens": 64,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          64,
+          1280
+        ]
+      ],
+      "read_bytes": 7028736
+    },
+    "agentx:L2629": {
+      "hit_tokens": 33024,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          33024,
+          2432
+        ]
+      ],
+      "read_bytes": 3626827776
+    },
+    "agentx:L2630": {
+      "hit_tokens": 53504,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          53504,
+          1216
+        ]
+      ],
+      "read_bytes": 5876023296
+    },
+    "agentx:L2631": {
+      "hit_tokens": 61376,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          61376,
+          2880
+        ]
+      ],
+      "read_bytes": 6740557824
+    },
+    "agentx:L2632": {
+      "hit_tokens": 54720,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          54720,
+          128
+        ]
+      ],
+      "read_bytes": 6009569280
+    },
+    "agentx:L2633": {
+      "hit_tokens": 35456,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          35456,
+          1920
+        ]
+      ],
+      "read_bytes": 3893919744
+    },
+    "agentx:L2634": {
+      "hit_tokens": 217088,
+      "u_tokens": 1600,
+      "actual_shapes": [
+        [
+          217088,
+          1600
+        ]
+      ],
+      "read_bytes": 23841472512
+    },
+    "agentx:L2635": {
+      "hit_tokens": 64256,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          64256,
+          320
+        ]
+      ],
+      "read_bytes": 7056850944
+    },
+    "agentx:L2636": {
+      "hit_tokens": 54848,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          54848,
+          896
+        ]
+      ],
+      "read_bytes": 6023626752
+    },
+    "agentx:L2637": {
+      "hit_tokens": 37376,
+      "u_tokens": 4544,
+      "actual_shapes": [
+        [
+          37376,
+          4544
+        ]
+      ],
+      "read_bytes": 4104781824
+    },
+    "agentx:L2638": {
+      "hit_tokens": 55744,
+      "u_tokens": 2112,
+      "actual_shapes": [
+        [
+          55744,
+          2112
+        ]
+      ],
+      "read_bytes": 6122029056
+    },
+    "agentx:L2639": {
+      "hit_tokens": 41920,
+      "u_tokens": 6336,
+      "actual_shapes": [
+        [
+          41920,
+          6336
+        ]
+      ],
+      "read_bytes": 4603822080
+    },
+    "agentx:L2640": {
+      "hit_tokens": 262528,
+      "u_tokens": 18240,
+      "actual_shapes": [
+        [
+          262528,
+          6144
+        ],
+        [
+          268672,
+          8192
+        ],
+        [
+          276864,
+          3904
+        ]
+      ],
+      "read_bytes": 28831875072
+    },
+    "agentx:L2641": {
+      "hit_tokens": 218688,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          218688,
+          1280
+        ]
+      ],
+      "read_bytes": 24017190912
+    },
+    "agentx:L2642": {
+      "hit_tokens": 57856,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          57856,
+          2560
+        ]
+      ],
+      "read_bytes": 6353977344
+    },
+    "agentx:L2643": {
+      "hit_tokens": 64576,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          64576,
+          960
+        ]
+      ],
+      "read_bytes": 7091994624
+    },
+    "agentx:L2644": {
+      "hit_tokens": 60416,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          60416,
+          1920
+        ]
+      ],
+      "read_bytes": 6635126784
+    },
+    "agentx:L2645": {
+      "hit_tokens": 65536,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          65536,
+          128
+        ]
+      ],
+      "read_bytes": 7197425664
+    },
+    "agentx:L2646": {
+      "hit_tokens": 26688,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26688,
+          960
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2647": {
+      "hit_tokens": 48256,
+      "u_tokens": 10496,
+      "actual_shapes": [
+        [
+          48256,
+          1536
+        ],
+        [
+          49792,
+          8192
+        ],
+        [
+          57984,
+          768
+        ]
+      ],
+      "read_bytes": 5299666944
+    },
+    "agentx:L2648": {
+      "hit_tokens": 26672,
+      "u_tokens": 16,
+      "actual_shapes": [
+        [
+          26672,
+          16
+        ]
+      ],
+      "read_bytes": 2929225728
+    },
+    "agentx:L2649": {
+      "hit_tokens": 49280,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          49280,
+          320
+        ]
+      ],
+      "read_bytes": 5412126720
+    },
+    "agentx:L2650": {
+      "hit_tokens": 29824,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          29824,
+          640
+        ]
+      ],
+      "read_bytes": 3275390976
+    },
+    "agentx:L2651": {
+      "hit_tokens": 31488,
+      "u_tokens": 1792,
+      "actual_shapes": [
+        [
+          31488,
+          1792
+        ]
+      ],
+      "read_bytes": 3458138112
+    },
+    "agentx:L2652": {
+      "hit_tokens": 38208,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          38208,
+          640
+        ]
+      ],
+      "read_bytes": 4196155392
+    },
+    "agentx:L2653": {
+      "hit_tokens": 94208,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          94208,
+          2432
+        ]
+      ],
+      "read_bytes": 10346299392
+    },
+    "agentx:L2654": {
+      "hit_tokens": 62336,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          62336,
+          448
+        ]
+      ],
+      "read_bytes": 6845988864
+    },
+    "agentx:L2655": {
+      "hit_tokens": 58752,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          58752,
+          1536
+        ]
+      ],
+      "read_bytes": 6452379648
+    },
+    "agentx:L2656": {
+      "hit_tokens": 252928,
+      "u_tokens": 2496,
+      "actual_shapes": [
+        [
+          252928,
+          2496
+        ]
+      ],
+      "read_bytes": 27777564672
+    },
+    "agentx:L2657": {
+      "hit_tokens": 34624,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          34624,
+          576
+        ]
+      ],
+      "read_bytes": 3802546176
+    },
+    "agentx:L2658": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2659": {
+      "hit_tokens": 219968,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          219968,
+          1536
+        ]
+      ],
+      "read_bytes": 24157765632
+    },
+    "agentx:L2660": {
+      "hit_tokens": 62784,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          62784,
+          384
+        ]
+      ],
+      "read_bytes": 6895190016
+    },
+    "agentx:L2661": {
+      "hit_tokens": 60288,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          60288,
+          2432
+        ]
+      ],
+      "read_bytes": 6621069312
+    },
+    "agentx:L2662": {
+      "hit_tokens": 63168,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          63168,
+          192
+        ]
+      ],
+      "read_bytes": 6937362432
+    },
+    "agentx:L2663": {
+      "hit_tokens": 49600,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          49600,
+          320
+        ]
+      ],
+      "read_bytes": 5447270400
+    },
+    "agentx:L2664": {
+      "hit_tokens": 221504,
+      "u_tokens": 2240,
+      "actual_shapes": [
+        [
+          221504,
+          2240
+        ]
+      ],
+      "read_bytes": 24326455296
+    },
+    "agentx:L2665": {
+      "hit_tokens": 27648,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          27648,
+          256
+        ]
+      ],
+      "read_bytes": 3036413952
+    },
+    "agentx:L2666": {
+      "hit_tokens": 16448,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          16448,
+          320
+        ]
+      ],
+      "read_bytes": 1806385152
+    },
+    "agentx:L2667": {
+      "hit_tokens": 63360,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          63360,
+          832
+        ]
+      ],
+      "read_bytes": 6958448640
+    },
+    "agentx:L2668": {
+      "hit_tokens": 255424,
+      "u_tokens": 1664,
+      "actual_shapes": [
+        [
+          255424,
+          1664
+        ]
+      ],
+      "read_bytes": 28051685376
+    },
+    "agentx:L2669": {
+      "hit_tokens": 64192,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          64192,
+          256
+        ]
+      ],
+      "read_bytes": 7049822208
+    },
+    "agentx:L2670": {
+      "hit_tokens": 26688,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26688,
+          960
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2671": {
+      "hit_tokens": 26688,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          26688,
+          1920
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2672": {
+      "hit_tokens": 0,
+      "u_tokens": 16320,
+      "actual_shapes": [
+        [
+          0,
+          4096
+        ],
+        [
+          4096,
+          8192
+        ],
+        [
+          12288,
+          4032
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2673": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2674": {
+      "hit_tokens": 153600,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          153600,
+          448
+        ]
+      ],
+      "read_bytes": 16868966400
+    },
+    "agentx:L2675": {
+      "hit_tokens": 29888,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          29888,
+          320
+        ]
+      ],
+      "read_bytes": 3282419712
+    },
+    "agentx:L2676": {
+      "hit_tokens": 35200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          35200,
+          320
+        ]
+      ],
+      "read_bytes": 3865804800
+    },
+    "agentx:L2677": {
+      "hit_tokens": 33280,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          33280,
+          704
+        ]
+      ],
+      "read_bytes": 3654942720
+    },
+    "agentx:L2678": {
+      "hit_tokens": 223744,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          223744,
+          2560
+        ]
+      ],
+      "read_bytes": 24572461056
+    },
+    "agentx:L2679": {
+      "hit_tokens": 27648,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          27648,
+          320
+        ]
+      ],
+      "read_bytes": 3036413952
+    },
+    "agentx:L2680": {
+      "hit_tokens": 62720,
+      "u_tokens": 1088,
+      "actual_shapes": [
+        [
+          62720,
+          1088
+        ]
+      ],
+      "read_bytes": 6888161280
+    },
+    "agentx:L2681": {
+      "hit_tokens": 49920,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          49920,
+          640
+        ]
+      ],
+      "read_bytes": 5482414080
+    },
+    "agentx:L2682": {
+      "hit_tokens": 27904,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          27904,
+          640
+        ]
+      ],
+      "read_bytes": 3064528896
+    },
+    "agentx:L2683": {
+      "hit_tokens": 37440,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          37440,
+          1920
+        ]
+      ],
+      "read_bytes": 4111810560
+    },
+    "agentx:L2684": {
+      "hit_tokens": 63808,
+      "u_tokens": 768,
+      "actual_shapes": [
+        [
+          63808,
+          768
+        ]
+      ],
+      "read_bytes": 7007649792
+    },
+    "agentx:L2685": {
+      "hit_tokens": 35520,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          35520,
+          384
+        ]
+      ],
+      "read_bytes": 3900948480
+    },
+    "agentx:L2686": {
+      "hit_tokens": 38848,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          38848,
+          896
+        ]
+      ],
+      "read_bytes": 4266442752
+    },
+    "agentx:L2687": {
+      "hit_tokens": 26688,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26688,
+          960
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2688": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2689": {
+      "hit_tokens": 64576,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          64576,
+          128
+        ]
+      ],
+      "read_bytes": 7091994624
+    },
+    "agentx:L2690": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2691": {
+      "hit_tokens": 257088,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          257088,
+          2432
+        ]
+      ],
+      "read_bytes": 28234432512
+    },
+    "agentx:L2692": {
+      "hit_tokens": 64704,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          64704,
+          256
+        ]
+      ],
+      "read_bytes": 7106052096
+    },
+    "agentx:L2693": {
+      "hit_tokens": 27968,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          27968,
+          576
+        ]
+      ],
+      "read_bytes": 3071557632
+    },
+    "agentx:L2694": {
+      "hit_tokens": 96640,
+      "u_tokens": 4288,
+      "actual_shapes": [
+        [
+          96640,
+          2560
+        ],
+        [
+          99200,
+          1728
+        ]
+      ],
+      "read_bytes": 10613391360
+    },
+    "agentx:L2695": {
+      "hit_tokens": 64960,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          64960,
+          896
+        ]
+      ],
+      "read_bytes": 7134167040
+    },
+    "agentx:L2696": {
+      "hit_tokens": 154048,
+      "u_tokens": 6016,
+      "actual_shapes": [
+        [
+          154048,
+          6016
+        ]
+      ],
+      "read_bytes": 16918167552
+    },
+    "agentx:L2697": {
+      "hit_tokens": 27648,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          27648,
+          320
+        ]
+      ],
+      "read_bytes": 3036413952
+    },
+    "agentx:L2698": {
+      "hit_tokens": 35904,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          35904,
+          960
+        ]
+      ],
+      "read_bytes": 3943120896
+    },
+    "agentx:L2699": {
+      "hit_tokens": 65856,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          65856,
+          128
+        ]
+      ],
+      "read_bytes": 7232569344
+    },
+    "agentx:L2700": {
+      "hit_tokens": 30208,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          30208,
+          320
+        ]
+      ],
+      "read_bytes": 3317563392
+    },
+    "agentx:L2701": {
+      "hit_tokens": 65984,
+      "u_tokens": 1088,
+      "actual_shapes": [
+        [
+          65984,
+          1088
+        ]
+      ],
+      "read_bytes": 7246626816
+    },
+    "agentx:L2702": {
+      "hit_tokens": 26624,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26624,
+          960
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2703": {
+      "hit_tokens": 26688,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          26688,
+          1152
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2704": {
+      "hit_tokens": 259520,
+      "u_tokens": 1728,
+      "actual_shapes": [
+        [
+          259520,
+          1728
+        ]
+      ],
+      "read_bytes": 28501524480
+    },
+    "agentx:L2705": {
+      "hit_tokens": 226304,
+      "u_tokens": 1600,
+      "actual_shapes": [
+        [
+          226304,
+          1600
+        ]
+      ],
+      "read_bytes": 24853610496
+    },
+    "agentx:L2706": {
+      "hit_tokens": 67072,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          67072,
+          384
+        ]
+      ],
+      "read_bytes": 7366115328
+    },
+    "agentx:L2707": {
+      "hit_tokens": 39744,
+      "u_tokens": 1664,
+      "actual_shapes": [
+        [
+          39744,
+          1664
+        ]
+      ],
+      "read_bytes": 4364845056
+    },
+    "agentx:L2708": {
+      "hit_tokens": 27968,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          27968,
+          256
+        ]
+      ],
+      "read_bytes": 3071557632
+    },
+    "agentx:L2709": {
+      "hit_tokens": 160064,
+      "u_tokens": 5440,
+      "actual_shapes": [
+        [
+          160064,
+          1088
+        ],
+        [
+          161152,
+          4352
+        ]
+      ],
+      "read_bytes": 17578868736
+    },
+    "agentx:L2710": {
+      "hit_tokens": 67456,
+      "u_tokens": 4928,
+      "actual_shapes": [
+        [
+          67456,
+          4928
+        ]
+      ],
+      "read_bytes": 7408287744
+    },
+    "agentx:L2711": {
+      "hit_tokens": 39360,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          39360,
+          448
+        ]
+      ],
+      "read_bytes": 4322672640
+    },
+    "agentx:L2712": {
+      "hit_tokens": 72384,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          72384,
+          640
+        ]
+      ],
+      "read_bytes": 7949500416
+    },
+    "agentx:L2713": {
+      "hit_tokens": 30528,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          30528,
+          256
+        ]
+      ],
+      "read_bytes": 3352707072
+    },
+    "agentx:L2714": {
+      "hit_tokens": 73024,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          73024,
+          2560
+        ]
+      ],
+      "read_bytes": 8019787776
+    },
+    "agentx:L2715": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2716": {
+      "hit_tokens": 0,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          0,
+          384
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2717": {
+      "hit_tokens": 227904,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          227904,
+          1536
+        ]
+      ],
+      "read_bytes": 25029328896
+    },
+    "agentx:L2718": {
+      "hit_tokens": 75584,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          75584,
+          2432
+        ]
+      ],
+      "read_bytes": 8300937216
+    },
+    "agentx:L2719": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2720": {
+      "hit_tokens": 41408,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          41408,
+          1216
+        ]
+      ],
+      "read_bytes": 4547592192
+    },
+    "agentx:L2721": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2722": {
+      "hit_tokens": 39808,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          39808,
+          320
+        ]
+      ],
+      "read_bytes": 4371873792
+    },
+    "agentx:L2723": {
+      "hit_tokens": 78016,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          78016,
+          640
+        ]
+      ],
+      "read_bytes": 8568029184
+    },
+    "agentx:L2724": {
+      "hit_tokens": 36864,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          36864,
+          320
+        ]
+      ],
+      "read_bytes": 4048551936
+    },
+    "agentx:L2725": {
+      "hit_tokens": 50560,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          50560,
+          384
+        ]
+      ],
+      "read_bytes": 5552701440
+    },
+    "agentx:L2726": {
+      "hit_tokens": 229440,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          229440,
+          960
+        ]
+      ],
+      "read_bytes": 25198018560
+    },
+    "agentx:L2727": {
+      "hit_tokens": 261248,
+      "u_tokens": 2816,
+      "actual_shapes": [
+        [
+          261248,
+          2816
+        ]
+      ],
+      "read_bytes": 28691300352
+    },
+    "agentx:L2728": {
+      "hit_tokens": 78656,
+      "u_tokens": 1984,
+      "actual_shapes": [
+        [
+          78656,
+          1984
+        ]
+      ],
+      "read_bytes": 8638316544
+    },
+    "agentx:L2729": {
+      "hit_tokens": 30784,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          30784,
+          320
+        ]
+      ],
+      "read_bytes": 3380822016
+    },
+    "agentx:L2730": {
+      "hit_tokens": 28544,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          28544,
+          960
+        ]
+      ],
+      "read_bytes": 3134816256
+    },
+    "agentx:L2731": {
+      "hit_tokens": 40128,
+      "u_tokens": 3072,
+      "actual_shapes": [
+        [
+          40128,
+          3072
+        ]
+      ],
+      "read_bytes": 4407017472
+    },
+    "agentx:L2732": {
+      "hit_tokens": 80640,
+      "u_tokens": 2240,
+      "actual_shapes": [
+        [
+          80640,
+          2240
+        ]
+      ],
+      "read_bytes": 8856207360
+    },
+    "agentx:L2733": {
+      "hit_tokens": 31104,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          31104,
+          256
+        ]
+      ],
+      "read_bytes": 3415965696
+    },
+    "agentx:L2734": {
+      "hit_tokens": 82880,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          82880,
+          320
+        ]
+      ],
+      "read_bytes": 9102213120
+    },
+    "agentx:L2735": {
+      "hit_tokens": 42624,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          42624,
+          384
+        ]
+      ],
+      "read_bytes": 4681138176
+    },
+    "agentx:L2736": {
+      "hit_tokens": 27840,
+      "u_tokens": 1024,
+      "actual_shapes": [
+        [
+          27840,
+          1024
+        ]
+      ],
+      "read_bytes": 3057500160
+    },
+    "agentx:L2737": {
+      "hit_tokens": 83200,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          83200,
+          128
+        ]
+      ],
+      "read_bytes": 9137356800
+    },
+    "agentx:L2738": {
+      "hit_tokens": 28224,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          28224,
+          384
+        ]
+      ],
+      "read_bytes": 3099672576
+    },
+    "agentx:L2739": {
+      "hit_tokens": 27584,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          27584,
+          1280
+        ]
+      ],
+      "read_bytes": 3029385216
+    },
+    "agentx:L2740": {
+      "hit_tokens": 230400,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          230400,
+          2560
+        ]
+      ],
+      "read_bytes": 25303449600
+    },
+    "agentx:L2741": {
+      "hit_tokens": 10880,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          10880,
+          128
+        ]
+      ],
+      "read_bytes": 1194885120
+    },
+    "agentx:L2742": {
+      "hit_tokens": 28608,
+      "u_tokens": 2496,
+      "actual_shapes": [
+        [
+          28608,
+          2496
+        ]
+      ],
+      "read_bytes": 3141844992
+    },
+    "agentx:L2743": {
+      "hit_tokens": 83328,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          83328,
+          832
+        ]
+      ],
+      "read_bytes": 9151414272
+    },
+    "agentx:L2744": {
+      "hit_tokens": 0,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          0,
+          320
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2745": {
+      "hit_tokens": 43200,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          43200,
+          384
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2746": {
+      "hit_tokens": 264064,
+      "u_tokens": 2816,
+      "actual_shapes": [
+        [
+          264064,
+          2816
+        ]
+      ],
+      "read_bytes": 29000564736
+    },
+    "agentx:L2747": {
+      "hit_tokens": 31360,
+      "u_tokens": 768,
+      "actual_shapes": [
+        [
+          31360,
+          768
+        ]
+      ],
+      "read_bytes": 3444080640
+    },
+    "agentx:L2748": {
+      "hit_tokens": 84160,
+      "u_tokens": 768,
+      "actual_shapes": [
+        [
+          84160,
+          768
+        ]
+      ],
+      "read_bytes": 9242787840
+    },
+    "agentx:L2749": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2750": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2751": {
+      "hit_tokens": 29504,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          29504,
+          896
+        ]
+      ],
+      "read_bytes": 3240247296
+    },
+    "agentx:L2752": {
+      "hit_tokens": 50944,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          50944,
+          320
+        ]
+      ],
+      "read_bytes": 5594873856
+    },
+    "agentx:L2753": {
+      "hit_tokens": 84928,
+      "u_tokens": 1088,
+      "actual_shapes": [
+        [
+          84928,
+          1088
+        ]
+      ],
+      "read_bytes": 9327132672
+    },
+    "agentx:L2754": {
+      "hit_tokens": 43008,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          43008,
+          512
+        ]
+      ],
+      "read_bytes": 4723310592
+    },
+    "agentx:L2755": {
+      "hit_tokens": 37184,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          37184,
+          896
+        ]
+      ],
+      "read_bytes": 4083695616
+    },
+    "agentx:L2756": {
+      "hit_tokens": 43584,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43584,
+          320
+        ]
+      ],
+      "read_bytes": 4786569216
+    },
+    "agentx:L2757": {
+      "hit_tokens": 32128,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          32128,
+          192
+        ]
+      ],
+      "read_bytes": 3528425472
+    },
+    "agentx:L2758": {
+      "hit_tokens": 86016,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          86016,
+          320
+        ]
+      ],
+      "read_bytes": 9446621184
+    },
+    "agentx:L2759": {
+      "hit_tokens": 30400,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          30400,
+          384
+        ]
+      ],
+      "read_bytes": 3338649600
+    },
+    "agentx:L2760": {
+      "hit_tokens": 86336,
+      "u_tokens": 1408,
+      "actual_shapes": [
+        [
+          86336,
+          1408
+        ]
+      ],
+      "read_bytes": 9481764864
+    },
+    "agentx:L2761": {
+      "hit_tokens": 26624,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26624,
+          960
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2762": {
+      "hit_tokens": 51264,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          51264,
+          320
+        ]
+      ],
+      "read_bytes": 5630017536
+    },
+    "agentx:L2763": {
+      "hit_tokens": 266880,
+      "u_tokens": 1728,
+      "actual_shapes": [
+        [
+          266880,
+          1728
+        ]
+      ],
+      "read_bytes": 29309829120
+    },
+    "agentx:L2764": {
+      "hit_tokens": 28864,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          28864,
+          1280
+        ]
+      ],
+      "read_bytes": 3169959936
+    },
+    "agentx:L2765": {
+      "hit_tokens": 88768,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          88768,
+          192
+        ]
+      ],
+      "read_bytes": 9748856832
+    },
+    "agentx:L2766": {
+      "hit_tokens": 43520,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          43520,
+          640
+        ]
+      ],
+      "read_bytes": 4779540480
+    },
+    "agentx:L2767": {
+      "hit_tokens": 26624,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26624,
+          960
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2768": {
+      "hit_tokens": 52928,
+      "u_tokens": 2432,
+      "actual_shapes": [
+        [
+          52928,
+          2432
+        ]
+      ],
+      "read_bytes": 5812764672
+    },
+    "agentx:L2769": {
+      "hit_tokens": 30784,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          30784,
+          320
+        ]
+      ],
+      "read_bytes": 3380822016
+    },
+    "agentx:L2770": {
+      "hit_tokens": 38080,
+      "u_tokens": 2624,
+      "actual_shapes": [
+        [
+          38080,
+          2624
+        ]
+      ],
+      "read_bytes": 4182097920
+    },
+    "agentx:L2771": {
+      "hit_tokens": 43904,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          43904,
+          384
+        ]
+      ],
+      "read_bytes": 4821712896
+    },
+    "agentx:L2772": {
+      "hit_tokens": 43200,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          43200,
+          384
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2773": {
+      "hit_tokens": 51584,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          51584,
+          320
+        ]
+      ],
+      "read_bytes": 5665161216
+    },
+    "agentx:L2774": {
+      "hit_tokens": 268608,
+      "u_tokens": 4160,
+      "actual_shapes": [
+        [
+          268608,
+          4160
+        ]
+      ],
+      "read_bytes": 29499604992
+    },
+    "agentx:L2775": {
+      "hit_tokens": 32320,
+      "u_tokens": 3968,
+      "actual_shapes": [
+        [
+          32320,
+          3968
+        ]
+      ],
+      "read_bytes": 3549511680
+    },
+    "agentx:L2776": {
+      "hit_tokens": 28864,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          28864,
+          704
+        ]
+      ],
+      "read_bytes": 3169959936
+    },
+    "agentx:L2777": {
+      "hit_tokens": 30144,
+      "u_tokens": 4480,
+      "actual_shapes": [
+        [
+          30144,
+          320
+        ],
+        [
+          30464,
+          4160
+        ]
+      ],
+      "read_bytes": 3310534656
+    },
+    "agentx:L2778": {
+      "hit_tokens": 27584,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          27584,
+          896
+        ]
+      ],
+      "read_bytes": 3029385216
+    },
+    "agentx:L2779": {
+      "hit_tokens": 51904,
+      "u_tokens": 3904,
+      "actual_shapes": [
+        [
+          51904,
+          3904
+        ]
+      ],
+      "read_bytes": 5700304896
+    },
+    "agentx:L2780": {
+      "hit_tokens": 31104,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          31104,
+          320
+        ]
+      ],
+      "read_bytes": 3415965696
+    },
+    "agentx:L2781": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2782": {
+      "hit_tokens": 40704,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          40704,
+          576
+        ]
+      ],
+      "read_bytes": 4470276096
+    },
+    "agentx:L2783": {
+      "hit_tokens": 208000,
+      "u_tokens": 64,
+      "actual_shapes": [
+        [
+          208000,
+          64
+        ]
+      ],
+      "read_bytes": 22843392000
+    },
+    "agentx:L2784": {
+      "hit_tokens": 44160,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          44160,
+          320
+        ]
+      ],
+      "read_bytes": 4849827840
+    },
+    "agentx:L2785": {
+      "hit_tokens": 44288,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          44288,
+          640
+        ]
+      ],
+      "read_bytes": 4863885312
+    },
+    "agentx:L2786": {
+      "hit_tokens": 55360,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          55360,
+          2560
+        ]
+      ],
+      "read_bytes": 6079856640
+    },
+    "agentx:L2787": {
+      "hit_tokens": 34624,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          34624,
+          256
+        ]
+      ],
+      "read_bytes": 3802546176
+    },
+    "agentx:L2788": {
+      "hit_tokens": 27584,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          27584,
+          1216
+        ]
+      ],
+      "read_bytes": 3029385216
+    },
+    "agentx:L2789": {
+      "hit_tokens": 36288,
+      "u_tokens": 6912,
+      "actual_shapes": [
+        [
+          36288,
+          2560
+        ],
+        [
+          38848,
+          4352
+        ]
+      ],
+      "read_bytes": 3985293312
+    },
+    "agentx:L2790": {
+      "hit_tokens": 31424,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          31424,
+          704
+        ]
+      ],
+      "read_bytes": 3451109376
+    },
+    "agentx:L2791": {
+      "hit_tokens": 165504,
+      "u_tokens": 14464,
+      "actual_shapes": [
+        [
+          165504,
+          8192
+        ],
+        [
+          173696,
+          6272
+        ]
+      ],
+      "read_bytes": 18176311296
+    },
+    "agentx:L2792": {
+      "hit_tokens": 41280,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          41280,
+          320
+        ]
+      ],
+      "read_bytes": 4533534720
+    },
+    "agentx:L2793": {
+      "hit_tokens": 2880,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          2880,
+          384
+        ]
+      ],
+      "read_bytes": 316293120
+    },
+    "agentx:L2794": {
+      "hit_tokens": 43200,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          43200,
+          384
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2795": {
+      "hit_tokens": 57920,
+      "u_tokens": 2368,
+      "actual_shapes": [
+        [
+          57920,
+          2368
+        ]
+      ],
+      "read_bytes": 6361006080
+    },
+    "agentx:L2796": {
+      "hit_tokens": 131968,
+      "u_tokens": 26752,
+      "actual_shapes": [
+        [
+          131968,
+          6144
+        ],
+        [
+          138112,
+          8192
+        ],
+        [
+          146304,
+          8192
+        ],
+        [
+          154496,
+          4224
+        ]
+      ],
+      "read_bytes": 14493253632
+    },
+    "agentx:L2797": {
+      "hit_tokens": 272768,
+      "u_tokens": 4352,
+      "actual_shapes": [
+        [
+          272768,
+          4352
+        ]
+      ],
+      "read_bytes": 29956472832
+    },
+    "agentx:L2798": {
+      "hit_tokens": 41600,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          41600,
+          640
+        ]
+      ],
+      "read_bytes": 4568678400
+    },
+    "agentx:L2799": {
+      "hit_tokens": 44928,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          44928,
+          576
+        ]
+      ],
+      "read_bytes": 4934172672
+    },
+    "agentx:L2800": {
+      "hit_tokens": 43200,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          43200,
+          320
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2801": {
+      "hit_tokens": 640,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          640,
+          640
+        ]
+      ],
+      "read_bytes": 70287360
+    },
+    "agentx:L2802": {
+      "hit_tokens": 28480,
+      "u_tokens": 1024,
+      "actual_shapes": [
+        [
+          28480,
+          1024
+        ]
+      ],
+      "read_bytes": 3127787520
+    },
+    "agentx:L2803": {
+      "hit_tokens": 280768,
+      "u_tokens": 9600,
+      "actual_shapes": [
+        [
+          280768,
+          5888
+        ],
+        [
+          286656,
+          3712
+        ]
+      ],
+      "read_bytes": 30835064832
+    },
+    "agentx:L2804": {
+      "hit_tokens": 42240,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          42240,
+          128
+        ]
+      ],
+      "read_bytes": 4638965760
+    },
+    "agentx:L2805": {
+      "hit_tokens": 45888,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          45888,
+          192
+        ]
+      ],
+      "read_bytes": 5039603712
+    },
+    "agentx:L2806": {
+      "hit_tokens": 0,
+      "u_tokens": 3200,
+      "actual_shapes": [
+        [
+          0,
+          3200
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2807": {
+      "hit_tokens": 26688,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26688,
+          960
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2808": {
+      "hit_tokens": 100928,
+      "u_tokens": 2176,
+      "actual_shapes": [
+        [
+          100928,
+          2176
+        ]
+      ],
+      "read_bytes": 11084316672
+    },
+    "agentx:L2809": {
+      "hit_tokens": 34880,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          34880,
+          704
+        ]
+      ],
+      "read_bytes": 3830661120
+    },
+    "agentx:L2810": {
+      "hit_tokens": 28800,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          28800,
+          320
+        ]
+      ],
+      "read_bytes": 3162931200
+    },
+    "agentx:L2811": {
+      "hit_tokens": 55808,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          55808,
+          1216
+        ]
+      ],
+      "read_bytes": 6129057792
+    },
+    "agentx:L2812": {
+      "hit_tokens": 277120,
+      "u_tokens": 3840,
+      "actual_shapes": [
+        [
+          277120,
+          2048
+        ],
+        [
+          279168,
+          1792
+        ]
+      ],
+      "read_bytes": 30434426880
+    },
+    "agentx:L2813": {
+      "hit_tokens": 11264,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          11264,
+          320
+        ]
+      ],
+      "read_bytes": 1237057536
+    },
+    "agentx:L2814": {
+      "hit_tokens": 44480,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          44480,
+          320
+        ]
+      ],
+      "read_bytes": 4884971520
+    },
+    "agentx:L2815": {
+      "hit_tokens": 45504,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          45504,
+          320
+        ]
+      ],
+      "read_bytes": 4997431296
+    },
+    "agentx:L2816": {
+      "hit_tokens": 46080,
+      "u_tokens": 1408,
+      "actual_shapes": [
+        [
+          46080,
+          1408
+        ]
+      ],
+      "read_bytes": 5060689920
+    },
+    "agentx:L2817": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2818": {
+      "hit_tokens": 232960,
+      "u_tokens": 1088,
+      "actual_shapes": [
+        [
+          232960,
+          1088
+        ]
+      ],
+      "read_bytes": 25584599040
+    },
+    "agentx:L2819": {
+      "hit_tokens": 47488,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          47488,
+          512
+        ]
+      ],
+      "read_bytes": 5215322112
+    },
+    "agentx:L2820": {
+      "hit_tokens": 43200,
+      "u_tokens": 5248,
+      "actual_shapes": [
+        [
+          43200,
+          5248
+        ]
+      ],
+      "read_bytes": 4744396800
+    },
+    "agentx:L2821": {
+      "hit_tokens": 32128,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          32128,
+          1216
+        ]
+      ],
+      "read_bytes": 3528425472
+    },
+    "agentx:L2822": {
+      "hit_tokens": 29120,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          29120,
+          128
+        ]
+      ],
+      "read_bytes": 3198074880
+    },
+    "agentx:L2823": {
+      "hit_tokens": 29504,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          29504,
+          704
+        ]
+      ],
+      "read_bytes": 3240247296
+    },
+    "agentx:L2824": {
+      "hit_tokens": 48000,
+      "u_tokens": 1408,
+      "actual_shapes": [
+        [
+          48000,
+          1408
+        ]
+      ],
+      "read_bytes": 5271552000
+    },
+    "agentx:L2825": {
+      "hit_tokens": 280960,
+      "u_tokens": 2048,
+      "actual_shapes": [
+        [
+          280960,
+          2048
+        ]
+      ],
+      "read_bytes": 30856151040
+    },
+    "agentx:L2826": {
+      "hit_tokens": 27648,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          27648,
+          640
+        ]
+      ],
+      "read_bytes": 3036413952
+    },
+    "agentx:L2827": {
+      "hit_tokens": 49408,
+      "u_tokens": 1600,
+      "actual_shapes": [
+        [
+          49408,
+          1600
+        ]
+      ],
+      "read_bytes": 5426184192
+    },
+    "agentx:L2828": {
+      "hit_tokens": 42368,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          42368,
+          960
+        ]
+      ],
+      "read_bytes": 4653023232
+    },
+    "agentx:L2829": {
+      "hit_tokens": 23744,
+      "u_tokens": 2944,
+      "actual_shapes": [
+        [
+          23744,
+          2944
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2830": {
+      "hit_tokens": 158720,
+      "u_tokens": 3648,
+      "actual_shapes": [
+        [
+          158720,
+          3648
+        ]
+      ],
+      "read_bytes": 17431265280
+    },
+    "agentx:L2831": {
+      "hit_tokens": 35584,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          35584,
+          896
+        ]
+      ],
+      "read_bytes": 3907977216
+    },
+    "agentx:L2832": {
+      "hit_tokens": 51008,
+      "u_tokens": 1792,
+      "actual_shapes": [
+        [
+          51008,
+          1792
+        ]
+      ],
+      "read_bytes": 5601902592
+    },
+    "agentx:L2833": {
+      "hit_tokens": 103104,
+      "u_tokens": 3456,
+      "actual_shapes": [
+        [
+          103104,
+          2368
+        ],
+        [
+          105472,
+          1088
+        ]
+      ],
+      "read_bytes": 11323293696
+    },
+    "agentx:L2834": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2835": {
+      "hit_tokens": 29248,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          29248,
+          512
+        ]
+      ],
+      "read_bytes": 3212132352
+    },
+    "agentx:L2836": {
+      "hit_tokens": 2880,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          2880,
+          384
+        ]
+      ],
+      "read_bytes": 316293120
+    },
+    "agentx:L2837": {
+      "hit_tokens": 44800,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          44800,
+          704
+        ]
+      ],
+      "read_bytes": 4920115200
+    },
+    "agentx:L2838": {
+      "hit_tokens": 45824,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          45824,
+          704
+        ]
+      ],
+      "read_bytes": 5032574976
+    },
+    "agentx:L2839": {
+      "hit_tokens": 52800,
+      "u_tokens": 1984,
+      "actual_shapes": [
+        [
+          52800,
+          1984
+        ]
+      ],
+      "read_bytes": 5798707200
+    },
+    "agentx:L2840": {
+      "hit_tokens": 48448,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          48448,
+          1152
+        ]
+      ],
+      "read_bytes": 5320753152
+    },
+    "agentx:L2841": {
+      "hit_tokens": 29760,
+      "u_tokens": 3968,
+      "actual_shapes": [
+        [
+          29760,
+          3968
+        ]
+      ],
+      "read_bytes": 3268362240
+    },
+    "agentx:L2842": {
+      "hit_tokens": 0,
+      "u_tokens": 12544,
+      "actual_shapes": [
+        [
+          0,
+          2048
+        ],
+        [
+          2048,
+          8192
+        ],
+        [
+          10240,
+          2304
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2843": {
+      "hit_tokens": 283008,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          283008,
+          1280
+        ]
+      ],
+      "read_bytes": 31081070592
+    },
+    "agentx:L2844": {
+      "hit_tokens": 2880,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          2880,
+          384
+        ]
+      ],
+      "read_bytes": 316293120
+    },
+    "agentx:L2845": {
+      "hit_tokens": 6400,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          6400,
+          128
+        ]
+      ],
+      "read_bytes": 702873600
+    },
+    "agentx:L2846": {
+      "hit_tokens": 26688,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          26688,
+          832
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2847": {
+      "hit_tokens": 36480,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          36480,
+          128
+        ]
+      ],
+      "read_bytes": 4006379520
+    },
+    "agentx:L2848": {
+      "hit_tokens": 106560,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          106560,
+          2880
+        ]
+      ],
+      "read_bytes": 11702845440
+    },
+    "agentx:L2849": {
+      "hit_tokens": 54784,
+      "u_tokens": 2624,
+      "actual_shapes": [
+        [
+          54784,
+          2624
+        ]
+      ],
+      "read_bytes": 6016598016
+    },
+    "agentx:L2850": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2851": {
+      "hit_tokens": 43328,
+      "u_tokens": 1216,
+      "actual_shapes": [
+        [
+          43328,
+          1216
+        ]
+      ],
+      "read_bytes": 4758454272
+    },
+    "agentx:L2852": {
+      "hit_tokens": 49600,
+      "u_tokens": 11328,
+      "actual_shapes": [
+        [
+          49600,
+          960
+        ],
+        [
+          50560,
+          8192
+        ],
+        [
+          58752,
+          2176
+        ]
+      ],
+      "read_bytes": 5447270400
+    },
+    "agentx:L2853": {
+      "hit_tokens": 33344,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          33344,
+          384
+        ]
+      ],
+      "read_bytes": 3661971456
+    },
+    "agentx:L2854": {
+      "hit_tokens": 46528,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          46528,
+          1152
+        ]
+      ],
+      "read_bytes": 5109891072
+    },
+    "agentx:L2855": {
+      "hit_tokens": 45504,
+      "u_tokens": 2240,
+      "actual_shapes": [
+        [
+          45504,
+          2240
+        ]
+      ],
+      "read_bytes": 4997431296
+    },
+    "agentx:L2856": {
+      "hit_tokens": 57408,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          57408,
+          1536
+        ]
+      ],
+      "read_bytes": 6304776192
+    },
+    "agentx:L2857": {
+      "hit_tokens": 27520,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          27520,
+          448
+        ]
+      ],
+      "read_bytes": 3022356480
+    },
+    "agentx:L2858": {
+      "hit_tokens": 26624,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          26624,
+          960
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2859": {
+      "hit_tokens": 26688,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          26688,
+          1152
+        ]
+      ],
+      "read_bytes": 2930982912
+    },
+    "agentx:L2860": {
+      "hit_tokens": 58944,
+      "u_tokens": 64,
+      "actual_shapes": [
+        [
+          58944,
+          64
+        ]
+      ],
+      "read_bytes": 6473465856
+    },
+    "agentx:L2861": {
+      "hit_tokens": 77248,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          77248,
+          192
+        ]
+      ],
+      "read_bytes": 8483684352
+    },
+    "agentx:L2862": {
+      "hit_tokens": 59008,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          59008,
+          256
+        ]
+      ],
+      "read_bytes": 6480494592
+    },
+    "agentx:L2863": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2864": {
+      "hit_tokens": 36608,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          36608,
+          512
+        ]
+      ],
+      "read_bytes": 4020436992
+    },
+    "agentx:L2865": {
+      "hit_tokens": 60928,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          60928,
+          256
+        ]
+      ],
+      "read_bytes": 6691356672
+    },
+    "agentx:L2866": {
+      "hit_tokens": 59264,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          59264,
+          256
+        ]
+      ],
+      "read_bytes": 6508609536
+    },
+    "agentx:L2867": {
+      "hit_tokens": 33728,
+      "u_tokens": 960,
+      "actual_shapes": [
+        [
+          33728,
+          960
+        ]
+      ],
+      "read_bytes": 3704143872
+    },
+    "agentx:L2868": {
+      "hit_tokens": 284288,
+      "u_tokens": 3776,
+      "actual_shapes": [
+        [
+          284288,
+          3776
+        ]
+      ],
+      "read_bytes": 31221645312
+    },
+    "agentx:L2869": {
+      "hit_tokens": 59520,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          59520,
+          128
+        ]
+      ],
+      "read_bytes": 6536724480
+    },
+    "agentx:L2870": {
+      "hit_tokens": 33728,
+      "u_tokens": 1792,
+      "actual_shapes": [
+        [
+          33728,
+          1792
+        ]
+      ],
+      "read_bytes": 3704143872
+    },
+    "agentx:L2871": {
+      "hit_tokens": 47680,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          47680,
+          1280
+        ]
+      ],
+      "read_bytes": 5236408320
+    },
+    "agentx:L2872": {
+      "hit_tokens": 27584,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          27584,
+          704
+        ]
+      ],
+      "read_bytes": 3029385216
+    },
+    "agentx:L2873": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2874": {
+      "hit_tokens": 27840,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          27840,
+          448
+        ]
+      ],
+      "read_bytes": 3057500160
+    },
+    "agentx:L2875": {
+      "hit_tokens": 59648,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          59648,
+          1920
+        ]
+      ],
+      "read_bytes": 6550781952
+    },
+    "agentx:L2876": {
+      "hit_tokens": 61568,
+      "u_tokens": 1472,
+      "actual_shapes": [
+        [
+          61568,
+          1472
+        ]
+      ],
+      "read_bytes": 6761644032
+    },
+    "agentx:L2877": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2878": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          1728
+        ],
+        [
+          25472,
+          1152
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2879": {
+      "hit_tokens": 28288,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          28288,
+          896
+        ]
+      ],
+      "read_bytes": 3106701312
+    },
+    "agentx:L2880": {
+      "hit_tokens": 640,
+      "u_tokens": 704,
+      "actual_shapes": [
+        [
+          640,
+          704
+        ]
+      ],
+      "read_bytes": 70287360
+    },
+    "agentx:L2881": {
+      "hit_tokens": 179968,
+      "u_tokens": 1920,
+      "actual_shapes": [
+        [
+          179968,
+          1920
+        ]
+      ],
+      "read_bytes": 19764805632
+    },
+    "agentx:L2882": {
+      "hit_tokens": 63040,
+      "u_tokens": 3584,
+      "actual_shapes": [
+        [
+          63040,
+          3584
+        ]
+      ],
+      "read_bytes": 6923304960
+    },
+    "agentx:L2883": {
+      "hit_tokens": 37120,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          37120,
+          320
+        ]
+      ],
+      "read_bytes": 4076666880
+    },
+    "agentx:L2884": {
+      "hit_tokens": 288064,
+      "u_tokens": 1984,
+      "actual_shapes": [
+        [
+          288064,
+          1984
+        ]
+      ],
+      "read_bytes": 31636340736
+    },
+    "agentx:L2885": {
+      "hit_tokens": 29184,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          29184,
+          384
+        ]
+      ],
+      "read_bytes": 3205103616
+    },
+    "agentx:L2886": {
+      "hit_tokens": 26624,
+      "u_tokens": 1024,
+      "actual_shapes": [
+        [
+          26624,
+          1024
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2887": {
+      "hit_tokens": 35520,
+      "u_tokens": 768,
+      "actual_shapes": [
+        [
+          35520,
+          768
+        ]
+      ],
+      "read_bytes": 3900948480
+    },
+    "agentx:L2888": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2889": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2890": {
+      "hit_tokens": 37440,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          37440,
+          128
+        ]
+      ],
+      "read_bytes": 4111810560
+    },
+    "agentx:L2891": {
+      "hit_tokens": 29568,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          29568,
+          512
+        ]
+      ],
+      "read_bytes": 3247276032
+    },
+    "agentx:L2892": {
+      "hit_tokens": 234048,
+      "u_tokens": 3200,
+      "actual_shapes": [
+        [
+          234048,
+          3200
+        ]
+      ],
+      "read_bytes": 25704087552
+    },
+    "agentx:L2893": {
+      "hit_tokens": 66624,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          66624,
+          2560
+        ]
+      ],
+      "read_bytes": 7316914176
+    },
+    "agentx:L2894": {
+      "hit_tokens": 109440,
+      "u_tokens": 4288,
+      "actual_shapes": [
+        [
+          109440,
+          3648
+        ],
+        [
+          113088,
+          640
+        ]
+      ],
+      "read_bytes": 12019138560
+    },
+    "agentx:L2895": {
+      "hit_tokens": 61184,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          61184,
+          384
+        ],
+        [
+          61568,
+          192
+        ]
+      ],
+      "read_bytes": 6719471616
+    },
+    "agentx:L2896": {
+      "hit_tokens": 69184,
+      "u_tokens": 3200,
+      "actual_shapes": [
+        [
+          69184,
+          3200
+        ]
+      ],
+      "read_bytes": 7598063616
+    },
+    "agentx:L2897": {
+      "hit_tokens": 36288,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          36288,
+          512
+        ]
+      ],
+      "read_bytes": 3985293312
+    },
+    "agentx:L2898": {
+      "hit_tokens": 44544,
+      "u_tokens": 1344,
+      "actual_shapes": [
+        [
+          44544,
+          1344
+        ]
+      ],
+      "read_bytes": 4892000256
+    },
+    "agentx:L2899": {
+      "hit_tokens": 72384,
+      "u_tokens": 1984,
+      "actual_shapes": [
+        [
+          72384,
+          1984
+        ]
+      ],
+      "read_bytes": 7949500416
+    },
+    "agentx:L2900": {
+      "hit_tokens": 237248,
+      "u_tokens": 3712,
+      "actual_shapes": [
+        [
+          237248,
+          3200
+        ],
+        [
+          240448,
+          512
+        ]
+      ],
+      "read_bytes": 26055524352
+    },
+    "agentx:L2901": {
+      "hit_tokens": 30080,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          30080,
+          128
+        ]
+      ],
+      "read_bytes": 3303505920
+    },
+    "agentx:L2902": {
+      "hit_tokens": 37568,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          37568,
+          320
+        ]
+      ],
+      "read_bytes": 4125868032
+    },
+    "agentx:L2903": {
+      "hit_tokens": 74368,
+      "u_tokens": 1472,
+      "actual_shapes": [
+        [
+          74368,
+          1472
+        ]
+      ],
+      "read_bytes": 8167391232
+    },
+    "agentx:L2904": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2905": {
+      "hit_tokens": 27648,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          27648,
+          1536
+        ]
+      ],
+      "read_bytes": 3036413952
+    },
+    "agentx:L2906": {
+      "hit_tokens": 26624,
+      "u_tokens": 1664,
+      "actual_shapes": [
+        [
+          26624,
+          1664
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2907": {
+      "hit_tokens": 26624,
+      "u_tokens": 2624,
+      "actual_shapes": [
+        [
+          26624,
+          2624
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2908": {
+      "hit_tokens": 75840,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          75840,
+          128
+        ]
+      ],
+      "read_bytes": 8329052160
+    },
+    "agentx:L2909": {
+      "hit_tokens": 30208,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          30208,
+          832
+        ]
+      ],
+      "read_bytes": 3317563392
+    },
+    "agentx:L2910": {
+      "hit_tokens": 37888,
+      "u_tokens": 896,
+      "actual_shapes": [
+        [
+          37888,
+          896
+        ]
+      ],
+      "read_bytes": 4161011712
+    },
+    "agentx:L2911": {
+      "hit_tokens": 36800,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          36800,
+          448
+        ]
+      ],
+      "read_bytes": 4041523200
+    },
+    "agentx:L2912": {
+      "hit_tokens": 75968,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          75968,
+          512
+        ]
+      ],
+      "read_bytes": 8343109632
+    },
+    "agentx:L2913": {
+      "hit_tokens": 0,
+      "u_tokens": 51008,
+      "actual_shapes": [
+        [
+          0,
+          6912
+        ],
+        [
+          6912,
+          8192
+        ],
+        [
+          15104,
+          8192
+        ],
+        [
+          23296,
+          8192
+        ],
+        [
+          31488,
+          8192
+        ],
+        [
+          39680,
+          8192
+        ],
+        [
+          47872,
+          3136
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2914": {
+      "hit_tokens": 60288,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          60288,
+          832
+        ]
+      ],
+      "read_bytes": 6621069312
+    },
+    "agentx:L2915": {
+      "hit_tokens": 29184,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          29184,
+          320
+        ]
+      ],
+      "read_bytes": 3205103616
+    },
+    "agentx:L2916": {
+      "hit_tokens": 31040,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          31040,
+          128
+        ]
+      ],
+      "read_bytes": 3408936960
+    },
+    "agentx:L2917": {
+      "hit_tokens": 76480,
+      "u_tokens": 1664,
+      "actual_shapes": [
+        [
+          76480,
+          1664
+        ]
+      ],
+      "read_bytes": 8399339520
+    },
+    "agentx:L2918": {
+      "hit_tokens": 4288,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          4288,
+          512
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2919": {
+      "hit_tokens": 38784,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          38784,
+          320
+        ]
+      ],
+      "read_bytes": 4259414016
+    },
+    "agentx:L2920": {
+      "hit_tokens": 47744,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          47744,
+          1280
+        ]
+      ],
+      "read_bytes": 5243437056
+    },
+    "agentx:L2921": {
+      "hit_tokens": 78144,
+      "u_tokens": 6144,
+      "actual_shapes": [
+        [
+          78144,
+          6144
+        ]
+      ],
+      "read_bytes": 8582086656
+    },
+    "agentx:L2922": {
+      "hit_tokens": 61760,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          61760,
+          448
+        ]
+      ],
+      "read_bytes": 6782730240
+    },
+    "agentx:L2923": {
+      "hit_tokens": 29504,
+      "u_tokens": 1344,
+      "actual_shapes": [
+        [
+          29504,
+          1344
+        ]
+      ],
+      "read_bytes": 3240247296
+    },
+    "agentx:L2924": {
+      "hit_tokens": 31168,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          31168,
+          192
+        ]
+      ],
+      "read_bytes": 3422994432
+    },
+    "agentx:L2925": {
+      "hit_tokens": 39104,
+      "u_tokens": 5504,
+      "actual_shapes": [
+        [
+          39104,
+          5056
+        ],
+        [
+          44160,
+          448
+        ]
+      ],
+      "read_bytes": 4294557696
+    },
+    "agentx:L2926": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2927": {
+      "hit_tokens": 37248,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          37248,
+          512
+        ]
+      ],
+      "read_bytes": 4090724352
+    },
+    "agentx:L2928": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2929": {
+      "hit_tokens": 29248,
+      "u_tokens": 1152,
+      "actual_shapes": [
+        [
+          29248,
+          1152
+        ]
+      ],
+      "read_bytes": 3212132352
+    },
+    "agentx:L2930": {
+      "hit_tokens": 16448,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          16448,
+          256
+        ]
+      ],
+      "read_bytes": 1806385152
+    },
+    "agentx:L2931": {
+      "hit_tokens": 30848,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          30848,
+          256
+        ]
+      ],
+      "read_bytes": 3387850752
+    },
+    "agentx:L2932": {
+      "hit_tokens": 37760,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          37760,
+          640
+        ]
+      ],
+      "read_bytes": 4146954240
+    },
+    "agentx:L2933": {
+      "hit_tokens": 31360,
+      "u_tokens": 2624,
+      "actual_shapes": [
+        [
+          31360,
+          2624
+        ]
+      ],
+      "read_bytes": 3444080640
+    },
+    "agentx:L2934": {
+      "hit_tokens": 84288,
+      "u_tokens": 2240,
+      "actual_shapes": [
+        [
+          84288,
+          2240
+        ]
+      ],
+      "read_bytes": 9256845312
+    },
+    "agentx:L2935": {
+      "hit_tokens": 86528,
+      "u_tokens": 192,
+      "actual_shapes": [
+        [
+          86528,
+          192
+        ]
+      ],
+      "read_bytes": 9502851072
+    },
+    "agentx:L2936": {
+      "hit_tokens": 28288,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          28288,
+          832
+        ]
+      ],
+      "read_bytes": 3106701312
+    },
+    "agentx:L2937": {
+      "hit_tokens": 26624,
+      "u_tokens": 1536,
+      "actual_shapes": [
+        [
+          26624,
+          1536
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2938": {
+      "hit_tokens": 4288,
+      "u_tokens": 512,
+      "actual_shapes": [
+        [
+          4288,
+          512
+        ]
+      ],
+      "read_bytes": 470925312
+    },
+    "agentx:L2939": {
+      "hit_tokens": 86720,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          86720,
+          448
+        ]
+      ],
+      "read_bytes": 9523937280
+    },
+    "agentx:L2940": {
+      "hit_tokens": 30400,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          30400,
+          448
+        ]
+      ],
+      "read_bytes": 3338649600
+    },
+    "agentx:L2941": {
+      "hit_tokens": 31104,
+      "u_tokens": 256,
+      "actual_shapes": [
+        [
+          31104,
+          256
+        ]
+      ],
+      "read_bytes": 3415965696
+    },
+    "agentx:L2942": {
+      "hit_tokens": 62208,
+      "u_tokens": 576,
+      "actual_shapes": [
+        [
+          62208,
+          576
+        ]
+      ],
+      "read_bytes": 6831931392
+    },
+    "agentx:L2943": {
+      "hit_tokens": 87168,
+      "u_tokens": 1472,
+      "actual_shapes": [
+        [
+          87168,
+          1472
+        ]
+      ],
+      "read_bytes": 9573138432
+    },
+    "agentx:L2944": {
+      "hit_tokens": 38400,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          38400,
+          320
+        ]
+      ],
+      "read_bytes": 4217241600
+    },
+    "agentx:L2945": {
+      "hit_tokens": 48960,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          48960,
+          1280
+        ]
+      ],
+      "read_bytes": 5376983040
+    },
+    "agentx:L2946": {
+      "hit_tokens": 88640,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          88640,
+          384
+        ]
+      ],
+      "read_bytes": 9734799360
+    },
+    "agentx:L2947": {
+      "hit_tokens": 61120,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          61120,
+          2880
+        ]
+      ],
+      "read_bytes": 6712442880
+    },
+    "agentx:L2948": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2949": {
+      "hit_tokens": 26624,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          26624,
+          1280
+        ]
+      ],
+      "read_bytes": 2923954176
+    },
+    "agentx:L2950": {
+      "hit_tokens": 89024,
+      "u_tokens": 1664,
+      "actual_shapes": [
+        [
+          89024,
+          1664
+        ]
+      ],
+      "read_bytes": 9776971776
+    },
+    "agentx:L2951": {
+      "hit_tokens": 8960,
+      "u_tokens": 128,
+      "actual_shapes": [
+        [
+          8960,
+          128
+        ]
+      ],
+      "read_bytes": 984023040
+    },
+    "agentx:L2952": {
+      "hit_tokens": 29120,
+      "u_tokens": 640,
+      "actual_shapes": [
+        [
+          29120,
+          640
+        ]
+      ],
+      "read_bytes": 3198074880
+    },
+    "agentx:L2953": {
+      "hit_tokens": 64000,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          64000,
+          320
+        ]
+      ],
+      "read_bytes": 7028736000
+    },
+    "agentx:L2954": {
+      "hit_tokens": 33984,
+      "u_tokens": 384,
+      "actual_shapes": [
+        [
+          33984,
+          384
+        ]
+      ],
+      "read_bytes": 3732258816
+    },
+    "agentx:L2955": {
+      "hit_tokens": 0,
+      "u_tokens": 21440,
+      "actual_shapes": [
+        [
+          0,
+          6016
+        ],
+        [
+          6016,
+          8192
+        ],
+        [
+          14208,
+          7232
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2956": {
+      "hit_tokens": 90688,
+      "u_tokens": 1280,
+      "actual_shapes": [
+        [
+          90688,
+          1280
+        ]
+      ],
+      "read_bytes": 9959718912
+    },
+    "agentx:L2957": {
+      "hit_tokens": 23744,
+      "u_tokens": 2880,
+      "actual_shapes": [
+        [
+          23744,
+          2880
+        ]
+      ],
+      "read_bytes": 2607661056
+    },
+    "agentx:L2958": {
+      "hit_tokens": 31360,
+      "u_tokens": 2560,
+      "actual_shapes": [
+        [
+          31360,
+          2560
+        ]
+      ],
+      "read_bytes": 3444080640
+    },
+    "agentx:L2959": {
+      "hit_tokens": 64320,
+      "u_tokens": 6720,
+      "actual_shapes": [
+        [
+          64320,
+          4672
+        ],
+        [
+          68992,
+          2048
+        ]
+      ],
+      "read_bytes": 7063879680
+    },
+    "agentx:L2960": {
+      "hit_tokens": 91968,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          91968,
+          320
+        ]
+      ],
+      "read_bytes": 10100293632
+    },
+    "agentx:L2961": {
+      "hit_tokens": 152448,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          152448,
+          320
+        ]
+      ],
+      "read_bytes": 16742449152
+    },
+    "agentx:L2962": {
+      "hit_tokens": 0,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          0,
+          448
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "agentx:L2963": {
+      "hit_tokens": 92288,
+      "u_tokens": 832,
+      "actual_shapes": [
+        [
+          92288,
+          832
+        ]
+      ],
+      "read_bytes": 10135437312
+    },
+    "agentx:L2964": {
+      "hit_tokens": 290368,
+      "u_tokens": 10112,
+      "actual_shapes": [
+        [
+          290368,
+          8192
+        ],
+        [
+          298560,
+          1920
+        ]
+      ],
+      "read_bytes": 31889375232
+    },
+    "agentx:L2965": {
+      "hit_tokens": 28160,
+      "u_tokens": 448,
+      "actual_shapes": [
+        [
+          28160,
+          448
+        ]
+      ],
+      "read_bytes": 3092643840
+    },
+    "agentx:L2966": {
+      "hit_tokens": 62784,
+      "u_tokens": 1024,
+      "actual_shapes": [
+        [
+          62784,
+          1024
+        ]
+      ],
+      "read_bytes": 6895190016
+    },
+    "agentx:L2967": {
+      "hit_tokens": 4288,
+      "u_tokens": 320,
+      "actual_shapes": [
+        [
+          4288,
+          320
+        ]
+      ],
+      "read_bytes": 470925312
+    }
+  }
+}

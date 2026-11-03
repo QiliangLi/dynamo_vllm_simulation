@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "removed_fields": [
+    "disk_actual_Bps",
+    "disk_demand_Bps"
+  ],
+  "removed_array_count": 2207106,
+  "source_sha256": "0299189c97d487301a8ba49a829e47ad859b34b805429dcd35c8fe9aa140bc7e",
+  "compact_uncompressed_sha256": "242b6f05c7a150ed205b3465522f9efb5030f2fe041d8a5b92b401ca64209598",
+  "original_run_summary_comparison": {
+    "status": "passed",
+    "numeric_checks": 225,
+    "source": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/CPP独立多盘六负载五方案-20261103/agentx_random_360_12s_12_180GBps/report_data/run_summary.csv",
+    "sha256": "be512967672e24b77682c4cd77ea0a7c7d6edb3f336586b6d9ccc82cdab42512",
+    "note": "只比较列出的同口径数值，不代表模型公式或运行实现已重新验收。"
+  },
+  "preserved": "aggregate events, request/compute/IO records, all clocks and per-disk 10ms integral table"
+}

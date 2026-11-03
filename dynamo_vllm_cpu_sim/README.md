@@ -7,7 +7,7 @@
 `admission.runtime.final.json`保留原始在线账本，`admission.final.json`标明离线观测来源，`admission_rpc.check.json`核对后台流排空。
 GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自动改写已有benchmark的计算模型。
 现有可运行Mooncake入口保留K1、block16、EDF、到达窗口、带宽和预热规则。当前运行不再发送旧的同步batch/合帧反馈。
-旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX及六秒synthetic输入仍按目录状态仅校验/导出；代码存在不等于其特殊合同已验收。
+旧报告、config.historical.json和来源实验合同仍描述当时行为，不能当作当前运行验收。AgentX已于2026-11-02完成专用入口接入；六秒synthetic也已接入专用运行合同，见2026-11-02追加说明。
 核心代码同步校验：`python dynamo_vllm_cpu_sim/scripts/check_runtime_sync.py`；可加`--source`指定另一份仓库根目录核对双方文件。
 
 
@@ -16,7 +16,7 @@ GLM默认仍为实际工作量v2；`glm5_direct_sum_v1`是显式选项，不自�
 
 本分支最新入口：[实验分支使用说明](../docs/实验分支使用说明.md)。
 固定输入位于仓库根benchmark，统一运行器为`scripts/run_benchmark.py`。
-新增[AgentX360固定输入](../benchmark/agentx_random_360_12s_12_180GBps/README.md)：360条、12秒、180GB/s、12实例。可校验及导出；核心计时与控制代码已同步，但其长上下文和专用合同尚未完成交付入口验收，显式选择会在启动前拒绝。`--case all`只选择目录中支持完整运行的负载。
+新增[AgentX360固定输入](../benchmark/agentx_random_360_12s_12_180GBps/README.md)：360条、12秒、180GB/s、12实例。统一入口支持显式长上下文外推、专用启动和验收，已纳入`--case all`。运行命令与公式外推边界见负载README。
 先运行`--smoke`，再按说明运行90GB/s、K=1的正式对照。下文按日期保留历史入口与结果。
 存储优化测试所需的少量冻结参考源码已放入`tests/fixtures/`，不再依赖历史results目录。
 
@@ -1202,3 +1202,60 @@ worker卡数，不能随实际batch变化。GLM画像为`glm5_reference_v3`，�
 
 相关测试为`test_batch_feedback`、`test_coalesced_feedback`、`test_trace_io`、
 `test_gateway_triage`及既有许可、TCP、层屏障和准入测试。完整原始记录留本机，不推送token数组。
+
+## 2026-11-02：AgentX360统一入口
+
+AgentX360已接入run_benchmark.py，读取agentx360_v1合同。导出的原始配置保持不变；
+冻结运行配置显式增加compute.context_length_limit=300481。默认仍限131072；
+所有公式系数保持原值，超出原范围的事件标明formula_context_extrapolation。
+禁止把本次解析外推写成实机长上下文定标。
+冒烟2实例6请求覆盖最长300480；正式三组各12实例、72预热、360请求、12秒、180GB/s。
+验收包含有效配置逐项比较、客户端与账本ID集合、最长请求执行、独立公式、层屏障、
+预热排空/历史重置、离线观测、RPC流排空、路由与许可归零及进程退出。
+GroupedStorage诊断累计字节使用Kahan补偿求和；不改变读取状态、速率与完成时间。
+命令和输入SHA见benchmark/agentx_random_360_12s_12_180GBps/README.md，
+验证摘要见dynamo_vllm_cpu_sim/AGENTX_VALIDATION.json。历史章节按日期解释。
+
+## 2026-11-02：人工ABC六秒统一入口
+
+synthetic_abc_360_6s_12_90GBps读取synthetic_abc360_v1专用合同，已纳入--case all。
+12实例、6秒、90GB/s、direct_sum、四类执行反馈关闭；每方案72预热及360正式。
+不修改原始输入、三方案历史配置、约5.03ms的首请求间隔或固定A/B/C形状。
+最长30979 token不需长上下文外推；不注入AgentX的长度或启动预算。
+验收逐项比较有效配置，并核对到达原点/顺序、独立公式、层屏障、EDF、P75配额3、
+RPC流排空、记账归零及所属进程退出。实际命令见该benchmark README，
+摘要见dynamo_vllm_cpu_sim/SYNTHETIC_ABC_VALIDATION.json。历史报告不随本次改写。
+
+## 2026-11-02：多盘矩阵的原生队列观测与短运行验收
+
+fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，用于区分真实FCFS和priority队列。
+该观测不改变排序、KV分配或执行策略。运行期指标仍按原1秒频率采样。
+短冒烟可能完全落在两次采样之间；check_stack_routing在此情形下允许用原生selector日志中
+明确的正raw_prefill_blocks交叉证明已保留负载。原生候选比较、最小分选择及最终零账本仍必须通过。
+同时缺少正采样与正原生日志时继续失败，不把非零加权分数当作资源预留证据。
+336项完整回归及6组分盘冒烟通过；保留一次因指标采样遗漏导致的旧验收失败记录。
+共享运行文件与交付分支同步；五方案入口、分盘参数、矩阵驱动和报告适配器为交付专用资源。
+
+## 2026-11-02：独立多盘五方案入口
+
+六负载的30组正式运行和6组冒烟已通过；每组12实例、72预热后360正式，K=1。新增`direct-fcfs`、`old-tfs`、`all-five`及显式分盘参数；原`--arm all`仍为三方案。旧TFS使用EDF，四类执行反馈和强制准入关闭。逐盘拓扑保持总参考带宽不变，TFS仍为全局配额，未增加逐盘压力策略。
+
+运行、验收及重绘方法见[独立多盘五方案矩阵](../docs/独立多盘五方案矩阵-20261102.md)，小型运行证据见[DISK_MATRIX_VALIDATION.json](DISK_MATRIX_VALIDATION.json)。大规模原始事件不公开。
+
+
+## 2026-11-03：GroupedStorage 带宽分配缓存
+
+`sim/grouped_storage.py` 缓存当前活跃读集合的盘内原始分配及共享链路缩放后分配。
+新读取加入、读取组完成、启动等待结束时刷新；普通查询和未跨事件的时间推进复用结果。
+实例配置在运行期固定。公开 rates()/snapshot() 返回独立结果，调用方不能修改内部缓存。
+本步使用全局活跃集合失效，不包含按盘增量更新、完成事件堆或独立后台推进。
+现有块数权重、盘放置、启动容差、完成阈值、字节累加顺序及查询驱动墙钟方式保持原规则。
+固定读取提交记录可用于精确对拍；多进程墙钟结果须单独测量，不能用离线加速比替代。
+
+
+## 可选 C++ 独立盘后端（2026-11-03）
+
+`--storage-backend cpp` 把存储进度与逐盘带宽缓存交给 C++；默认仍为 Python。仅支持 Linux 独立盘 grouped max-min、逐层 poll/locked。原准入、路由、组批、0.5 ms 轮询及服务锁保持不变。配置、构建与验收边界见[使用说明](../docs/CPP独立盘存储后端-20261103.md)。
+
+六负载五策略矩阵也接受 `scripts/run_disk_matrix.py --storage-backend cpp`。
+后端写入冻结计划；恢复运行必须保持后端一致。完整命令见[矩阵说明](../docs/独立多盘五方案矩阵-20261102.md)。

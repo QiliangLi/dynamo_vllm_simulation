@@ -13,7 +13,7 @@ from .timeline import csvout, digest, read_json, require, render as timeline_ren
 from . import report_style as style
 
 FIGURES = ['01_slo_bar','02_full-sort-ms','03_util_box_heatmap','04_bandwidth',
-           '05_cdf','06_cdf_by_class','07_arrival_lateness']
+           '05_cdf','06_cdf_by_class','07_arrival_lateness','08_per_disk_bandwidth']
 PALETTE = ['#888888','#C44E52','#DD8452','#55A868','#4C72B0','#9974A5','#937860','#DA8BC3','#64B5CD']
 
 
@@ -106,10 +106,13 @@ def check_reference(result, report=None):
     device_path=root/'report_data/device_utilization.csv'
     if device_path.is_file():
         with device_path.open(encoding='utf-8-sig',newline='') as stream:
-            prior={(r['mode'],int(r['worker'])):r for r in csv.DictReader(stream)}
+            rows=list(csv.DictReader(stream))
+            require(all(r.get('mode',r.get('case')) for r in rows),'原实例账本缺少方案标识。')
+            prior={(r.get('mode',r.get('case')),int(r['worker'])):r for r in rows}
         for row in result['workers']:
             key=(row['case'],row['worker']);require(key in prior,'原实例账本缺少实例。')
             for current,previous in [('model_s','model_compute_s'),('red_s','io_without_model_compute_s'),('gray_s','other_s')]:
+                if previous not in prior[key]:previous=current
                 if prior[key].get(previous) not in (None,''):
                     require(abs(row[current]-float(prior[key][previous]))<1e-7,f'{key} 实例时间账本与原报告不一致：{current}')
                     checks+=1
@@ -190,6 +193,31 @@ def render_figures(data, result, output, dpi=160):
         ax.set(ylim=(0,1.02),xlabel='实际客户端发送−计划发送（ms）',ylabel='累计分布 CDF',title='图7｜客户端投递迟到；不替换网关TTFT计时边界');ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8);fig.tight_layout();save(fig,6)
     missing=[c['summary']['label'] for c in cases if not all('arrival_lateness_ms' in r for r in c['requests'])]
     if missing:skipped[FIGURES[6]]='缺少计划与实际发送记录：'+','.join(missing)
+    disk_rows=data.get('auxiliary_tables',{}).get('disk_bandwidth_bins',[])
+    if disk_rows:
+        horizon=max(c['summary']['span_s'] for c in cases);height=max(9.,len(cases)*2.2+1.1)
+        fig,axes=plt.subplots(len(cases),1,figsize=(14.6,height),sharex=True,squeeze=False)
+        fig.subplots_adjust(left=.075,right=.89,bottom=.065,top=.94,hspace=.6)
+        for ax,c in zip(axes[:,0],cases):
+            rows=[r for r in disk_rows if r['case']==c['summary']['case']]
+            require(rows,'逐盘带宽图缺少方案数据。')
+            # All full bins are 10ms; the final partial bin may be shorter.
+            width=round(max(r['end_s']-r['start_s'] for r in rows),9)
+            disks=max(r['disk'] for r in rows)+1;count=math.ceil(horizon/width)
+            grid=np.full((disks,count),np.nan)
+            for r in rows:
+                i=round(r['start_s']/width)
+                if i<count:grid[r['disk'],i]=min(100.,r['actual_Bps']/r['capacity_Bps']*100)
+            cm=plt.get_cmap('viridis').copy();cm.set_bad('#E6E6E6')
+            im=ax.imshow(grid,aspect='auto',origin='lower',extent=(0,count*width*1000,-.5,disks-.5),
+                vmin=0,vmax=100,cmap=cm,interpolation='nearest')
+            ax.set(yticks=range(disks),yticklabels=[f'盘{d}' for d in range(disks)],xlim=(0,horizon*1000))
+            ax.axvline(c['summary']['span_s']*1000,color='#333333',ls='--',lw=.8)
+            ax.set_title(c['summary']['label']+f'｜{disks}盘独立限速；10ms平均实际带宽 / 单盘容量',loc='left',fontsize=10)
+        axes[-1,0].set_xlabel('从首条正式请求到达起的时间（ms）；完成虚线后灰色仅补齐横轴')
+        fig.colorbar(im,ax=list(axes[:,0]),fraction=.025,pad=.02,label='单盘实际带宽 / 单盘容量（%）')
+        fig.suptitle('图8｜各盘带宽占用；逐层提交重放与完成时间、字节积分交叉校验',fontsize=12)
+        save(fig,7)
     return generated,skipped,dict(zip(labels,colors))
 
 
@@ -223,7 +251,8 @@ def markdown(data, result, figures, skipped, narrative=None):
         3:'橙线为需求，蓝线为实际分配，虚线为本次容量。按时间重叠积分，不对不等长事件直接取平均。零值在CSV保留0。',
         4:'经验CDF按rank/n绘制，终点为1。期限不同时，SLO必须逐请求匹配，不能由两条CDF交点推算。',
         5:'此处分组来自cohort，可能是历史A/B或业务分类，不用该标签推断在线轻重。',
-        6:'此图描述客户端实际发送相对计划的迟到，不是单次准入RPC耗时。'}
+        6:'此图描述客户端实际发送相对计划的迟到，不是单次准入RPC耗时。',
+        7:'各行是一块独立限速盘，颜色为10ms桶内平均实际带宽占比；灰色只补齐完成后的横轴。不能用总带宽平均值代替单盘热点。'}
     def image(index):
         name=FIGURES[index]+'.png'
         if name not in figures:return '\n缺少数据：'+skipped.get(FIGURES[index],'未生成')+'\n\n'
@@ -235,6 +264,7 @@ def markdown(data, result, figures, skipped, narrative=None):
         text+=f'## {section}. {title}\n\n'+image(index)
         if section==4:
             text+=table(['方案','平均GB/s','需求超订%','实际饱和%'],[[s['label'],fmt(s['mean_bandwidth_GBps']),fmt(s['demand_oversubscribed_pct']),fmt(s['saturated_pct'])] for s in summaries])+'\n'
+            if '08_per_disk_bandwidth.png' in figures:text+=image(7)
         if section==5:text+=image(5)
     text+='## 6. 机制解释与前序对照\n\n'+narrative.get('6','脚本只生成统计证据。当前未提供人工机制分析或前序受控对照；不从颜色、排名或单次轨迹推断原因。')+'\n\n'
     text+='## 7. 计算模型与结论限制\n\n'+narrative.get('7','保留输入运行的配置与模型假设，见配置附表。名义模型计算时长与宿主实际耗时分开。未聚合多次运行，也未重新验证底层模型公式。标准数据包足以重绘图表，不等同于完整原始运行归档。')+'\n\n'

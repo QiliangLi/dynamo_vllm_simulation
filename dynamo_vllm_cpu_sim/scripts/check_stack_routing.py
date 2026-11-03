@@ -21,6 +21,12 @@ def metrics_drained(lines):
             and all(math.isfinite(value) and value == 0 for value in values.values()))
 
 
+def positive_native_prefill_load(text):
+    """Short runs can fit between gauge samples; native raw-load logs are evidence too."""
+    values=[float(x) for x in re.findall(r'raw_prefill_blocks:\s*([0-9.eE+-]+)',ANSI.sub('',text))]
+    return any(math.isfinite(x) and x>0 for x in values)
+
+
 def decisions(text, expected_workers):
     scores, chosen = {}, {}
     for line in ANSI.sub("",text).splitlines():
@@ -60,17 +66,19 @@ def check(folder, *, require_sampled_load=True):
     assert "--no-router-kv-events" in argv and "--no-router-assume-kv-reuse" in argv
     assert argv[argv.index("--router-temperature")+1] == "0"
     assert argv[argv.index("--router-kv-overlap-score-credit")+1] == "0"
-    result = decisions((folder/"frontend.log").read_text(),cfg["workers"])
+    native_log=(folder/"frontend.log").read_text()
+    result = decisions(native_log,cfg["workers"])
     report = json.loads((folder/"report.json").read_text())
     assert result["decisions"] == report["n_total"] == report["n_ok"]
     assert result["unequal_load_decisions"] > 0, "no observed load-dependent choice"
     samples = [json.loads(line) for line in (folder/"routing.metrics.jsonl").read_text().splitlines()]
     peak = max((value for sample in samples for value in metric_values(sample.get("lines",[])).values()),default=0)
     if require_sampled_load:
-        assert peak > 0, "no observed native load reservation"
+        assert peak > 0 or positive_native_prefill_load(native_log), "no observed native load reservation"
     assert metrics_drained(json.loads((folder/"routing.final.json").read_text())["lines"]), "native load did not drain"
     return dict(status="pass",router_mode="kv",**result,peak_observed_load_gauge=peak,
                 sampled_positive_load=peak>0,
+                positive_load_evidence='sampled_gauge' if peak>0 else 'native_raw_prefill_log' if positive_native_prefill_load(native_log) else 'not_required',
                 final_prefill_tokens_and_decode_blocks_zero=True,
                 lifecycle="Native stream guard marks prefill on token output and frees booking on completion; no simulated replacement.")
 

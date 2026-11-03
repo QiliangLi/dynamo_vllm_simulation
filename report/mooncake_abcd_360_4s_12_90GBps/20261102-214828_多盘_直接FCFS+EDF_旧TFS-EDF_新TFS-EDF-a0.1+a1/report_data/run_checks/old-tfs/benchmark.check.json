@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "case": "mooncake_abcd_360_4s_12_90GBps",
+  "arm": "old-tfs",
+  "smoke": false,
+  "requests": 360,
+  "warmup_requests": 72,
+  "K": 1,
+  "shared_storage_Bps": 90000000000.0,
+  "mean_ttft_ms": 2985.4505701277735,
+  "p95_ttft_ms": 6258.0278210000415,
+  "slo_pct": 7.5,
+  "completion_ms": 10918.658109999797,
+  "measured_read_bytes": 539571462144,
+  "storage_disks": 3,
+  "disk_Bps": 30000000000.0,
+  "shared_link_Bps": null,
+  "disk_bytes_including_warmup": [
+    217448005632,
+    215710150656,
+    206066724864
+  ],
+  "disk_peak_Bps": [
+    30000000000.00002,
+    30000000000.000015,
+    30000000000.000015
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "policy": "priority",
+  "queue_type": "PriorityRequestQueue",
+  "workers": [
+    0,
+    1
+  ]
+}

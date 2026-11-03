@@ -1,0 +1,6 @@
+﻿case,status,requests,warmup_requests,disks,disk_Bps,request_ordering,admission_placement,routing_weighted,granted_requests,mean_granted_request_queue_to_admit_ms
+direct-fcfs,passed,360,72,4,25000000000.0,fcfs,gateway,False,360,0.7497681305848245
+direct,passed,360,72,4,25000000000.0,edf,gateway,False,360,0.8333234694469461
+old-tfs,passed,360,72,4,25000000000.0,edf,gateway,False,360,1638.6731813555602
+tfs-a01,passed,360,72,4,25000000000.0,edf,scheduler,True,100,6066.910687820002
+tfs-a1,passed,360,72,4,25000000000.0,edf,scheduler,True,100,7089.285170400005

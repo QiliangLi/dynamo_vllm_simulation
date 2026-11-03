@@ -1,0 +1,831 @@
+{
+  "status": "pass",
+  "steps": 4,
+  "max_abs_error_s": 0.0,
+  "rows": [
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-01-tfs-a01/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run/worker0.steps.jsonl",
+      "line": 313,
+      "step": 1,
+      "program_s": 0.26929645344,
+      "manual_s": 0.26929645344,
+      "error_s": 0.0,
+      "bs": 2,
+      "shapes": [
+        [
+          208,
+          768
+        ],
+        [
+          0,
+          892
+        ]
+      ],
+      "sleep_elapsed_s": 0.31181173799998874,
+      "duration_s": 0.26929645344,
+      "dense_layer_us": 2835.84048,
+      "moe_layer_us": 3477.18576,
+      "components": {
+        "indexer_q_us": 33.9968,
+        "indexer_score_us": 15.524880000000001,
+        "gather_us": 12.6,
+        "sparse_attention_us": 1162.8912,
+        "mla_projection_us": 692.914,
+        "dense_mlp_us": 917.9136000000001,
+        "moe_us": 1376.8704,
+        "dispatch_us": 70.79616,
+        "combine_us": 111.59232,
+        "sparse_storage_us": 0.0
+      },
+      "worksheet": [
+        {
+          "name": "indexer_q",
+          "flops": 27850178560.0,
+          "bytes": 18587648.0,
+          "result_us": 33.9968
+        },
+        {
+          "name": "projection_0",
+          "flops": 41775267840,
+          "bytes": 26181632,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "projection_1",
+          "flops": 111400714240.0,
+          "bytes": 64151552.0,
+          "result_us": 135.9872
+        },
+        {
+          "name": "projection_2",
+          "flops": 20887633920.0,
+          "bytes": 27539456.0,
+          "result_us": 25.497600000000002
+        },
+        {
+          "name": "projection_3",
+          "flops": 11749294080,
+          "bytes": 14694144,
+          "result_us": 14.3424
+        },
+        {
+          "name": "projection_4",
+          "flops": 27850178560.0,
+          "bytes": 63208448.0,
+          "result_us": 49.3816
+        },
+        {
+          "name": "projection_5",
+          "flops": 334202142720.0,
+          "bytes": 138059776.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "projection_6",
+          "flops": 2610954240,
+          "bytes": 11197952,
+          "result_us": 8.7484
+        },
+        {
+          "name": "dense_0",
+          "flops": 250651607040.0,
+          "bytes": 106094592.0,
+          "result_us": 305.9712
+        },
+        {
+          "name": "dense_1",
+          "flops": 250651607040.0,
+          "bytes": 106094592.0,
+          "result_us": 305.9712
+        },
+        {
+          "name": "dense_2",
+          "flops": 250651607040.0,
+          "bytes": 106094592.0,
+          "result_us": 305.9712
+        },
+        {
+          "name": "routed_0",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_0",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_1",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_1",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_2",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_2",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_3",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_3",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_4",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_4",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_5",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_5",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_6",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_6",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        },
+        {
+          "name": "routed_7",
+          "flops": 334202142720.0,
+          "bytes": 511442944.0,
+          "result_us": 407.96160000000003
+        },
+        {
+          "name": "shared_7",
+          "flops": 41775267840.0,
+          "bytes": 26181632.0,
+          "result_us": 50.995200000000004
+        }
+      ],
+      "inputs": {
+        "nq": 1660,
+        "indexer_pairs": 852488.0,
+        "kv_entries": 1868,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "group_routes": 106240
+      }
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-01-tfs-a01/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run/worker0.steps.jsonl",
+      "line": 626,
+      "step": 2,
+      "program_s": 0.1104219817503959,
+      "manual_s": 0.1104219817503959,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          120624,
+          9
+        ]
+      ],
+      "sleep_elapsed_s": 0.19267956299998446,
+      "duration_s": 0.1104219817503959,
+      "dense_layer_us": 682.8459499999999,
+      "moe_layer_us": 1444.9792520052788,
+      "components": {
+        "indexer_q_us": 6.5968,
+        "indexer_score_us": 337.04999999999995,
+        "gather_us": 15.2944,
+        "sparse_attention_us": 16.273600000000002,
+        "mla_projection_us": 130.29515,
+        "dense_mlp_us": 177.336,
+        "moe_us": 878.8057500052789,
+        "dispatch_us": 30.221184,
+        "combine_us": 30.442368,
+        "sparse_storage_us": 0.0
+      },
+      "worksheet": [
+        {
+          "name": "indexer_q",
+          "flops": 150994944.0,
+          "bytes": 8443904.0,
+          "result_us": 6.5968
+        },
+        {
+          "name": "projection_0",
+          "flops": 226492416,
+          "bytes": 12656640,
+          "result_us": 9.888
+        },
+        {
+          "name": "projection_1",
+          "flops": 603979776.0,
+          "bytes": 33720320.0,
+          "result_us": 26.344
+        },
+        {
+          "name": "projection_2",
+          "flops": 113246208.0,
+          "bytes": 6406656.0,
+          "result_us": 5.0052
+        },
+        {
+          "name": "projection_3",
+          "flops": 63700992,
+          "bytes": 3599424,
+          "result_us": 2.81205
+        },
+        {
+          "name": "projection_4",
+          "flops": 150994944.0,
+          "bytes": 8685824.0,
+          "result_us": 6.7858
+        },
+        {
+          "name": "projection_5",
+          "flops": 1811939328.0,
+          "bytes": 100866048.0,
+          "result_us": 78.8016
+        },
+        {
+          "name": "projection_6",
+          "flops": 14155776,
+          "bytes": 842880,
+          "result_us": 0.6585
+        },
+        {
+          "name": "dense_0",
+          "flops": 1358954496.0,
+          "bytes": 75663360.0,
+          "result_us": 59.112
+        },
+        {
+          "name": "dense_1",
+          "flops": 1358954496.0,
+          "bytes": 75663360.0,
+          "result_us": 59.112
+        },
+        {
+          "name": "dense_2",
+          "flops": 1358954496.0,
+          "bytes": 75663360.0,
+          "result_us": 59.112
+        },
+        {
+          "name": "routed_0",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_0",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_1",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_1",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_2",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_2",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_3",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_3",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_4",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_4",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_5",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_5",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_6",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_6",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        },
+        {
+          "name": "routed_7",
+          "flops": 1811939328.0,
+          "bytes": 362300480.00225234,
+          "result_us": 283.04725000175966
+        },
+        {
+          "name": "shared_7",
+          "flops": 226492416.0,
+          "bytes": 12656640.0,
+          "result_us": 9.888
+        }
+      ],
+      "inputs": {
+        "nq": 9,
+        "indexer_pairs": 1085656.5,
+        "kv_entries": 18432,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "group_routes": 576
+      }
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-01-tfs-a01/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run/worker1.steps.jsonl",
+      "line": 157,
+      "step": 1,
+      "program_s": 0.18804729795,
+      "manual_s": 0.18804729795,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          0,
+          965
+        ]
+      ],
+      "sleep_elapsed_s": 0.19847809399999505,
+      "duration_s": 0.18804729795,
+      "dense_layer_us": 1662.3840249999998,
+      "moe_layer_us": 2440.801945,
+      "components": {
+        "indexer_q_us": 19.7632,
+        "indexer_score_us": 11.656125,
+        "gather_us": 12.6,
+        "sparse_attention_us": 678.9488,
+        "mla_projection_us": 405.8095,
+        "dense_mlp_us": 533.6064,
+        "moe_us": 1180.8768000000002,
+        "dispatch_us": 53.71584,
+        "combine_us": 77.43168,
+        "sparse_storage_us": 0.0
+      },
+      "worksheet": [
+        {
+          "name": "indexer_q",
+          "flops": 16190013440.0,
+          "bytes": 14317568.0,
+          "result_us": 19.7632
+        },
+        {
+          "name": "projection_0",
+          "flops": 24285020160,
+          "bytes": 20488192,
+          "result_us": 29.6448
+        },
+        {
+          "name": "projection_1",
+          "flops": 64760053760.0,
+          "bytes": 51341312.0,
+          "result_us": 79.0528
+        },
+        {
+          "name": "projection_2",
+          "flops": 12142510080.0,
+          "bytes": 18643456.0,
+          "result_us": 14.8224
+        },
+        {
+          "name": "projection_3",
+          "flops": 6830161920,
+          "bytes": 10023744,
+          "result_us": 8.3376
+        },
+        {
+          "name": "projection_4",
+          "flops": 16190013440.0,
+          "bytes": 40256768.0,
+          "result_us": 31.4506
+        },
+        {
+          "name": "projection_5",
+          "flops": 194280161280.0,
+          "bytes": 122402816.0,
+          "result_us": 237.1584
+        },
+        {
+          "name": "projection_6",
+          "flops": 1517813760,
+          "bytes": 6838912,
+          "result_us": 5.3429
+        },
+        {
+          "name": "dense_0",
+          "flops": 145710120960.0,
+          "bytes": 93284352.0,
+          "result_us": 177.8688
+        },
+        {
+          "name": "dense_1",
+          "flops": 145710120960.0,
+          "bytes": 93284352.0,
+          "result_us": 177.8688
+        },
+        {
+          "name": "dense_2",
+          "flops": 145710120960.0,
+          "bytes": 93284352.0,
+          "result_us": 177.8688
+        },
+        {
+          "name": "routed_0",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_0",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_1",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_1",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_2",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_2",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_3",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_3",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_4",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_4",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_5",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_5",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_6",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_6",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        },
+        {
+          "name": "routed_7",
+          "flops": 194280161280.0,
+          "bytes": 465895424.0,
+          "result_us": 363.98080000000004
+        },
+        {
+          "name": "shared_7",
+          "flops": 24285020160.0,
+          "bytes": 20488192.0,
+          "result_us": 29.6448
+        }
+      ],
+      "inputs": {
+        "nq": 965,
+        "indexer_pairs": 465612.5,
+        "kv_entries": 965,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "group_routes": 61760
+      }
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-01-tfs-a01/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run/worker1.steps.jsonl",
+      "line": 626,
+      "step": 2,
+      "program_s": 0.6738657043500001,
+      "manual_s": 0.6738657043500001,
+      "error_s": 0.0,
+      "bs": 2,
+      "shapes": [
+        [
+          5376,
+          15
+        ],
+        [
+          1088,
+          4152
+        ]
+      ],
+      "sleep_elapsed_s": 0.7216635110000027,
+      "duration_s": 0.6738657043500001,
+      "dense_layer_us": 7178.422425000001,
+      "moe_layer_us": 8697.739161000001,
+      "components": {
+        "indexer_q_us": 85.34016,
+        "indexer_score_us": 139.176805,
+        "gather_us": 12.6,
+        "sparse_attention_us": 2908.56544,
+        "mla_projection_us": 1728.5557000000001,
+        "dense_mlp_us": 2304.18432,
+        "moe_us": 3456.2764800000004,
+        "dispatch_us": 132.40819199999999,
+        "combine_us": 234.816384,
+        "sparse_storage_us": 0.0
+      },
+      "worksheet": [
+        {
+          "name": "indexer_q",
+          "flops": 69910659072.0,
+          "bytes": 33990656.0,
+          "result_us": 85.34016
+        },
+        {
+          "name": "projection_0",
+          "flops": 104865988608,
+          "bytes": 46718976,
+          "result_us": 128.01024
+        },
+        {
+          "name": "projection_1",
+          "flops": 279642636288.0,
+          "bytes": 110360576.0,
+          "result_us": 341.36064
+        },
+        {
+          "name": "projection_2",
+          "flops": 52432994304.0,
+          "bytes": 59629056.0,
+          "result_us": 64.00512
+        },
+        {
+          "name": "projection_3",
+          "flops": 29493559296,
+          "bytes": 31541184,
+          "result_us": 36.00288
+        },
+        {
+          "name": "projection_4",
+          "flops": 69910659072.0,
+          "bytes": 145999616.0,
+          "result_us": 114.06219999999999
+        },
+        {
+          "name": "projection_5",
+          "flops": 838927908864.0,
+          "bytes": 194537472.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "projection_6",
+          "flops": 6554124288,
+          "bytes": 26921856,
+          "result_us": 21.0327
+        },
+        {
+          "name": "dense_0",
+          "flops": 629195931648.0,
+          "bytes": 152303616.0,
+          "result_us": 768.06144
+        },
+        {
+          "name": "dense_1",
+          "flops": 629195931648.0,
+          "bytes": 152303616.0,
+          "result_us": 768.06144
+        },
+        {
+          "name": "dense_2",
+          "flops": 629195931648.0,
+          "bytes": 152303616.0,
+          "result_us": 768.06144
+        },
+        {
+          "name": "routed_0",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_0",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_1",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_1",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_2",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_2",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_3",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_3",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_4",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_4",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_5",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_5",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_6",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_6",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        },
+        {
+          "name": "routed_7",
+          "flops": 838927908864.0,
+          "bytes": 675741696.0,
+          "result_us": 1024.08192
+        },
+        {
+          "name": "shared_7",
+          "flops": 104865988608.0,
+          "bytes": 46718976.0,
+          "result_us": 128.01024
+        }
+      ],
+      "inputs": {
+        "nq": 4167,
+        "indexer_pairs": 13217680.5,
+        "kv_entries": 10631,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "group_routes": 266688
+      }
+    }
+  ]
+}

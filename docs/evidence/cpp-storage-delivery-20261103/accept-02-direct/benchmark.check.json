@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "case": "mooncake_abc_360_4s_12_100GBps",
+  "arm": "direct",
+  "smoke": false,
+  "requests": 360,
+  "warmup_requests": 72,
+  "K": 1,
+  "shared_storage_Bps": 100000000000.0,
+  "mean_ttft_ms": 2592.118361872223,
+  "p95_ttft_ms": 4784.0672840000025,
+  "slo_pct": 2.7777777777777777,
+  "completion_ms": 9026.427544,
+  "measured_read_bytes": 539571462144,
+  "storage_disks": 4,
+  "disk_Bps": 25000000000.0,
+  "shared_link_Bps": null,
+  "disk_bytes_including_warmup": [
+    166885036032,
+    167703883776,
+    158334578688,
+    145795313664
+  ],
+  "disk_peak_Bps": [
+    25000000000.00002,
+    25000000000.000023,
+    25000000000.000023,
+    25000000000.00002
+  ],
+  "storage_backend": "cpp"
+}

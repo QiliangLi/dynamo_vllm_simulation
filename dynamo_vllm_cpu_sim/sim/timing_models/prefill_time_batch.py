@@ -57,7 +57,8 @@ def _reference():
     return module
 
 
-def _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse):
+def _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse,
+              context_length_limit=None):
     for name, value in (("tp", tp), ("dp", dp), ("ep", ep)):
         if type(value) is not int or value < 1:
             raise ValueError(f"{name} must be a positive integer")
@@ -75,6 +76,10 @@ def _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse):
     if type(kv_hbm_reuse) is not bool:
         raise ValueError("kv_hbm_reuse must be bool")
     rows = list(requests)
+    # Opt-in extrapolation changes only validation, never frozen coefficients.
+    limit = ref.MODEL["max_seq_len"] if context_length_limit is None else context_length_limit
+    if type(limit) is not int or not 0 < limit <= 300481:
+        raise ValueError("context_length_limit must be an integer in [1, 300481]")
     if len(rows) > ref.MODEL["max_batch_size"]:
         raise ValueError("this candidate retains the reference limit of 8 requests")
     for row in rows:
@@ -82,7 +87,7 @@ def _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse):
             raise ValueError("each request must be (input_length, u_tokens)")
         length, new = row
         if (type(length) is not int or type(new) is not int
-                or not 0 <= new <= length <= ref.MODEL["max_seq_len"]):
+                or not 0 <= new <= length <= limit):
             raise ValueError("require integer 0 <= u_tokens <= input_length <= max_seq_len")
     return tuple((length, new) for length, new in rows)
 
@@ -169,7 +174,8 @@ def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
                    sparse_HBM_hit_ratio: float = 1.0,
                    kv_hbm_reuse: bool = True,
                    batch_time_model: str = VERSION,
-                   launch_saving_fraction: float | None = None) -> dict:
+                   launch_saving_fraction: float | None = None,
+                   context_length_limit: int | None = None) -> dict:
     """返回本轮完整批次的模型时间与明细；部署参数不随请求数变化。
 
     每个输入为 (h+u, u)。分块 prefill 必须使用当前块结束时的 h+u。
@@ -187,11 +193,12 @@ def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
     不共享权重读取、通信启动或算子工作量；默认模式仍为实际工作量 v2。
     """
     fraction = validate_batch_options(batch_time_model, launch_saving_fraction)
-    rows = _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse)
+    rows = _validate(requests, tp, dp, ep, sparse_HBM_hit_ratio, kv_hbm_reuse,
+                     context_length_limit)
     if batch_time_model == DIRECT_SUM_VERSION:
         return _estimate_direct_sum(rows, tp=tp, dp=dp, ep=ep,
             sparse_HBM_hit_ratio=sparse_HBM_hit_ratio, kv_hbm_reuse=kv_hbm_reuse,
-            launch_saving_fraction=fraction)
+            launch_saving_fraction=fraction, context_length_limit=context_length_limit)
     ref = _reference()
     m, g = ref.MODEL, ref.NPU
     active = [(length - new, new) for length, new in rows if new > 0]
@@ -309,10 +316,10 @@ def estimate_batch(requests, *, dp: int, ep: int, tp: int = 1,
 
 
 def _estimate_direct_sum(rows, *, tp, dp, ep, sparse_HBM_hit_ratio,
-                         kv_hbm_reuse, launch_saving_fraction):
+                         kv_hbm_reuse, launch_saving_fraction, context_length_limit):
     """串行单请求之和，仅扣已在单请求公式内计入的重复 kernel 启动。"""
     options = dict(tp=tp, dp=dp, ep=ep, sparse_HBM_hit_ratio=sparse_HBM_hit_ratio,
-                   kv_hbm_reuse=kv_hbm_reuse)
+                   kv_hbm_reuse=kv_hbm_reuse, context_length_limit=context_length_limit)
     result = estimate_batch([], **options)
     singles = [estimate_batch([row], **options) for row in rows]
     active = [single for single in singles if single["batch_size"]]
@@ -365,7 +372,8 @@ def _estimate_direct_sum(rows, *, tp, dp, ep, sparse_HBM_hit_ratio,
 def per_batch(requests, *, dp: int, ep: int, tp: int = 1,
               sparse_HBM_hit_ratio: float = 1.0,
               kv_hbm_reuse: bool = True, batch_time_model: str = VERSION,
-              launch_saving_fraction: float | None = None) -> tuple[float, float]:
+              launch_saving_fraction: float | None = None,
+              context_length_limit: int | None = None) -> tuple[float, float]:
     """与原 per_batch 相同的返回单位：(平均每层 us，每层前缀 KV GB)。
 
     批次大小由请求列表决定；不支持原 bs 覆盖。DP/EP 必须明确提供。
@@ -376,7 +384,8 @@ def per_batch(requests, *, dp: int, ep: int, tp: int = 1,
     result = estimate_batch(requests, dp=dp, ep=ep, tp=tp,
                             sparse_HBM_hit_ratio=sparse_HBM_hit_ratio,
                             kv_hbm_reuse=kv_hbm_reuse, batch_time_model=batch_time_model,
-                            launch_saving_fraction=launch_saving_fraction)
+                            launch_saving_fraction=launch_saving_fraction,
+                            context_length_limit=context_length_limit)
     return result["per_layer_us"], result["per_layer_prefix_kv_gb"]
 
 

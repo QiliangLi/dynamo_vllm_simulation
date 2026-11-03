@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "requests": 432,
+  "hints_received": 432,
+  "rpc_transport": "dynamo",
+  "heavy_hints": 147,
+  "grants": 149,
+  "denied": 1487,
+  "skipped_heavy_requests": 65,
+  "leaked_permits": 0,
+  "rolled_back": 2,
+  "forced_grants": 0,
+  "forced_over_cap": 0,
+  "max_unreleased_forced_per_worker": 0,
+  "acquire_rpc_mean_wall_ms": 1.498095204767726,
+  "acquire_rpc_p50_wall_ms": 1.185116,
+  "acquire_rpc_p95_wall_ms": 3.017971,
+  "acquire_rpc_max_wall_ms": 41.23143
+}

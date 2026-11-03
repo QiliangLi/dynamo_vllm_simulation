@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "removed_fields": [
+    "disk_actual_Bps",
+    "disk_demand_Bps"
+  ],
+  "removed_array_count": 2084136,
+  "source_sha256": "4d871197db3421bf27158900375bbf632e07027015dec40d64278d1c53cab3a9",
+  "compact_uncompressed_sha256": "b124ab81ba745157c824f1597948ed43af8db84e0c930b5e29caf465cda02f95",
+  "original_run_summary_comparison": {
+    "status": "passed",
+    "numeric_checks": 360,
+    "source": "C:\\Users\\zed\\PycharmProjects\\state_aware_network\\note\\tfs_dv\\Mooncake360-CPP存储优化-20261103\\report_data\\run_summary.csv",
+    "sha256": "99eb40ecdf02143ae62638f560d6bdc9e8a2e9cf2d5f08953d3c903fa3523934",
+    "note": "只比较列出的同口径数值，不代表模型公式或运行实现已重新验收。"
+  },
+  "preserved": "aggregate events, request/compute/IO records, all clocks, per-disk 10ms integral table"
+}

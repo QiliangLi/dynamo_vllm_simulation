@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "research_commit": "9df42f81142b230553a5de046c308b5fd45063ab",
-  "research_base": "b6aca299ec9888d25435c94013f05d73fd8fa825",
-  "delivery_base": "75892142d66f281b591851ff8e0a598155b14a74",
-  "scope": "All research-tracked sim/scripts/configs/patched/tests files; results and documentation excluded",
+  "research_commit": "d2ccf1921d92faddd2e6e5bb0f9d5890e90b8998",
+  "research_base": "f4215cbe2c9db94ab2241d7cc492b72209dbc165",
+  "delivery_base": "c0918d0514bf30716e13634a591613ed4960136f",
+  "scope": "Selected shared files; source_exceptions explicitly record retained poll/locked delivery adapters and omitted experimental notification code",
   "comparison": "SHA256 after CRLF-to-LF normalization",
   "delivery_only": "Portable benchmark/report/skill entrypoints and their tests remain additional delivery resources",
   "files_sha256": {
@@ -56,14 +56,14 @@
     "scripts/check_edf_priority.py": "edfc401e3463b14e6aca734ab365222aa53c9eb091696e0646cb2ad276de13a0",
     "scripts/check_fine_trace.py": "3151420232afad0a4f15b7d8fce3b3c75aab911112e7b9531e05ad435ac2e73d",
     "scripts/check_layerwise.py": "afd22616dc71f764487e524aba375201366c0ba14187cf89465fbf812158a4b4",
-    "scripts/check_prefill_formula.py": "51c7566007a248365dcfcb15f3e212985842dab34706bdc72b95a674a62da798",
+    "scripts/check_prefill_formula.py": "f3e3f87053c9e7bd2f2d50cc162a6e755a2b747ddccbce91fecee94baf300231",
     "scripts/check_read_admission.py": "6e0237898b03624e36a0080da0b8383dee6144b575c233b10dd6bb2958ab9477",
     "scripts/check_results.py": "d6890253526a72aa8e687ab18941dd5e60a4523cc594d4b73cef6437e44564f3",
     "scripts/check_routing_accounting.py": "6c3ed15b756f639a87b3823292df9970963ea5a4979a11ab47267e8493bc9a3e",
     "scripts/check_sa_results.py": "1c25c1737f1788c00cd3efde4475378a7161cb2dc2a688e679ac78369d81c08c",
     "scripts/check_sa_stack.py": "28e1307c53ad42b0c2a4b676b73ab67d1da8391d712238f793fbb21fc387fe79",
     "scripts/check_stack.py": "381f51391effcf2d5f70a202184573fc54b3b4d6940e381a40005dc00e0f5bbb",
-    "scripts/check_stack_routing.py": "01c037075544ef6f82b7ce7473b8aadfa2f8d14b2f9be58311d511a35b33d467",
+    "scripts/check_stack_routing.py": "868a808b0a724cafe2372ab488d3d08d5780e00a3528ec7a60b54cc14bca03b0",
     "scripts/compare_storage_diagnostics.py": "799036c718734a52d314315e5b9e28a715bcd629681064ed3e16322801829ca3",
     "scripts/diagnose_storage_submit.py": "b4a70783069170423ed023836767218fb1cb5993d2213ccfd8380ed8c7a982c8",
     "scripts/doctor.py": "1bf78b7bca0bb2600b58b542569778e85d2ab720993ea576803bd4a4f7d8e37a",
@@ -86,7 +86,7 @@
     "scripts/run_seed416_read_admission.py": "5247eb971525e4fb84ca8e2ce2e12c92ec328954bc7e0c146a731c7a30e10dd3",
     "scripts/run_stack_experiment.sh": "30ba7a9f3ee502b34fd609ac2e679b8305f6b435567baaec26cebeb9ef239812",
     "scripts/run_tfs_matrix.py": "b4a3ea712d54c12cf1a64c2be086c7dc3889ffe3bde7287d611ddb0d07e3b04d",
-    "scripts/run_tfs_stack.py": "4798b25fe66819178112257abfabdf00f932402ce4fdc1fe15aaec29a4c63f6e",
+    "scripts/run_tfs_stack.py": "c10002b27a8101fd83f19d23c82ebce12935be8f9d435d2e47b3df989c58a22c",
     "scripts/stack_llm_smoke.py": "c37d8d3e309f6e6b737f8e41e5752ca390d8ed4baf2af8e7598eca678a892737",
     "scripts/stack_vllm_worker.py": "c9676aa1db31e8efba0db9d034f54da4f63ce5b1490c53c81e03dfea3f3743a2",
     "scripts/templates/sa_code_review.html": "c6a4222d67b3d8b92291c97e6096a2bba88a61c81354eb3e6b321271738165fc",
@@ -105,11 +105,11 @@
     "scripts/verify_sa_alignment.py": "7293b915cdb59ed1f5e615336e40d7da14caddeb0b2c42894ad5b012412036f9",
     "sim/__init__.py": "a3e6b9e5d96e46c76042757b8b2e93f340841268683af5f89d7a4e5f9b816883",
     "sim/admission.py": "f30698293f6b824e889d93360812c846689b200f9224e3be90361c4e6a0d5955",
-    "sim/compute_time.py": "e2f4a0a7b18eabf2fad5ff56b29ace3f26737b007892dcbb6835015bab19b124",
+    "sim/compute_time.py": "b44b72d5ab3e414ca3b8b81cc184e633ddf7bbdef377c7dc28bd9360e0069fdb",
     "sim/connector.py": "17daaac2b7efb9ffe41b7ea678e19cd0273679724afc5d94fd0eb50489bb9f3f",
     "sim/control_events.py": "6e3e74eb7cdcef2739a1b6ae19e2c04af31c3a2ef7bd1299b6f580c049646e44",
     "sim/engine.py": "d694cb55b81afafed3b51ae31c870c9f8e70e5806c49cc474a66e3f80d1ff597",
-    "sim/grouped_storage.py": "fe0529e40464a270fe9c574ae3908a7bfc8f22bc3e16e3082100a051308d920a",
+    "sim/grouped_storage.py": "65e9cfc55b69a73c72be896be02b4a24a58c8d89eaa7cfd93d03a081b37de603",
     "sim/layer_aligned.py": "53eb7eeb7b27c46f948dc93e8ef4b0404f94613bf538218598e9fd227be72cde",
     "sim/mooncake.py": "4f4b68419260ac0ad809b099c987751b2e436e2eca16fb7922fabe8215a7557c",
     "sim/priority.py": "3cb7f8e3141a3c7a1295c712ebcaa8046f7d17d23d46684afb0aa8635f370f43",
@@ -134,7 +134,7 @@
     "sim/stack/executor.py": "0dc596b6d181ebc89d139a62ececf288bb9f87212484178f8b369eba7804d3e1",
     "sim/stack/feedback.py": "3fc2393307b81c1bfa61050e6a4caa7e21c39461161bff26bcd6c82f05f9c8ff",
     "sim/stack/final_reply.py": "412be5189b2e47330d3da4f34565f07bf36526c17d9792739d0a1b79ebc0061b",
-    "sim/stack/fine_trace.py": "1cdceb1c9cb31398340ec4375e3add9f6ce5764b5d65129a0bebf8043cf14f79",
+    "sim/stack/fine_trace.py": "893c77b66da512391b415b44d3a1ed51e1e2b1e7cedeab553769b02c9cfb1a8a",
     "sim/stack/layer_storage.py": "3b4c7ae4888cd320ed98e9dbb7f91115cbb1ff2f013506f4debfe3f5d1f470b5",
     "sim/stack/layerwise.py": "279081422952dfffa22c8884001ba4ee23227d0f39bd6d8a7acc67c58b59b3df",
     "sim/stack/load_observation.py": "880821ee4f2fa8d46dea6b74c45b3043a4fae684eb842065f13e09d4d303209c",
@@ -145,13 +145,13 @@
     "sim/stack/storage_client.py": "5691d43ea2fd9c213aa4f0f1f824e68a6bba8eb6f0a34c6940406e11174c6694",
     "sim/stack/storage_gc.py": "a18773461e4664477dee1b17b67aad96f071291f521d31da9e3a32bf8f457422",
     "sim/stack/storage_hint.py": "6fc601144ed54c238dd7ca4c10be842d073921c1b6b1f5eeed1e0a28aaea2ef7",
-    "sim/stack/storage_service.py": "0f1cb2c25336485eef8f71af86ccf41567a566352eef9e59394b7aeaa0519ce1",
+    "sim/stack/storage_service.py": "fc79a68530dd55c4592818b3229ca1fd4391c0700d2a5c64fbbebb0820de5a89",
     "sim/storage.py": "797b8c0d0a1bcd39c73dbad01871acc1e350610cab9ffeb940b5faa9cf4baaca",
     "sim/tfs_metrics.py": "4a32a8b93b2bbbdde9e26825f7e53732bfebf5930b45f04c2fa99efa91fed320",
     "sim/timing_models/__init__.py": "064fc503ade2b5b8718f498dc1525667878270c278efc1dd8e4e41811905cf10",
-    "sim/timing_models/compute_models.py": "fe4197258d1fb9abb8a212f3c216bf6a1c77e95e3c07ece7a1ce724e81c48db5",
+    "sim/timing_models/compute_models.py": "464f61de02069a7347f64182bf482481c4b26c9722e44bc3e52eb678fab91d72",
     "sim/timing_models/glm5_d950pr_reference.py": "ea76abe23c0a0c05b3633760358b70f876f4b20b9a8e18c92d10eac1a09c0b59",
-    "sim/timing_models/prefill_time_batch.py": "d1bb92f523f5312897b75aca3256541a4d82b4b5b4b8c6dd0a872e91eac6ff9a",
+    "sim/timing_models/prefill_time_batch.py": "5ee926304bf7e42c52e55827650b414795afa2486ce90f900c8b51892bd5b8fb",
     "sim/timing_models/source.json": "4f28642d9bef81d6da30b45d18b7266a69c7e2bee68dc2c47ceb87a009ceb8f5",
     "sim/trace_io.py": "415a6b0d7e87f7975d167d6b894e64010c6092bb082c19fefcadf31e4635e980",
     "tests/fixtures/README.md": "4b3932bd7e1e111cc865fabd91e6bf3869c2f748f964af56c61af7065bf95b3c",
@@ -190,7 +190,7 @@
     "tests/test_stack_admission.py": "72c687fc788160967c0264e22973ea4d9597584bd07cdf551de00fe923a36d2a",
     "tests/test_stack_clock.py": "24607c0c3a65bc68654cddc24b8bd65e187f0bf7270f79bbe2ef5614e11cb075",
     "tests/test_stack_readiness.py": "a3296ff6b373fe44e830616dfb4e9cadb3c804cfada3c916c7498fd06b1585ed",
-    "tests/test_stack_routing.py": "1a675b1b2e9f7ec765efff3157ece53f67f775b9ae2ae69f896a8c4ba187d7d7",
+    "tests/test_stack_routing.py": "7501bd12da7c8536ea9c2041e85a17aa2de31df344bc4ebd644e07af464a5bd3",
     "tests/test_stack_storage.py": "818b8c3ca131e24e59217ca2852e44b34d042d984661180767bfd38f2092717f",
     "tests/test_storage.py": "dbc7e7229ba9d49ceea2385e931be9bfaf302c4e797991be148920664c88206e",
     "tests/test_storage_client_framing.py": "f0f3bd5e9f89c71a0018f3a8fa3d8a395c635bad243d89b090de778e1ffb74cb",
@@ -201,6 +201,41 @@
     "tests/test_storage_optimization.py": "0e1016f9e3c90ad5f7a3d0753a8699716a589d73b0ba69cca55c0cd6fd7eb845",
     "tests/test_tfs_tools.py": "e0c18ad7b73d8af8ad714478bcb0afea9302a0692df436145c3aef76481e1862",
     "tests/test_time_scale_analysis.py": "732272350776ff356b31be763849439ad0197187ba1ba308ff628c26741c37a7",
-    "tests/test_trace_io.py": "06c76ed80ae301b8581c651b15ebb8a70971856b8a51abadcc52d6f0e7ca4837"
+    "tests/test_trace_io.py": "06c76ed80ae301b8581c651b15ebb8a70971856b8a51abadcc52d6f0e7ca4837",
+    "tests/test_context_extrapolation.py": "cd7385730619f7acea8329a4a4df5c7232767f09bad6924112ecd21fa064f142",
+    "tests/test_storage_rate_cache.py": "2fcf129449d4ac2578abee7127f6431be826d8a7ec62b05c0a32ff0712f58ad7",
+    "sim/cpp_grouped_storage.py": "74cfd3ac063ee090d262efbcffa543edde24e0fe978fdfc51fe996adbc0598e3",
+    "sim/native/grouped_storage.cpp": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+    "tests/test_cpp_storage.py": "4de1954bf2f070007346922ed2ae75161cd893c2dcd4a3badd79c561591eaa9d"
+  },
+  "source_exceptions": {
+    "scripts/run_tfs_stack.py": {
+      "sha256": "f95bae318d810e6368cef8709f0bd58146e0a534b3f6ea0d8ffbc1e1acf01131",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/executor.py": {
+      "sha256": "3bd093e2977ed0377d8a8856ad505aa97471bcc0b7c33c86e74d989ab0d09369",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/layer_storage.py": {
+      "sha256": "31ab9cb0980f0c69497e77efdfd5f047704f90c451b0b7b6b1225327616d5b80",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/layerwise.py": {
+      "sha256": "75098f5fb2a82bac0e910bce9d28e03c811d9f734da926cf071e07aabecb8316",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/storage_client.py": {
+      "sha256": "7bde993ef44ffc5ea7bb3c407fdb427bcc0672b983ec5477bf083736b77c3cae",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/stack/storage_service.py": {
+      "sha256": "f9dd3064762dfc1508de83d8fe9e33d2380ba3f24814e840909e2f91cffab5bf",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "tests/test_cpp_storage.py": {
+      "sha256": "0c247f308586296d93c483dc1b8e164dce989685a556f9bbe34ad2b802b8ebc7",
+      "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    }
   }
 }

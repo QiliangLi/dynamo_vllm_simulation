@@ -237,7 +237,9 @@ def verify(folder,status,report,storage):
     return summary
 
 
-def run_one(config,trace,output,python,mode,release,workers=2):
+def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startup_timeout_s=40):
+    if type(admission_startup_timeout_s) not in (int,float) or not 0<admission_startup_timeout_s<=600:
+        raise ValueError('admission_startup_timeout_s must be finite and in (0,600]')
     folder = Path(output).resolve()
     folder.mkdir(parents=True,exist_ok=False)
     cfg = deepcopy(config)
@@ -275,7 +277,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
     source = {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
               for p in [*sorted((ROOT/"sim/stack").glob("*.py")),ROOT/"sim/admission.py",
                         ROOT/"sim/compute_time.py",ROOT/"sim/control_events.py",ROOT/"sim/request_profile.py",ROOT/"sim/storage.py",
-                        ROOT/"sim/grouped_storage.py",ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
+                        ROOT/"sim/grouped_storage.py",ROOT/"sim/cpp_grouped_storage.py",ROOT/"sim/native/grouped_storage.cpp",ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
                         ROOT/"sim/priority.py",ROOT/"sim/reference_time.py",
                         *sorted((ROOT/'sim/timing_models').glob('*.py')),
                         ROOT/'sim/timing_models/source.json',
@@ -352,7 +354,7 @@ def run_one(config,trace,output,python,mode,release,workers=2):
                             *listener_args,"--feedback-ready-file",str(rpc_ready),
                             "--event-log",str(folder/"admission.events.jsonl")],
                dict(SIM_STACK_STORAGE_SOCKET=str(storage_socket),DYN_SYSTEM_PORT='-1'))
-        wait_for(lambda:rpc_ready.exists(),40)
+        wait_for(lambda:rpc_ready.exists(),admission_startup_timeout_s)
         rpc = json.loads(rpc_ready.read_text())
         assert rpc['transport'] == cfg['admission']['rpc_transport']
         rpc_identity = (dict(SIM_STACK_ADMISSION_INSTANCE_ID=str(rpc['instance_id']),
@@ -510,6 +512,7 @@ def main():
     parser.add_argument("--workers",type=int,default=2)
     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
     parser.add_argument("--kv-mode",choices=["bulk","layer_serial","layer_pipeline"],help="KV loading/execution mode")
+    parser.add_argument("--storage-backend", choices=["python", "cpp"], help="optional native independent-disk layerwise backend")
     parser.add_argument("--time-scale",type=float,help="override wall_time_scale (>=1)")
     parser.add_argument('--storage-gc-policy', choices=['automatic', 'defer_during_run'],
                         help='default defer_during_run; automatic reproduces legacy GC behavior')
@@ -529,6 +532,8 @@ def main():
     if os.environ.get("PYTHONHASHSEED") != "0":
         parser.error("set PYTHONHASHSEED=0 for deterministic verification and child-process block hashes")
     cfg = json.loads(args.config.read_text())
+    if args.storage_backend is not None:
+        cfg.setdefault("storage", {})["backend"] = args.storage_backend
     if args.request_ordering is not None:
         cfg.update(request_ordering=args.request_ordering,
                    policy='priority' if args.request_ordering=='edf' else 'fcfs')

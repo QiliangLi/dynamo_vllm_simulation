@@ -1,0 +1,530 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 5,
+  "requests": 1800,
+  "figure_count": 8,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      2248
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      2160
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      3840,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ],
+    "08_per_disk_bandwidth.png": [
+      2336,
+      1936
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "直接准入 FCFS": "#888888",
+    "直接准入 EDF": "#4C72B0",
+    "旧 TFS EDF": "#DD8452",
+    "新 TFS EDF α=0.1": "#55A868",
+    "新 TFS EDF α=1": "#9974A5"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 13.38724600400019,
+  "bin_ms": 10,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "direct-fcfs": {
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/config.json": {
+        "sha256": "f710163cbc0b901abc07ca84e80d6f78b24e44ff9f7fc32c315ca12d6c61cf69",
+        "bytes": 1844
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/admission.final.json": {
+        "sha256": "259c5eac745caf8882a008c6dd1a72eac6e4e5392f4babdf4fe68d5f04e8e402",
+        "bytes": 1882041
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/storage.final.json": {
+        "sha256": "66c09ec2a14ccf203c73538e2d7f8e6d57fe65dc429e48614c209a278ee50250",
+        "bytes": 38937723
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/measured/report.json": {
+        "sha256": "639a312a46ae3a09a5b2383c1cbe04bdc17864f1874eaba7ad543c967db29924",
+        "bytes": 135893
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker0.steps.jsonl": {
+        "sha256": "39ced257b27a67d19a8ed0395746a5a66dba0426dff64c0df390c2dbd3b33e5b",
+        "bytes": 2084295
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker1.steps.jsonl": {
+        "sha256": "625c17a37fd9cc467bed075cbee010c93c9058989238d363850ddddf840b3f27",
+        "bytes": 2029387
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker10.steps.jsonl": {
+        "sha256": "eb937f8560f9e423f941caad2131999090bae7378de123a03f37cc01e79cc003",
+        "bytes": 1693074
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker11.steps.jsonl": {
+        "sha256": "adac0dea59d8906b4de1bbee371a693ba267f564063615a0807c17a4eb029f66",
+        "bytes": 2398151
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker2.steps.jsonl": {
+        "sha256": "3bc86d78cf2f7d62605cdde97dfd079bfc7eee1c8b76228d9eda947526d40472",
+        "bytes": 1414525
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker3.steps.jsonl": {
+        "sha256": "c99ace0ea0f7e7707b1ece88effd5b70845d0faac654491b35f1d64fbbde8270",
+        "bytes": 1773599
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker4.steps.jsonl": {
+        "sha256": "10ad0a829901c1bf8e8249890d7a30d3e748e2c73414b7afab7354ce502522c6",
+        "bytes": 1919865
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker5.steps.jsonl": {
+        "sha256": "7d73e1a847f3593d78b887e02f343c19fe1cc99479e1d017d9db7c49e6dc1b52",
+        "bytes": 1426124
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker6.steps.jsonl": {
+        "sha256": "7c66c57355698a5ef425308d65bbaf4e7afcd67fc8a9f3574e08c5218fad50a1",
+        "bytes": 1577251
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker7.steps.jsonl": {
+        "sha256": "4d229607bc90961a5443987b866ed13bfe278186183befc8be0b97c676d09a7a",
+        "bytes": 1779785
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker8.steps.jsonl": {
+        "sha256": "a0d53a171d9134a27b2f7af66453415c50378cdd70d032dc93ee3d73ff850f3b",
+        "bytes": 1755072
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct-fcfs/run/worker9.steps.jsonl": {
+        "sha256": "4845552cde6c89ce0d7d052f0a6502117cdaaf7a5e86f0f7dc567d2ff91c4d9b",
+        "bytes": 2244456
+      }
+    },
+    "direct": {
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/config.json": {
+        "sha256": "43182b749c351b0d628ee0d7d2fc2e4f128cc1a0d8d79258d9738ef346f61883",
+        "bytes": 1847
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/admission.final.json": {
+        "sha256": "a44eed44dcb35df32a3f7f63cda654da941dee99a080c015a722fb07bf7924a1",
+        "bytes": 2069614
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/storage.final.json": {
+        "sha256": "32c9cdda1c634af4bfab450b165b97e95b6b628fd674423627149ad9ac4128c3",
+        "bytes": 38935264
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/measured/report.json": {
+        "sha256": "f996261c515c2fccf6ef6a2834adc4de4ddc786d300424f1bea305ee461e8a4b",
+        "bytes": 135835
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker0.steps.jsonl": {
+        "sha256": "2570a81d7fb405341aab5ea9600c0c2503d0dc668b47e9f6e0c8e9026b426917",
+        "bytes": 1891160
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker1.steps.jsonl": {
+        "sha256": "0bfe207177cdd6eb6c2e49e064d5d3182454c08102c88d0cab31b644b2dbaca0",
+        "bytes": 1316159
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker10.steps.jsonl": {
+        "sha256": "f10f66171f1c83a7199bee45fb8d3a770b93826a71aa58d0be28c9c5560e0ed7",
+        "bytes": 2008683
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker11.steps.jsonl": {
+        "sha256": "26f076ffaab0061dc47ea93fb742aa3e421df09fff10fd2d79f81a2055ff7a79",
+        "bytes": 2388497
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker2.steps.jsonl": {
+        "sha256": "10d76a618a4d308e16b460e96959518100effbbe89e10ee732ea5489c8189b16",
+        "bytes": 1417177
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker3.steps.jsonl": {
+        "sha256": "aab278719244974f5285cca504082e5b79763c752fc8cf0db52bb06e54e390d4",
+        "bytes": 2010557
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker4.steps.jsonl": {
+        "sha256": "094823ec840381f75a06b7c7f446d1259ac0709404030eef39395f3ddc3fcbf5",
+        "bytes": 1836939
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker5.steps.jsonl": {
+        "sha256": "24f16433c1d8ce849a89ab45f3828a1b4dd22895a749a667729a12c9e2779120",
+        "bytes": 1257340
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker6.steps.jsonl": {
+        "sha256": "5c2d7ae9cebdefc158d1b64c65c0922d0b0b2c620872112c5ab55764cf77f7dd",
+        "bytes": 2467963
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker7.steps.jsonl": {
+        "sha256": "8eecbce605937ef7044bdf11265da222b51e71acc9285aea3a21d748ca9c4671",
+        "bytes": 2206861
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker8.steps.jsonl": {
+        "sha256": "9b7cf788a0b6c1b32aafafcb4497e2375cbd6eff71515547b34faa76ce5918db",
+        "bytes": 1727515
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/direct/run/worker9.steps.jsonl": {
+        "sha256": "c8d298e5d4c96a52c40c81375d60a21aebc55a1c6bdee80bbd4d7e3137f67ac6",
+        "bytes": 1423015
+      }
+    },
+    "old-tfs": {
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/config.json": {
+        "sha256": "e4c451ef79735c8bce5c380041c6ebf1598fef7c90ec8407ccfb9f16f456aaea",
+        "bytes": 1841
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/admission.final.json": {
+        "sha256": "87f441ec3dac5f857f31871bbb567d9f1d5ecd8f9bc23cba46c8a3845136fd8b",
+        "bytes": 2066348
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/storage.final.json": {
+        "sha256": "6e2f4010677aa11345c68a0c51570013dcbd977bfcf4394324f89c4555bdb1fd",
+        "bytes": 38935210
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/measured/report.json": {
+        "sha256": "7d53f23f8d14e43fee9046ef84451e8ad3c95c7a0baee1b4c265b137ac2a8f60",
+        "bytes": 136118
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker0.steps.jsonl": {
+        "sha256": "048479f40ee0f95d6ca7a79b468f11b2a73f1717a6d25b7b1d1f3ce456b162ec",
+        "bytes": 1930204
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker1.steps.jsonl": {
+        "sha256": "5c5769f2049002692104cc9abdf30c0678f357d5894f50bab65d1408ac000d19",
+        "bytes": 1978451
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker10.steps.jsonl": {
+        "sha256": "3d50381d53650d7a74bcb4cdcf7ad2d0af9671b4225e73dcb3fc8c9ba4ea4e14",
+        "bytes": 2399390
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker11.steps.jsonl": {
+        "sha256": "8db2ac5fcff3932ff4a99398231e29ca7dac995f164679247e789565ac1ff586",
+        "bytes": 1877946
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker2.steps.jsonl": {
+        "sha256": "300cb23d873b4e983b81386130b6e9c018f5fac1d086694300fef703613d0061",
+        "bytes": 2111747
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker3.steps.jsonl": {
+        "sha256": "6eb3e6c656014e5de83283da673f6576429efc66aa6727a5203ed8da94c404a0",
+        "bytes": 2181906
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker4.steps.jsonl": {
+        "sha256": "d2ff8a653e07d57369a26b879e4906c002125428cf18f40599410b0987794328",
+        "bytes": 1951036
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker5.steps.jsonl": {
+        "sha256": "dfbefc8cf8241afa55e9dbf18101ffdf916ff5575073ffe170e0766052db8818",
+        "bytes": 1860911
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker6.steps.jsonl": {
+        "sha256": "b7f27a326a1b08e8d0b4c7e08bed2e8d8d33af3d5880f17828b97b4613ac1815",
+        "bytes": 1807708
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker7.steps.jsonl": {
+        "sha256": "d8777db042e80806f20e4f4b2ccbb6ee3645464826a9957f921479c4cc5c5f0c",
+        "bytes": 2183641
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker8.steps.jsonl": {
+        "sha256": "cdf88844e63f52e20dee961dc4d37d93779549ac59866492eaa003b84d3339ec",
+        "bytes": 2031079
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/old-tfs/run/worker9.steps.jsonl": {
+        "sha256": "c7f526611584b91af0b84abbb2350567923612768d7312aef65fd22d7a0b6080",
+        "bytes": 2124688
+      }
+    },
+    "tfs-a01": {
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/config.json": {
+        "sha256": "ecc8b4c2b7dd6f0b639b9fe27793f635ea160993e83f88220e08837b44b97c25",
+        "bytes": 1842
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/admission.final.json": {
+        "sha256": "023bc9f0a86ee2fe977ad9cc37eb264eaa60df10c2107c4bfea93c68911cd26b",
+        "bytes": 2943509
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/storage.final.json": {
+        "sha256": "63513845653144f900af7130d2a9d0c72cd6687d94c68a72426ce892d1947124",
+        "bytes": 38930599
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/measured/report.json": {
+        "sha256": "3abe0f5da597832527916b6b3afb05249cea7dfc9b4e4240f530c91d4fd03c68",
+        "bytes": 135594
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker0.steps.jsonl": {
+        "sha256": "4a13fad6a5c246124758b17fea62d5687d0d6d720684eedba42551b11ab2e954",
+        "bytes": 1259800
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker1.steps.jsonl": {
+        "sha256": "d0139dd3553225fac6eee0a34c8597cfe00ace5cc69b16fe767956fe59c9edb4",
+        "bytes": 2380848
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker10.steps.jsonl": {
+        "sha256": "7b89c13ebebfc3b6d7a785dad7316ed9c58a25509537e35a0c8a030fa76186b8",
+        "bytes": 1653798
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker11.steps.jsonl": {
+        "sha256": "19fb3d76acfd32066623b7fc7171f7acd910c794393fc9881e06aa65e655e27b",
+        "bytes": 1821040
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker2.steps.jsonl": {
+        "sha256": "67cf2fd58fa712c00a3e9d82ad85ea8dfc4f496b87bec70f1805659f5e9e266c",
+        "bytes": 1883681
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker3.steps.jsonl": {
+        "sha256": "7da3b9e46a6db1c8038dfa707525e05d5d286ab0901368480e2730dd7cdded18",
+        "bytes": 2304132
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker4.steps.jsonl": {
+        "sha256": "9def3350e8b7fb571d3c4693e7890cc0aeabfddf3848b668ef9a893bbfb229bc",
+        "bytes": 2355797
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker5.steps.jsonl": {
+        "sha256": "daa42504e88091220c3c5c450f1e4935203c8546897fc135a74427a4e21ba7e8",
+        "bytes": 1693900
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker6.steps.jsonl": {
+        "sha256": "be25357d7b84d5b47df719a991b276cd6aab8ea2f1b8c828fe2dd2a56bbf9f8c",
+        "bytes": 2094836
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker7.steps.jsonl": {
+        "sha256": "9ce5e87d04668256327df73ea2f26d1eba56bcf2decd898066acb0695fcf757a",
+        "bytes": 2415652
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker8.steps.jsonl": {
+        "sha256": "fcb1a4b941c5e1238076f54efe1e149cb8228579d336b9eec15051b9a2391366",
+        "bytes": 1747842
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a01/run/worker9.steps.jsonl": {
+        "sha256": "d41162a7823472bf18ff2b1a8f13ce5f195acd9c8c092352ef8f4df604dd7af4",
+        "bytes": 1720930
+      }
+    },
+    "tfs-a1": {
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/config.json": {
+        "sha256": "26283a6a64cd60dca1a8abe69bffc1a3cb939dd25d6a3a9ec804758be2453b2d",
+        "bytes": 1842
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/admission.final.json": {
+        "sha256": "8f833c1cd53c16866a5cdbb39e0738000ee23d92d5db03a6ae960c31e8014848",
+        "bytes": 3318945
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/storage.final.json": {
+        "sha256": "77f1d81fe794469af48fdbb2b01944c2b1a04759b144d4511234931ce0b7bbc4",
+        "bytes": 38934923
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/measured/report.json": {
+        "sha256": "61a263f6eeb7901622ffc73c546ef819dcab4b507967a8eb9f8e3fa1bf556204",
+        "bytes": 136106
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker0.steps.jsonl": {
+        "sha256": "4932b0ddea30fbb305bcda033712d6120c42ad12d5541ae8d493f8f958e85956",
+        "bytes": 1330500
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker1.steps.jsonl": {
+        "sha256": "a7c64999b0633db7a6b8d341aaf5fd4e733de38d347386ad716ea9bffd040dd7",
+        "bytes": 2120504
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker10.steps.jsonl": {
+        "sha256": "fa7334ac815a5250a2fc275f4996905a582ab145948bcc088b3e090557fa09d8",
+        "bytes": 2187832
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker11.steps.jsonl": {
+        "sha256": "24c28f19a629fda60bb9587fa6407a20ad06141822e2677d5f9c057f5a8e4494",
+        "bytes": 1945928
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker2.steps.jsonl": {
+        "sha256": "e86b5549f92020a3e9f367677c0d2fcb5a9af50a438fdc77eb9cf1c953c5b176",
+        "bytes": 2011865
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker3.steps.jsonl": {
+        "sha256": "7913e9ffdef86df759c74aa79156428d3179e955205d6045cb1709b134fc4515",
+        "bytes": 1610550
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker4.steps.jsonl": {
+        "sha256": "cf8ad10df3885b2722f3c013ad1f297a4b6bfd3e9a16004d623496d43c693f6a",
+        "bytes": 1922821
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker5.steps.jsonl": {
+        "sha256": "63764b1dce2a6e669d8ccbb3dac4d2fd15d5da38ed869809ba615f159b8f3cda",
+        "bytes": 1671237
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker6.steps.jsonl": {
+        "sha256": "22d888cd82fe37e1b2f90ea23f15e43bd361554028430c666dd7ba5bb116f365",
+        "bytes": 2529377
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker7.steps.jsonl": {
+        "sha256": "1ff20e84daa0036e18c16b7e49701ffe2db735d56a82b9ab3209d2f1ede5a1f5",
+        "bytes": 1920207
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker8.steps.jsonl": {
+        "sha256": "1f7aac7a64d9b86be6fbdfec2fe69f56dfd99155e662dca88d4ea128b9586a5a",
+        "bytes": 2056602
+      },
+      "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abcd_360_4s_12_90GBps/package/results/tfs-a1/run/worker9.steps.jsonl": {
+        "sha256": "27a7eec1a38dc83eeedf94565b13f042bc2495927ea2ceb3f0718e1fc4aee501",
+        "bytes": 2193357
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/report-build/mooncake_abcd_360_4s_12_90GBps/dataset.json",
+    "sha256": "8ea2b188ebfb67a8ad155737103732906a590bb9fa80a99b66e20ed87de4c6f0"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "543590fce506df8cafa0223fcdd13fc725f7a3fdbd42f38f49abf581f64fed5e",
+      "bytes": 58987
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "147748724b4a772cfc381da6479d17f2b559cc0b57f26c7aa5b1459ba6a117e6",
+      "bytes": 344630
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "6deffefe9104f68d4f1988ad8b3ef8ddd96d6eeb5998de2df4a68125d3b17db2",
+      "bytes": 109354
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "0f74e76934bfcb0077589de134d23335136e8e0cb30f1c5e8fa113f0e45faaeb",
+      "bytes": 1180998
+    },
+    "figure/05_cdf.png": {
+      "sha256": "1d43271a82a1d92cb46b5f3a25f7a168042ebde0cfc216a6593ee1c2c678c91c",
+      "bytes": 139974
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "144be8915e3c18a9fe502c7cffa7acd1ad90fe7bba00cf34a5ae70dff92f4960",
+      "bytes": 214463
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "8b96d920442efd8f74e4175fab84ed3ac9d0e27f66a99a02ca0b16ce6e6aeba8",
+      "bytes": 70203
+    },
+    "figure/08_per_disk_bandwidth.png": {
+      "sha256": "17035ad400e692c6fc56f6f49af8c1b9db998b3edd9586a34b4dfb61ecb11739",
+      "bytes": 265446
+    },
+    "report.md": {
+      "sha256": "5d7f74ce2bcf0ebfa28c8c3deb49aff68384c8a984b9c13f04aad82fd37b9794",
+      "bytes": 13592
+    },
+    "report_data/acceptance_checks.csv": {
+      "sha256": "727e183862890d753f98db91a37c39289048d6b49a8fecdebf230141fa392606",
+      "bytes": 567
+    },
+    "report_data/admission_summary.csv": {
+      "sha256": "dbe23e426e9a6fccb7032b0870d3fbc4b62c0d2cb90edc307d3aa1333b2efc7a",
+      "bytes": 365
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "e14da8020fa4058032a1b327893709f96c31bc1258a7f43cfaf936428706e6ae",
+      "bytes": 367847
+    },
+    "report_data/cdf.csv": {
+      "sha256": "ab3e187f4266be889d7877f9b389e18d055964fa68fe7d2b834e3ce1670f0755",
+      "bytes": 199129
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "e3849be93c99e7e84a975600521d1eee77a6989edff3251077b26f8a8733502f",
+      "bytes": 2152
+    },
+    "report_data/configuration.json": {
+      "sha256": "ba59d87162817fb0c7cfcb2bf54cbe7dbe774a9c21ffa559cd69b29b4beca0a7",
+      "bytes": 11898
+    },
+    "report_data/dataset.json": {
+      "sha256": "d0baf2937cf0869a354a7cee237c20d75c1c5a03f02cfd2efec00abeb824f0fd",
+      "bytes": 330084747
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "817c887c54cadc5a1965e4c0d42befa521e425b521d56f2315ef6fca7ed64c3e",
+      "bytes": 6317
+    },
+    "report_data/disk_bandwidth_bins.csv": {
+      "sha256": "6995bccaa92ce620715fe94cc71b312a8f6141b838569fde1b80ca912fafb0f1",
+      "bytes": 1276267
+    },
+    "report_data/disk_replay_checks.csv": {
+      "sha256": "d2d3dca24548f1881e19d4cbe8c8e652c2b1d104b4d261f353c864874ff3adfb",
+      "bytes": 434
+    },
+    "report_data/disk_summary.csv": {
+      "sha256": "7ea9ea5cd60cb6a5392c33cf9c66152007b3c4332ee2caa01e95599093c18e5d",
+      "bytes": 1845
+    },
+    "report_data/native_batches.csv": {
+      "sha256": "35daf517afd90a87c225375f19b6eb3906923ecbd481eb0d401c56561cc33415",
+      "bytes": 69429
+    },
+    "report_data/requests.csv": {
+      "sha256": "6a3ff9b865a26840cc3ec4ad55885e42b595a4589cbcbce3242e5d42b316aeaf",
+      "bytes": 321557
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "f889a03a084176b4053f367162d5fc45af813eeca5f614b42253096a7f135034",
+      "bytes": 1474
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "e6b69e6989ff22653281317f5eb16cef0fc1380f84b463bb29426af274815e29",
+      "bytes": 9232
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "0bfbe6b274695bdf310025d7836ffafbd458b75da794362a9f0169182df71f3d",
+      "bytes": 10764
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "8961d1676c3ecbfa0ed987bd216cc96ceee140247599645e7b0dd0cd277745cb",
+      "bytes": 25413
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "17e89b2773db830c515eff1e69755f09048df2cb032d5b948a7d932af46f16fe",
+      "bytes": 18365
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+      "bytes": 7167
+    }
+  }
+}

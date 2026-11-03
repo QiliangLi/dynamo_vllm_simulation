@@ -1,10 +1,9 @@
 # synthetic_abc_360_6s_12_90GBps
 
-> 2026-10-30更新：上述核心运行代码已同步；本负载专用合同仍未完成交付运行器验收，保持仅校验/导出。下文“尚未移植代码”是加入输入时的历史说明。
 
 固定的人工 ABC 负载。来源是 E26f C_A、seed416 的原360条到达顺序，不是 Mooncake trace。
 本负载已在研究版实际执行直接EDF、新TFS α0.1、新TFS α1；各360正式请求验收通过。
-本次只整理这些已完成实验的输入和配置，没有重跑实验。
+输入和历史配置保留2026-10-30的已验收版本。2026-11-02接入统一交付运行器，并重新执行启动及三方案功能验收。
 
 ## 请求与资源
 
@@ -49,11 +48,53 @@ python benchmark/manage.py export synthetic_abc_360_6s_12_90GBps --output temp/s
 三组实际配置完整保存在`run_contract.json`；TFS分别使用α0.1和α1，无强制准入或老化，按HTTP首token释放。
 每组72预热、排空并重置分类历史与正式GC窗口。Runtime使用TCP/MessagePack，四类执行反馈关闭。
 
-## 支持边界与来源
+## 直接运行与验收
 
-**当前交付运行器仅支持校验、导出。** 交付运行器仍为batch-v2和同步执行反馈；尚未移植本负载的direct_sum、禁用四反馈及Dynamo Runtime最终答复/后台EOF合同。
-运行器会在检查原生环境前拒绝此case，不把其他负载默认条件当作本次复现。
-`provenance.json`保存原输入/配置、运行源码与验收凭证哈希；不依赖原电脑绝对路径进行导出。
-原研究DV提交为`b6aca299ec9888d25435c94013f05d73fd8fa825`。研究版为真实Dynamo/vLLM控制面和CPU读算仿真，未使用真实GPU/NPU执行。
-首次直接组有1条Runtime返回流连接失败，失败轮已保留并排除；相同参数重跑通过。不能只凭成功轮评价可靠性。
-大型原始事件和完整报告不属于本负载包；本目录不移植研究运行代码，也不声明性能显著性。
+2026-11-02：状态为 `supported`，统一运行器支持本负载，并将其纳入 `--case all`。
+先按仓库 `docs/实验分支使用说明.md` 准备固定依赖和独立加权Dynamo构建。
+在 `dynamo_vllm_cpu_sim/` 目录执行，输出目录必须不存在：
+
+```bash
+.venv/bin/python scripts/run_benchmark.py \
+  --case synthetic_abc_360_6s_12_90GBps --arm tfs-a01 --smoke \
+  --dynamo-python build/weighted-dynamo/python \
+  --output results/benchmark_runs/synthetic-abc-smoke-r1
+
+.venv/bin/python scripts/run_benchmark.py \
+  --case synthetic_abc_360_6s_12_90GBps --arm all \
+  --dynamo-python build/weighted-dynamo/python \
+  --output results/benchmark_runs/synthetic-abc-r1
+```
+
+`--arm` 为 `direct`、`tfs-a01`、`tfs-a1` 或 `all`。三方案共用EDF。
+冒烟用2实例，每类取首尾各一条，共6条；计划时刻置零，不预热，仅检查正确性。
+正式每组12实例、72预热和360正式，保留时间原点0及首请求之前约5.03ms间隔。
+不能将首请求重新平移到0，也不能套用Mooncake的4秒或AgentX的12秒窗口。
+
+运行器读取 `synthetic_abc360_v1` 专用合同，逐项核对三方案有效配置。
+保留直接准入下已禁用的waiting_factor原值，不额外注入长上下文参数或启动超时覆盖。
+最长30979 token在原131072范围内，不涉及AgentX长上下文公式外推。
+
+完整验收包含：
+
+- 360正式请求与HTTP账本ID一致；A/B/C各120条，固定h/u、累计token和528631234560 B读取一致。
+- 原请求顺序与6秒计划到达值不变；T0和4×T0期限按当前配置及实际到达重算。
+- 72预热覆盖12实例；确认排空，排除预热分类历史，重新开始正式GC窗口。
+- 独立直接组合公式、逐层KV就绪屏障、原生token/slot预算和真实EDF排序通过。
+- 最终P75压力约28.432691 GB/s，对应配额3；人工标签不代替在线分类，初期配额可以不同。
+- 四种执行反馈保持关闭；原始在线快照与离线补全报告分开；Dynamo最终答复及后台EOF排空。
+- 许可、路由记账和存储在途读取排空，所属进程退出，无资源保护触发。
+
+小型验收摘要见 `dynamo_vllm_cpu_sim/SYNTHETIC_ABC_VALIDATION.json`。
+当前统一入口验收与历史报告分开记录，不改写旧报告指标，不上传大型原始事件。
+本次使用WSL/Linux、固定依赖及已有原生构建；不代表全新bootstrap、Windows原生进程或真实GPU/NPU验证。
+三方案各一轮只证明功能通过，不证明稳定性能排名。
+
+## 历史来源与边界
+
+`provenance.json`、`validation.json` 保留加入输入时的研究实验凭证，不替代本次交付验收。
+原输入、requests.csv、两份配置及三组历史方案配置未修改。解压trace的SHA256仍为
+`3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6`。
+原研究DV提交为 `b6aca299ec9888d25435c94013f05d73fd8fa825`。
+2026-10-30研究实验的首次直接组曾有1条Runtime返回流连接失败，失败轮保留；同参数重跑通过。
+这条历史记录不表示本次验收也出现了同样失败。模型数值执行与KV传输仍为CPU解析仿真。

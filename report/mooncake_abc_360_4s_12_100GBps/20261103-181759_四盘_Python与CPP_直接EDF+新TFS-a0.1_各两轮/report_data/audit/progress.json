@@ -1,0 +1,126 @@
+{
+  "status": "completed",
+  "completed": [
+    {
+      "index": 0,
+      "backend": "cpp",
+      "arm": "direct",
+      "smoke": true,
+      "repeat": 0,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-00-cpp-direct-r0",
+      "started_at": "2026-11-03T17:32:54.868595+08:00",
+      "finished_at": "2026-11-03T17:33:24.047413+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,direct,0,passed,True,6,0,1,100000000000.0,576.4880386666581,1073.8548149999758,66.66666666666666,1079.5518079999908,13980155904,4,25000000000.0,,\"[3521396736, 3510853632, 3577626624, 3370278912]\",\"[25000000000, 25000000000, 25000000000, 25000000000]\"\n"
+    },
+    {
+      "index": 1,
+      "backend": "cpp",
+      "arm": "tfs-a01",
+      "smoke": true,
+      "repeat": 0,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-01-cpp-tfs-a01-r0",
+      "started_at": "2026-11-03T17:33:24.047990+08:00",
+      "finished_at": "2026-11-03T17:33:52.609770+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,tfs-a01,0,passed,True,6,0,1,100000000000.0,549.8292263333392,955.5363230000182,83.33333333333334,955.5363230000182,13980155904,4,25000000000.0,,\"[3521396736, 3510853632, 3577626624, 3370278912]\",\"[25000000000, 25000000000.000004, 25000000000, 25000000000]\"\n"
+    },
+    {
+      "index": 2,
+      "backend": "python",
+      "arm": "direct",
+      "smoke": false,
+      "repeat": 1,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-02-python-direct-r1",
+      "started_at": "2026-11-03T17:33:52.610435+08:00",
+      "finished_at": "2026-11-03T17:35:05.228858+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,direct,0,passed,False,360,72,1,100000000000.0,3979.8022917916683,7464.697372999979,4.444444444444445,11533.489432999999,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.000023, 25000000000.00002, 25000000000.000027, 25000000000.00002]\"\n"
+    },
+    {
+      "index": 3,
+      "backend": "cpp",
+      "arm": "direct",
+      "smoke": false,
+      "repeat": 1,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-03-cpp-direct-r1",
+      "started_at": "2026-11-03T17:35:05.229535+08:00",
+      "finished_at": "2026-11-03T17:36:18.071956+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,direct,0,passed,False,360,72,1,100000000000.0,2226.3853374833325,4374.915876999978,5.555555555555555,9066.023584999983,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.00002, 25000000000.00002, 25000000000.00002, 25000000000.00002]\"\n"
+    },
+    {
+      "index": 4,
+      "backend": "cpp",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "repeat": 1,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-04-cpp-tfs-a01-r1",
+      "started_at": "2026-11-03T17:36:18.072542+08:00",
+      "finished_at": "2026-11-03T17:37:30.828474+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,tfs-a01,0,passed,False,360,72,1,100000000000.0,1894.3256685027775,4769.363198000008,9.444444444444445,8514.501438999958,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.000015, 25000000000.000015, 25000000000.00002, 25000000000.000015]\"\n"
+    },
+    {
+      "index": 5,
+      "backend": "python",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "repeat": 1,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-05-python-tfs-a01-r1",
+      "started_at": "2026-11-03T17:37:30.829040+08:00",
+      "finished_at": "2026-11-03T17:38:50.273020+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,tfs-a01,0,passed,False,360,72,1,100000000000.0,3426.5166917416636,7721.524520000003,2.7777777777777777,11378.750454999989,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.00001, 25000000000.000015, 25000000000.000023, 25000000000.00002]\"\n"
+    },
+    {
+      "index": 6,
+      "backend": "cpp",
+      "arm": "direct",
+      "smoke": false,
+      "repeat": 2,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-06-cpp-direct-r2",
+      "started_at": "2026-11-03T17:38:50.273477+08:00",
+      "finished_at": "2026-11-03T17:40:05.545247+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,direct,0,passed,False,360,72,1,100000000000.0,2151.869495177782,4528.6443310000095,5.833333333333333,8775.772375999964,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.000023, 25000000000.000023, 25000000000.000023, 25000000000.000023]\"\n"
+    },
+    {
+      "index": 7,
+      "backend": "python",
+      "arm": "direct",
+      "smoke": false,
+      "repeat": 2,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-07-python-direct-r2",
+      "started_at": "2026-11-03T17:40:05.545720+08:00",
+      "finished_at": "2026-11-03T17:41:24.565842+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,direct,0,passed,False,360,72,1,100000000000.0,4167.296157316669,7897.957713999972,4.444444444444445,13742.04668499999,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.00002, 25000000000.00002, 25000000000.000023, 25000000000.00002]\"\n"
+    },
+    {
+      "index": 8,
+      "backend": "python",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "repeat": 2,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-08-python-tfs-a01-r2",
+      "started_at": "2026-11-03T17:41:24.566870+08:00",
+      "finished_at": "2026-11-03T17:42:40.318136+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,tfs-a01,0,passed,False,360,72,1,100000000000.0,3379.1010913972227,7700.745410999957,2.5,11294.067491000078,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.000015, 25000000000.00002, 25000000000.00002, 25000000000.000015]\"\n"
+    },
+    {
+      "index": 9,
+      "backend": "cpp",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "repeat": 2,
+      "returncode": 0,
+      "output": "/home/zed/.local/share/state-aware-network/audits/storage-cpp-online-20261103/job-09-cpp-tfs-a01-r2",
+      "started_at": "2026-11-03T17:42:40.318872+08:00",
+      "finished_at": "2026-11-03T17:43:52.203058+08:00",
+      "summary": "case,arm,returncode,status,smoke,requests,warmup_requests,K,shared_storage_Bps,mean_ttft_ms,p95_ttft_ms,slo_pct,completion_ms,measured_read_bytes,storage_disks,disk_Bps,shared_link_Bps,disk_bytes_including_warmup,disk_peak_Bps\nmooncake_abc_360_4s_12_100GBps,tfs-a01,0,passed,False,360,72,1,100000000000.0,1532.412209930553,4215.832428999988,15.0,7868.410944000061,539571462144,4,25000000000.0,,\"[166885036032, 167703883776, 158334578688, 145795313664]\",\"[25000000000.000015, 25000000000.000015, 25000000000.000015, 25000000000.000015]\"\n"
+    }
+  ],
+  "total": 10
+}

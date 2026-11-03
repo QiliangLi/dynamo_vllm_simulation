@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "case": "synthetic_abc_360_6s_12_90GBps",
+  "arm": "tfs-a01",
+  "smoke": false,
+  "requests": 360,
+  "warmup_requests": 72,
+  "K": 1,
+  "shared_storage_Bps": 90000000000.0,
+  "mean_ttft_ms": 2231.6659695666594,
+  "p95_ttft_ms": 7455.366228999992,
+  "slo_pct": 33.33333333333333,
+  "completion_ms": 10714.491420000058,
+  "measured_read_bytes": 528631234560,
+  "execution_feedback": "disabled",
+  "context_extrapolation": false,
+  "class_counts": {
+    "B": 120,
+    "A": 120,
+    "C": 120
+  },
+  "planned_first_arrival_s": 0.00503337572724873,
+  "planned_last_arrival_s": 6,
+  "final_heavy_cap": 3,
+  "final_heavy_threshold_Bps": 28432690921.586624,
+  "storage_disks": 3,
+  "disk_Bps": 30000000000.0,
+  "shared_link_Bps": null,
+  "disk_bytes_including_warmup": [
+    221405184000,
+    208247390208,
+    204704907264
+  ],
+  "disk_peak_Bps": [
+    30000000000.000015,
+    30000000000.000015,
+    30000000000.000015
+  ]
+}

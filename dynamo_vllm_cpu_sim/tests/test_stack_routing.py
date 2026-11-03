@@ -6,12 +6,17 @@ from types import SimpleNamespace
 import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-from check_stack_routing import decisions,metrics_drained
+from check_stack_routing import decisions,metrics_drained,positive_native_prefill_load
 from run_tfs_stack import frontend_command
 from run_sa_abc_stack import run
 
 
 class StackRoutingTests(unittest.TestCase):
+    def test_native_raw_load_can_evidence_activity_between_gauge_samples(self):
+        self.assertTrue(positive_native_prefill_load('Formula (raw_prefill_blocks: 21.750, overlap_credit_blocks: 0.000)'))
+        self.assertFalse(positive_native_prefill_load('Formula (raw_prefill_blocks: 0.000, overlap_credit_blocks: 1.000)'))
+        self.assertFalse(positive_native_prefill_load('[ROUTING] Best: worker_1 cost=20'))
+
     def test_explicit_policy_and_legacy_default(self):
         self.assertEqual(frontend_command({},12)[-1],"round-robin")
         argv=frontend_command(dict(router_mode="kv"),12)

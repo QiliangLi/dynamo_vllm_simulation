@@ -1,6 +1,5 @@
 # agentx_random_360_12s_12_180GBps
 
-> 2026-10-30更新：上述核心运行代码已同步；本负载专用合同仍未完成交付运行器验收，保持仅校验/导出。下文“尚未移植代码”是加入输入时的历史说明。
 
 固定360条AgentX请求，12秒到达，180GB/s单共享带宽池，12个逻辑实例。输入为2026-10-30已验收三方案实验的原文件，没有重新抽样或修改命中率。
 
@@ -39,10 +38,57 @@ python3 benchmark/manage.py export agentx_random_360_12s_12_180GBps --output tem
 
 导出包含`trace.jsonl`、`config.json`和`run_contract.json`，不会启动仿真。解压后SHA256为`eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707`，与原验收实验完全一致。
 
-## 运行兼容边界
+## 运行与验收
 
-本次只加入固定输入、配置、校验和导出，不移植研究版本运行代码。当前交付运行器仍使用旧batch-v2与同步反馈，尚不支持本case所需合同。显式选择本case会在启动前拒绝；`--case all`仍只运行原三个Mooncake case。不能按旧默认90GB/s、4秒或旧计时回放后宣称复现。
+2026-11-02：统一交付运行器已接入本负载。状态为 `supported`，可按名称或旧别名
+`agentx360_12s_180gb` 运行，也纳入 `--case all`。六秒 synthetic 负载也已接入其独立运行合同，具体条件见对应负载README。
+依赖准备与原生加权Dynamo构建见仓库 `docs/实验分支使用说明.md`。
 
-39条超过原公式入口131072 token，最长300480。原实验只把冻结副本的长度guard及max_model_len调至300481，算子系数不改，属于公式外推。仅调配置不能让旧计时模块支持它。复现还需要直接组合计时、关闭执行反馈、最终答复/后台EOF与统一Kahan诊断计数支持。
+在仓库的 `dynamo_vllm_cpu_sim/` 目录执行。每次指定新的输出目录：
 
-已有三方案实验在独立研究版本上各完成72预热加360正式；不能将其当作当前交付运行器的验收。输入校验使用父目录 manage.py verify；统一索引在父目录 benchmark目录.md，完整原始实验事件不随输入发布。
+```bash
+.venv/bin/python scripts/run_benchmark.py \
+  --case agentx_random_360_12s_12_180GBps --arm tfs-a01 --smoke \
+  --dynamo-python build/weighted-dynamo/python \
+  --output results/benchmark_runs/agentx-smoke-r1
+
+.venv/bin/python scripts/run_benchmark.py \
+  --case agentx_random_360_12s_12_180GBps --arm all \
+  --dynamo-python build/weighted-dynamo/python \
+  --output results/benchmark_runs/agentx-r1
+```
+
+`--arm` 支持 `direct`、`tfs-a01`、`tfs-a1` 和 `all`。冒烟用2实例，各展示类别取最短、
+中位、最长请求，共6条，包含300480 token请求，不预热，计划时刻置零。正式运行每组
+12实例、72预热和360正式请求。三组串行执行，保留失败输出，拒绝覆盖目录。
+
+`run_contract.json` 保留三组原始配置，并明确声明运行期覆盖：
+`compute.context_length_limit=300481`。运行器只对该profile显式注入此值。
+原始trace、requests.csv、config.json、config.historical.json以及三组原配置未改变。
+程序不修改冻结公式文件或全局MODEL，也不在运行时打源码补丁。
+
+合同另声明网关启动就绪预算180秒，用于长输入的分词往返检查、画像准备和服务启动。
+此预算只作用于请求发送前的启动阶段；运行期额度RPC仍为5秒，存储和请求超时未放宽。
+首次正式尝试触发旧40秒启动上限；第二次完成全部432请求，但新增配置验收发现启动器
+改写了直接准入下已禁用的waiting_factor。两次记录均保留。当前启动器保留该原始值，
+三方案完整配置逐项核对，不以字段“不生效”为理由跳过合同验收。
+
+39条请求超过原公式范围131072 token，最长300480。长度检查的显式放宽仍是**公式外推**，
+不是GLM5长上下文实测定标。未显式配置时，普通负载继续使用131072上限；超出显式
+上限也会失败。计时事件保留实际长度、许可上限和外推标记，独立公式检查同时核对标记。
+
+启动器冻结源码、输入、有效配置及原生构建SHA。正式验收核对：
+
+- 三组完整有效配置与合同一致；12秒到达、180GB/s、K1、EDF及直接组合模型不替换。
+- HTTP正式请求ID与AgentX账本ID完全一致；360条、h/u、累计读取字节和期限一致。
+- 72预热覆盖12实例，排空后清除分类历史，重置正式GC窗口。
+- 最长300480 token确实进入计算；公式、逐层KV屏障、实际slot/token预算、TFS许可和评分验收通过。
+- 在线执行反馈为零；执行事实由本地日志离线合并；原始在线快照另存。
+- Dynamo最终答复及后台EOF全部排空；配额和路由账目归零；所属进程退出。
+- Kahan补偿求和只改善TB级累计诊断字节精度，不改变读取分配、速率和完成时刻。
+
+验收摘要见 `dynamo_vllm_cpu_sim/AGENTX_VALIDATION.json`。本次验证使用WSL/Linux、固定依赖
+和已有原生构建，没有重装全部依赖。Windows原生多进程运行及真实GPU/NPU未验证。
+三方案各执行一次，只证明当前入口通过功能验收，不保证重现旧报告的时延排名。
+原始运行事件留在本机，不随benchmark发布。当前运行摘要输出在 `summary.csv` 和
+各组 `run/benchmark.check.json`，历史报告仍描述当时的冻结版本。

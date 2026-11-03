@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "factor": 0.1,
+  "heavy": 169,
+  "requests": 432,
+  "transitions": {
+    "registered": 169,
+    "bound_waiting": 169,
+    "activated": 169,
+    "closed": 169
+  },
+  "native_worker_selection": true,
+  "full_resource_gauges_drained": true,
+  "score_ledger_drained": true,
+  "discounted_candidate_scores": 3921,
+  "score_control_calls": 338,
+  "score_control_mean_wall_ms": 0.9686252988165681
+}

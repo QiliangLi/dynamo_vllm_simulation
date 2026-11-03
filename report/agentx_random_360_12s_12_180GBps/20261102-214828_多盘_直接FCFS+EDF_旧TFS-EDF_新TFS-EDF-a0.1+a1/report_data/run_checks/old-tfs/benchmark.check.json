@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "case": "agentx_random_360_12s_12_180GBps",
+  "arm": "old-tfs",
+  "smoke": false,
+  "requests": 360,
+  "warmup_requests": 72,
+  "K": 1,
+  "shared_storage_Bps": 180000000000.0,
+  "mean_ttft_ms": 15302.127687394424,
+  "p95_ttft_ms": 29165.520919999835,
+  "slo_pct": 5.555555555555555,
+  "completion_ms": 39945.468260999856,
+  "measured_read_bytes": 2480769527808,
+  "formula_context_limit": 300481,
+  "long_context_steps_including_warmup": 133,
+  "maximum_executed_context": 300480,
+  "long_context_requests": 39,
+  "context_extrapolation": true,
+  "execution_feedback": "disabled",
+  "storage_disks": 6,
+  "disk_Bps": 30000000000.0,
+  "shared_link_Bps": null,
+  "disk_bytes_including_warmup": [
+    537262522368,
+    500064694272,
+    518458896384,
+    483490934784,
+    484415213568,
+    481364742144
+  ],
+  "disk_peak_Bps": [
+    30000000000.00002,
+    30000000000.000023,
+    30000000000.000023,
+    30000000000.00002,
+    30000000000.000023,
+    30000000000.000023
+  ]
+}

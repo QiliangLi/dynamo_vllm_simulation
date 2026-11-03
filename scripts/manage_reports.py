@@ -101,9 +101,11 @@ def verify(write=False):
                 benchmarks=len(benchmarks),reports=results,simulations_run=0)
 
 def catalog_text():
-    labels={'matched_input_and_model':'负载/模型对应；保留原运行版本',
+    labels={'storage_backend_comparison':'独立四盘；Python/C++；两策略各两轮',
+            'matched_input_and_model':'负载/模型对应；保留原运行版本',
             'historical_model_and_feedback':'历史模型/反馈版本',
-            'research_runtime_export_only':'研究版结果；交付运行器export_only'}
+            'research_runtime_export_only':'历史研究版结果；当时交付入口export_only',
+            'current_multidisk_five_arm':'本任务新跑；独立多盘/五方案/原生队列验收'}
     lines=['# 报告目录','','每行是一处归档入口；study_id相同表示同一研究，不重复计为独立实验。目录时间是归档创建时间，实际实验日期另列。','',
            '|Benchmark|报告创建时间（北京时间）|实际实验日期|实际比较方案|版本关系|报告|',
            '|---|---|---|---|---|---|---|']
@@ -119,11 +121,15 @@ def catalog_text():
         '## 附录：归档口径','',
         '- 90 GB/s的全局ABC与ABCD来源于同一联合报告，分别在两个benchmark目录保留完整入口；两处study_id相同，不是两次复跑。',
         '- 两份random历史报告使用direct_sum和关闭执行反馈；当前同名benchmark使用actual_batch_work_v2和同步batch反馈，不能直接把历史指标当作当前配置结果。',
-        '- AgentX与synthetic报告来自独立研究版运行，交付运行器的export_only状态保持。',
+        '- 历史AgentX与synthetic报告来自研究版运行，保留当时的export_only标签；当前交付入口已完成运行支持。新独立多盘报告记录本任务的新运行，不复用这些历史结果。',
         '- 不纳入100 GB/s的两组独立alpha0.5补充图、附表及对应旧参考小节。random历史alpha扫描中的alpha0.5属于已选报告，仍按原实验保留。',
         '- 图像保持原始字节；较大派生JSON/CSV使用gzip无损压缩。大型原始事件不随本目录发布；来源和哈希在manifest与source_validation/provenance中。',
         '- source_validation.json是原报告验证记录；archive_validation.json只验证本次归档，不表示重新运行了实验。',
+        '- 独立多盘五方案报告使用同一study_id，六处入口对应30次新正式运行；同一负载内受控比较，不跨计算模型合并排名。',
         '- 新报告增加独立目录和manifest后，运行python scripts/manage_reports.py verify --write与catalog更新索引；通用README和agent.md不维护逐报告名单。','']
+    for _,m in entries():
+        if m.get('overview'):
+            lines+=['[同一研究的跨负载总览]('+m['report_id']+'/'+m['overview']+')','']
     return '\n'.join(lines)
 
 def redraw(path,output):

@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "removed_fields": [
+    "disk_actual_Bps",
+    "disk_demand_Bps"
+  ],
+  "removed_array_count": 1022950,
+  "source_sha256": "c866ff64bd0de44910e08d0a6b33a0493395320663298066c60b7feb9a75526b",
+  "compact_uncompressed_sha256": "aae69d929bb591a7fb0c1b7410a5ca8fba8c7f4e076d940093fa7e7a35c2d117",
+  "preserved": "all scalar aggregate events, raw/translated clocks, per-disk 10ms integrals, summaries and request/compute/IO records",
+  "original_run_summary_comparison": {
+    "status": "passed",
+    "numeric_checks": 225,
+    "source": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/temp/disk-matrix-reports-20261102/mooncake_abc_360_4s_12_90GBps/report_data/run_summary.csv",
+    "sha256": "9225268e9c8e93ddde46073c1ffd0690cece2ed9436c32a52e871af3de260be7",
+    "note": "只比较列出的同口径数值，不代表模型公式或运行实现已重新验收。"
+  }
+}

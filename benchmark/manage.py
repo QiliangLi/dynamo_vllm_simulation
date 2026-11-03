@@ -38,6 +38,34 @@ def resolve_case(name):
     if len(matches)!=1:raise ValueError(f'Unknown or ambiguous benchmark: {name}')
     return matches[0]
 
+
+def verify_synthetic_contract(m,cfg,c):
+    """Validate the frozen six-second ABC contract, not Mooncake defaults."""
+    assert (m['source'],m['feature'],m['requests'],m['arrival_window_s'],m['workers'],m['shared_storage_Bps'])==('synthetic','abc',360,6,12,90e9)
+    assert c['runner_profile']==m['runner_profile']=='synthetic_abc360_v1'
+    assert c['arms']['direct']==cfg and set(c['arms'])=={'direct','tfs-a01','tfs-a1'}
+    assert cfg['compute']['batch_time_model']=='glm5_direct_sum_v1'
+    assert cfg['compute']['launch_saving_fraction']==1 and 'context_length_limit' not in cfg['compute']
+    assert (cfg['block_size'],cfg['num_blocks'],cfg['max_model_len'],cfg['max_num_seqs'],cfg['max_num_batched_tokens'])==(16,12258,50000,4,8192)
+    assert cfg['request_ordering']=='edf' and cfg['kv_transfer_mode']=='layer_pipeline'
+    assert cfg['layerwise']=={'layers':78,'startup':'once'}
+    assert c['execution_feedback']==m['execution_feedback']=='disabled'
+    assert (c['warmup_requests'],c['warmups_per_phase'],c['warmup_phases'])==(72,24,['small','median','large'])
+    assert all(c[k] is True for k in ('drain_before_formal','reset_classification_history','reset_formal_gc_window',
+        'admission_rpc_final_reply','background_eof','diagnostic_kahan_counters'))
+    assert (c['admission_rpc_transport'],c['admission_rpc_request_plane'],c['admission_rpc_codec'])==('dynamo','tcp','msgpack')
+    assert c['heavy_release_on']=='first_token' and c['heavy_quantile']==.75 and c['idle_bypass'] is False
+    assert c['expected_stable_heavy_cap']==3 and math.isclose(c['expected_stable_threshold_GBps'],28.432690921586623,rel_tol=1e-12)
+    assert c['arrival_origin_s']==0 and c['first_planned_arrival_s']==m['first_planned_arrival_s']>0
+    assert c['last_planned_arrival_s']==6 and c.get('runtime_overrides',{})=={} and not c.get('startup')
+    assert m['class_shapes']=={'A':{'hit_tokens':30720,'new_tokens':259},'B':{'hit_tokens':9392,'new_tokens':2048},'C':{'hit_tokens':0,'new_tokens':348}}
+    for arm,expected in c['arms'].items():
+        candidate=json.loads(json.dumps(cfg))
+        if arm!='direct':
+            candidate['admission'].update(mode='tfs',placement='scheduler',classification='arrival')
+            candidate['routing_accounting'].update(enabled=True,waiting_factor=.1 if arm=='tfs-a01' else 1.)
+        assert candidate==expected,arm
+
 def verify_case(name):
     name=resolve_case(name);folder=ROOT/name;m=read(folder/'manifest.json');cfg=read(folder/'config.json')
     source,feature,count,window,workers,bandwidth=NAME.fullmatch(name).groups()
@@ -60,9 +88,33 @@ def verify_case(name):
         assert c['portable_runner_status']==m['portable_runner_status']
         assert c['formal_requests']==count and c['K']==m['K'] and c['arms']['direct']==cfg
     if m['portable_runner_status']=='supported':
-        assert m['runner_profile']=='mooncake360_v1'
-        assert (count,window,workers)==(360,4,12)
-        assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
+        if m['runner_profile']=='mooncake360_v1':
+            assert (count,window,workers)==(360,4,12)
+            assert cfg['compute']['batch_time_model']=='glm5_actual_batch_work_v2'
+        elif m['runner_profile']=='agentx360_v1':
+            assert (source,count,window,workers,bandwidth)==('agentx',360,12,12,180e9)
+            assert cfg['compute']['batch_time_model']=='glm5_direct_sum_v1'
+            assert cfg['compute']['launch_saving_fraction']==1
+            assert cfg['max_model_len']==c['formula_max_context_guard']==300481
+            assert c['long_context_formula_extrapolation'] and c['diagnostic_kahan_counters']
+            assert c['warmup_requests']==72 and c['warmups_per_phase']==24
+            assert c['warmup_phases']==['small','median','large']
+            assert all(c[k] is True for k in ('drain_before_formal','reset_classification_history',
+                'reset_formal_gc_window','admission_rpc_final_reply','background_eof'))
+            assert m['execution_feedback']==c['execution_feedback']=='disabled'
+            assert c['runtime_overrides']=={'compute':{'context_length_limit':300481}}
+            assert c['startup']=={'admission_ready_timeout_wall_s':180}
+            assert set(c['arms'])=={'direct','tfs-a01','tfs-a1'}
+            for arm,expected in c['arms'].items():
+                candidate=json.loads(json.dumps(cfg))
+                if arm!='direct':
+                    candidate['admission'].update(mode='tfs',placement='scheduler',classification='arrival')
+                    candidate['routing_accounting'].update(enabled=True,waiting_factor=.1 if arm=='tfs-a01' else 1.)
+                assert candidate==expected,arm
+        elif m['runner_profile']=='synthetic_abc360_v1':
+            verify_synthetic_contract(m,cfg,c)
+        else:
+            raise ValueError('unknown runner_profile')
     with (folder/'requests.csv').open(encoding='utf-8',newline='') as f:table=list(csv.DictReader(f))
     digest=hashlib.sha256();totals=Counter();classes=Counter();arrivals=[];timestamps=[];max_input=0
     pattern=m.get('token_pattern');mapping=m.get('arrival_mapping')

@@ -21,10 +21,13 @@ def verify(manifest, package=ROOT, source=None):
             raise ValueError('invalid runtime path: '+name)
         for root in (package, source) if source is not None else (package,):
             path=Path(root)/relative
-            if not path.is_file() or digest(path)!=expected:
+            source_rule=manifest.get('source_exceptions',{}).get(name,{})
+            wanted=source_rule.get('sha256',expected) if root==source else expected
+            if not path.is_file() or digest(path)!=wanted:
                 raise ValueError('shared runtime differs: '+str(path))
     return dict(status='passed',files_checked=len(files),
                 source_compared=source is not None,source_commit=manifest['research_commit'],
+                documented_source_exceptions=len(manifest.get('source_exceptions',{})),
                 comparison='SHA256 after CRLF-to-LF normalization')
 
 

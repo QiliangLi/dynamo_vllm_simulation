@@ -144,6 +144,11 @@ def install_vllm():
     original_schedule=Scheduler.schedule
     @functools.wraps(original_schedule)
     def schedule(self):
+        if not getattr(self,'_sim_queue_policy_recorded',False):
+            policy=getattr(self,'policy',None)
+            emit('native_queue_policy',policy=getattr(policy,'value',str(policy)),
+                 queue_type=type(self.waiting).__name__)
+            self._sim_queue_policy_recorded=True
         start=time.monotonic_ns()
         result=original_schedule(self)
         if result.num_scheduled_tokens:
