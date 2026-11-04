@@ -46,6 +46,8 @@ class AdmissionState:
         self.uuid_by_id = {}
         self.tier_pending = {}
         self.tier_snapshots = {}
+        self.tier_previews = {}
+        self.tier_preview_sequence = 0
         self.events = []
         self.delayed = []
         self.sequence = 0
@@ -97,42 +99,82 @@ class AdmissionState:
         self.wakeup.set()
         return self.futures[row["id"]]
 
-    def resolve_tier_profile(self, snapshot):
-        from sim.stack.tier_profile import build_tier_profile, enabled, validate_snapshot
+    def _tier_request(self, request_id):
+        from sim.stack.tier_profile import enabled
         if not enabled(self.config):
             raise ValueError('Dynamo tier profile mode is disabled')
-        snapshot = validate_snapshot(snapshot, self.config)
-        match = UUID_RE.search(snapshot['request_id'])
+        match = UUID_RE.search(request_id)
         key = uuid.UUID(match.group()).hex if match else None
         rid = self.aliases.get(key)
         if rid is None or rid not in self.tier_pending:
             raise ValueError('unregistered tier-profile request')
-        row = self.tier_pending[rid]
-        if snapshot['prompt_tokens'] != row['prompt_tokens']:
-            raise ValueError('Dynamo and ingress token counts differ')
-        if rid in self.tier_snapshots:
-            if self.tier_snapshots[rid] != snapshot:
-                raise ValueError('tier profile changed after classification; retry/reconciliation is unsupported')
-        else:
-            profile = build_tier_profile(snapshot, self.config, rid, row['arrival_s'])
-            self.controller.on_arrivals([profile], self.now())
-            self.controller.dispatch_unreserved(rid, self.now())
-            self.tier_snapshots[rid] = snapshot
-            self.log_event('dynamo_tier_profile_resolved', id=rid, snapshot=snapshot,
-                           estimated_remote_tokens=profile.estimated_remote_tokens,
-                           cached_prefix_tokens=min(snapshot['disk_blocks'],
-                               (profile.prompt_tokens - 1)//snapshot['block_size'])*snapshot['block_size'])
-            self.drain()
+        return rid, self.tier_pending[rid]
+
+    def prepare_tier_profiles(self, request_id, snapshots):
+        from sim.stack.tier_profile import build_tier_profile, preview_hint, validate_snapshot
+        rid, row = self._tier_request(request_id)
+        if not isinstance(snapshots, list) or not snapshots:
+            raise ValueError('tier preparation requires candidate snapshots')
+        snapshots = [validate_snapshot(s, self.config) for s in snapshots]
+        if any(s['request_id'] != request_id or s['prompt_tokens'] != row['prompt_tokens'] for s in snapshots):
+            raise ValueError('Dynamo and ingress request identity or token counts differ')
+        snapshots.sort(key=lambda s:(s['worker_id'],s['dp_rank']))
+        keys=[(s['worker_id'],s['dp_rank']) for s in snapshots]
+        if len(set(keys)) != len(keys):
+            raise ValueError('duplicate tier candidate')
+        if rid in self.tier_previews:
+            prior=self.tier_previews[rid]
+            if prior['snapshots'] != snapshots:
+                raise ValueError('tier candidates changed after pre-score classification')
+            return prior['reply']
+        history=sorted(r.profile.pressure_Bps for r in self.controller.records.values())
+        self.tier_preview_sequence += 1
+        preview_id=uuid.uuid4().hex
+        candidates, reply_rows, profile_cache = {}, [], {}
         from sim.stack.storage_hint import attach_http_hint
-        body = attach_http_hint({}, self.controller.hints[rid])
         from sim.stack.edf_priority import enabled as edf_enabled, attach_http
-        if edf_enabled(self.config):
-            body, _ = attach_http(body, self.controller.records[rid].profile,
-                                  self.origin, self.clock.factor)
-        self.log_event('storage_hint_forwarded', id=rid, hint=self.controller.hints[rid],
+        for snapshot, key in zip(snapshots, keys):
+            shape=tuple(snapshot[n] for n in ('prompt_tokens','block_size','gpu_blocks','host_pinned_blocks','disk_blocks'))
+            if shape not in profile_cache:
+                profile_cache[shape]=build_tier_profile(snapshot,self.config,rid,row['arrival_s'])
+            profile=profile_cache[shape]
+            hint,theta=preview_hint(profile,history,self.config,self.tier_preview_sequence)
+            body=attach_http_hint({},hint)
+            if edf_enabled(self.config):
+                body,_=attach_http(body,profile,self.origin,self.clock.factor)
+            candidates[key]=dict(profile=profile,hint=hint,snapshot=snapshot,
+                                 annotations=body['nvext']['annotations'])
+            reply_rows.append(dict(worker_id=key[0],dp_rank=key[1],hint=hint))
+        reply=dict(preview_id=preview_id,candidates=reply_rows)
+        self.tier_previews[rid]=dict(preview_id=preview_id,snapshots=snapshots,
+            candidates=candidates,reply=reply,selected=None)
+        self.log_event('tier_profiles_prepared',id=rid,preview_id=preview_id,
+            history_version=self.controller.threshold_version,candidates=reply_rows)
+        return reply
+
+    def commit_tier_profile(self, request_id, preview_id, worker_id, dp_rank):
+        rid, _=self._tier_request(request_id)
+        preview=self.tier_previews.get(rid)
+        if preview is None or preview['preview_id'] != preview_id:
+            raise ValueError('unknown pre-score tier preparation')
+        key=(worker_id,dp_rank)
+        candidate=preview['candidates'].get(key)
+        if candidate is None or (preview['selected'] is not None and preview['selected'] != key):
+            raise ValueError('selected worker differs from prepared tier candidates')
+        profile,hint,snapshot=(candidate[n] for n in ('profile','hint','snapshot'))
+        if preview['selected'] is None:
+            self.controller.on_arrivals([profile],self.now(),frozen_hints={rid:hint})
+            self.controller.dispatch_unreserved(rid,self.now())
+            self.tier_snapshots[rid]=snapshot
+            preview['selected']=key
+            self.log_event('dynamo_tier_profile_resolved',id=rid,preview_id=preview_id,
+                snapshot=snapshot,estimated_remote_tokens=profile.estimated_remote_tokens,
+                cached_prefix_tokens=min(snapshot['disk_blocks'],
+                    (profile.prompt_tokens-1)//snapshot['block_size'])*snapshot['block_size'])
+            self.drain()
+        self.log_event('storage_hint_forwarded', id=rid, hint=hint,
                        engine_uuid=self.uuid_by_id[rid], source='dynamo_tier')
-        return dict(annotations=body['nvext']['annotations'],
-                    is_heavy_read=self.controller.hints[rid]['is_heavy_read'])
+        return dict(annotations=candidate['annotations'],is_heavy_read=hint['is_heavy_read'])
 
     def receive(self, raw, *, transport="unix"):
         raise ValueError('execution feedback RPCs were removed; only admission controls are accepted')
@@ -428,7 +470,12 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
         if state.fatal:
             raise HTTPException(503, state.fatal)
         try:
-            return state.resolve_tier_profile(await request.json())
+            raw=await request.json()
+            if set(raw)=={'phase','request_id','candidates'} and raw['phase']=='prepare':
+                return state.prepare_tier_profiles(raw['request_id'],raw['candidates'])
+            if set(raw)=={'phase','request_id','preview_id','worker_id','dp_rank'} and raw['phase']=='commit':
+                return state.commit_tier_profile(raw['request_id'],raw['preview_id'],raw['worker_id'],raw['dp_rank'])
+            raise ValueError('invalid tier prepare/commit message')
         except ValueError as exc:
             raise HTTPException(400, str(exc)) from exc
 

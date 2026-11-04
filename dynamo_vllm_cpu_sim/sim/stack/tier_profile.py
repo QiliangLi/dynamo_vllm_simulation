@@ -3,6 +3,9 @@
 The pinned selected-worker snapshot is cumulative. Its `disk_blocks` includes
 Disk and External extensions. One worker has one DP rank in this experiment.
 """
+from bisect import bisect_right
+import math
+
 from sim.request_profile import RequestProfile
 from sim.reference_time import get_reference_time_estimator
 
@@ -49,3 +52,29 @@ def build_tier_profile(snapshot, config, rid, arrival_s):
         standalone_compute_s=timing.compute_s,
         pressure_Bps=timing.pressure_Bps, reference_service_s=timing.service_s,
         deadline_s=arrival_s + config['request_profile']['slo_multiplier'] * timing.service_s)
+
+
+def preview_hint(profile, sorted_history, config, version):
+    """Classify a candidate against arrived history plus this one request.
+
+    Each worker is an alternative placement, not another historical request.
+    No controller state or capacity is mutated before the picker selects one.
+    """
+    pressure = profile.pressure_Bps
+    position = bisect_right(sorted_history, pressure)
+    rank = math.floor(config['admission']['quantile'] * len(sorted_history))
+    raw = (pressure if position == rank else
+           sorted_history[rank if rank < position else rank - 1])
+    if raw == 0 and config['compute'].get('mode') == 'sa_e26f':
+        theta = 0.
+    elif raw > 0:
+        theta = raw
+    else:
+        positive_index = bisect_right(sorted_history, 0.)
+        positive = sorted_history[positive_index] if positive_index < len(sorted_history) else math.inf
+        theta = min(positive, pressure if pressure > 0 else math.inf)
+        if not math.isfinite(theta):
+            theta = None
+    return dict(version=1,
+        is_heavy_read=bool(profile.estimated_read_bytes > 0 and theta is not None and pressure >= theta),
+        estimated_remote_read_bytes=profile.estimated_read_bytes, threshold_version=version), theta

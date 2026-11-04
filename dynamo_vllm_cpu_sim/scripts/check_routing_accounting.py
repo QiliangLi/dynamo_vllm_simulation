@@ -38,7 +38,8 @@ def check(folder,require_discount=False):
     for line in (folder/'frontend.log').read_text().splitlines():
         if 'WAITING_SCORE worker_id=' not in line:continue
         values={key:float(value) for key,value in re.findall(r'(raw_prefill|raw_decode|discount|scale|overlap|weighted)=([0-9.eE+-]+)',line)}
-        expected=values['scale']*max(0,values['raw_prefill']-values['overlap']-values['discount'])+max(0,values['raw_decode']-values['discount'])
+        own={key:float(value) for key,value in re.findall(r'(own_prefill_credit|own_decode_credit)=([0-9.eE+-]+)',line)}
+        expected=values['scale']*max(0,values['raw_prefill']-values['overlap']-values['discount']-own.get('own_prefill_credit',0))+max(0,values['raw_decode']-values['discount']-own.get('own_decode_credit',0))
         assert abs(expected-values['weighted'])<1e-6
         assert values['discount']>0 and values['weighted']<values['scale']*max(0,values['raw_prefill']-values['overlap'])+values['raw_decode']
         scores+=1

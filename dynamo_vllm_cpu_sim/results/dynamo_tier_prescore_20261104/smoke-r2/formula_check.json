@@ -1,0 +1,119 @@
+{
+  "status": "pass",
+  "steps": 8,
+  "rows": [
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker0.steps.jsonl",
+      "step": 1,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker0.steps.jsonl",
+      "step": 2,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker0.steps.jsonl",
+      "step": 3,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker1.steps.jsonl",
+      "step": 1,
+      "program_s": 0.007555462928441826,
+      "manual_s": 0.007555462928441827,
+      "error_s": 8.673617379884035e-19,
+      "bs": 1,
+      "shapes": [
+        [
+          0,
+          512
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker1.steps.jsonl",
+      "step": 2,
+      "program_s": 0.007555462928441826,
+      "manual_s": 0.007555462928441827,
+      "error_s": 8.673617379884035e-19,
+      "bs": 1,
+      "shapes": [
+        [
+          0,
+          512
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker1.steps.jsonl",
+      "step": 3,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker1.steps.jsonl",
+      "step": 4,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    },
+    {
+      "path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-prescore-20261104/smoke-r2/run/worker1.steps.jsonl",
+      "step": 5,
+      "program_s": 0.0037943178796013225,
+      "manual_s": 0.0037943178796013225,
+      "error_s": 0.0,
+      "bs": 1,
+      "shapes": [
+        [
+          1024,
+          16
+        ]
+      ]
+    }
+  ],
+  "max_abs_error_s": 8.673617379884035e-19
+}

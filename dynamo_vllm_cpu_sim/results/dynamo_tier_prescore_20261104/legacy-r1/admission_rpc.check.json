@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "processes": 2,
+  "clients": [
+    {
+      "pid": 622,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14381550268687047745,
+          "status": "passed",
+          "final_replies": 1301,
+          "drained_streams": 1301,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 623,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14381550268687047745,
+          "status": "passed",
+          "final_replies": 1438,
+          "drained_streams": 1438,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    }
+  ]
+}

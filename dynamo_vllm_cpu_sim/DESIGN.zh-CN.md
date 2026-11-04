@@ -2,7 +2,9 @@
 
 ## 2026-11-04：可选 Dynamo 分级命中画像
 
-`admission.profile_source=dynamo_tier` 将画像生成移至原生分级查询和最终实例选择之后。
+`admission.profile_source=dynamo_tier` 在原生分级查询之后、scorer 之前为各候选生成画像和重读标记。
+scorer 对当前重读增量及既有等待重读应用 α，保留原生 picker、完整 booking 与容量检查。
+picker 后 commit 只确认选中画像并更新历史，不重新分类。不同候选可有不同轻重标记。
 使用 selected_worker_tiers 原始累计计数，扣除 GPU/HostPinned，估计 Disk/External 读取量；
 计算估时使用全部已缓存前缀。Python 画像/分类及中央账本仍在原服务，Dynamo 内部回调并下发结果。
 Scheduler 的额度申请、原生 booking、picker、块分配和首 token 释放保持原策略。

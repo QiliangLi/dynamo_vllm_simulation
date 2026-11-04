@@ -1,0 +1,163 @@
+{
+  "connected": true,
+  "factor": 1.0,
+  "epoch": "56ae765b-ce54-40ab-837a-96455136ef76",
+  "entries": 3,
+  "registered": 0,
+  "waiting": 0,
+  "active": 0,
+  "closed": 3,
+  "waiting_workers": [
+    {
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "tokens": 0
+    }
+  ],
+  "events": [
+    {
+      "event": "registered",
+      "id": "bb268d338e824428800493a9f81fe2be",
+      "t_wall_s": 2.932626572,
+      "phase": "Registered",
+      "worker_id": null,
+      "dp_rank": null,
+      "attempt": null,
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "bound_waiting",
+      "id": "bb268d338e824428800493a9f81fe2be",
+      "t_wall_s": 2.932646412,
+      "phase": "Waiting",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "1",
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "registered",
+      "id": "658c1f55591f48be979c2513c67f8849",
+      "t_wall_s": 2.943296596,
+      "phase": "Registered",
+      "worker_id": null,
+      "dp_rank": null,
+      "attempt": null,
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "bound_waiting",
+      "id": "658c1f55591f48be979c2513c67f8849",
+      "t_wall_s": 2.9433203260000003,
+      "phase": "Waiting",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "3",
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "activated",
+      "id": "bb268d338e824428800493a9f81fe2be",
+      "t_wall_s": 2.950268151,
+      "phase": "Active",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "1",
+      "tokens": 1040,
+      "permit_id": "3b15842e01bb4999ab3ca70fcd69f0c0",
+      "factor": 1.0
+    },
+    {
+      "event": "registered",
+      "id": "71b927099b5b4bd696104556667c912b",
+      "t_wall_s": 2.964364052,
+      "phase": "Registered",
+      "worker_id": null,
+      "dp_rank": null,
+      "attempt": null,
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "bound_waiting",
+      "id": "71b927099b5b4bd696104556667c912b",
+      "t_wall_s": 2.964390752,
+      "phase": "Waiting",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "5",
+      "tokens": 1040,
+      "permit_id": null,
+      "factor": 1.0
+    },
+    {
+      "event": "closed",
+      "id": "bb268d338e824428800493a9f81fe2be",
+      "t_wall_s": 3.069601523,
+      "phase": "Closed",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "1",
+      "tokens": 1040,
+      "permit_id": "3b15842e01bb4999ab3ca70fcd69f0c0",
+      "factor": 1.0
+    },
+    {
+      "event": "activated",
+      "id": "658c1f55591f48be979c2513c67f8849",
+      "t_wall_s": 3.23194744,
+      "phase": "Active",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "3",
+      "tokens": 1040,
+      "permit_id": "5430279bfd9741beba376fe97f0d0dbc",
+      "factor": 1.0
+    },
+    {
+      "event": "closed",
+      "id": "658c1f55591f48be979c2513c67f8849",
+      "t_wall_s": 3.325108308,
+      "phase": "Closed",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "3",
+      "tokens": 1040,
+      "permit_id": "5430279bfd9741beba376fe97f0d0dbc",
+      "factor": 1.0
+    },
+    {
+      "event": "activated",
+      "id": "71b927099b5b4bd696104556667c912b",
+      "t_wall_s": 3.32782679,
+      "phase": "Active",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "5",
+      "tokens": 1040,
+      "permit_id": "f661229f36a84858a18036d131d3b8f6",
+      "factor": 1.0
+    },
+    {
+      "event": "closed",
+      "id": "71b927099b5b4bd696104556667c912b",
+      "t_wall_s": 3.418119484,
+      "phase": "Closed",
+      "worker_id": 6530413108942146340,
+      "dp_rank": 0,
+      "attempt": "5",
+      "tokens": 1040,
+      "permit_id": "f661229f36a84858a18036d131d3b8f6",
+      "factor": 1.0
+    }
+  ]
+}

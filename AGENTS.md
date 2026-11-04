@@ -1,6 +1,8 @@
 # AI接手本实验分支
 
 2026-11-04：可选 Dynamo 分级画像见 docs/Dynamo分级命中画像接入-20261104.md。
+新模式必须先分级查询，再按候选 prepare 分类，之后 scorer/picker/完整 booking；commit 不重分类。
+新模式 α 同时作用于当前重读增量与既有等待重读；默认 trace 模式仍仅折扣等待重读。
 仅显式 profile_source=dynamo_tier 启用；必须使用 --tier-admission 独立扩展。
 不能把合并 Disk/External 快照说成纯磁盘；仅支持每 worker 一个 DP rank。
 实际命中与画像允许有偏差，只记录差值，不因此报错、退额或自动重分类。

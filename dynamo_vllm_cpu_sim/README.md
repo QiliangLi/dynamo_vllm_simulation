@@ -1,7 +1,8 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
-2026-11-04：可选 `admission.profile_source=dynamo_tier` 使用原生 Dynamo 最终选中实例的
-分级命中生成画像，拒绝客户端提供命中量。构建增加 `--tier-admission`，运行增加
+2026-11-04 修正：可选 `admission.profile_source=dynamo_tier` 在原生分级查询后、scorer 前，
+按候选实例生成画像和重读标记。scorer 对当前重读增量及已有等待重读使用 α；
+picker 后完整 booking，commit 只确认选中画像，不重新分类。拒绝客户端提供命中量。构建增加 `--tier-admission`，运行增加
 `--profile-source dynamo_tier`；Scheduler 仍在执行前申请额度。
 实际命中与画像允许有偏差，仅记录差值；准入继续使用原画像，KV 分配与执行使用实际命中。
 口径、单 DP rank 限制和小测入口见

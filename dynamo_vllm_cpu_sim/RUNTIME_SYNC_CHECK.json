@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "files_checked": 207,
+  "files_checked": 208,
   "source_compared": true,
-  "source_commit": "ea40280eb7f609a76858444c4d4f4866476f33b6",
+  "source_commit": "7c49ba7e4445f55aac9584ba49d73253758c8742",
   "documented_source_exceptions": 7,
   "comparison": "SHA256 after CRLF-to-LF normalization"
 }

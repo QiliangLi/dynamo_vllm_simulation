@@ -421,6 +421,8 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
             # Targeted native diagnostics, not a replacement selection algorithm.
             frontend_env["DYN_LOG"] = ("info,dynamo_kv_router::scheduling::selector=debug,"
                                        "dynamo_llm::kv_router::routing_host=debug")
+            if tier_mode:
+                frontend_env['DYN_LOG'] += ',dynamo_llm::kv_router::tier_admission=debug,dynamo_kv_router::pending_score=debug'
         write(folder/"routing.launch.json",dict(router_mode=cfg["router_mode"],
               argv=frontend_args,environment={k:v for k,v in frontend_env.items() if not k.endswith('_TOKEN')}))
         launch("frontend",frontend_args,frontend_env)

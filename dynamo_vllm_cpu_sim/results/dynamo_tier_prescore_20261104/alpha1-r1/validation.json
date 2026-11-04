@@ -1,0 +1,83 @@
+{
+  "status": "passed",
+  "requests": 8,
+  "workers": 2,
+  "profile_source": "native Dynamo selected-worker tier lookup",
+  "cache_events": "synthetic STORAGE events through native ZMQ/event indexer",
+  "model_and_kv_io": "CPU simulation",
+  "check": {
+    "status": "pass",
+    "requests": 8,
+    "workers": [
+      0,
+      1
+    ],
+    "central_wait_mean_s": 0.005559166481250016,
+    "central_wait_max_s": 0.007706834399999751,
+    "held_heavy_peak": 1,
+    "peak_storage_pending": 2,
+    "actual_batch_sizes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      3
+    ],
+    "model_sum_s": 0.03082809096388537,
+    "formula_max_error_s": 8.673617379884035e-19,
+    "ttft_mean_s": 0.02053246292500006,
+    "http_window_s": 2.6645557559999986,
+    "model_window_s": 0.13322778779999994,
+    "wall_time_scale": 20,
+    "actual_submitted_read_bytes": 201326592,
+    "transfer_lower_bound_s": 0.0016777216,
+    "transfer_span_s": 0.020610491183333468,
+    "disk_bytes_submitted": [
+      201326592
+    ],
+    "disk_peak_Bps": [
+      120000000000.0
+    ],
+    "release_reasons": {
+      "tier-smoke-5": "first_token",
+      "tier-smoke-4": null,
+      "tier-smoke-0": "first_token",
+      "tier-smoke-3": null,
+      "tier-smoke-1": "first_token",
+      "tier-smoke-2": null,
+      "tier-smoke-7": null,
+      "tier-smoke-6": null
+    },
+    "router_mode": "kv"
+  },
+  "routing_score": {
+    "status": "passed",
+    "factor": 1.0,
+    "heavy": 3,
+    "requests": 8,
+    "transitions": {
+      "registered": 3,
+      "bound_waiting": 3,
+      "activated": 3,
+      "closed": 3
+    },
+    "native_worker_selection": true,
+    "full_resource_gauges_drained": true,
+    "score_ledger_drained": true,
+    "discounted_candidate_scores": 0,
+    "score_control_calls": 3,
+    "score_control_mean_wall_ms": 0.629113
+  },
+  "event_hit_fraction": 1.0,
+  "mismatch_requests": 3,
+  "asymmetric_cache": true,
+  "pre_score": {
+    "status": "passed",
+    "requests": 8,
+    "factor": 1.0,
+    "asymmetric_candidates_checked": true,
+    "current_candidate_discounted_rows": 0,
+    "order": "prepare -> scorer reads mark and discounts current increment -> picker -> full booking"
+  }
+}

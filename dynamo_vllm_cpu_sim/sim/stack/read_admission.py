@@ -21,7 +21,7 @@ class FrozenClassification:
         hint = self.hints.get(profile.request_id)
         return hint["is_heavy_read"] if hint is not None else super().is_heavy(profile)
 
-    def on_arrivals(self, profiles, now_s):
+    def on_arrivals(self, profiles, now_s, *, frozen_hints=None):
         profiles = list(profiles)
         super().on_arrivals(profiles, now_s)
         for profile in profiles:
@@ -29,8 +29,14 @@ class FrozenClassification:
                         is_heavy_read=bool(profile.estimated_read_bytes > 0 and super().is_heavy(profile)),
                         estimated_remote_read_bytes=profile.estimated_read_bytes,
                         threshold_version=self.threshold_version)
+            if frozen_hints is not None:
+                from sim.stack.storage_hint import validate_hint
+                hint = validate_hint(frozen_hints[profile.request_id])
+                if hint['estimated_remote_read_bytes'] != profile.estimated_read_bytes:
+                    raise ValueError('pre-score hint read volume differs from selected profile')
             self.hints[profile.request_id] = hint
-            self._log("storage_hint_created", now_s, id=profile.request_id, hint=hint)
+            self._log("storage_hint_created", now_s, id=profile.request_id, hint=hint,
+                      source='pre_score_tier_preview' if frozen_hints is not None else 'arrival')
 
     def dispatch_unreserved(self, rid, now_s):
         rec = self.records[rid]

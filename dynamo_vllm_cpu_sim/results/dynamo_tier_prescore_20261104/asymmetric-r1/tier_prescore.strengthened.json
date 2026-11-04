@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "requests": 8,
+  "factor": 0.1,
+  "asymmetric_candidates_checked": true,
+  "current_candidate_discounted_rows": 6,
+  "order": "prepare -> scorer reads mark and discounts current increment -> picker -> full booking"
+}
