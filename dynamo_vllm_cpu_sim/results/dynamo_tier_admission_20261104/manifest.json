@@ -8,6 +8,16 @@
   "performance_benchmark": false,
   "full_local_audit": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-admission-20261104",
   "files_sha256": {
+    "bias_half/admission.events.jsonl": "475146b2169be034be2e9e273e694f1dbd999f964660d03dcbdc9ccef030199b",
+    "bias_half/admission.runtime.final.json": "a96c96b9af339bdc38895fae97943e8230b34da55dc12f30dcf55bfe5f367035",
+    "bias_half/check.json": "08fa6e1f184e3fa864ecf8e46a4eaa7d217ae33d8719cdff4187330f36fdcab4",
+    "bias_half/config.json": "db764b7996f5d4c362994d667af39342728b2d6da9c9e8e5d4bd437c154c0190",
+    "bias_half/implementation.json": "f26f3e5c0bcec6c2f1b145df70123d08eb300b4d757455ed7587ba09aeeb3683",
+    "bias_half/read_admission.check.json": "8862b801310cac3511a4e1447721c2f47d5574d520ea66e42d68e0d5d2ea6eda",
+    "bias_half/report.json": "401e0076e977bdc4233f014c9ea1053799965712a8b3b9825108139e1943ec31",
+    "bias_half/routing.check.json": "215a3ea9ca77b11527f8e988f0f0dec716c93a379ace8da14f7f585d83608665",
+    "bias_half/routing.score.check.json": "36e7676d826e5c8fd8e9b0a06ce8eb8e04582899c56099a0c79aa5b94d8d8ce9",
+    "bias_half/validation.json": "ca9ebbcd78278872e8a2860569e41932c88d9f5c063423bfd5af4301727d67fa",
     "build.json": "d3da998894bf9770fdc8a5091e1005a4cc33bf13115e0ba8a9c58e420a5a2dfc",
     "legacy/admission.events.jsonl": "24ed0207ad1978102b1fe5042e10151956f70ecbee166775cdc2ce016938a70a",
     "legacy/admission.runtime.final.json": "f0cdfbc1690ca4c9dced56704b9dac62c2ec25771e5a6ac641c289bc96da43ed",
@@ -28,5 +38,13 @@
     "native_tier/routing.check.json": "49a811efc1a65cc19c2595943a3d50841dfc12f98517fb4e895e521d2ae3b91d",
     "native_tier/routing.score.check.json": "8468f4315dd9514eed13fc89e2355cea10ae0f5c8bef06a6f85abf7e64e39a4a",
     "validation.json": "956473f99981caae33c5d8edb32648dae3c526a901b2821ba56f96f1087ab398"
+  },
+  "bias_followup": {
+    "targeted_tests": 44,
+    "requests": 8,
+    "mismatch_requests": 6,
+    "policy": "log_only_keep_original_profile",
+    "expected_hit_tokens_per_read_request": 512,
+    "actual_hit_tokens_per_read_request": 1024
   }
 }

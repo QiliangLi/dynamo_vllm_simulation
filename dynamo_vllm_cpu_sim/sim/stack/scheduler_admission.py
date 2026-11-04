@@ -159,6 +159,7 @@ class ReadGate:
             self.no_remote.add(request.request_id)
 
     def verify_tier_lookup(self, request, external_tokens):
+        """Record estimate error; admission keeps the original frozen profile."""
         if self.tier_kv_bytes_per_token is None:
             return
         expected_bytes = self.hint(request)['estimated_remote_read_bytes']
@@ -166,11 +167,9 @@ class ReadGate:
             self.log('tier_lookup_mismatch', request_id=request.request_id,
                      expected_read_bytes=expected_bytes,
                      actual_read_bytes=external_tokens*self.tier_kv_bytes_per_token)
-            self.rollback(request)
-            # Do not run under an obsolete classification or silently treat an
-            # unknown storage read as light. Dynamic reclassification is a
-            # separate follow-up; this first integration explicitly fails closed.
-            raise RuntimeError('Dynamo tier estimate differs from KV Connector lookup; reconciliation required')
+            # A routing-time estimate can differ from the later lookup. Keep
+            # the existing classification, permit and score; the connector's
+            # actual hit count still drives KV allocation and execution.
 
 
 def patch_schedule(original):

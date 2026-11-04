@@ -3,7 +3,8 @@
 2026-11-04：可选 `admission.profile_source=dynamo_tier` 使用原生 Dynamo 最终选中实例的
 分级命中生成画像，拒绝客户端提供命中量。构建增加 `--tier-admission`，运行增加
 `--profile-source dynamo_tier`；Scheduler 仍在执行前申请额度。
-口径、单 DP rank 限制、严格命中核对和小测入口见
+实际命中与画像允许有偏差，仅记录差值；准入继续使用原画像，KV 分配与执行使用实际命中。
+口径、单 DP rank 限制和小测入口见
 [Dynamo分级命中画像接入](../docs/Dynamo分级命中画像接入-20261104.md)。
 
 ## 2026-10-30：与研究版运行代码同步

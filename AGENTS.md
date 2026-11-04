@@ -2,7 +2,8 @@
 
 2026-11-04：可选 Dynamo 分级画像见 docs/Dynamo分级命中画像接入-20261104.md。
 仅显式 profile_source=dynamo_tier 启用；必须使用 --tier-admission 独立扩展。
-不能把合并 Disk/External 快照说成纯磁盘，也不能绕过单 DP rank 和实际命中核对。
+不能把合并 Disk/External 快照说成纯磁盘；仅支持每 worker 一个 DP rank。
+实际命中与画像允许有偏差，只记录差值，不因此报错、退额或自动重分类。
 验证 worker 的 STORAGE 事件是测试夹具，不能在正式 benchmark 中默认启用。
 
 默认用中文。使用短句，区分实现事实、性能观察和待验证假设。

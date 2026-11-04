@@ -17,7 +17,11 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--routing-python-path', required=True, type=Path)
+    p.add_argument('--event-hit-fraction',type=float,default=1.,
+                   help='fixture index coverage relative to storage; <1 tests tolerated lookup bias')
     args = p.parse_args()
+    if not 0 <= args.event_hit_fraction <= 1:
+        p.error('--event-hit-fraction must be in [0,1]')
     out = args.output.resolve(); out.mkdir(parents=True,exist_ok=False)
     cfg = json.loads((ROOT/'configs/sa_abc_stack.json').read_text())
     cfg.pop('cache_model',None)
@@ -51,20 +55,32 @@ def main():
         command = list(command)
         if 'scripts/stack_vllm_worker.py' in command:
             command[command.index('scripts/stack_vllm_worker.py')] = 'scripts/tier_fixture_worker.py'
-            kwargs['env'] = dict(kwargs['env'], SIM_TIER_FIXTURE_TRACE=str(trace))
+            kwargs['env'] = dict(kwargs['env'], SIM_TIER_FIXTURE_TRACE=str(trace),
+                                SIM_TIER_FIXTURE_HIT_FRACTION=str(args.event_hit_fraction))
         return original(command, **kwargs)
     with patch('run_tfs_stack.subprocess.Popen',start):
         result = run_one(cfg,trace,out/'run',Path(sys.executable),'tfs','first_token',2)
     state = json.loads((out/'run/admission.final.json').read_text())
     profiles = [e for e in state['events'] if e['event']=='dynamo_tier_profile_resolved']
     assert len(profiles)==8
-    assert [state['records'][r['id']]['profile']['estimated_remote_tokens'] for r in rows] == [r['remote_prefix_tokens'] for r in rows]
+    b=cfg['block_size']
+    expected=[int((r['remote_prefix_tokens']//b)*args.event_hit_fraction)*b for r in rows]
+    assert [state['records'][r['id']]['profile']['estimated_remote_tokens'] for r in rows] == expected
+    assert sum(r['submitted_read_bytes'] for r in state['records'].values()) == sum(
+        r['remote_prefix_tokens']*cfg['storage']['kv_bytes_per_token'] for r in rows)
+    mismatches=[json.loads(line) for path in (out/'run').glob('worker*.read_admission.jsonl')
+                for line in path.read_text().splitlines()
+                if json.loads(line)['event']=='tier_lookup_mismatch']
+    assert len({e['request_id'] for e in mismatches}) == sum(
+        est!=r['remote_prefix_tokens'] for est,r in zip(expected,rows))
     from check_routing_accounting import check
-    score = check(out/'run',require_discount=True)
+    score = check(out/'run',require_discount=args.event_hit_fraction==1.)
     write(out/'validation.json',dict(status='passed',requests=8,workers=2,
         profile_source='native Dynamo selected-worker tier lookup',
         cache_events='synthetic STORAGE events through native ZMQ/event indexer',
-        model_and_kv_io='CPU simulation',check=result,routing_score=score))
+        model_and_kv_io='CPU simulation',check=result,routing_score=score,
+        event_hit_fraction=args.event_hit_fraction,
+        mismatch_requests=len({e['request_id'] for e in mismatches})))
     print(json.dumps(dict(status='passed',requests=8,score=score)))
 
 

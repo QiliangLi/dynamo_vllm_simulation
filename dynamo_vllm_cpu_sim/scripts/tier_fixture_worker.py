@@ -32,9 +32,12 @@ def setup_fixture(config, generate_endpoint, vllm_config, **kwargs):
     rows = load_trace(trace)
     cfg = json.loads(Path(os.environ['SIM_STACK_CONFIG']).read_text())
     b = cfg['block_size']
+    fraction = float(os.environ.get('SIM_TIER_FIXTURE_HIT_FRACTION', '1'))
+    if not 0 <= fraction <= 1:
+        raise ValueError('fixture hit fraction must be in [0,1]')
     events = []
     for row in rows:
-        count = row.get('remote_prefix_tokens', 0)//b
+        count = int((row.get('remote_prefix_tokens', 0)//b)*fraction)
         if not count:
             continue
         chain = hashlib.sha256()

@@ -71,14 +71,33 @@ class ProfileTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             e.estimate(1024,512,remote_read_tokens=513)
 
-    def test_worker_does_not_execute_unaccounted_disk_read(self):
-        gate = ReadGate(Mock(), tier_kv_bytes_per_token=16)
-        r = SimpleNamespace(request_id='r', sampling_params=SimpleNamespace(extra_args={
-            'storage_hint': dict(version=1,is_heavy_read=False,
-                estimated_remote_read_bytes=0,threshold_version=1)}))
-        gate.verify_tier_lookup(r, 0)
-        with self.assertRaisesRegex(RuntimeError, 'reconciliation'):
-            gate.verify_tier_lookup(r, 1)
+    def test_lookup_bias_is_logged_without_changing_admission(self):
+        for estimated, actual in [(0, 1), (64, 32), (32, 64), (64, 0)]:
+            with self.subTest(estimated=estimated,actual=actual):
+                client = Mock()
+                gate = ReadGate(client, tier_kv_bytes_per_token=16)
+                gate.log = Mock()
+                hint = dict(version=1,is_heavy_read=estimated>0,
+                    estimated_remote_read_bytes=estimated*16,threshold_version=1)
+                r = SimpleNamespace(request_id='r',sampling_params=SimpleNamespace(
+                    extra_args={'storage_hint':dict(hint)}))
+                if estimated:
+                    gate.permits['r'] = 'existing-permit'
+                    gate.pending_allocation.add('r')
+                gate.verify_tier_lookup(r, actual)
+                client.control.assert_not_called()
+                self.assertEqual(r.sampling_params.extra_args['storage_hint'],hint)
+                self.assertEqual(gate.permits,{'r':'existing-permit'} if estimated else {})
+                self.assertEqual(gate.pending_allocation,{'r'} if estimated else set())
+                gate.log.assert_any_call('tier_lookup_mismatch',request_id='r',
+                    expected_read_bytes=estimated*16,actual_read_bytes=actual*16)
+
+    def test_equal_lookup_does_not_log_a_mismatch(self):
+        gate = ReadGate(Mock(),tier_kv_bytes_per_token=16)
+        gate.hint = Mock(return_value={'estimated_remote_read_bytes':64*16})
+        gate.log = Mock()
+        gate.verify_tier_lookup(SimpleNamespace(request_id='r'),64)
+        gate.log.assert_not_called()
 
 
 class LedgerTests(unittest.IsolatedAsyncioTestCase):

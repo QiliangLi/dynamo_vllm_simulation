@@ -2,7 +2,7 @@
   "status": "passed",
   "files_checked": 207,
   "source_compared": true,
-  "source_commit": "821e8bf5319658acf02b2c8df325eed6421db6b7",
+  "source_commit": "ea40280eb7f609a76858444c4d4f4866476f33b6",
   "documented_source_exceptions": 7,
   "comparison": "SHA256 after CRLF-to-LF normalization"
 }
