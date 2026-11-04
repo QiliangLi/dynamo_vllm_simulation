@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "requests": 8,
+  "factor": 1.0,
+  "single_profile_per_request": true,
+  "same_mark_for_all_workers": true,
+  "current_request_discounted_rows": 0,
+  "order": "shared lookup -> one classification/registration -> scorer -> picker -> full booking"
+}

@@ -1,0 +1,763 @@
+WARNING 11-04 15:35:06 [cpu.py:423] Failed to import from vllm._C_AVX2: ModuleNotFoundError("No module named 'vllm._C_AVX2'")
+INFO 11-04 15:35:06 [importing.py:68] Triton not installed or not compatible; certain GPU-related functions will not be available.
+INFO 11-04 15:35:07 [nixl_utils.py:20] Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+WARNING 11-04 15:35:07 [nixl_utils.py:34] NIXL is not available
+WARNING 11-04 15:35:07 [nixl_utils.py:44] NIXL agent config is not available
+Accessing `__warningregistry__` from `.models.aria.image_processing_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.aria.image_processing_pil_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.auto.image_processing_auto`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_pil_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_pil_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_pil_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_pil_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_pil_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chmv2.image_processing_chmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.cohere2_vision.image_processing_cohere2_vision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_pil_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_pil_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_pil_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_pil_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_pil_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_pil_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.depth_pro.image_processing_depth_pro`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_pil_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dinov3_vit.image_processing_dinov3_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_pil_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_pil_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_pil_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_pil_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.emu3.image_processing_emu3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_pil_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_pil_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_pil_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_pil_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_pil_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_pil_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_pil_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_pil_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_pil_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_pil_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_pil_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_pil_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_pil_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_pil_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_pil_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_pil_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_pil_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_pil_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_pil_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_pil_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_pil_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lfm2_vl.image_processing_lfm2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_pil_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llama4.image_processing_llama4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_pil_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_pil_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_pil_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_pil_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_pil_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_pil_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_pil_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_pil_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_pil_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_pil_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_pil_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_pil_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_pil_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_pil_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_pil_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_pil_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perception_lm.image_processing_perception_lm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.phi4_multimodal.image_processing_phi4_multimodal`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pi0.image_processing_pi0`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pil_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pil_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_pil_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pil_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v2.image_processing_pp_doclayout_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v3.image_processing_pp_doclayout_v3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_lcnet.image_processing_pp_lcnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_det.image_processing_pp_ocrv5_server_det`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_rec.image_processing_pp_ocrv5_server_rec`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_pil_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pil_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_pil_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_pil_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_pil_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam2.image_processing_sam2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam3.image_processing_sam3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_pil_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_pil_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_pil_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_pil_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.slanext.image_processing_slanext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_pil_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_pil_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_pil_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_pil_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_pil_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.timm_wrapper.image_processing_timm_wrapper`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_pil_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.uvdoc.image_processing_uvdoc`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_pil_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llava.image_processing_video_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_pil_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_pil_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_pil_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_pil_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_pil_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vivit.image_processing_vivit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_pil_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_pil_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+INFO 11-04 15:36:01 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=128.
+INFO 11-04 15:36:01 [vllm.py:840] Asynchronous scheduling is disabled.
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [compilation.py:303] Enabled custom fusions: norm_quant, act_quant
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: ec3addae-8fa3-4ca4-82d3-cb851c8f9eb2
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: d2e5cb24-4f4b-48e0-9045-24e0792facc7
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: d9dfc7c0-27a5-48b4-bee8-ba5118051269
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 55382854-5791-4203-bb95-7a189580704e
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 896f260e-b8ea-4af3-a9c2-4025514dfeac
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 25b8bc85-d260-4295-965d-f622a78c044f
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 5e3f78ab-edd0-4cb9-b699-23cf0ce42222
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: f35b0a35-5f8a-452e-93f6-0f25c4c8c5e6
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 6c52d3c0-47cc-427b-be8c-371e1a9bc5aa
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: cdb55b1b-dc16-42fb-8000-6260e2341091
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:01 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:01 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:01 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:01 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:01 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:01 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:01 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:01 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: c0a0f2e1-47e1-49de-a197-fc264dd7668b
+WARNING 11-04 15:36:01 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+WARNING 11-04 15:36:02 [model.py:2178] User-specified max_model_len (10000) is greater than the derived max_model_len (max_position_embeddings=4096.0 or model_max_length=None in model's config.json). VLLM_ALLOW_LONG_MAX_MODEL_LEN must be used with extreme caution. If the model uses relative position encoding (RoPE), positions exceeding derived_max_model_len lead to nan. If the model uses absolute position encoding, positions exceeding derived_max_model_len will cause a CUDA array out-of-bounds error.
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 10000
+INFO 11-04 15:36:02 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=8192.
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SALayerConnector and engine_id: 69cea31c-1604-44a6-9594-7253373d8593
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 10000
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SALayerConnector and engine_id: 97d56b07-d2b9-4c1b-b8b9-c5d2adc7d41c
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+{"requests_completed": 2, "makespan_s": 0.11127492479999992, "mean_ttft_s": 0.11127492479999992, "profile_deadline_attainment": 1.0, "bytes_read": 1265172480.0}
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 10000
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SALayerConnector and engine_id: 644a6156-d099-4df4-bc4b-eba9a13011a1
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+{"requests_completed": 1, "makespan_s": 0.11120734079999993, "mean_ttft_s": 0.11120734079999993, "profile_deadline_attainment": 1.0, "bytes_read": 632586240.0}
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 10000
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SALayerConnector and engine_id: 3c4985eb-b908-4847-bc8f-bc8da918bc5c
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+{"requests_completed": 1, "makespan_s": 0.11120734079999993, "mean_ttft_s": 0.11120734079999993, "profile_deadline_attainment": 1.0, "bytes_read": 632586240.0}
+[SimExecutor] worker 0 steps=0 compute_sleep_s=0.000000
+Accessing `__warningregistry__` from `.models.aria.image_processing_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.aria.image_processing_pil_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.auto.image_processing_auto`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_pil_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_pil_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_pil_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_pil_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_pil_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chmv2.image_processing_chmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.cohere2_vision.image_processing_cohere2_vision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_pil_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_pil_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_pil_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_pil_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_pil_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_pil_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.depth_pro.image_processing_depth_pro`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_pil_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dinov3_vit.image_processing_dinov3_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_pil_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_pil_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_pil_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_pil_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.emu3.image_processing_emu3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_pil_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_pil_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_pil_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_pil_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_pil_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_pil_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_pil_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_pil_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_pil_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_pil_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_pil_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_pil_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_pil_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_pil_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_pil_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_pil_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_pil_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_pil_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_pil_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_pil_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_pil_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lfm2_vl.image_processing_lfm2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_pil_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llama4.image_processing_llama4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_pil_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_pil_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_pil_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_pil_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_pil_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_pil_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_pil_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_pil_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_pil_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_pil_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_pil_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_pil_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_pil_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_pil_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_pil_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_pil_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perception_lm.image_processing_perception_lm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.phi4_multimodal.image_processing_phi4_multimodal`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pi0.image_processing_pi0`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pil_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pil_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_pil_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pil_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v2.image_processing_pp_doclayout_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v3.image_processing_pp_doclayout_v3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_lcnet.image_processing_pp_lcnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_det.image_processing_pp_ocrv5_server_det`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_rec.image_processing_pp_ocrv5_server_rec`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_pil_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pil_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_pil_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_pil_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_pil_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam2.image_processing_sam2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam3.image_processing_sam3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_pil_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_pil_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_pil_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_pil_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.slanext.image_processing_slanext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_pil_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_pil_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_pil_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_pil_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_pil_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.timm_wrapper.image_processing_timm_wrapper`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_pil_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.uvdoc.image_processing_uvdoc`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_pil_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llava.image_processing_video_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_pil_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_pil_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_pil_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_pil_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_pil_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vivit.image_processing_vivit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_pil_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_pil_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.aria.image_processing_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.aria.image_processing_pil_aria`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.auto.image_processing_auto`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.beit.image_processing_pil_beit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bit.image_processing_pil_bit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.blip.image_processing_pil_blip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.bridgetower.image_processing_pil_bridgetower`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chameleon.image_processing_pil_chameleon`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chinese_clip.image_processing_chinese_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.chmv2.image_processing_chmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.clip.image_processing_pil_clip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.cohere2_vision.image_processing_cohere2_vision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.conditional_detr.image_processing_pil_conditional_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.convnext.image_processing_pil_convnext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl.image_processing_pil_deepseek_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deepseek_vl_hybrid.image_processing_pil_deepseek_vl_hybrid`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deformable_detr.image_processing_pil_deformable_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.deit.image_processing_pil_deit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.depth_pro.image_processing_depth_pro`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.detr.image_processing_pil_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dinov3_vit.image_processing_dinov3_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.donut.image_processing_pil_donut`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.dpt.image_processing_pil_dpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientloftr.image_processing_pil_efficientloftr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.efficientnet.image_processing_pil_efficientnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.emu3.image_processing_emu3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.eomt.image_processing_pil_eomt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ernie4_5_vl_moe.image_processing_pil_ernie4_5_vl_moe`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.flava.image_processing_pil_flava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.fuyu.image_processing_pil_fuyu`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma3.image_processing_pil_gemma3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.gemma4.image_processing_pil_gemma4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm46v.image_processing_pil_glm46v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm4v.image_processing_pil_glm4v`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glm_image.image_processing_pil_glm_image`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.glpn.image_processing_pil_glpn`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.got_ocr2.image_processing_pil_got_ocr2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.grounding_dino.image_processing_pil_grounding_dino`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics.image_processing_pil_idefics`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics2.image_processing_pil_idefics2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.idefics3.image_processing_pil_idefics3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.imagegpt.image_processing_pil_imagegpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.janus.image_processing_pil_janus`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.kosmos2_5.image_processing_pil_kosmos2_5`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv2.image_processing_pil_layoutlmv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.layoutlmv3.image_processing_pil_layoutlmv3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.levit.image_processing_pil_levit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lfm2_vl.image_processing_lfm2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.lightglue.image_processing_pil_lightglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llama4.image_processing_llama4`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava.image_processing_pil_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_next.image_processing_pil_llava_next`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.llava_onevision.image_processing_pil_llava_onevision`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mask2former.image_processing_pil_mask2former`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.maskformer.image_processing_pil_maskformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mllama.image_processing_pil_mllama`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_pil_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v1.image_processing_mobilenet_v1`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilenet_v2.image_processing_pil_mobilenet_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.mobilevit.image_processing_pil_mobilevit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.nougat.image_processing_pil_nougat`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.oneformer.image_processing_pil_oneformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.ovis2.image_processing_pil_ovis2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlv2.image_processing_pil_owlv2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.owlvit.image_processing_pil_owlvit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.paddleocr_vl.image_processing_pil_paddleocr_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perceiver.image_processing_pil_perceiver`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.perception_lm.image_processing_perception_lm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.phi4_multimodal.image_processing_phi4_multimodal`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pi0.image_processing_pi0`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pil_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pix2struct.image_processing_pix2struct`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pil_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pixtral.image_processing_pixtral`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_pil_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.poolformer.image_processing_poolformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pil_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_chart2table.image_processing_pp_chart2table`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v2.image_processing_pp_doclayout_v2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_doclayout_v3.image_processing_pp_doclayout_v3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_lcnet.image_processing_pp_lcnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_det.image_processing_pp_ocrv5_server_det`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pp_ocrv5_server_rec.image_processing_pp_ocrv5_server_rec`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_pil_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.prompt_depth_anything.image_processing_prompt_depth_anything`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pil_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.pvt.image_processing_pvt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_pil_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.qwen2_vl.image_processing_qwen2_vl`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_pil_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.rt_detr.image_processing_rt_detr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_pil_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam.image_processing_sam`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam2.image_processing_sam2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.sam3.image_processing_sam3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_pil_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.segformer.image_processing_segformer`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_pil_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.seggpt.image_processing_seggpt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_pil_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip.image_processing_siglip`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_pil_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.siglip2.image_processing_siglip2`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.slanext.image_processing_slanext`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_pil_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.smolvlm.image_processing_smolvlm`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_pil_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superglue.image_processing_superglue`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_pil_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.superpoint.image_processing_superpoint`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_pil_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.swin2sr.image_processing_swin2sr`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_pil_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.textnet.image_processing_textnet`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.timm_wrapper.image_processing_timm_wrapper`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_pil_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.tvp.image_processing_tvp`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.uvdoc.image_processing_uvdoc`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_pil_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llama_3.image_processing_video_llama_3`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.video_llava.image_processing_video_llava`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_pil_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.videomae.image_processing_videomae`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_pil_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vilt.image_processing_vilt`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_pil_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vit.image_processing_vit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_pil_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitmatte.image_processing_vitmatte`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_pil_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vitpose.image_processing_vitpose`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.vivit.image_processing_vivit`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_pil_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.yolos.image_processing_yolos`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_pil_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+Accessing `__warningregistry__` from `.models.zoedepth.image_processing_zoedepth`. Returning `__warningregistry__` instead. Behavior may be different and this alias will be removed in future versions.
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: a28b046b-e77a-44a4-829d-2db37d90a92d
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:02 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:02 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:02 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:02 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:02 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:02 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:02 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:02 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 6f0b0bfa-14df-4812-9dcb-1cfee665590e
+WARNING 11-04 15:36:02 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:03 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:03 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:03 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:03 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:03 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:03 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:03 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:03 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 59559386-f6fa-4772-b777-375132b25dad
+WARNING 11-04 15:36:03 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+INFO 11-04 15:36:03 [model.py:555] Resolved architecture: OPTForCausalLM
+INFO 11-04 15:36:03 [model.py:1680] Using max model len 4096
+WARNING 11-04 15:36:03 [vllm.py:896] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 11-04 15:36:03 [vllm.py:914] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 11-04 15:36:03 [kernel.py:205] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'])
+WARNING 11-04 15:36:03 [cpu.py:123] CPU backend prefers block_size is multiples of 32, otherwise the performance is not optimized.
+WARNING 11-04 15:36:03 [vllm.py:1293] Turning off hybrid kv cache manager because `--kv-transfer-config` is set. This will reduce the performance of vLLM on LLMs with sliding window attention or Mamba attention. If you are a developer of kv connector, please consider supporting hybrid kv cache manager for your connector by making sure your connector is a subclass of `SupportsHMA` defined in kv_connector/v1/base.py and use --no-disable-hybrid-kv-cache-manager to start vLLM.
+INFO 11-04 15:36:03 [factory.py:64] Creating v1 connector with name: SimConnector and engine_id: 24df7802-68a0-4e0e-9ba0-24ca048df0ec
+WARNING 11-04 15:36:03 [base.py:189] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+已保留进程日志：/tmp/tmpzn45f4cw/work/results/sample/logs
+----------------------------------------------------------------------
+Ran 361 tests in 108.755s
+
+OK

@@ -12,7 +12,7 @@ from sim.request_profile import normalize_config
 from sim.reference_time import get_reference_time_estimator
 from sim.stack.admission_service import AdmissionState, create_app
 from sim.stack.scheduler_admission import ReadGate
-from sim.stack.tier_profile import build_tier_profile, validate_snapshot, preview_hint
+from sim.stack.tier_profile import build_tier_profile, validate_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,43 +27,16 @@ def config():
 
 def snapshot(rid='request', **changes):
     return dict(version=1, request_id=rid, prompt_tokens=1024, block_size=16,
-        worker_id=77, dp_rank=0, dp_device_blocks=[[0, 8]], gpu_blocks=8,
-        host_pinned_blocks=16, disk_blocks=32, **changes)
-
-
-def resolve(state,value):
-    prepared=state.prepare_tier_profiles(value['request_id'],[value])
-    return state.commit_tier_profile(value['request_id'],prepared['preview_id'],
-                                     value['worker_id'],value['dp_rank'])
+        disk_blocks=32, **changes)
 
 
 class ProfileTests(unittest.TestCase):
-    def test_preview_matches_existing_arrival_classification_without_counting_alternatives(self):
-        from sim.stack.read_admission import FrozenAdmission,FrozenSAAdmission
-        c=config()
-        profiles=[]
-        for blocks in [0,0,0,32,16,64]:
-            value=snapshot(); value.update(gpu_blocks=0,host_pinned_blocks=0,
-                disk_blocks=blocks,dp_device_blocks=[[0,0]])
-            profiles.append(build_tier_profile(value,c,str(len(profiles)),0.))
-        for factory,mode in [(FrozenAdmission,'linear'),(FrozenSAAdmission,'sa_e26f')]:
-            local={**c,'compute':{'mode':mode}}
-            for count in [0,3,4,5]:
-                for candidate in profiles[count:]:
-                    history=profiles[:count]
-                    controller=factory(c['admission'])
-                    if history: controller.on_arrivals(history,0.)
-                    mark,theta=preview_hint(candidate,sorted(p.pressure_Bps for p in history),local,7)
-                    controller.on_arrivals([candidate],0.)
-                    self.assertEqual(mark['is_heavy_read'],controller.hints[candidate.request_id]['is_heavy_read'])
-                    self.assertEqual(theta,controller.theta)
-
-    def test_raw_disk_extension_and_total_reuse_are_different(self):
+    def test_common_disk_prefix_drives_one_request_profile(self):
         c = config()
         p = build_tier_profile(snapshot(), c, 'r', 2.)
-        self.assertEqual(p.estimated_remote_tokens, 256)
-        self.assertEqual(p.estimated_read_bytes, 256*c['storage']['kv_bytes_per_token'])
-        timing = get_reference_time_estimator(c).estimate(1024, 512, remote_read_tokens=256)
+        self.assertEqual(p.estimated_remote_tokens, 512)
+        self.assertEqual(p.estimated_read_bytes, 512*c['storage']['kv_bytes_per_token'])
+        timing = get_reference_time_estimator(c).estimate(1024, 512, remote_read_tokens=512)
         self.assertEqual(p.standalone_compute_s, timing.compute_s)
         self.assertEqual(p.reference_service_s, timing.service_s)
         self.assertEqual(p.deadline_s, 2.+c['request_profile']['slo_multiplier']*timing.service_s)
@@ -71,17 +44,17 @@ class ProfileTests(unittest.TestCase):
     def test_full_cached_prompt_still_leaves_final_token(self):
         s = snapshot(); s['disk_blocks'] = 64
         p = build_tier_profile(s, config(), 'r', 0.)
-        self.assertEqual(p.estimated_remote_tokens, (63-16)*16)
+        self.assertEqual(p.estimated_remote_tokens, 63*16)
 
-    def test_host_only_reuse_has_no_disk_pressure(self):
-        s = snapshot(); s['disk_blocks'] = s['host_pinned_blocks']
+    def test_no_shared_hits_has_no_disk_pressure(self):
+        s = snapshot(); s['disk_blocks'] = 0
         p = build_tier_profile(s, config(), 'r', 0.)
         self.assertEqual(p.pressure_Bps, 0)
         self.assertEqual(p.estimated_read_bytes, 0)
 
     def test_bad_tier_snapshots_are_rejected(self):
-        for key, value in [('disk_blocks', 65), ('host_pinned_blocks', 3),
-            ('gpu_blocks', True), ('block_size', 1), ('dp_device_blocks', [[0,8],[1,9]])]:
+        for key, value in [('disk_blocks', 65), ('disk_blocks', True), ('block_size', 1),
+            ('worker_id',77), ('candidates', [])]:
             s = snapshot(); s[key] = value
             with self.subTest(key=key), self.assertRaises(ValueError):
                 validate_snapshot(s, config())
@@ -127,32 +100,20 @@ class ProfileTests(unittest.TestCase):
 
 
 class LedgerTests(unittest.IsolatedAsyncioTestCase):
-    async def test_candidates_are_classified_before_selection_without_booking(self):
-        s=AdmissionState(config())
-        s.arrive(dict(id='a',prompt_token_ids=list(range(1024))))
-        warm=snapshot(s.uuid_by_id['a'])
-        cold=dict(warm,worker_id=88,gpu_blocks=0,host_pinned_blocks=0,
-                  disk_blocks=0,dp_device_blocks=[[0,0]])
-        prepared=s.prepare_tier_profiles(s.uuid_by_id['a'],[warm,cold])
-        self.assertEqual([row['hint']['is_heavy_read'] for row in prepared['candidates']],[True,False])
-        self.assertEqual(s.controller.records,{})
-        self.assertEqual(s.controller.held,0)
-        s.commit_tier_profile(s.uuid_by_id['a'],prepared['preview_id'],88,0)
-        self.assertEqual(len(s.controller.records),1)
-        self.assertEqual(s.controller.records['a'].profile.estimated_remote_tokens,0)
-        self.assertFalse(s.controller.hints['a']['is_heavy_read'])
-
-    async def test_selected_commit_keeps_pre_score_hint_after_other_history_updates(self):
-        s=AdmissionState(config())
-        for rid in ['a','b']:
-            s.arrive(dict(id=rid,prompt_token_ids=list(range(1024))))
-        value=snapshot(s.uuid_by_id['a'])
-        prepared=s.prepare_tier_profiles(s.uuid_by_id['a'],[value])
-        resolve(s,snapshot(s.uuid_by_id['b']))
-        original=dict(prepared['candidates'][0]['hint'])
-        s.commit_tier_profile(s.uuid_by_id['a'],prepared['preview_id'],77,0)
-        self.assertEqual(s.controller.hints['a'],original)
-        self.assertEqual(len(s.controller.records),2)
+    async def test_single_shared_profile_is_registered_once_before_selection(self):
+        state=AdmissionState(config())
+        state.arrive(dict(id='r',prompt_token_ids=list(range(1024))))
+        value=snapshot(state.uuid_by_id['r'])
+        result=state.resolve_tier_profile(value)
+        self.assertTrue(result['is_heavy_read'])
+        self.assertEqual(len(state.controller.records),1)
+        self.assertEqual(state.controller.records['r'].worker_id,-1)
+        self.assertEqual(state.controller.held,0)
+        version=state.controller.threshold_version
+        self.assertEqual(result,state.resolve_tier_profile(value))
+        self.assertEqual(state.controller.threshold_version,version)
+        created=[e for e in state.events if e['event']=='storage_hint_created']
+        self.assertEqual(len(created),1)
 
     async def test_standard_request_needs_no_simulation_metadata(self):
         app = create_app(config(), 'http://test-dynamo')
@@ -163,8 +124,8 @@ class LedgerTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('_sim_admission', json)
             self.assertNotIn('nvext', json)
             value = snapshot(headers['x-dynamo-request-id'])
-            value.update(gpu_blocks=0,host_pinned_blocks=0,disk_blocks=0,dp_device_blocks=[[0,0]])
-            resolve(state,value)  # Stand-in for the native callback.
+            value.update(disk_blocks=0)
+            state.resolve_tier_profile(value)  # Stand-in for the native callback.
             async def lines():
                 yield 'data: {"choices":[{"text":"x","finish_reason":"stop"}]}'
             yield SimpleNamespace(raise_for_status=lambda:None, aiter_lines=lines)
@@ -183,7 +144,7 @@ class LedgerTests(unittest.IsolatedAsyncioTestCase):
             future = s.arrive(dict(id=rid,prompt_token_ids=list(range(1024))))
             self.assertTrue(future.done())
             self.assertNotIn(rid, s.controller.records)
-            response = resolve(s,snapshot(s.uuid_by_id[rid]))
+            response = s.resolve_tier_profile(snapshot(s.uuid_by_id[rid]))
             self.assertTrue(response['is_heavy_read'])
         self.assertEqual(s.controller.held, 0)
         def acquire(rid):
@@ -200,11 +161,11 @@ class LedgerTests(unittest.IsolatedAsyncioTestCase):
         s = AdmissionState(config())
         s.arrive(dict(id='a',prompt_token_ids=list(range(1024))))
         v = snapshot(s.uuid_by_id['a'])
-        first = resolve(s,v)
-        self.assertEqual(first, resolve(s,v))
+        first = s.resolve_tier_profile(v)
+        self.assertEqual(first, s.resolve_tier_profile(v))
         changed = dict(v, disk_blocks=33)
         with self.assertRaisesRegex(ValueError, 'changed'):
-            resolve(s,changed)
+            s.resolve_tier_profile(changed)
         self.assertEqual(len(s.controller.records),1)
 
     async def test_internal_endpoint_auth_and_no_client_hit_metadata(self):

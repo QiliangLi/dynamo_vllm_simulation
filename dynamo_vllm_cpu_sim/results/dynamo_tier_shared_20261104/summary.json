@@ -1,0 +1,18 @@
+{
+  "smoke-r1": {
+    "status": "passed",
+    "requests": 8
+  },
+  "alpha1-r1": {
+    "status": "passed",
+    "requests": 8
+  },
+  "legacy-r1": {
+    "status": "passed",
+    "requests": 12
+  },
+  "bias-half-r1": {
+    "status": "passed",
+    "requests": 8
+  }
+}

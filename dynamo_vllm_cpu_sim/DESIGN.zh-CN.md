@@ -2,17 +2,16 @@
 
 ## 2026-11-04：可选 Dynamo 分级命中画像
 
-`admission.profile_source=dynamo_tier` 在原生分级查询之后、scorer 之前为各候选生成画像和重读标记。
-scorer 对当前重读增量及既有等待重读应用 α，保留原生 picker、完整 booking 与容量检查。
-picker 后 commit 只确认选中画像并更新历史，不重新分类。不同候选可有不同轻重标记。
-使用 selected_worker_tiers 原始累计计数，扣除 GPU/HostPinned，估计 Disk/External 读取量；
-计算估时使用全部已缓存前缀。Python 画像/分类及中央账本仍在原服务，Dynamo 内部回调并下发结果。
-Scheduler 的额度申请、原生 booking、picker、块分配和首 token 释放保持原策略。
-选中实例快照聚合多 DP rank，本版只接受每 worker 一个 rank；分级事件缺失和命中变化不作自动补造。
-实际 Connector 命中与画像的偏差只记录，不因此报错或退额；原画像继续决定准入及评分。
-实际命中仍决定 KV 分配、读取和计算，暂不自动重分类。
-默认 trace 模式不变。模型和存储仍为 CPU 仿真，测试事件不是生产存储事件适配。
-说明见 [Dynamo分级命中画像接入](../docs/Dynamo分级命中画像接入-20261104.md)。
+`admission.profile_source=dynamo_tier` 在原生分级查询之后、scorer 之前生成一个共享存储画像。
+所有实例对等并共用存储；每请求只分类、登记一次，所有候选读取同一重读标记。
+不再生成候选画像，不再使用预分类或 prepare/commit 协议。下发直接复用已有元数据。
+共享存储原始命中来自 tier_overlap_blocks.disk，取共享副本的最大前缀一次，不相加。
+固定上游合并 Disk/External；本模式不扩展 GPU/HostPinned 差异或异构实例支持。
+既有 α、原生 picker/完整 booking、额度点、KV 分配和首 token 释放规则保持不变。
+实际命中与画像偏差只记录，实际 KV 操作使用 Connector 查询结果；暂不自动重分类。
+Python 画像/分类和中央账本仍复用原服务，由 Dynamo 在查询后调用一次。
+默认 trace 模式不变，模型和存储仍为 CPU 仿真。测试 STORAGE 事件不是生产存储适配。
+说明见 [Dynamo内部共享存储画像](../docs/Dynamo分级命中画像接入-20261104.md)。
 
 ## 2026-10-30：与研究版运行代码同步
 

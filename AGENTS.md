@@ -1,10 +1,10 @@
 # AI接手本实验分支
 
-2026-11-04：可选 Dynamo 分级画像见 docs/Dynamo分级命中画像接入-20261104.md。
-新模式必须先分级查询，再按候选 prepare 分类，之后 scorer/picker/完整 booking；commit 不重分类。
-新模式 α 同时作用于当前重读增量与既有等待重读；默认 trace 模式仍仅折扣等待重读。
+2026-11-04：共享存储、实例对等；只在 Dynamo 分级查询后、scorer 前生成一次请求画像。
+禁止新增候选画像、预分类、选择后 commit。所有候选使用同一重读标记，沿用原有分类历史。
+保留既有 α 计分、picker、完整 booking、Scheduler 额度点及实际命中偏差语义。
 仅显式 profile_source=dynamo_tier 启用；必须使用 --tier-admission 独立扩展。
-不能把合并 Disk/External 快照说成纯磁盘；仅支持每 worker 一个 DP rank。
+命中来源及测试见 docs/Dynamo分级命中画像接入-20261104.md。
 实际命中与画像允许有偏差，只记录差值，不因此报错、退额或自动重分类。
 验证 worker 的 STORAGE 事件是测试夹具，不能在正式 benchmark 中默认启用。
 

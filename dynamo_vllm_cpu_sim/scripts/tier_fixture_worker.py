@@ -33,8 +33,6 @@ def setup_fixture(config, generate_endpoint, vllm_config, **kwargs):
     cfg = json.loads(Path(os.environ['SIM_STACK_CONFIG']).read_text())
     b = cfg['block_size']
     fraction = float(os.environ.get('SIM_TIER_FIXTURE_HIT_FRACTION', '1'))
-    if os.environ.get('SIM_TIER_FIXTURE_ASYMMETRIC')=='1' and os.environ['SIM_STACK_WORKER_ID']=='1':
-        fraction=0.
     if not 0 <= fraction <= 1:
         raise ValueError('fixture hit fraction must be in [0,1]')
     (Path(os.environ['SIM_STACK_CONFIG']).parent/f"tier_fixture.worker{os.environ['SIM_STACK_WORKER_ID']}.json").write_text(

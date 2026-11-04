@@ -1,0 +1,28 @@
+{
+  "base_commit": "b83b1d9304ebfc624709ac46db32b1b6f1ff1615",
+  "patch": {
+    "lib/kv-router/src/lib.rs": "8309d1a5f574201a66d5ea8707c8b10c16321b605dbd9acd0dcf20213f983326",
+    "lib/kv-router/src/scheduling/selector/default.rs": "1ba73b681caf3168804154f237fd2a04fd5ccc1f3711412c4e66be1d3181e381",
+    "lib/kv-router/src/scheduling/queue.rs": "5b304a3fd329401bda0d7d96398ac7126bde5d70670ba0c7a0c8216483999edd",
+    "lib/kv-router/src/sequences/request_maps.rs": "eb02c11467c78b7a497da7755ac6a39893f7339edc77a9f21b1092e621203c04",
+    "lib/kv-router/src/pending_score.rs": "1c1567725c265d6105f2077d7f801b6e58bc8056ca8b536e4242f4d0c5507db9",
+    "lib/llm/src/kv_router.rs": "118de7dc81da7ab403b341b82e10d4cd48017938f49666ba825b9e4af84c23c7",
+    "lib/llm/src/kv_router/routing_host/kv_selection.rs": "be8a4cf344b17f9a754aa8346a995455141f385f3aa8ca87a93517c4da0dabd6",
+    "lib/llm/src/kv_router/routing_host/kv.rs": "c8ee76b6f687d004f9af39c8d5ac6b67c85c61ba7b3c3d549546dc342f46a156",
+    "lib/kv-router/src/scheduling/config.rs": "16ab7702a9074929f4ca8d4d4e5529c666d7ab7ffc58b54536cf1308cbfa357d",
+    "lib/llm/src/kv_router/indexer/mod.rs": "128ef83f0e4c8346a7049b48097362d6bfa626afa3d37ea36447cfc8389f0fac",
+    "lib/llm/src/kv_router/tier_admission.rs": "7e2405ebc7c0bc148d0cc343481da3bcf3496286927e96e6189db679cb5c735e"
+  },
+  "overlay_recipe_sha256": "c3e4f8e9159f10bc8b6608ddeb31acc4a0633026c02f7e54d88837c20b2ce084",
+  "native_sha256": "cdff8a210d29521c40d24ace8e8bc462b3c9507b5b3928cd25ccbecb9aec8356",
+  "cargo_lock_sha256": "ef130e56a85d14622c8b290af1dafe97bc2ea8393c329acbcf41e08c96683e8e",
+  "python_path": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-shared-20261104/build-r1/python",
+  "profile": "dev; debug=0",
+  "toolchain": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+  "tier_admission_recipe": {
+    "apply_patch.py": "54cb0d0ee764ab52c8701d63e7ab3c00b76446e1cca461771f84cab462936b3b",
+    "source_hashes.json": "32b46008f4578aaa46807a1664042e9de83d22c5c0c185da2dace918aebb912e",
+    "tier_admission.rs": "7e2405ebc7c0bc148d0cc343481da3bcf3496286927e96e6189db679cb5c735e"
+  },
+  "target_cache": "/home/zed/.local/share/state-aware-network/audits/weighted-native-20261027/target"
+}

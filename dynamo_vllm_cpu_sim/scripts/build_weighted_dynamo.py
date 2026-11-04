@@ -23,7 +23,7 @@ def main():
     p.add_argument('--output',required=True,type=Path)
     p.add_argument('--jobs',type=int,default=4)
     p.add_argument('--release',action='store_true',help='optimized native build for controlled performance experiments')
-    p.add_argument('--tier-admission',action='store_true',help='attach profiles from native selected-worker tier lookup')
+    p.add_argument('--tier-admission',action='store_true',help='resolve one shared-storage profile before native scoring')
     p.add_argument('--target-cache',type=Path,help='reuse Cargo artifacts without replacing any installed wheel')
     args=p.parse_args();out=args.output.resolve();original=args.source.resolve()
     if out.is_relative_to(original):p.error('build output must lie outside the source tree')

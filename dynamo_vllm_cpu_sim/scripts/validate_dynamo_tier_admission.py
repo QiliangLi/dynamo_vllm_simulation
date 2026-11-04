@@ -14,15 +14,17 @@ sys.path[:0] = [str(ROOT), str(ROOT/'scripts')]
 from run_tfs_stack import run_one, write
 
 
-def check_pre_score(folder, requests, factor=.1, asymmetric=False):
+def check_pre_score(folder, requests, factor=.1):
     from check_stack_routing import ANSI
-    prepared,scored,picked,booked={},{},{},{}
+    resolved,scored,picked,booked={},{},{},{}
     for index,line in enumerate(ANSI.sub('',(folder/'frontend.log').read_text()).splitlines()):
         match=re.search(r'request_id=(?:"([^\"]+)"|(\S+))',line)
         if not match:continue
         rid=match.group(1) or match.group(2)
-        if 'TIER_PROFILES_PREPARED' in line:prepared[rid]=index
-        if 'TIER_CANDIDATE_SCORE worker_id=' in line:
+        if 'TIER_PROFILE_RESOLVED' in line:
+            assert rid not in resolved,'multiple profile resolutions for one request'
+            resolved[rid]=index
+        if 'TIER_REQUEST_SCORE worker_id=' in line:
             values={k:float(v) for k,v in re.findall(r'(own_prefill_credit|own_decode_credit|baseline|weighted)=([0-9.eE+-]+)',line)}
             heavy='heavy=true' in line
             assert values['weighted']<=values['baseline']+1e-6
@@ -31,9 +33,9 @@ def check_pre_score(folder, requests, factor=.1, asymmetric=False):
             scored.setdefault(rid,[]).append(dict(index=index,heavy=heavy,worker_id=worker,**values))
         if '[ROUTING] Best:' in line:picked[rid]=index
         if 'TIER_PROFILE_BOOKED' in line:booked[rid]=index
-    assert len(prepared)==len(scored)==len(picked)==len(booked)==requests
+    assert len(resolved)==len(scored)==len(picked)==len(booked)==requests
     for rid,rows in scored.items():
-        assert prepared[rid]<min(r['index'] for r in rows)
+        assert resolved[rid]<min(r['index'] for r in rows)
         # The host's "Best" report is emitted after the native actor returns;
         # native selection precedes booking inside that actor.
         assert max(r['index'] for r in rows)<booked[rid]
@@ -43,13 +45,18 @@ def check_pre_score(folder, requests, factor=.1, asymmetric=False):
         assert own_discounted>0,'no current-request discount before picker'
     else:
         assert own_discounted==0,'alpha=1 must preserve the current-request cost'
-    if asymmetric:
-        first=min(scored.values(),key=lambda rows:min(r['index'] for r in rows))
-        assert {r['heavy'] for r in first}=={True,False},'candidate-specific classification not observed'
-        assert len({r['worker_id'] for r in first})==2
+    for rows in scored.values():
+        assert len({r['heavy'] for r in rows})==1,'workers must use one shared heavy mark'
+    state=json.loads((folder/'admission.final.json').read_text())
+    for event in ['dynamo_tier_profile_resolved','storage_hint_created']:
+        events=[e for e in state['events'] if e['event']==event]
+        assert len(events)==len({e['id'] for e in events})==requests
+    assert not any(e['event']=='tier_profiles_prepared' for e in state['events'])
     return dict(status='passed',requests=requests,factor=factor,
-        asymmetric_candidates_checked=asymmetric,current_candidate_discounted_rows=own_discounted,
-        order='prepare -> scorer reads mark and discounts current increment -> picker -> full booking')
+        single_profile_per_request=True,same_mark_for_all_workers=True,
+        current_request_discounted_rows=own_discounted,
+        order='shared lookup -> one classification/registration -> scorer -> picker -> full booking')
+
 
 
 def main():
@@ -58,7 +65,6 @@ def main():
     p.add_argument('--routing-python-path', required=True, type=Path)
     p.add_argument('--event-hit-fraction',type=float,default=1.,
                    help='fixture index coverage relative to storage; <1 tests tolerated lookup bias')
-    p.add_argument('--asymmetric-cache',action='store_true',help='worker 1 advertises no disk hits')
     p.add_argument('--factor',type=float,default=.1,help='waiting/current-heavy score factor')
     args = p.parse_args()
     if not 0 <= args.event_hit_fraction <= 1:
@@ -99,8 +105,7 @@ def main():
         if 'scripts/stack_vllm_worker.py' in command:
             command[command.index('scripts/stack_vllm_worker.py')] = 'scripts/tier_fixture_worker.py'
             kwargs['env'] = dict(kwargs['env'], SIM_TIER_FIXTURE_TRACE=str(trace),
-                                SIM_TIER_FIXTURE_HIT_FRACTION=str(args.event_hit_fraction),
-                                SIM_TIER_FIXTURE_ASYMMETRIC='1' if args.asymmetric_cache else '0')
+                                SIM_TIER_FIXTURE_HIT_FRACTION=str(args.event_hit_fraction))
         return original(command, **kwargs)
     with patch('run_tfs_stack.subprocess.Popen',start):
         result = run_one(cfg,trace,out/'run',Path(sys.executable),'tfs','first_token',2)
@@ -108,10 +113,7 @@ def main():
     profiles = [e for e in state['events'] if e['event']=='dynamo_tier_profile_resolved']
     assert len(profiles)==8
     b=cfg['block_size']
-    coverage={v['worker_id']:v['fraction'] for path in (out/'run').glob('tier_fixture.worker*.json')
-              for v in [json.loads(path.read_text())]}
-    chosen={e['id']:e['snapshot']['worker_id'] for e in profiles}
-    expected=[int((r['remote_prefix_tokens']//b)*coverage[chosen[r['id']]])*b for r in rows]
+    expected=[int((r['remote_prefix_tokens']//b)*args.event_hit_fraction)*b for r in rows]
     assert [state['records'][r['id']]['profile']['estimated_remote_tokens'] for r in rows] == expected
     assert sum(r['submitted_read_bytes'] for r in state['records'].values()) == sum(
         r['remote_prefix_tokens']*cfg['storage']['kv_bytes_per_token'] for r in rows)
@@ -122,15 +124,15 @@ def main():
         est!=r['remote_prefix_tokens'] for est,r in zip(expected,rows))
     from check_routing_accounting import check
     score = check(out/'run',require_discount=args.event_hit_fraction==1. and args.factor<1)
-    pre_score=check_pre_score(out/'run',8,args.factor,args.asymmetric_cache)
+    pre_score=check_pre_score(out/'run',8,args.factor)
     write(out/'run/tier_prescore.check.json',pre_score)
     write(out/'validation.json',dict(status='passed',requests=8,workers=2,
-        profile_source='native Dynamo selected-worker tier lookup',
+        profile_source='native Dynamo common shared-storage tier lookup',
         cache_events='synthetic STORAGE events through native ZMQ/event indexer',
         model_and_kv_io='CPU simulation',check=result,routing_score=score,
         event_hit_fraction=args.event_hit_fraction,
         mismatch_requests=len({e['request_id'] for e in mismatches}),
-        asymmetric_cache=args.asymmetric_cache,pre_score=pre_score))
+        pre_score=pre_score))
     print(json.dumps(dict(status='passed',requests=8,score=score)))
 
 

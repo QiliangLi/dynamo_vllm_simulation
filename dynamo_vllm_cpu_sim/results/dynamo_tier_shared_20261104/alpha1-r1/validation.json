@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "requests": 8,
+  "workers": 2,
+  "profile_source": "native Dynamo common shared-storage tier lookup",
+  "cache_events": "synthetic STORAGE events through native ZMQ/event indexer",
+  "model_and_kv_io": "CPU simulation",
+  "check": {
+    "status": "pass",
+    "requests": 8,
+    "workers": [
+      0,
+      1
+    ],
+    "central_wait_mean_s": 0.003499043050000067,
+    "central_wait_max_s": 0.004832626549999497,
+    "held_heavy_peak": 1,
+    "peak_storage_pending": 1,
+    "actual_batch_sizes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "model_sum_s": 0.03787683313449158,
+    "formula_max_error_s": 8.673617379884035e-19,
+    "ttft_mean_s": 0.02496200848125003,
+    "http_window_s": 2.856351602000018,
+    "model_window_s": 0.1428175801000009,
+    "wall_time_scale": 20,
+    "actual_submitted_read_bytes": 201326592,
+    "transfer_lower_bound_s": 0.0016777216,
+    "transfer_span_s": 0.03245366948333406,
+    "disk_bytes_submitted": [
+      201326592
+    ],
+    "disk_peak_Bps": [
+      120000000000.0
+    ],
+    "release_reasons": {
+      "tier-smoke-1": "first_token",
+      "tier-smoke-3": "first_token",
+      "tier-smoke-0": "first_token",
+      "tier-smoke-4": "first_token",
+      "tier-smoke-2": "first_token",
+      "tier-smoke-5": "first_token",
+      "tier-smoke-6": null,
+      "tier-smoke-7": null
+    },
+    "router_mode": "kv"
+  },
+  "routing_score": {
+    "status": "passed",
+    "factor": 1.0,
+    "heavy": 6,
+    "requests": 8,
+    "transitions": {
+      "registered": 6,
+      "bound_waiting": 6,
+      "activated": 6,
+      "closed": 6
+    },
+    "native_worker_selection": true,
+    "full_resource_gauges_drained": true,
+    "score_ledger_drained": true,
+    "discounted_candidate_scores": 0,
+    "score_control_calls": 6,
+    "score_control_mean_wall_ms": 0.4946508333333333
+  },
+  "event_hit_fraction": 1.0,
+  "mismatch_requests": 0,
+  "pre_score": {
+    "status": "passed",
+    "requests": 8,
+    "factor": 1.0,
+    "single_profile_per_request": true,
+    "same_mark_for_all_workers": true,
+    "current_request_discounted_rows": 0,
+    "order": "shared lookup -> one classification/registration -> scorer -> picker -> full booking"
+  }
+}
