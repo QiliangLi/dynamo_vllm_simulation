@@ -29,3 +29,16 @@ class RuntimeSyncTests(unittest.TestCase):
 
     def test_escaping_paths_are_rejected(self):
         with self.assertRaises(ValueError):check.verify(dict(research_commit='fixture',files_sha256={'../outside':'bad'}))
+
+
+class SelectiveSourceTests(unittest.TestCase):
+    def test_documented_source_adapter_still_checks_both_sides(self):
+        with tempfile.TemporaryDirectory() as folder:
+            a=Path(folder)/'delivery';b=Path(folder)/'research';a.mkdir();b.mkdir()
+            (a/'model.py').write_bytes(b'poll=1\n');(b/'model.py').write_bytes(b'notify=1\n')
+            m=dict(research_commit='fixture',files_sha256={'model.py':check.digest(a/'model.py')},source_exceptions={'model.py':{'sha256':check.digest(b/'model.py'),'reason':'retain poll'}})
+            self.assertEqual(check.verify(m,a,b)['documented_source_exceptions'],1)
+            (a/'model.py').write_bytes(b'changed=1\n')
+            with self.assertRaises(ValueError):check.verify(m,a,b)
+            (a/'model.py').write_bytes(b'poll=1\n');(b/'model.py').write_bytes(b'changed=2\n')
+            with self.assertRaises(ValueError):check.verify(m,a,b)

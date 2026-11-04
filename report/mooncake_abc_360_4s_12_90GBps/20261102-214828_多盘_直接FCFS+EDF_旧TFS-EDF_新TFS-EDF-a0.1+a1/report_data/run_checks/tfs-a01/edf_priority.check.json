@@ -1,0 +1,334 @@
+{
+  "status": "passed",
+  "requests": 432,
+  "workers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "formula": "deadline",
+  "refresh": "each schedule, including running and skipped waiting",
+  "priority_unit": "model nanosecond",
+  "rounds": 13361,
+  "request_updates": 69603,
+  "native_heap_heads_checked": 13420,
+  "expired_deadline_updates": 69234,
+  "requests_refreshed_multiple_rounds": 193,
+  "requests_with_changing_priority": 0,
+  "fixed_deadlines": true,
+  "max_formula_error_s": 0.0,
+  "metadata_matches_arrived_profiles": true,
+  "samples": [
+    {
+      "worker": "10",
+      "round": 1,
+      "now_monotonic_s": 3316.917975859,
+      "heads": {
+        "waiting": "739eb508-2e30-4e97-8abb-0b4e6a711896-8fcacca0",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "739eb508-2e30-4e97-8abb-0b4e6a711896-8fcacca0",
+          "queue": "waiting",
+          "now_s": 27.298394924999684,
+          "deadline_s": 27.907576019901864,
+          "T0_s": 0.17266692422555552,
+          "sort_deadline_s": 27.907576019901864,
+          "priority": 27907576020,
+          "arrival_s": 27.216908322999643
+        },
+        {
+          "request_id": "0a2e269b-d400-49e4-b5f5-c878e631d749-987c3fc2",
+          "queue": "waiting",
+          "now_s": 27.298394924999684,
+          "deadline_s": 27.91489777890207,
+          "T0_s": 0.17266692422555552,
+          "sort_deadline_s": 27.91489777890207,
+          "priority": 27914897779,
+          "arrival_s": 27.22423008199985
+        },
+        {
+          "request_id": "345efd9f-d333-424c-9581-62ebc8eba7e3-82e98048",
+          "queue": "waiting",
+          "now_s": 27.298394924999684,
+          "deadline_s": 27.925627454901825,
+          "T0_s": 0.17266692422555552,
+          "sort_deadline_s": 27.925627454901825,
+          "priority": 27925627455,
+          "arrival_s": 27.234959757999604
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 3,
+      "now_monotonic_s": 3317.457226403,
+      "heads": {
+        "waiting": "ab4f15e7-0a50-4e2c-801f-0a482428793a-bbf69c29",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "ab4f15e7-0a50-4e2c-801f-0a482428793a-bbf69c29",
+          "queue": "waiting",
+          "now_s": 27.837645468999654,
+          "deadline_s": 28.128165392224385,
+          "T0_s": 0.07815270955613532,
+          "sort_deadline_s": 28.128165392224385,
+          "priority": 28128165392,
+          "arrival_s": 27.815554553999846
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 5,
+      "now_monotonic_s": 3318.261834293,
+      "heads": {
+        "waiting": "801a5669-eac9-41f3-aad8-e6a7faceff17-933d59ca",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "801a5669-eac9-41f3-aad8-e6a7faceff17-933d59ca",
+          "queue": "waiting",
+          "now_s": 28.642253358999824,
+          "deadline_s": 28.821115649213333,
+          "T0_s": 0.08630295030341101,
+          "sort_deadline_s": 28.821115649213333,
+          "priority": 28821115649,
+          "arrival_s": 28.47590384799969
+        },
+        {
+          "request_id": "0824b11d-e2f5-4968-b2fc-39dd7a52cf02-a62188ec",
+          "queue": "waiting",
+          "now_s": 28.642253358999824,
+          "deadline_s": 28.82526666021331,
+          "T0_s": 0.08630295030341101,
+          "sort_deadline_s": 28.82526666021331,
+          "priority": 28825266660,
+          "arrival_s": 28.480054858999665
+        },
+        {
+          "request_id": "26585a8d-db37-4f81-a247-6750e17f18f1-8af42551",
+          "queue": "waiting",
+          "now_s": 28.642253358999824,
+          "deadline_s": 28.840678462213326,
+          "T0_s": 0.08630295030341101,
+          "sort_deadline_s": 28.840678462213326,
+          "priority": 28840678462,
+          "arrival_s": 28.495466660999682
+        },
+        {
+          "request_id": "add18228-fbe1-48bc-8f06-85131b19fa42-80ee7112",
+          "queue": "waiting",
+          "now_s": 28.642253358999824,
+          "deadline_s": 28.830369229213282,
+          "T0_s": 0.08630295030341101,
+          "sort_deadline_s": 28.830369229213282,
+          "priority": 28830369229,
+          "arrival_s": 28.48515742799964
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 7,
+      "now_monotonic_s": 3320.11952149,
+      "heads": {
+        "waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+        "skipped_waiting": null
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "waiting",
+          "now_s": 30.49994055599973,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 8,
+      "now_monotonic_s": 3320.120909435,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.50132850099999,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 9,
+      "now_monotonic_s": 3320.122111002,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.502530067999942,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 10,
+      "now_monotonic_s": 3320.123447604,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.503866669999752,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 11,
+      "now_monotonic_s": 3320.12459424,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.50501330599991,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 12,
+      "now_monotonic_s": 3320.125913827,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.506332893000035,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 13,
+      "now_monotonic_s": 3320.127082247,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.50750131299992,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 14,
+      "now_monotonic_s": 3320.12843393,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.50885299599986,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    },
+    {
+      "worker": "10",
+      "round": 15,
+      "now_monotonic_s": 3320.129567515,
+      "heads": {
+        "waiting": null,
+        "skipped_waiting": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60"
+      },
+      "rows": [
+        {
+          "request_id": "bf7abf54-8dac-4994-b589-da085f2e1557-bf101b60",
+          "queue": "skipped_waiting",
+          "now_s": 30.509986580999794,
+          "deadline_s": 30.811446908647827,
+          "T0_s": 0.08864345366195656,
+          "sort_deadline_s": 30.811446908647827,
+          "priority": 30811446909,
+          "arrival_s": 30.456873094000002
+        }
+      ]
+    }
+  ]
+}

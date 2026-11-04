@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "router_mode": "kv",
+  "decisions": 6,
+  "candidate_scores": 12,
+  "distinct_native_workers": 2,
+  "unequal_load_decisions": 5,
+  "peak_observed_load_gauge": 6205.0,
+  "sampled_positive_load": true,
+  "positive_load_evidence": "sampled_gauge",
+  "final_prefill_tokens_and_decode_blocks_zero": true,
+  "lifecycle": "Native stream guard marks prefill on token output and frees booking on completion; no simulated replacement."
+}

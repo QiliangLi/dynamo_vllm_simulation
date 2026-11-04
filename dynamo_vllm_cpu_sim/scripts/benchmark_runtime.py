@@ -6,6 +6,7 @@ timing formulas and layer barriers remain in the simulator modules.
 import argparse
 import asyncio
 import contextlib
+from copy import deepcopy
 import hashlib
 import json
 import math
@@ -27,6 +28,7 @@ import psutil
 A = ROOT = OVERLAY = None
 CASE_NAME = None
 ALPHA = 1.0
+ARM_CONFIG = None
 
 
 def smoke_requests(rows, long_context=False):
@@ -84,36 +86,37 @@ def run(arm, smoke=False):
     case.mkdir(exist_ok=False)
     from sim.trace_io import load_trace
     main = load_trace(ROOT/'results/input360/trace.jsonl')
-    cfg = read(ROOT/'results/input360/config.json')
+    cfg = deepcopy(ARM_CONFIG) if ARM_CONFIG is not None else read(ROOT/'results/input360/config.json')
     contract_path=ROOT/'results/input360/run_contract.json'
     contract=read(contract_path) if contract_path.exists() else {}
     startup=contract.get('startup',{})
     new = arm in ('new-tfs','idle-bypass')
     lease = arm == 'lease'
-    cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
-                            placement='scheduler' if (new or lease) else 'gateway',
-                            classification=('bandwidth_line' if lease
-                                            else 'arrival' if new else 'dynamic'),
-                            idle_bypass=arm=='idle-bypass',aging_enabled=False)
-    if lease:
-        # tfs-lease：释放语义改为读开始/末层读毕事件记账；BENCH_LEASE_JSON 为调参/
-        # 消融入口（release_on=first_token 仅用于事件记账消融轮）。
-        tuning = os.environ.get('BENCH_LEASE_JSON')
-        if tuning:
-            cfg.setdefault('lease', {}).update(json.loads(tuning))
-        lease_cfg = cfg.setdefault('lease', {})
-        cfg['admission']['release_on'] = lease_cfg.pop('release_on', 'lease_events')
-        # 吞吐调参：允许加大额度full的重试退避（默认2ms），减少调度线程RPC空转。
-        if 'retry_interval_wall_s' in lease_cfg:
-            cfg['admission']['retry_interval_wall_s'] = lease_cfg.pop('retry_interval_wall_s')
-    cfg.update(policy='priority',request_ordering='edf')
-    cfg['routing_accounting'].update(enabled=new or lease)
-    if lease:
-        # 双信号折扣 f=1/m 与 lease.compute_slots 联动；m 默认在 normalize 注入。
-        cfg['routing_accounting']['waiting_factor'] = round(
-            1.0 / normalize_config(cfg)['admission']['lease']['compute_slots'], 6)
-    elif new or contract.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
-        cfg['routing_accounting']['waiting_factor']=ALPHA
+    if ARM_CONFIG is None:
+        cfg['admission'].update(mode='immediate' if arm=='immediate' else 'tfs',
+                                placement='scheduler' if (new or lease) else 'gateway',
+                                classification=('bandwidth_line' if lease
+                                                else 'arrival' if new else 'dynamic'),
+                                idle_bypass=arm=='idle-bypass',aging_enabled=False)
+        if lease:
+            # tfs-lease：释放语义改为读开始/末层读毕事件记账；BENCH_LEASE_JSON 为调参/
+            # 消融入口（release_on=first_token 仅用于事件记账消融轮）。
+            tuning = os.environ.get('BENCH_LEASE_JSON')
+            if tuning:
+                cfg.setdefault('lease', {}).update(json.loads(tuning))
+            lease_cfg = cfg.setdefault('lease', {})
+            cfg['admission']['release_on'] = lease_cfg.pop('release_on', 'lease_events')
+            # 吞吐调参：允许加大额度full的重试退避（默认2ms），减少调度线程RPC空转。
+            if 'retry_interval_wall_s' in lease_cfg:
+                cfg['admission']['retry_interval_wall_s'] = lease_cfg.pop('retry_interval_wall_s')
+        cfg.update(policy='priority',request_ordering='edf')
+        cfg['routing_accounting'].update(enabled=new or lease)
+        if lease:
+            # 双信号折扣 f=1/m 与 lease.compute_slots 联动；m 默认在 normalize 注入。
+            cfg['routing_accounting']['waiting_factor'] = round(
+                1.0 / normalize_config(cfg)['admission']['lease']['compute_slots'], 6)
+        elif new or contract.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
+            cfg['routing_accounting']['waiting_factor']=ALPHA
     if smoke:
         main = smoke_requests(main, long_context=cfg['compute'].get('context_length_limit',131072)>131072)
         cfg['workers'] = 2
@@ -272,16 +275,18 @@ def run(arm, smoke=False):
             options=({'admission_startup_timeout_s':startup['admission_ready_timeout_wall_s']}
                      if startup else {})
             check=run_tfs_stack.run_one(cfg,combined,case/'run',Path(sys.executable),
-                                        cfg['admission']['mode'],cfg['admission']['release_on'],
+                                        cfg['admission']['mode'],
+                                        cfg['admission'].get('release_on','first_token'),
                                         cfg['workers'],**options)
         assert check['requests']==len(warm+main)
         assert check['workers']==list(range(cfg['workers'])),check['workers']
         assert check['actual_submitted_read_bytes']==sum(r['hit_tokens']*cfg['storage']['kv_bytes_per_token'] for r in warm+main)
-        if new or lease:
+        if cfg['request_ordering']=='edf':
             from check_edf_priority import check as budget_check
+            write(case/'run/edf_priority.check.json',budget_check(case/'run'))
+        if new or lease:
             from check_routing_accounting import check as score_check
             # lease 冒烟只有少量请求，可能没有可采样的等待折扣决策；正式运行仍强制。
-            write(case/'run/edf_priority.check.json',budget_check(case/'run'))
             write(case/'run/routing.score.check.json',score_check(case/'run',
                 require_discount=ALPHA<1 and not (lease and smoke)))
         result.update(status='passed',check=check)

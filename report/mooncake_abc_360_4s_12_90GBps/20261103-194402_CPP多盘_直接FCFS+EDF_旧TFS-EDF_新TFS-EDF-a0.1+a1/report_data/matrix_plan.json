@@ -1,0 +1,171 @@
+{
+  "created_at": "2026-11-03T18:46:12.037182+08:00",
+  "seed": 20261102,
+  "jobs": [
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a01"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a01"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a1"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "tfs-a01"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "tfs-a01"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "synthetic_abc_360_6s_12_90GBps",
+      "arm": "direct"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_90GBps",
+      "arm": "direct-fcfs"
+    },
+    {
+      "case": "mooncake_abcd_360_4s_12_100GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "agentx_random_360_12s_12_180GBps",
+      "arm": "old-tfs"
+    },
+    {
+      "case": "mooncake_abc_360_4s_12_90GBps",
+      "arm": "tfs-a01"
+    }
+  ],
+  "repeats": 1,
+  "formal_requests": 10800,
+  "warmup_requests": 2160,
+  "arms": [
+    "direct-fcfs",
+    "direct",
+    "old-tfs",
+    "tfs-a01",
+    "tfs-a1"
+  ],
+  "storage_backend": "cpp",
+  "layouts": {
+    "agentx_random_360_12s_12_180GBps": {
+      "disks": 6,
+      "disk_GBps": 30,
+      "shared_link_Bps": null
+    },
+    "mooncake_abc_360_4s_12_100GBps": {
+      "disks": 4,
+      "disk_GBps": 25,
+      "shared_link_Bps": null
+    },
+    "mooncake_abcd_360_4s_12_100GBps": {
+      "disks": 4,
+      "disk_GBps": 25,
+      "shared_link_Bps": null
+    },
+    "mooncake_abc_360_4s_12_90GBps": {
+      "disks": 3,
+      "disk_GBps": 30,
+      "shared_link_Bps": null
+    },
+    "mooncake_abcd_360_4s_12_90GBps": {
+      "disks": 3,
+      "disk_GBps": 30,
+      "shared_link_Bps": null
+    },
+    "synthetic_abc_360_6s_12_90GBps": {
+      "disks": 3,
+      "disk_GBps": 30,
+      "shared_link_Bps": null
+    }
+  },
+  "ordering": "FCFS only for direct-fcfs; EDF for other four arms",
+  "scope": "independent disks, HRW placement, per-disk max-min; global scalar TFS admission"
+}

@@ -1,0 +1,6 @@
+﻿case,formal_grants,final_heavy_cap,max_heavy_held,granted_cap_min,granted_cap_max,acquire_rpc_calls,acquire_rpc_denied,acquire_rpc_mean_ms,acquire_rpc_p95_ms
+direct-fcfs,360,3,54,3,10,0,0,,
+direct,360,3,49,3,10,0,0,,
+old-tfs,360,3,6,3,10,0,0,,
+tfs-a01,100,3,5,3,5,3102,3002,0.26319717794970987,0.691796
+tfs-a1,98,3,4,3,8,4474,4376,0.31246658292355833,0.815446

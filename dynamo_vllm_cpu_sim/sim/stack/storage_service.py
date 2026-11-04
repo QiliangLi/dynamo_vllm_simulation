@@ -55,7 +55,8 @@ class Service:
             raise ValueError("max_min_read_representation must be per_block or grouped")
         grouped = (storage_config.get("bandwidth_policy", "active_split") == "max_min_fair"
                    and representation == "grouped")
-        store_class = GroupedStorage if grouped else Storage
+        from sim.cpp_grouped_storage import storage_class
+        store_class = storage_class(config, grouped, self.sa_mode)
         self.store = store_class(storage_config, config["block_size"])
         self.block_size = config["block_size"]
         self.first_seen = config.get("cache_model") == "first_seen"

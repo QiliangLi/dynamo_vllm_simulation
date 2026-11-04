@@ -1,0 +1,402 @@
+{
+  "direct-fcfs": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "fcfs",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 6,
+        "paths_per_disk": 128,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/home/zed/.local/share/state-aware-network/audits/abc360-tfs-latest-20261028/native-build/python"
+      },
+      "request_ordering": "fcfs"
+    },
+    "run_metadata": {
+      "seed": 20261102,
+      "repeat": 1,
+      "started_at": "2026-11-02T20:44:16.433722+08:00",
+      "finished_at": "2026-11-02T20:47:49.638877+08:00",
+      "run_name": "direct-fcfs"
+    }
+  },
+  "direct": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 6,
+        "paths_per_disk": 128,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "immediate",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/home/zed/.local/share/state-aware-network/audits/abc360-tfs-latest-20261028/native-build/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "seed": 20261102,
+      "repeat": 1,
+      "started_at": "2026-11-02T21:09:53.835875+08:00",
+      "finished_at": "2026-11-02T21:13:31.609073+08:00",
+      "run_name": "direct"
+    }
+  },
+  "old-tfs": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 6,
+        "paths_per_disk": 128,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "gateway",
+        "classification": "dynamic",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": false,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/home/zed/.local/share/state-aware-network/audits/abc360-tfs-latest-20261028/native-build/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "seed": 20261102,
+      "repeat": 1,
+      "started_at": "2026-11-02T21:22:45.443642+08:00",
+      "finished_at": "2026-11-02T21:26:04.032280+08:00",
+      "run_name": "old-tfs"
+    }
+  },
+  "tfs-a01": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 6,
+        "paths_per_disk": 128,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 0.1,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/home/zed/.local/share/state-aware-network/audits/abc360-tfs-latest-20261028/native-build/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "seed": 20261102,
+      "repeat": 1,
+      "started_at": "2026-11-02T21:14:44.135641+08:00",
+      "finished_at": "2026-11-02T21:18:10.505919+08:00",
+      "run_name": "tfs-a01"
+    }
+  },
+  "tfs-a1": {
+    "config": {
+      "workers": 12,
+      "scheduler": "upstream",
+      "policy": "priority",
+      "block_size": 16,
+      "num_blocks": 30159,
+      "max_model_len": 300481,
+      "max_num_seqs": 4,
+      "max_num_batched_tokens": 8192,
+      "enable_prefix_caching": false,
+      "ttft_slo_s": 10,
+      "compute": {
+        "mode": "glm5_d950pr",
+        "sparse_HBM_hit_ratio": 1.0,
+        "batch_time_model": "glm5_direct_sum_v1",
+        "launch_saving_fraction": 1.0,
+        "tp": 1,
+        "dp": 8,
+        "ep": 8,
+        "kv_hbm_reuse": true,
+        "context_length_limit": 300481
+      },
+      "storage": {
+        "disks": 6,
+        "paths_per_disk": 128,
+        "disk_Bps": 30000000000.0,
+        "shared_link_Bps": null,
+        "path_Bps": 2000000000.0,
+        "read_latency_s": 0.0,
+        "kv_bytes_per_token": 109824,
+        "bandwidth_policy": "max_min_fair",
+        "record_reads": true,
+        "gc_policy": "defer_during_run"
+      },
+      "request_profile": {
+        "mode": "glm5_reference_v3",
+        "profile_token_budget": 8192,
+        "slo_multiplier": 4.0
+      },
+      "admission": {
+        "mode": "tfs",
+        "quantile": 0.75,
+        "reference_bandwidth_Bps": 180000000000.0,
+        "release_on": "first_token",
+        "aging_enabled": false,
+        "aging_wait_s": 0.5,
+        "aging_cooldown_s": 0.05,
+        "feedback_delay_s": 0,
+        "placement": "scheduler",
+        "classification": "arrival",
+        "retry_interval_wall_s": 0.002,
+        "rpc_transport": "dynamo",
+        "rpc_timeout_wall_s": 5.0,
+        "idle_bypass": false
+      },
+      "cache_model": "first_seen",
+      "kv_transfer_mode": "layer_pipeline",
+      "layerwise": {
+        "layers": 78,
+        "startup": "once"
+      },
+      "router_mode": "kv",
+      "wall_time_scale": 1.0,
+      "routing_accounting": {
+        "enabled": true,
+        "waiting_factor": 1.0,
+        "rpc_timeout_wall_s": 2.0,
+        "python_path": "/home/zed/.local/share/state-aware-network/audits/abc360-tfs-latest-20261028/native-build/python"
+      },
+      "request_ordering": "edf"
+    },
+    "run_metadata": {
+      "seed": 20261102,
+      "repeat": 1,
+      "started_at": "2026-11-02T20:47:49.668944+08:00",
+      "finished_at": "2026-11-02T20:51:21.807422+08:00",
+      "run_name": "tfs-a1"
+    }
+  }
+}

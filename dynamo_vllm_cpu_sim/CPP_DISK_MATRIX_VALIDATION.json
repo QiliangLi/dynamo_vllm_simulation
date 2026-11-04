@@ -1,0 +1,4680 @@
+{
+  "status": "passed",
+  "runtime_commit": "8edf27a4148275a70bc67342caadc5cd8245e05f",
+  "optimization_base": "572153710361706c352eb0ac605a10f3bdbb511f",
+  "storage_backend": "cpp",
+  "unit_tests": 348,
+  "unit_log_sha256": "bac0f48b073d638ab8615f43c8fe110159b67e87b5106128575d75c07e2ccaa5",
+  "accepted_smokes": 6,
+  "formal_runs": 30,
+  "formal_requests": 10800,
+  "warmup_requests": 2160,
+  "failed_attempts": 0,
+  "visual_reviewed_images": 48,
+  "max_disk_replay_completion_error_s": 4.263256414560601e-14,
+  "source_fingerprint_sha256": "b4ce4d35cb2d9cac86d583aa3758a75a9ee70a1809cf610c64a2ad1d774256e9",
+  "raw_events_included": false,
+  "cases": {
+    "agentx_random_360_12s_12_180GBps": {
+      "input_sha256": "eeafecc40e2eb2e5185875e872716056531daecb13bcb768fa9555efacf2e707",
+      "runs": [
+        {
+          "arm": "tfs-a01",
+          "smoke": true,
+          "run_name": "smoke-tfs-a01",
+          "started_at": "2026-11-03T18:46:12.037452+08:00",
+          "finished_at": "2026-11-03T18:46:44.731468+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "tfs-a01",
+            "smoke": true,
+            "requests": 6,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 1363.7410888333363,
+            "p95_ttft_ms": 5467.050666000006,
+            "slo_pct": 83.33333333333334,
+            "completion_ms": 5482.493065,
+            "measured_read_bytes": 78229831680,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 3,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 2,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              13500444672,
+              12997890048,
+              13270253568,
+              12802842624,
+              12874887168,
+              12783513600
+            ],
+            "disk_peak_Bps": [
+              30000000000.000004,
+              30000000000.000004,
+              30000000000.000004,
+              30000000000.000004,
+              30000000000.000004,
+              30000000000.000004
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "86ae538f5665826b3aa5d8a2119a9bf76db2a11c48b88e351929088943282fee",
+              "bytes": 122,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "ebc112761db39ec6bc8f5a3ed97314d4730c741be1e18cfe4d8237567f8986b5",
+              "bytes": 453,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "83519250eb2803bb77c8fc332b8eac3281a706b4517241a1ffd5e17b4205005c",
+              "bytes": 1007,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "8d71717044418a3dc80570bc0c891477efe2fe9908e90d68ff5868d2b34a63d8",
+              "bytes": 328,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "affd70ddaf75857b8d6ee4cf74769b2ccdf536a0d5ee8d51cf71ce9c9b07e330",
+              "bytes": 1180,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "fb3afa1bf299154bb8c14d5b7269bdba2497bac876fd45dd26e31f949996d2a9",
+              "bytes": 42240,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "da7d591b713a634d85f8b7e1069dc54eb61bbaf6576f7d0108518c7817743b8e",
+              "bytes": 391,
+              "status": "passed"
+            },
+            "edf_priority.check.json": {
+              "sha256": "4659dade5aaf6c436a9cb11d0cdf4ae3fab35ab37357aed2f195674d8a6e8e5a",
+              "bytes": 4495,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "2cb0f49db5ff2f7c1235fe5f0cc5485d10e9fd0657e76247d8901de907e4670a",
+              "bytes": 1292,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "54516c1d9fe06361dc2b2a791677c785078970fceb69181a3213554a49380f9d",
+              "bytes": 468,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "151ef023851f4cbcadd55f7c4801f3f94a1b1fd86149ab833422a7c3a869c7d3",
+              "bytes": 874,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T18:52:09.474419+08:00",
+          "finished_at": "2026-11-03T18:55:13.742399+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 5945.0439824777795,
+            "p95_ttft_ms": 12616.471178999973,
+            "slo_pct": 9.166666666666666,
+            "completion_ms": 25673.58477000005,
+            "measured_read_bytes": 2480769527808,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 129,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 39,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              537262522368,
+              500064694272,
+              518458896384,
+              483490934784,
+              484415213568,
+              481364742144
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "003f44c378dc334467c51deb0c741f03c7efe48824bf18681812eb03fd9e2860",
+              "bytes": 461,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "261c34f94c38183010921fd5d441fdc179860fbb8dffbd13a34d713a21b6db3a",
+              "bytes": 1027,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "6b4e86230b8162c990b0ba416abf93c9ec4a491bed9f21a20f6f9e24cdad0b0a",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "b6494c7b67161714f7aed502314bb4abd97770167ad277ec1f9fdb9b092fb5f5",
+              "bytes": 18276,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "5d16ba836fda79f36eb1771445f182b1cd440f888805657f9b78e074380bd124",
+              "bytes": 3016807,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "d85b27cd60e23cc0a6aea50e2e1dfc6c4ae9836f7079c8caa352c5331ae738f2",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "d32169e152f8aaa0558198ef0a2f9b1c547cc81a3f14e0bc03f09ea93fe12fd8",
+              "bytes": 90701,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T18:55:13.761618+08:00",
+          "finished_at": "2026-11-03T18:58:27.557999+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 4402.753908647222,
+            "p95_ttft_ms": 12493.631930999982,
+            "slo_pct": 19.72222222222222,
+            "completion_ms": 32702.045602999988,
+            "measured_read_bytes": 2480769527808,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 133,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 39,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              537262522368,
+              500064694272,
+              518458896384,
+              483490934784,
+              484415213568,
+              481364742144
+            ],
+            "disk_peak_Bps": [
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "db365d0deea85619aea816401318f74ed70caa200f52d5e0b85fdce196c386f9",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "9834a19d00fda39e177b7aba16159c89ab03793f1626f8ac5f3bdfbe0eebd266",
+              "bytes": 1028,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "9d453116073fd858de0be8a3cbdef36dcfe02db6830bb44302b9688da93e0bdf",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "19f754998efdd5e5d93002e0e1daea453a06f3e9d48b98288554e95663f002d8",
+              "bytes": 15997,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "a36d138a2fb40c1eb35aa34861b50c852af0885adc0f376dea01aa633f254d92",
+              "bytes": 3042215,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "06d88c6bdedeff65339e5185bfe2a4e7ff4b14b059ed1f204dee6e1d9b9fa2fc",
+              "bytes": 414,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "508c230a2cecbb8d8a9f6d3b2cb197f28ddd233e53ff02b63d0472b1aa0aaf97",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "ddcdecc90dd8cb180cab49638ece4bee02a163b2feffda750c09a80d5b9a9af3",
+              "bytes": 9226,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "889721c43b1dd5fbf15051f385df23bc471c2f9b3280b9748af36df25305a89a",
+              "bytes": 90548,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "d655f4d3b57617042ba3457df600c1e1b9f64a918fe0b49f65b440504a6b521a",
+              "bytes": 492,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "2198f31e8b85cdd641644047dc063698bad08fd3e3a484855a20bd52ddde374e",
+              "bytes": 4981,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T19:15:53.308441+08:00",
+          "finished_at": "2026-11-03T19:18:59.686624+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 4498.373313061111,
+            "p95_ttft_ms": 8887.709001000076,
+            "slo_pct": 12.222222222222221,
+            "completion_ms": 29777.99080700015,
+            "measured_read_bytes": 2480769527808,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 130,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 39,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              537262522368,
+              500064694272,
+              518458896384,
+              483490934784,
+              484415213568,
+              481364742144
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a1b27a7c4659d59dd46f1d1856258691283762c7d18b5c2a3fe0cf5654fcecc3",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "8e4fe2e637049b51276c1b766fd713876e2fab2de3ba9b31d879565361ff1eeb",
+              "bytes": 1024,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "98eec321644da6bb4ce1bcbc3e71ba327f44943fb5a967a0c6ad9b09d54dd056",
+              "bytes": 367,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "766b141951c7df56f358ba46e30776fe64f3653a8a29d93f140d24985a2718fc",
+              "bytes": 18398,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "278c6d36511761d5c403b063fe9482eefd5434810fa94115da310fecff65d744",
+              "bytes": 3008914,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "d85b27cd60e23cc0a6aea50e2e1dfc6c4ae9836f7079c8caa352c5331ae738f2",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "ba841d563781f6495916467b8e6d4850e7cfc0f02a4c5f19ab704ea63dfc0aff",
+              "bytes": 8910,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "4f6fbef9068473edfb664c69b5fde77c72c5e752551961b124be04722321228f",
+              "bytes": 90443,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T19:20:08.021715+08:00",
+          "finished_at": "2026-11-03T19:23:18.105228+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 4361.818389219452,
+            "p95_ttft_ms": 12072.0403790001,
+            "slo_pct": 16.666666666666664,
+            "completion_ms": 30770.173157000045,
+            "measured_read_bytes": 2480769527808,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 132,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 39,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              537262522368,
+              500064694272,
+              518458896384,
+              483490934784,
+              484415213568,
+              481364742144
+            ],
+            "disk_peak_Bps": [
+              30000000000.000015,
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "75fa78df5490cd02095c37ff3ea4f5823b165817749bb5028c240a9b6e2f8ef9",
+              "bytes": 461,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "5b6af8f071c49979d391bf6182d2f31f401a0563d50ed4009327e89141a7eda3",
+              "bytes": 1026,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "c53a9db8416e54c8644b05ce8c31b7ac24eaf905f672197467f2b0e1f2d2f32e",
+              "bytes": 368,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "0c5c436de740eafc0cb0df6a59c9ce72efdbd78d973c80d07140aee8e88a5408",
+              "bytes": 15936,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "6743738a5ae874e29bfeb0ef1414445e622c7fe26d2618b628e44a44591ed20b",
+              "bytes": 3045314,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "84d870f84a63253b0302c01a0b7f584aed757f2dba1e5e5326311e2b334367c7",
+              "bytes": 440,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "508c230a2cecbb8d8a9f6d3b2cb197f28ddd233e53ff02b63d0472b1aa0aaf97",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "cc554c4923344361c4a58cda3d3b577c3ea99371cda876cbe40996fbd7505e2e",
+              "bytes": 9251,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "3b0b5021ad94e2121879077be13da78386e0b1ec8ca35894ecaa4700902eb05f",
+              "bytes": 90652,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "02704bd385d880eff62192728e669fcc19ad465263335797116f709c39669420",
+              "bytes": 482,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "fc10a7931a58fbe071249366475371b6d082b8a3f33b45be7c7d1cb4f00e4c9c",
+              "bytes": 4979,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T19:27:35.090057+08:00",
+          "finished_at": "2026-11-03T19:30:35.955432+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "agentx_random_360_12s_12_180GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 180000000000.0,
+            "mean_ttft_ms": 4175.886025775007,
+            "p95_ttft_ms": 10987.472546999925,
+            "slo_pct": 20.27777777777778,
+            "completion_ms": 23580.77781200018,
+            "measured_read_bytes": 2480769527808,
+            "formula_context_limit": 300481,
+            "long_context_steps_including_warmup": 133,
+            "maximum_executed_context": 300480,
+            "long_context_requests": 39,
+            "context_extrapolation": true,
+            "execution_feedback": "disabled",
+            "storage_disks": 6,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              537262522368,
+              500064694272,
+              518458896384,
+              483490934784,
+              484415213568,
+              481364742144
+            ],
+            "disk_peak_Bps": [
+              30000000000.000015,
+              30000000000.00002,
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.00002,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "2a2925bc73b0e70d173fbfa430af678b0936cee91a7183bc040b958be50e460d",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "5401cdaaa6def6146a29e12eaa61216327906f4dcc77d71509d8935c992eebb8",
+              "bytes": 1026,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "8af2c3adde2044b39b031aac28b5c1d4a7ca0028201b6f03766a03a30182c9c7",
+              "bytes": 367,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "8d4a2bc70ea723a3e02b31da6d6997fcc780f43b066469edd81608e22ee2f709",
+              "bytes": 18710,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "a9edbdf6151e5af42c6966aa36eadd848bebc749efd7e8cb0e149b374170e5b4",
+              "bytes": 3064433,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "d85b27cd60e23cc0a6aea50e2e1dfc6c4ae9836f7079c8caa352c5331ae738f2",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "6838ebb10c9265616edfae95ccaaa403b418e37625cb9649e621e1a4ba477507",
+              "bytes": 8873,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "213117a61c0037b2dc4251c16b42fe9c3adf7d9de3f28030d009debf90560c81",
+              "bytes": 90494,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 27456,
+          "disks": 6,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            444736241664,
+            413189517312,
+            427029098496,
+            398260482048,
+            400745140224,
+            396809048064
+          ],
+          "per_disk_integral_error_bytes": [
+            1.6148681640625,
+            1.91845703125,
+            1.84619140625,
+            2.174560546875,
+            2.13836669921875,
+            2.1326904296875
+          ],
+          "max_completion_error_s": 1.4210854715202004e-14,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 27456,
+          "disks": 6,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            444736241664,
+            413189517312,
+            427029098496,
+            398260482048,
+            400745140224,
+            396809048064
+          ],
+          "per_disk_integral_error_bytes": [
+            0.66204833984375,
+            1.107177734375,
+            0.97943115234375,
+            1.24603271484375,
+            1.23797607421875,
+            1.31329345703125
+          ],
+          "max_completion_error_s": 1.4210854715202004e-14,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 27456,
+          "disks": 6,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            444736241664,
+            413189517312,
+            427029098496,
+            398260482048,
+            400745140224,
+            396809048064
+          ],
+          "per_disk_integral_error_bytes": [
+            1.57269287109375,
+            1.9312744140625,
+            1.6888427734375,
+            2.06884765625,
+            2.077880859375,
+            2.08538818359375
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 27456,
+          "disks": 6,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            444736241664,
+            413189517312,
+            427029098496,
+            398260482048,
+            400745140224,
+            396809048064
+          ],
+          "per_disk_integral_error_bytes": [
+            1.6068115234375,
+            2.08050537109375,
+            1.847900390625,
+            2.25384521484375,
+            2.14007568359375,
+            2.220947265625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 27456,
+          "disks": 6,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            444736241664,
+            413189517312,
+            427029098496,
+            398260482048,
+            400745140224,
+            396809048064
+          ],
+          "per_disk_integral_error_bytes": [
+            1.10205078125,
+            1.75860595703125,
+            1.589111328125,
+            1.95330810546875,
+            1.86468505859375,
+            1.94171142578125
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.52587890625e-05
+        }
+      },
+      "report_source_validation_sha256": "e4e45c1073071e5f99be1584bdf2290418131529536309f750c44a245b103e79"
+    },
+    "mooncake_abc_360_4s_12_100GBps": {
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308",
+      "runs": [
+        {
+          "arm": "direct-fcfs",
+          "smoke": true,
+          "run_name": "smoke-direct-fcfs",
+          "started_at": "2026-11-03T18:46:44.740194+08:00",
+          "finished_at": "2026-11-03T18:47:09.538302+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "direct-fcfs",
+            "smoke": true,
+            "requests": 6,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 538.2532434999897,
+            "p95_ttft_ms": 968.3594659999812,
+            "slo_pct": 66.66666666666666,
+            "completion_ms": 975.2626089999978,
+            "measured_read_bytes": 13980155904,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              3521396736,
+              3510853632,
+              3577626624,
+              3370278912
+            ],
+            "disk_peak_Bps": [
+              25000000000,
+              25000000000.000004,
+              25000000000,
+              25000000000
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "67a9bac15edf537e5821daef22af6873c259ae83433d867933fc0f57258cf6cd",
+              "bytes": 114,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "932731448b5ff74fdb3ce5f6733fb22a57f7e31bf63d0c05de47ae2efdc66daf",
+              "bytes": 453,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "7cfb11f3cb86bfae7f47e90bdfaaee2fb43a055346cf451490db1bd2ee69a152",
+              "bytes": 691,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "a8d1671dd0dae96f0d7e51a94a024c883a10aa6b72f43b6119b9e3f92807ebe3",
+              "bytes": 330,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "8f70f72b19e58757433920c5c6a56ece856287d4753f265d2fe000e431495ebd",
+              "bytes": 1119,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "5df6d2ab13fd64658ae4589dda3f11c780cf69f2b4f6e8906902b2b3d72f69e7",
+              "bytes": 21510,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "86cd96461b84fdda12ec454c1c7ae76ec628a229835af11a73492c8a1cb99d8e",
+              "bytes": 1225,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T19:01:45.860273+08:00",
+          "finished_at": "2026-11-03T19:02:54.182570+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1544.052725219445,
+            "p95_ttft_ms": 4554.977027999939,
+            "slo_pct": 23.333333333333332,
+            "completion_ms": 8826.86488499985,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166885036032,
+              167703883776,
+              158334578688,
+              145795313664
+            ],
+            "disk_peak_Bps": [
+              25000000000.000015,
+              25000000000.00001,
+              25000000000.00001,
+              25000000000.00001
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "1a1f89081798db43a62c3de46875cb062a9dff3f4f8e81ac45c3b8c8dde6c7dd",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "ef1820876e445959a725a4e01e88365a4e5b0abc5a01a152139b3912fd23ae8d",
+              "bytes": 718,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "0c079c8b885f373f61ce79b4429cbd171d9eaf545d4289e546275f21f0a7d4af",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "23da78ca7231c098ab01c83205bdeebc0256add2badd11ff7dacb9608b1a0916",
+              "bytes": 19973,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "b4cc1c2c8af8e28768445cee596ff447dbe40b833afa2359c3c5d20d8b79c6e7",
+              "bytes": 1504584,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "3e0a456d80295d7cbe0531877dac2fcd661ae5c4868d8d57c819562f712527e9",
+              "bytes": 12343,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "13c0883b7ff449d07732c104855d3204df9bf39c61205629bbb6ec45d1e2dca2",
+              "bytes": 84062,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T19:03:58.974080+08:00",
+          "finished_at": "2026-11-03T19:05:03.763722+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1572.311370872225,
+            "p95_ttft_ms": 3927.18856700003,
+            "slo_pct": 14.166666666666666,
+            "completion_ms": 7694.663292000087,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166885036032,
+              167703883776,
+              158334578688,
+              145795313664
+            ],
+            "disk_peak_Bps": [
+              25000000000.000015,
+              25000000000.000015,
+              25000000000.000015,
+              25000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "d040a351cae22674ffe46df4ed2b2ce974b7f0348b7f310b3f330d05889753d7",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "d148262796813c309ab4dba5373acfee8d968e4467b08cb7d72720ea9ee9cca8",
+              "bytes": 721,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "c36775dd457ee3f494392b8da22fa7e1c2d861b6e4383032adf678052580fd1a",
+              "bytes": 368,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "7c6d08813f198e47752f28421b7930a247e898a2e5aaacaac2d4cd95f7fb2711",
+              "bytes": 17320,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "161a88bdde008a829ee1688a4380bdeab58163cd562f190b38b1088b78bcc78b",
+              "bytes": 1261835,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "9603b4fea0e75a9cebf2f7d5c5ebd30dabd07ee2a28524e21f21e877e9a59106",
+              "bytes": 418,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "26fd1601b081bb2fb50ee0f8c2ea38305f015e61dc7a8a11aa3dfc9e200ba365",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "79abe410170fd47ace6d36aaa467d097f359db16847d517dd13145c2f9d37d0a",
+              "bytes": 9118,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "693b880e235989cec059eb5057934106acd305ce4a426791731b3ecc7916a319",
+              "bytes": 84061,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "f181277164c8a4d1b9dcc39f221515d91d8ab29185c847d780e45f7505022bcb",
+              "bytes": 482,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T19:07:11.687920+08:00",
+          "finished_at": "2026-11-03T19:08:18.642481+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1765.4096633361157,
+            "p95_ttft_ms": 4608.609475999856,
+            "slo_pct": 13.333333333333334,
+            "completion_ms": 8548.843210000086,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166885036032,
+              167703883776,
+              158334578688,
+              145795313664
+            ],
+            "disk_peak_Bps": [
+              25000000000.00002,
+              25000000000.000015,
+              25000000000.000015,
+              25000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a01dfe07c2bd1d7138146cf387af8e694cd2d4b28b528fec202dcec59ad69fee",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "a73b1029f696398abf1833261ed1ad193821010fa04a23314add8f03c14855e4",
+              "bytes": 721,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "b9ab4cdbe6ac3b5f84f6d3185f0ee0973fd8d17c7db7eec3d868005199b96cf2",
+              "bytes": 367,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "6fe9bf1c102016d5786469108eaaca6c477af15a72831b75b36da3880e07c893",
+              "bytes": 17364,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "365dc0234edf519dab0e7d916370498b5cbce33c77b604804c09ff0cc4579ce6",
+              "bytes": 1308346,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "8081bf7248c619e7f1fd9830bbe2a04f334c5879c97c3972d13bc706fe865c5c",
+              "bytes": 415,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "26fd1601b081bb2fb50ee0f8c2ea38305f015e61dc7a8a11aa3dfc9e200ba365",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "ba8051389e2b95f0fd295c4d1f5b68db3c9c885dd43226c696f2bad09662bc73",
+              "bytes": 10541,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "742ca63fb734842ca33a25c404358413fe59fad8781064aeea6e4d48cd427db4",
+              "bytes": 84113,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "765f75ea83c971569251b1f7b05be7c3421e34b9b41c18edee04fd4226a18363",
+              "bytes": 492,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T19:13:46.600564+08:00",
+          "finished_at": "2026-11-03T19:14:53.534223+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 2102.7710880333343,
+            "p95_ttft_ms": 4414.794079999865,
+            "slo_pct": 6.944444444444445,
+            "completion_ms": 9339.733525000156,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166885036032,
+              167703883776,
+              158334578688,
+              145795313664
+            ],
+            "disk_peak_Bps": [
+              25000000000.000027,
+              25000000000.000023,
+              25000000000.00002,
+              25000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a6ae320e74b48499f4515bd8c07a09ca731f6570d5662ffcaf65b30e0333a7bd",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "bf5219bde16d6c780c57e883aa228cf8a445ea0774d0b0ea7066fdff06c1e439",
+              "bytes": 720,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "89d359f09cc33dc70e8e4d9e9d0c204fdfb21e239060f2998de645e86ecfb426",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "f0719457c43ddbeb1f4ce1cab692537ebba2bd26c6dc6439031f2f9e3b41c2c1",
+              "bytes": 19339,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "2db513528b2bc2e2906a4fb6de78aa6f0854195ac433585ad152cdcae5cd2a17",
+              "bytes": 1019820,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "bc0375617df4827ab75bc72a9f5805ba5db5c6b7a61d01a1e8eef7c4c4894817",
+              "bytes": 17937,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "ae2f24016bb88d78206ec9f2bdbe433cedde16978ea48c412a388eb155fc8007",
+              "bytes": 84113,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T19:23:18.125970+08:00",
+          "finished_at": "2026-11-03T19:24:23.381917+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_100GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 2082.5564286166723,
+            "p95_ttft_ms": 3563.0418050000117,
+            "slo_pct": 4.444444444444445,
+            "completion_ms": 7286.1502139999175,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166885036032,
+              167703883776,
+              158334578688,
+              145795313664
+            ],
+            "disk_peak_Bps": [
+              25000000000.000023,
+              25000000000.00002,
+              25000000000.000027,
+              25000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "ac9f8d2e026842285b40add64839d9f15c59a433a051a471c73dd66ee6bfb5a6",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "cbe28c91d961be7f4c37552e4368c9d2f9f185c1687263b5640ccb8bb0c7985c",
+              "bytes": 726,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "03a383d6f4b1e06d021f9be17cd8ad601fbbe91e6f0b4d246b1f47c35655f97f",
+              "bytes": 364,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "5c0cfde8ce3334f000b05603310921a80bf9289fab65351346f5aacaaa14cd44",
+              "bytes": 19268,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "61665e14f0d1d003622621f56c2e1cc1e2622245c12336fafa00b59e11221295",
+              "bytes": 968781,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "b152302899078c2c1402ecd395aef1d97bd77f52264289a6be4e5f33c73cd015",
+              "bytes": 84010,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140400758784,
+            141767847936,
+            133916749824,
+            123486105600
+          ],
+          "per_disk_integral_error_bytes": [
+            0.4381103515625,
+            0.382537841796875,
+            0.5387725830078125,
+            0.669830322265625
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 2.6702880859375e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140400758784,
+            141767847936,
+            133916749824,
+            123486105600
+          ],
+          "per_disk_integral_error_bytes": [
+            0.5111083984375,
+            0.483612060546875,
+            0.594024658203125,
+            0.6735687255859375
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 2.6702880859375e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140400758784,
+            141767847936,
+            133916749824,
+            123486105600
+          ],
+          "per_disk_integral_error_bytes": [
+            1.309600830078125,
+            1.227569580078125,
+            1.3340606689453125,
+            1.445220947265625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.52587890625e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140400758784,
+            141767847936,
+            133916749824,
+            123486105600
+          ],
+          "per_disk_integral_error_bytes": [
+            0.915435791015625,
+            0.83551025390625,
+            1.0018768310546875,
+            1.09136962890625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.52587890625e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140400758784,
+            141767847936,
+            133916749824,
+            123486105600
+          ],
+          "per_disk_integral_error_bytes": [
+            0.91754150390625,
+            0.8856201171875,
+            1.0167999267578125,
+            1.1007843017578125
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        }
+      },
+      "report_source_validation_sha256": "beb3fc59e9a894d7e05e67b06123bbf428d45c91fb35fb3eb6180c3b5e85925f"
+    },
+    "mooncake_abcd_360_4s_12_100GBps": {
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7",
+      "runs": [
+        {
+          "arm": "old-tfs",
+          "smoke": true,
+          "run_name": "smoke-old-tfs",
+          "started_at": "2026-11-03T18:47:09.538831+08:00",
+          "finished_at": "2026-11-03T18:47:33.381319+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "old-tfs",
+            "smoke": true,
+            "requests": 8,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 863.5043067499986,
+            "p95_ttft_ms": 1218.2093500000235,
+            "slo_pct": 62.5,
+            "completion_ms": 1219.1707430000065,
+            "measured_read_bytes": 23744827392,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              6158929920,
+              5888323584,
+              6071070720,
+              5626503168
+            ],
+            "disk_peak_Bps": [
+              25000000000.000004,
+              25000000000.000004,
+              25000000000.000004,
+              25000000000.000004
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "86ae538f5665826b3aa5d8a2119a9bf76db2a11c48b88e351929088943282fee",
+              "bytes": 122,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "6258531b1626f711b31d9a05359989c9a1f479a23ecb12ab0d63f84ff85da3fd",
+              "bytes": 453,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "36855d1c6374f9e536df235a7afee3794be5e25eae9ee73ab8c282c89c98872b",
+              "bytes": 698,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "972332ea01f2e0ace8b68149ddedc9dc190619f71669e42501219e869d1e9800",
+              "bytes": 330,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "9101226035c85407c85f6326153148e9e71eac8eb55502fc7c181a04cb6d59be",
+              "bytes": 1212,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "93b70e70ad33c94164c7118fc6eddd5aee3da35ed432f4722bf13e05d87ce5c4",
+              "bytes": 21602,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "d1920446357391bfcd9710154d0c9d379f85d168651be7fe06e13c9ffaab337c",
+              "bytes": 4441,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "18a60a3d4c884d64273182f90c193f95d4df606ead2ed5e069d0208ece8f6fe2",
+              "bytes": 1628,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T18:48:45.652816+08:00",
+          "finished_at": "2026-11-03T18:49:49.769855+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1916.4851957444444,
+            "p95_ttft_ms": 3753.512136999973,
+            "slo_pct": 8.333333333333332,
+            "completion_ms": 7779.5474640000175,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166955323392,
+              168225767424,
+              158385537024,
+              145658253312
+            ],
+            "disk_peak_Bps": [
+              25000000000.00002,
+              25000000000.000027,
+              25000000000.000023,
+              25000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "c7be08c125d71e1e8df05b613a80343a954ce1aa08627af066603ec5417c5b29",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "2ba5aa8820b1b38808adf48bb3853900a8dcdab84d6a68990d37f2aa48b3c5bc",
+              "bytes": 726,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "a6501a9d0a5ae2ee19ebac93ad0010b92ac80f43acde7160ad500b6551848865",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "a7449f2ea5ef1571f141afc748193204d068f9019388df393c9cea010c56cb6c",
+              "bytes": 19361,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "b2e1d39e4fd896ec6ee2ba15f1d23fc105cd841f19fbb7e9ef00a109f9da0ec0",
+              "bytes": 1038971,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T19:05:03.775986+08:00",
+          "finished_at": "2026-11-03T19:06:06.837500+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1861.8645242472296,
+            "p95_ttft_ms": 3781.783045000111,
+            "slo_pct": 7.5,
+            "completion_ms": 7555.494929000133,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166955323392,
+              168225767424,
+              158385537024,
+              145658253312
+            ],
+            "disk_peak_Bps": [
+              25000000000.000023,
+              25000000000.00002,
+              25000000000.00002,
+              25000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "3c65f8413485fbc491550a96ff12aabfa50efe33480ee15ddbbc5927d74dc15e",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "1ac11ef2236fca3b521a46c05ae45e9eed989b62c958365d2902c77b86b3a940",
+              "bytes": 706,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "aeb7f9714cead157b473114ae5ffaaab9f7c52897e9956f5891c71fcc88eccc9",
+              "bytes": 364,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "52fde73ff2d9c81d124e08a5f065b72b87dd2ab889cc61bf1f13ff65e6583fdb",
+              "bytes": 19366,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "68a445e5a2496cd73dcf21a4181dbf2ce5f1de768863a96d43386392ca0b33d6",
+              "bytes": 1043229,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "8f6248c374fb8093e6c62d27b26a6cbdcb31835ff227500a9079c0fcb515b1da",
+              "bytes": 15662,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T19:10:29.769077+08:00",
+          "finished_at": "2026-11-03T19:11:38.086698+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1670.7711884166638,
+            "p95_ttft_ms": 3803.977906,
+            "slo_pct": 9.722222222222223,
+            "completion_ms": 7723.694656999896,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166955323392,
+              168225767424,
+              158385537024,
+              145658253312
+            ],
+            "disk_peak_Bps": [
+              25000000000.000015,
+              25000000000.00002,
+              25000000000.000015,
+              25000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "63d31185e11724f269eafefe99fe8a26ecd5b711d19ba9306c09f81e0e35d794",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "d7e417251fdb4abc90da00844fbed067052899f9db3539e884ccbda5bcebde11",
+              "bytes": 714,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "d817365de18ba2ba618c3a80f953b0b96b5e5d155f618a03fd4ea5a0e7e40336",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "c1fd1a1157ee8b632e4d34a5bbff901042947a9338578a3018c84107a3bf675a",
+              "bytes": 17258,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "2b79409b16f4585d2b3c1a0590c6fab42054edcbb40bcf9ef1827722c5b732af",
+              "bytes": 1258107,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "cd8eef9b271bbc818c54d5c57876e9e559174afd10f1e07ccb2b7d64013d9361",
+              "bytes": 415,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "26fd1601b081bb2fb50ee0f8c2ea38305f015e61dc7a8a11aa3dfc9e200ba365",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "c85000e806deba238722f49a5279da6c44fcd6a2f7508115c3abad644338a319",
+              "bytes": 7989,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "d9936da193cd304a69338954ab9f749ddb5020d01cf0575a09e1a36283c81ed8",
+              "bytes": 84217,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "d9c31b1e610a35efef3eeb565357051613ab0a453f82307bcaeedd6f767c05ba",
+              "bytes": 481,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T19:18:59.701053+08:00",
+          "finished_at": "2026-11-03T19:20:08.006804+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1672.577106499994,
+            "p95_ttft_ms": 4148.842211000101,
+            "slo_pct": 11.666666666666666,
+            "completion_ms": 7536.442788999921,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166955323392,
+              168225767424,
+              158385537024,
+              145658253312
+            ],
+            "disk_peak_Bps": [
+              25000000000.00002,
+              25000000000.00002,
+              25000000000.000015,
+              25000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "d581e663d496d64d68a60a23ba2a4f46d405de0b9b8b2212ad9dcec59aba6bdc",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "d13de5c129165ac30062e2efac5f450e34bb45fda9be96ad1bcfe5955ab1079e",
+              "bytes": 721,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "ee0b316d3b38a0afb572b25010a6819d0da0615944fe69d462e5ab75130f5300",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "80a9b8a4e048a1e30e65e1ff9fc231dafe22e30cce646a9280e88f3b34994b14",
+              "bytes": 17186,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "ee2738979edf594b2484d38035161a6e4ac31facc346bde3ae3671bb6f816dcd",
+              "bytes": 1205504,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "6808974be771ff9b95ddb0f248b8f8346aa41436bea38b399a1e9e0e1d816f56",
+              "bytes": 418,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "26fd1601b081bb2fb50ee0f8c2ea38305f015e61dc7a8a11aa3dfc9e200ba365",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "335ab158c38ee2d63fc655afee7c9b036f26213feb55e928e3bf5c5e95015438",
+              "bytes": 13964,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "b34d078590d8d348a01f53ee02a2325d2c141742a2494c504f2d7724f57d1a70",
+              "bytes": 482,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T19:26:29.121399+08:00",
+          "finished_at": "2026-11-03T19:27:35.080866+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_100GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 100000000000.0,
+            "mean_ttft_ms": 1513.7377513861086,
+            "p95_ttft_ms": 3527.633867000077,
+            "slo_pct": 15.833333333333332,
+            "completion_ms": 8139.514629999667,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 4,
+            "disk_Bps": 25000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              166955323392,
+              168225767424,
+              158385537024,
+              145658253312
+            ],
+            "disk_peak_Bps": [
+              25000000000.000015,
+              25000000000.00002,
+              25000000000.000015,
+              25000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "49acfbc0e852597c5a6510780075ee332b3ac3932f39b670fd1d6b333a4e8ef7",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "14c6fa7f1494e88626bacb001a956320dfd3d74f058939206a0516fbefce28fd",
+              "bytes": 723,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "a9e814702768fb1a616ee470176d45338a74dfad92044807d4e1979804dde2ae",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "383a6053649e4391502758ef1e3e4fe2ee2541d9a5a6d6fb455bc81489e0483b",
+              "bytes": 19787,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "406e68828dfee5439438e3a3d80222c88ecf6dc5001d9f4e0ab2b8a03616f987",
+              "bytes": 1362985,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "ddc179f4eabfefc2c64d862b6a785a44528f04fb13ba1cb7cedcb57bbde1f412",
+              "bytes": 1835,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "5bb2fabcf11653798e56a96d5dd4d38e796a8cac1b9f9b24370cf0b865dfe1f6",
+              "bytes": 8684,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "1dd5ba87fb5015ec2f96192d1cf1e25df24672823e6db64010f589c773439602",
+              "bytes": 84217,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140260184064,
+            142121041920,
+            133925535744,
+            123264700416
+          ],
+          "per_disk_integral_error_bytes": [
+            0.519500732421875,
+            0.454345703125,
+            0.5756072998046875,
+            0.691741943359375
+          ],
+          "max_completion_error_s": 4.263256414560601e-14,
+          "max_rate_roundoff_Bps": 2.6702880859375e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140260184064,
+            142121041920,
+            133925535744,
+            123264700416
+          ],
+          "per_disk_integral_error_bytes": [
+            0.493560791015625,
+            0.439056396484375,
+            0.56939697265625,
+            0.6599578857421875
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140260184064,
+            142121041920,
+            133925535744,
+            123264700416
+          ],
+          "per_disk_integral_error_bytes": [
+            0.812774658203125,
+            0.7572021484375,
+            0.87261962890625,
+            0.9820098876953125
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140260184064,
+            142121041920,
+            133925535744,
+            123264700416
+          ],
+          "per_disk_integral_error_bytes": [
+            0.74578857421875,
+            0.7294921875,
+            0.8154296875,
+            0.925689697265625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 4,
+          "disk_Bps": 25000000000.0,
+          "per_disk_bytes": [
+            140260184064,
+            142121041920,
+            133925535744,
+            123264700416
+          ],
+          "per_disk_integral_error_bytes": [
+            0.715606689453125,
+            0.67620849609375,
+            0.783447265625,
+            0.8958587646484375
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        }
+      },
+      "report_source_validation_sha256": "98aebc621739125131c57c9dbc0ce3115c94c3146199698d116e1f0ee9afc1a8"
+    },
+    "mooncake_abc_360_4s_12_90GBps": {
+      "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308",
+      "runs": [
+        {
+          "arm": "tfs-a1",
+          "smoke": true,
+          "run_name": "smoke-tfs-a1",
+          "started_at": "2026-11-03T18:47:33.381859+08:00",
+          "finished_at": "2026-11-03T18:47:56.919199+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "tfs-a1",
+            "smoke": true,
+            "requests": 6,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 686.1021480000032,
+            "p95_ttft_ms": 998.4641149999902,
+            "slo_pct": 50.0,
+            "completion_ms": 1004.6407169999725,
+            "measured_read_bytes": 13980155904,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              4637208576,
+              4635451392,
+              4707495936
+            ],
+            "disk_peak_Bps": [
+              30000000000,
+              30000000000,
+              30000000000
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "86ae538f5665826b3aa5d8a2119a9bf76db2a11c48b88e351929088943282fee",
+              "bytes": 122,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "9cda675f34d92c7176cb8eff2a3eb1283fb9bc6d1d4e9aba9021231cc38c8ef4",
+              "bytes": 451,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "5ec3b5ec7a48195cbb741c25cdc1109b40ddb6abdd5df6b3955c9b02608dd587",
+              "bytes": 632,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "ae048ee7b3794e47b35fe0a0adaac64fca3c7b154df6f3328f35b9686e098509",
+              "bytes": 342,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "ce6db55c203b1a5bf1700dd249951587a323ae68da74764ce3d6a8e617dbf987",
+              "bytes": 1052,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "2b98aa01e08cd906077174489a2c530e0b8c5ac1bba757d5a1142279e7be66ff",
+              "bytes": 16323,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "5b589806b98b90341a03670e47e173859a9728e753c1620f968c9911ed74b869",
+              "bytes": 394,
+              "status": "passed"
+            },
+            "edf_priority.check.json": {
+              "sha256": "4e385b62a2de6d81c85238830f99d8d5b74082dfa858c5061e2a3491de84cd6e",
+              "bytes": 3465,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "86cd96461b84fdda12ec454c1c7ae76ec628a229835af11a73492c8a1cb99d8e",
+              "bytes": 1225,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "f9860305b6cc6fa30231c6d74e62492cc41a54ed0db4eb90f516c6f4f9548cea",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T18:51:00.571154+08:00",
+          "finished_at": "2026-11-03T18:52:09.472606+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1522.5233333277788,
+            "p95_ttft_ms": 4681.2088759999715,
+            "slo_pct": 23.333333333333332,
+            "completion_ms": 9050.34715200003,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217513021440,
+              215075807232,
+              206129983488
+            ],
+            "disk_peak_Bps": [
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "8e1a6c28079aa2eb5d3ceb7bb362314a51bf95c663178aa2450699c806aa9528",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "7861e378417a90ae5ba3e47b687a7a3f781db209227dadb4465ffe2b23094008",
+              "bytes": 679,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "c014b38d8c50a7ba1ae884caf001f977914e83926a292234226d945a600769fa",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "8f4f108ea813d5abe3e419c04bf06df90664dc0eb4fa8dd1b4712684c73c62a9",
+              "bytes": 19920,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "3dfb0a7a628a7dabb55ab9021214e0661abc77b64d87b3870a2cfa717ef69bd0",
+              "bytes": 1492727,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "041bd0eea9a29f423a7cace377a282f69b1f8f3c7f35a2141024d4a81f018fed",
+              "bytes": 9781,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b152302899078c2c1402ecd395aef1d97bd77f52264289a6be4e5f33c73cd015",
+              "bytes": 84010,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T19:02:54.188703+08:00",
+          "finished_at": "2026-11-03T19:03:58.970080+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1876.7714110694467,
+            "p95_ttft_ms": 3368.9235819999794,
+            "slo_pct": 8.61111111111111,
+            "completion_ms": 7593.20109600003,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217513021440,
+              215075807232,
+              206129983488
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.000027,
+              30000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a267ff572c75d08cdede1cdb2d38fe8a856edc574063d2a164db00484d492089",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "20a851a1d2ff09d8b48580ed6983620d206fc84b4a8866b6d2668a406530c5f6",
+              "bytes": 680,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "e55655f334a058f139717525ab6437d3c4404112668486fd3da5873a371973d0",
+              "bytes": 364,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "7d0c0348c8b2ba3fbebd391e400d7c1225651b63680f8a42b9fea7eedb59acfc",
+              "bytes": 19281,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "4bfac52b44234438b8f92fa853f01ee8e2180be1e20cd8f03fb9a122f345d6ae",
+              "bytes": 1010678,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "74fc3190d6f34c4f531648529838ec524d61d2aad139b3755f42ce9af66eebc9",
+              "bytes": 84061,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T19:09:22.392257+08:00",
+          "finished_at": "2026-11-03T19:10:29.756380+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1918.6050085222164,
+            "p95_ttft_ms": 5119.644204999986,
+            "slo_pct": 8.61111111111111,
+            "completion_ms": 9145.796596000082,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217513021440,
+              215075807232,
+              206129983488
+            ],
+            "disk_peak_Bps": [
+              30000000000.000015,
+              30000000000.000015,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a8703aecb8fdd260a8aa5b2ad1f16b291a8343360cbaf916713f85c71f1dd3c6",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "727763f8134bdc5a84cb981005027cd02741315b1306820b80fe713745dda84f",
+              "bytes": 676,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "7422a7e12a3a61902c1525a4359b02c243ad859956bafb313d72d390f543ebc2",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "eb0c7ba3f662a86b88028500e710b5c9a8c4badd0a4bc81c2c611037632c1fb4",
+              "bytes": 17386,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "3eed33b0b005ba436980bb3c4376ed65f44fe0b202747225d52d52eff486724a",
+              "bytes": 1349992,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "a5a5ba1c9a35700e30447194c2aa46c1c687fbf2afad5c951188c03772c2485a",
+              "bytes": 414,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "927497d40d9d15f12e31251af143080e87c932479a07729ddb907aadb8777aa0",
+              "bytes": 8000,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "54344965b620653650debb084f961e17a6a84f8b03a34e048f259584f437d795",
+              "bytes": 84061,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "22f0d4b6f221a3098aa6d3abbbdc1301a46412f8b6ac4182a000fc4650ae2621",
+              "bytes": 479,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T19:11:38.101909+08:00",
+          "finished_at": "2026-11-03T19:12:45.151482+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 2149.9626853111113,
+            "p95_ttft_ms": 4124.4532719999825,
+            "slo_pct": 6.111111111111111,
+            "completion_ms": 9884.6420939999,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217513021440,
+              215075807232,
+              206129983488
+            ],
+            "disk_peak_Bps": [
+              30000000000.000023,
+              30000000000.000023,
+              30000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "c66c5ff27bed094ae026d85d78fb76d49ce6e75dd1301bf9beca20c34d9390f5",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "c88b892c08e6c25fbf31f588a0d13480fbadb67d09d0d6dc38b606e75797e826",
+              "bytes": 675,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "f28cedc19ff502098ed0dcb82caa34320d772b6cf7040c661bdeb6349ed79ce6",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "0a1d6a684fb2bdb161cf5500601f72dd3531c8e703b130af8908a8a5b8e3b4a7",
+              "bytes": 19342,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "2ea8824f328d12e5e0bb9415e76b9be2b37ace9c166dfba8fb5fe0a77e07788f",
+              "bytes": 1056140,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "19f3da732477b6966efeead4e96a92da2a4bf848bd37958a3583730ce88c63d9",
+              "bytes": 12773,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "f8ac8ed645ab93f426319648ba82f09b0303193ebd294ecb3458b9ddac76d527",
+              "bytes": 84267,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T19:30:35.974871+08:00",
+          "finished_at": "2026-11-03T19:31:44.805889+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abc_360_4s_12_90GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1582.3109418222255,
+            "p95_ttft_ms": 4295.875452000018,
+            "slo_pct": 17.5,
+            "completion_ms": 8344.336784000006,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217513021440,
+              215075807232,
+              206129983488
+            ],
+            "disk_peak_Bps": [
+              30000000000.000023,
+              30000000000.000023,
+              30000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "3c4a9f21880bb71defebf3be21ce968e127df6da9201f5a51fb931b453ce0aac",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "ba4ed09fd285ef2a6dfa6d47c2d1f25471acfeee970ef93cce46cab63799a38f",
+              "bytes": 665,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "e951b4a2c2d6542ba38ec14c73578e84af26608338eafd877e7070095319d13c",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "584c7751729e9d917e05df5502b469b3627c5da3775318786dd4536cfb4fcb13",
+              "bytes": 17392,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "9aeb6f83b8c7b4f96d7f1524ad8e886fd621a827d14bc51d856164c420f907bc",
+              "bytes": 1346476,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "e8a77866d999a4195567f51fc6e884d22bf61c987ed5e14734f97533d685894a",
+              "bytes": 418,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "311c2b99da3230272242df073a05bdd25236517b3d5d418ca0e20e5b54148c57",
+              "bytes": 19390,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b152302899078c2c1402ecd395aef1d97bd77f52264289a6be4e5f33c73cd015",
+              "bytes": 84010,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "e3297c645f425b36d16c842980c4607d93b7e7c32bb5f5cd9c058ad77b30f135",
+              "bytes": 481,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            183226847232,
+            182054805504,
+            174289809408
+          ],
+          "per_disk_integral_error_bytes": [
+            0.467498779296875,
+            0.49017333984375,
+            0.6170654296875
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 2.6702880859375e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            183226847232,
+            182054805504,
+            174289809408
+          ],
+          "per_disk_integral_error_bytes": [
+            0.46600341796875,
+            0.45989990234375,
+            0.62152099609375
+          ],
+          "max_completion_error_s": 3.552713678800501e-14,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            183226847232,
+            182054805504,
+            174289809408
+          ],
+          "per_disk_integral_error_bytes": [
+            1.33935546875,
+            1.26116943359375,
+            1.43560791015625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.52587890625e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            183226847232,
+            182054805504,
+            174289809408
+          ],
+          "per_disk_integral_error_bytes": [
+            1.201446533203125,
+            1.17230224609375,
+            1.32965087890625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            183226847232,
+            182054805504,
+            174289809408
+          ],
+          "per_disk_integral_error_bytes": [
+            1.087188720703125,
+            1.09661865234375,
+            1.217742919921875
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 1.52587890625e-05
+        }
+      },
+      "report_source_validation_sha256": "807d4bb7984fc8bd8ca48f2e0c1eb62f159135f204184e9af20058a5675b283e"
+    },
+    "mooncake_abcd_360_4s_12_90GBps": {
+      "input_sha256": "ebbbda06f7f99dd836867555d9fbef4af2c848d79dc699b74a9a54ccbd0acdf7",
+      "runs": [
+        {
+          "arm": "direct",
+          "smoke": true,
+          "run_name": "smoke-direct",
+          "started_at": "2026-11-03T18:47:56.919912+08:00",
+          "finished_at": "2026-11-03T18:48:21.501140+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "direct",
+            "smoke": true,
+            "requests": 8,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 858.0259430000083,
+            "p95_ttft_ms": 1338.4289549999835,
+            "slo_pct": 62.5,
+            "completion_ms": 1344.513472000017,
+            "measured_read_bytes": 23744827392,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              8060203008,
+              7715794944,
+              7968829440
+            ],
+            "disk_peak_Bps": [
+              30000000000,
+              30000000000,
+              30000000000.000004
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "86ae538f5665826b3aa5d8a2119a9bf76db2a11c48b88e351929088943282fee",
+              "bytes": 122,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a9ef82141ed2718e798f63b7184418dcfa43e7ef230266c7186c83e3e5adca3b",
+              "bytes": 453,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "8d980ee5fca3416808cbfcac9c4cc39beebc6147c4eeb94e53e17ad2bfb74b07",
+              "bytes": 640,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "f8350f1c8ed77c000a775794e7f296568beb8d21fbd0580f798a728d5c70c10e",
+              "bytes": 329,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "9ba772b6075ae51e078d6b5fb132b7086f10c8f362317dc07aff61fd88ad9f7d",
+              "bytes": 1165,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "671b955cb6b969d3f497888b0683472ddc519abc0d4af1235c3eb319a4c97bcc",
+              "bytes": 21334,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "f58f51fd53b4bceba9c2795db29338b6b28ffdf40c79619ca4878d1935fc1dc5",
+              "bytes": 4437,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "18a60a3d4c884d64273182f90c193f95d4df606ead2ed5e069d0208ece8f6fe2",
+              "bytes": 1628,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T18:49:49.771282+08:00",
+          "finished_at": "2026-11-03T18:51:00.570013+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1855.9763166194432,
+            "p95_ttft_ms": 4457.667641,
+            "slo_pct": 11.666666666666666,
+            "completion_ms": 8568.881707000002,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217448005632,
+              215710150656,
+              206066724864
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "d2600daeeed1a899627842989f6299cead100d29ff2f9155268907f7edaccdf7",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "e9d28596cfde5df579cb2953c1eccc43f6ef3abde89b491845030e36598ce996",
+              "bytes": 671,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "ab0611d6edb79cf7b4c3cc49a482f9bcdb3eb4194700a97cf7ca2007a90e0694",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "6f9a901a0b66c8c1ab174a5aef873fdbf352cffebe4145836ec7d7142dba568e",
+              "bytes": 17136,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "4c2481cc7ea933abcbd8b13a42b129bcd0052a8f3e839a9e57673f61f1bebe3a",
+              "bytes": 1205840,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "f0aee4e5d7c5210747d044c70f1226a8f4235c3df8b096df59bab6fe24c7b6cb",
+              "bytes": 418,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "dc66deefb3f7e597937b82c38525615abb4fb06dab0cc7eceae52f1d2c0eb16a",
+              "bytes": 11300,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "c05a3534fa66af13d45c75efb1989b8e6ce47154b235b23f5cb5007ca2b9bebb",
+              "bytes": 480,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T18:58:27.565920+08:00",
+          "finished_at": "2026-11-03T18:59:33.740272+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 2043.6536049972246,
+            "p95_ttft_ms": 3975.6918680000126,
+            "slo_pct": 6.111111111111111,
+            "completion_ms": 7710.888588999978,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217448005632,
+              215710150656,
+              206066724864
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.00002,
+              30000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "9883e904cd4b4cb6a1870037fb8bf30ba320d7641aa81d2c404417f595e7f0e4",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "afa0b31ec49271fc20dc6bfdab904a86fbed7afc33737e5cfbfad8fd91028445",
+              "bytes": 677,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "8025b20da9f12ecd6900e97e6a92b656192c2ff52b2685a6989ba227c400e076",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "75e5cab0b496dff3b92edd4c646fe214532cd48dae3bd9b572742aa5f182cbe4",
+              "bytes": 19245,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "17c60ddfac90d72c120288c3d6c86e878751047fe557abdae1c20d6b0a2f1203",
+              "bytes": 984231,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "b64be7da502534e16302e6e460a87a006d22e345614b54efeb8a856879cfef75",
+              "bytes": 23452,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T18:59:33.744109+08:00",
+          "finished_at": "2026-11-03T19:00:39.096347+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1590.8078328777776,
+            "p95_ttft_ms": 3703.316491999999,
+            "slo_pct": 16.944444444444446,
+            "completion_ms": 8327.750110000012,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217448005632,
+              215710150656,
+              206066724864
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.000015,
+              30000000000.000015
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "8213ac5c967918baf7f372cb8c55ece03f3202823d4bf5442694e4ef6aec41de",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "ef1fe68319f4f07cc565c6b1ddf6b7ea2ff9c66d56d7ca59f700133940130206",
+              "bytes": 679,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "5e4ac2362cddfbc3c9d4278183b7fbeacb7fcc6f193735a4ae1b394ae1c0a4ab",
+              "bytes": 367,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "9534b916a86a872a76d57aae20c69c754f18afd1050ef7e8c4dd000f15a47ba6",
+              "bytes": 19828,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "ab04381494f6ade73d60b41f67fb17adea863efbfc6cd0a9924b5ef60922e82f",
+              "bytes": 1425907,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "320c7e4078d63c56aa5c817d5ddd017a4b35cb14974875b464f78d7de90dcdfa",
+              "bytes": 9072,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T19:00:39.101288+08:00",
+          "finished_at": "2026-11-03T19:01:45.848506+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1761.3038680444433,
+            "p95_ttft_ms": 4245.291865999889,
+            "slo_pct": 11.666666666666666,
+            "completion_ms": 7766.211627999837,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217448005632,
+              215710150656,
+              206066724864
+            ],
+            "disk_peak_Bps": [
+              30000000000.000027,
+              30000000000.00002,
+              30000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "9894e94632587449d504592cdd31a2a8a37fef5bac8bc9257e5a9c6c501e55ec",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "bb46746bed1ba37236f1211ce63c562b0dcd00319bed8791264e7642ec4693d3",
+              "bytes": 677,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "7cc070d04df4d303dfac3cc7100ee6a7e27ab5b9d446398e0e9eba8bfd72a160",
+              "bytes": 367,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "d24cb17d0ed0d740ab57522417e1d9dee4b3e2e17b77f20a807cc6aa87b18886",
+              "bytes": 17230,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "1f5976021a7cb7fa655487715693b279e2f1e4c1b0f962ec581c7e8f602b5a3d",
+              "bytes": 1268959,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "1acaf133cfef9f76dd9a49361167e9d07aef45c3c489ab5ecb14c15dec3da721",
+              "bytes": 414,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "9cb4cbdd80ab701b65dba4c54fb97c96399f879e2884c46bf7168458048944c5",
+              "bytes": 9870,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "beec798ee4121500467795a386bf798417fa82332d3e88eea7e024195b5d1f7f",
+              "bytes": 84218,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "5b3b643a59d2c3b173d24f17f5fef3602a5c2fc20eaa34aab0608059d1cc1e49",
+              "bytes": 492,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T19:25:24.165552+08:00",
+          "finished_at": "2026-11-03T19:26:29.103538+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "mooncake_abcd_360_4s_12_90GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1915.3055072555655,
+            "p95_ttft_ms": 3538.0617269997856,
+            "slo_pct": 9.444444444444445,
+            "completion_ms": 7510.050539000076,
+            "measured_read_bytes": 539571462144,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              217448005632,
+              215710150656,
+              206066724864
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.000023,
+              30000000000.000023
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "b30ff9d5cc91536a7a01f7b8fea41ebbe69f07826c3db09bd8a0d9123ffb94f5",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "73fbe32196ea456064e7a22e093fb53c4f1aeb78f38ca6e72a9d26a95e7e6429",
+              "bytes": 683,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "2f05f14afbab493dc3d9d2bba9d438b759fc36725dc9408cf3dea4a2e2c83010",
+              "bytes": 364,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "1a80ea6210bfb201a5c684fedfbbe8251d492a78030511e475735c75df296786",
+              "bytes": 19331,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "c7dc452c4791df832169c041e109cd8c63ece8a69a83853bf06f5ee2ca2c7409",
+              "bytes": 1050289,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "9bda434c19cd517295a47fce908b9acb8f071483743436ec8eaf1f7c26949695",
+              "bytes": 84166,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            182908796928,
+            182478286848,
+            174184378368
+          ],
+          "per_disk_integral_error_bytes": [
+            0.470489501953125,
+            0.4698486328125,
+            0.5906982421875
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            182908796928,
+            182478286848,
+            174184378368
+          ],
+          "per_disk_integral_error_bytes": [
+            0.396087646484375,
+            0.414215087890625,
+            0.531646728515625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            182908796928,
+            182478286848,
+            174184378368
+          ],
+          "per_disk_integral_error_bytes": [
+            0.92559814453125,
+            0.90087890625,
+            1.031951904296875
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            182908796928,
+            182478286848,
+            174184378368
+          ],
+          "per_disk_integral_error_bytes": [
+            0.762298583984375,
+            0.786407470703125,
+            0.856719970703125
+          ],
+          "max_completion_error_s": 2.842170943040401e-14,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 25740,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            182908796928,
+            182478286848,
+            174184378368
+          ],
+          "per_disk_integral_error_bytes": [
+            0.765289306640625,
+            0.74420166015625,
+            0.864593505859375
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 2.6702880859375e-05
+        }
+      },
+      "report_source_validation_sha256": "d46172ec4364897c6174e12f6bdab19667556f62ab79a2f8d8d3b1400e635765"
+    },
+    "synthetic_abc_360_6s_12_90GBps": {
+      "input_sha256": "3148c9e7cf8952f9c016ba9ac7e1db8993780d96bb2146f99d7abcfb01ec40b6",
+      "runs": [
+        {
+          "arm": "old-tfs",
+          "smoke": true,
+          "run_name": "smoke-old-tfs",
+          "started_at": "2026-11-03T18:48:21.501910+08:00",
+          "finished_at": "2026-11-03T18:48:45.651993+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "old-tfs",
+            "smoke": true,
+            "requests": 6,
+            "warmup_requests": 0,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 495.20932999999445,
+            "p95_ttft_ms": 665.8366959999853,
+            "slo_pct": 66.66666666666666,
+            "completion_ms": 672.2627689999854,
+            "measured_read_bytes": 8810520576,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "C": 2,
+              "B": 2,
+              "A": 2
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 30,
+            "final_heavy_threshold_Bps": 2977748537.836496,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              3075072000,
+              2892324864,
+              2843123712
+            ],
+            "disk_peak_Bps": [
+              30000000000.000004,
+              30000000000.000004,
+              30000000000
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "86ae538f5665826b3aa5d8a2119a9bf76db2a11c48b88e351929088943282fee",
+              "bytes": 122,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "73c53bcf2e35b1b557aa8b9c9d705f39b1eeb1319be494b587b05a0ba56f3cf1",
+              "bytes": 452,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "a0b02b5ed00e26465e71ea5e2fcfb1b7e33c5f564eed8f4ad7dedd8b10e7269d",
+              "bytes": 946,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "b26b3ff74e86b66386179f060bdcd21de565998af455504a41b62ad69d7b212b",
+              "bytes": 329,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "c5b02820dbbb74c33bb05d0905eeb7154180efa6e6de4b28923650b7637cb891",
+              "bytes": 1019,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "9086f307d7e50684f7d9f964623029bf7abd5a2b8739fc748f61d721f5eb06ce",
+              "bytes": 35130,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "d0bfeb5e56427dd078fe5952f8398e10a5ad13ca4c9d45c26b92ba4dc96a999e",
+              "bytes": 3690,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "c6de0c1f7f7910ae02fe0091390e313bbb87543168d5c0e3f077d8ad3f3c469f",
+              "bytes": 1174,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a01",
+          "smoke": false,
+          "run_name": "tfs-a01",
+          "started_at": "2026-11-03T19:06:06.843213+08:00",
+          "finished_at": "2026-11-03T19:07:11.676000+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "tfs-a01",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1860.5588062277814,
+            "p95_ttft_ms": 5863.754307000136,
+            "slo_pct": 38.333333333333336,
+            "completion_ms": 9191.4535599999,
+            "measured_read_bytes": 528631234560,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "B": 120,
+              "A": 120,
+              "C": 120
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 3,
+            "final_heavy_threshold_Bps": 28432690921.586624,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              221405184000,
+              208247390208,
+              204704907264
+            ],
+            "disk_peak_Bps": [
+              30000000000.000023,
+              30000000000.000023,
+              30000000000.00002
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "69b161f4d81ad9650bf7cdeb05fd3d14f739ee580a745b78343d26ceaf98ef07",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "ae02f904343d6bf1bf6cdb4809700ceef7e14615cdbf1c2b64f1af9adb695c6a",
+              "bytes": 969,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "30fd5773d51e92242ec22d603db8c115b9e97b311a825a0662a2ab48f6635f05",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "4204b44500e791340c0ea009bd908897935d4ddeb06f464fa7f570addb6bd272",
+              "bytes": 13756,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "dbec2ef4770cba11bc0117db2c117f87382586bf35e42b6f078597b11c2b5752",
+              "bytes": 2520522,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "e3a6d83278c2ba1b2477915a7d016055e4dffcd504e391667482b98938cc4baa",
+              "bytes": 418,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "8ef6832784c8d017f2e5f2be85e4d37362df32e3809a8fc8c8faef8c8f303819",
+              "bytes": 15605,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b117e03ccc290821e364e1e093c5b6de50c5f346c62311e6a25997c3b0091b13",
+              "bytes": 79946,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "e1267d5538bedc7a27a249514ee9f855754c5dae703e8e1e8cb11c2ce9a6936a",
+              "bytes": 484,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "59abd4dad3b6aeccbd79cc2e19b5207e2500830efdfb4cc3e9d5749da9a68d89",
+              "bytes": 4991,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "tfs-a1",
+          "smoke": false,
+          "run_name": "tfs-a1",
+          "started_at": "2026-11-03T19:08:18.647518+08:00",
+          "finished_at": "2026-11-03T19:09:22.388008+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "tfs-a1",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 2558.9081237777737,
+            "p95_ttft_ms": 6464.010273999975,
+            "slo_pct": 24.444444444444443,
+            "completion_ms": 10839.257408000094,
+            "measured_read_bytes": 528631234560,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "B": 120,
+              "A": 120,
+              "C": 120
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 3,
+            "final_heavy_threshold_Bps": 28432690921.586624,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              221405184000,
+              208247390208,
+              204704907264
+            ],
+            "disk_peak_Bps": [
+              30000000000.000023,
+              30000000000.000008,
+              30000000000.000008
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "a870118ba707f4c88298a0643669ea41b599e86dbf56ac90ab15d1d57f71e84b",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "5714038f3f1e05812f1d3e2388ed233585245930748c644bc5b8cc0d8b1ba7d9",
+              "bytes": 972,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "dd321d547a66a1e90af0cf3346a187386a43177f52f7c591100014f01c8d952f",
+              "bytes": 366,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "9e80dd7e6fa22327c6c54f453f82fccf0f565c0cab9184ef09104f1d8ca73f37",
+              "bytes": 13666,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "f8515351a73b2235f225f1ae0e49d4aaba9950a639187644d7035ba37e8864db",
+              "bytes": 2505882,
+              "status": "pass"
+            },
+            "routing.score.check.json": {
+              "sha256": "649c9b3d62217929cfb871553ebd594462449da9f86c4e141771c8a089af4b63",
+              "bytes": 415,
+              "status": "passed"
+            },
+            "warmup.history.check.json": {
+              "sha256": "1640e28740da5a352ab97efe0bd6a1bc83df4f71a90adde14d64058963450243",
+              "bytes": 1833,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "38549774a8cbfa9ef6af8801b27c5ad17a8c28dc269961237a6803b45284c60e",
+              "bytes": 16631,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b117e03ccc290821e364e1e093c5b6de50c5f346c62311e6a25997c3b0091b13",
+              "bytes": 79946,
+              "status": "pass"
+            },
+            "read_admission.check.json": {
+              "sha256": "082e458ba4f0edfe11888587e62d2a6f48d1f1488c3da556dfdec4a7676fdfa4",
+              "bytes": 483,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "ff9c3ab462bf4864b496e9bd8b823603ab775bbc604b2603c9dd292a3f099250",
+              "bytes": 5009,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "old-tfs",
+          "smoke": false,
+          "run_name": "old-tfs",
+          "started_at": "2026-11-03T19:12:45.157384+08:00",
+          "finished_at": "2026-11-03T19:13:46.595475+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "old-tfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 1818.546076158336,
+            "p95_ttft_ms": 6116.988258999982,
+            "slo_pct": 52.5,
+            "completion_ms": 10161.427475999972,
+            "measured_read_bytes": 528631234560,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "B": 120,
+              "A": 120,
+              "C": 120
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 3,
+            "final_heavy_threshold_Bps": 28432690921.586624,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              221405184000,
+              208247390208,
+              204704907264
+            ],
+            "disk_peak_Bps": [
+              30000000000.00002,
+              30000000000.000008,
+              30000000000.000008
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "c6d2179bd8fb8a183152988c82b37c59169623c411a4f2c4a7c0a89434957300",
+              "bytes": 459,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "2570da6d2ef3ef32dcad7f2bd9289e5d36f2bb110128871463a13e558c32dee5",
+              "bytes": 957,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "b468770e91f836a301248e3fba53a9ed1b8cbb849a847dbaeaa4592ef77d6744",
+              "bytes": 363,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "73edf559f8d8630d8f89da0affe1140ed9a1b31c7651328427b689afb99cbffc",
+              "bytes": 16691,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "341447839078e721656f729057c8a873f922cd5292e491d6546c7206ba25deb9",
+              "bytes": 2612005,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "4b446386cad8e23140c1ed67ecfe8d043cf1034a3b00646bae0595b06b53a772",
+              "bytes": 9034,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b117e03ccc290821e364e1e093c5b6de50c5f346c62311e6a25997c3b0091b13",
+              "bytes": 79946,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct-fcfs",
+          "smoke": false,
+          "run_name": "direct-fcfs",
+          "started_at": "2026-11-03T19:14:53.541125+08:00",
+          "finished_at": "2026-11-03T19:15:53.294604+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "direct-fcfs",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 2250.7199111999894,
+            "p95_ttft_ms": 3544.669870000007,
+            "slo_pct": 6.388888888888888,
+            "completion_ms": 8819.628719999855,
+            "measured_read_bytes": 528631234560,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "B": 120,
+              "A": 120,
+              "C": 120
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 3,
+            "final_heavy_threshold_Bps": 28432690921.586624,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              221405184000,
+              208247390208,
+              204704907264
+            ],
+            "disk_peak_Bps": [
+              30000000000.000042,
+              30000000000.00003,
+              30000000000.00003
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "26f35902215e3faa9890f039ac0e7577fcc02140e7ec7cb8b22de4b25916eb8b",
+              "bytes": 186,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "82803852a09f7fe56521b80ff0d5f1108a9f105e101ff36d3c0092d7529eecdb",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "6f5c6e015a707274e69ad55af4f340c2c24e1635773b9ad15a092248b9339e29",
+              "bytes": 973,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "e436cc8f0d21f228c769f6e7ed6c3c36dd62ed2c1e4a34be0c08cf19c4b16da8",
+              "bytes": 364,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "6eaf4c6d2763c4ac17ad6d5cfc5632c828983b190a5ad8a66e48b8d35b42d0a8",
+              "bytes": 15359,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "edf0b0d52924260a92f09e6735dc7fb6f636e9859f4e904b00834831a4360cc6",
+              "bytes": 2398621,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "hit_check.json": {
+              "sha256": "b117e03ccc290821e364e1e093c5b6de50c5f346c62311e6a25997c3b0091b13",
+              "bytes": 79946,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        },
+        {
+          "arm": "direct",
+          "smoke": false,
+          "run_name": "direct",
+          "started_at": "2026-11-03T19:24:23.392338+08:00",
+          "finished_at": "2026-11-03T19:25:24.148629+08:00",
+          "benchmark": {
+            "status": "passed",
+            "case": "synthetic_abc_360_6s_12_90GBps",
+            "arm": "direct",
+            "smoke": false,
+            "requests": 360,
+            "warmup_requests": 72,
+            "K": 1,
+            "shared_storage_Bps": 90000000000.0,
+            "mean_ttft_ms": 2469.097324997228,
+            "p95_ttft_ms": 4063.287548000062,
+            "slo_pct": 3.3333333333333335,
+            "completion_ms": 9932.372879000013,
+            "measured_read_bytes": 528631234560,
+            "execution_feedback": "disabled",
+            "context_extrapolation": false,
+            "class_counts": {
+              "B": 120,
+              "A": 120,
+              "C": 120
+            },
+            "planned_first_arrival_s": 0.00503337572724873,
+            "planned_last_arrival_s": 6,
+            "final_heavy_cap": 3,
+            "final_heavy_threshold_Bps": 28432690921.586624,
+            "storage_disks": 3,
+            "disk_Bps": 30000000000.0,
+            "shared_link_Bps": null,
+            "disk_bytes_including_warmup": [
+              221405184000,
+              208247390208,
+              204704907264
+            ],
+            "disk_peak_Bps": [
+              30000000000.00004,
+              30000000000.00004,
+              30000000000.00004
+            ],
+            "storage_backend": "cpp"
+          },
+          "checks": {
+            "native_queue_policy.check.json": {
+              "sha256": "b1a3be7dcc67f421e0ca927a0d3c9bcaee510f6b420d42a0db3ce07921a55929",
+              "bytes": 194,
+              "status": "passed"
+            },
+            "routing.check.json": {
+              "sha256": "cc424c6868ee72c009b87918797fddf7e0eed513c52fd37940feaaa06ac6ae9e",
+              "bytes": 460,
+              "status": "pass"
+            },
+            "benchmark.check.json": {
+              "sha256": "3a31497a8ff3a8006c74ff34035e0422cd5693b3c61f375ccf348ac0fdd34e45",
+              "bytes": 967,
+              "status": "passed"
+            },
+            "layer_check.json": {
+              "sha256": "a6f1bb6cf923d499d183bee11745296b4d832b170a7ba18df9ef19c4b7f5d965",
+              "bytes": 365,
+              "status": "pass"
+            },
+            "check.json": {
+              "sha256": "5250605459f8f3c71f7a6798c30175834865cf2b9743146245724383452b7500",
+              "bytes": 15365,
+              "status": "pass"
+            },
+            "formula_check.json": {
+              "sha256": "1f2b12c2264b26ba8b252e04015ccda632aaaa7deeebf4c1ec1617791a1d304b",
+              "bytes": 2399260,
+              "status": "pass"
+            },
+            "warmup.history.check.json": {
+              "sha256": "f01a4355e89aadc96877aef42e4dfd5b61e23b53ab7b0e5afb7676a8354df966",
+              "bytes": 1834,
+              "status": "pass"
+            },
+            "edf_priority.check.json": {
+              "sha256": "22557b6a7dd7a6acf5ea44007e4b575dac45dadcce3f5864fb167d7b9b05a040",
+              "bytes": 23019,
+              "status": "passed"
+            },
+            "hit_check.json": {
+              "sha256": "b117e03ccc290821e364e1e093c5b6de50c5f346c62311e6a25997c3b0091b13",
+              "bytes": 79946,
+              "status": "pass"
+            },
+            "warmup.check.json": {
+              "sha256": "d12fa50c75b030d2f7725eab158c3f2b9b4cd2ea97a442abec8abab63577ac59",
+              "bytes": 251,
+              "status": "pass"
+            },
+            "admission_rpc.check.json": {
+              "sha256": "33694557523541f2fca32c02b6ac8a7997916c9739794d384cf7ebe8b5dbafd7",
+              "bytes": 60,
+              "status": "passed"
+            }
+          },
+          "native_build": {
+            "source_sha256": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
+            "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+            "flags": [
+              "-O3",
+              "-DNDEBUG",
+              "-ffp-contract=off",
+              "-std=c++17",
+              "-shared",
+              "-fPIC"
+            ],
+            "library_sha256": "afaa68ef63405ba5b88b4cd9ce391eb429ac6a7afc5730a428ecd4b78053932c"
+          }
+        }
+      ],
+      "disk_replay": {
+        "direct-fcfs": {
+          "status": "passed",
+          "layer_reads": 18720,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            184504320000,
+            173539491840,
+            170587422720
+          ],
+          "per_disk_integral_error_bytes": [
+            0.3848876953125,
+            0.59698486328125,
+            0.549560546875
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 4.1961669921875e-05
+        },
+        "direct": {
+          "status": "passed",
+          "layer_reads": 18720,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            184504320000,
+            173539491840,
+            170587422720
+          ],
+          "per_disk_integral_error_bytes": [
+            0.388275146484375,
+            0.548828125,
+            0.586639404296875
+          ],
+          "max_completion_error_s": 7.105427357601002e-15,
+          "max_rate_roundoff_Bps": 3.814697265625e-05
+        },
+        "old-tfs": {
+          "status": "passed",
+          "layer_reads": 18720,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            184504320000,
+            173539491840,
+            170587422720
+          ],
+          "per_disk_integral_error_bytes": [
+            0.823577880859375,
+            1.513397216796875,
+            1.589569091796875
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 1.9073486328125e-05
+        },
+        "tfs-a01": {
+          "status": "passed",
+          "layer_reads": 18720,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            184504320000,
+            173539491840,
+            170587422720
+          ],
+          "per_disk_integral_error_bytes": [
+            0.784576416015625,
+            1.23052978515625,
+            1.201416015625
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        },
+        "tfs-a1": {
+          "status": "passed",
+          "layer_reads": 18720,
+          "disks": 3,
+          "disk_Bps": 30000000000.0,
+          "per_disk_bytes": [
+            184504320000,
+            173539491840,
+            170587422720
+          ],
+          "per_disk_integral_error_bytes": [
+            0.801849365234375,
+            1.32708740234375,
+            1.216552734375
+          ],
+          "max_completion_error_s": 0.0,
+          "max_rate_roundoff_Bps": 2.288818359375e-05
+        }
+      },
+      "report_source_validation_sha256": "01016a82e923f7a215595dbaf52994bd235f48b2570177c76fc0799c5c434a68"
+    }
+  }
+}

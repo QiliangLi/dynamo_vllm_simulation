@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "images": [
+    {
+      "path": "figure/01_slo_bar.png",
+      "sha256": "d5d2af8ba5e7975399bcbcb21d039aafb84e284967392bb3109c7c539b3fc755",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/02_full-sort-ms.png",
+      "sha256": "7980611997fca33c2c45422782f8049cf78c909050e0d20a7668b9a666de61c2",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/03_util_box_heatmap.png",
+      "sha256": "e1cfeb9c39fac25a0fe598e78a7c6a66416ef4ba6fb6dd80ab58098343291eb9",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/04_bandwidth.png",
+      "sha256": "7fcb0f2ea35074095ee1923d0a0202afd7c5867bf973979b239fb7ff90203d74",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/05_cdf.png",
+      "sha256": "ea16a157ffe74fbbe726ccfe509d76395b01fb1977717d63b34a3222cb29880c",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/06_cdf_by_class.png",
+      "sha256": "884fe1937457debb2574cbc82a6c6cf265e2007080df208479012f9f254860df",
+      "byte_identical": true
+    },
+    {
+      "path": "figure/07_arrival_lateness.png",
+      "sha256": "ace8f0535e9a2759d40754cfe9390faad8fd68625b0ff3fafca871d6017ef52d",
+      "byte_identical": true
+    }
+  ],
+  "original_seven_figures_identical": true,
+  "note": "Repository generator also emits optional figure 08 from per-disk data; archived report retains the original seven figures."
+}

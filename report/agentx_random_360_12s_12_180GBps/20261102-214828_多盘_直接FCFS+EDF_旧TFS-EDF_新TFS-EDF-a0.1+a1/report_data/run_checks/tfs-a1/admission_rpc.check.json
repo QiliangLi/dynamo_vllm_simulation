@@ -1,0 +1,210 @@
+{
+  "status": "passed",
+  "processes": 12,
+  "clients": [
+    {
+      "pid": 13355,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 200,
+          "drained_streams": 200,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13661,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 22,
+          "drained_streams": 22,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13719,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 69,
+          "drained_streams": 69,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13451,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 28,
+          "drained_streams": 28,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13508,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 219,
+          "drained_streams": 219,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13566,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 23,
+          "drained_streams": 23,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13712,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 22,
+          "drained_streams": 22,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13501,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 144,
+          "drained_streams": 144,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13726,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 150,
+          "drained_streams": 150,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13733,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 43,
+          "drained_streams": 43,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13216,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 22,
+          "drained_streams": 22,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    },
+    {
+      "pid": 13568,
+      "status": "passed",
+      "clients": [
+        {
+          "instance_id": 14432469943538511042,
+          "status": "passed",
+          "final_replies": 43,
+          "drained_streams": 43,
+          "failed_streams": 0,
+          "pending_streams": 0,
+          "peak_pending_streams": 1,
+          "max_pending_streams": 64,
+          "failure": null
+        }
+      ]
+    }
+  ]
+}

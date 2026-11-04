@@ -1,0 +1,222 @@
+{
+  "status": "passed",
+  "scope": "delivery integration acceptance; does not replace published performance runs",
+  "backend": "cpp",
+  "unit_tests": 348,
+  "unit_log_sha256": "1efcda1d8a7f329f65f994f6611e73e8d1dfdffa45f155a06091b6590b4ef0eb",
+  "portable_targeted_tests": 16,
+  "smokes": 2,
+  "formal_runs": 2,
+  "formal_requests": 720,
+  "warmup_requests": 144,
+  "acceptance": {
+    "status": "passed",
+    "runs": [
+      {
+        "index": 0,
+        "arm": "direct",
+        "smoke": true,
+        "returncode": 0,
+        "started_at": "2026-11-03T18:17:03.293461+08:00",
+        "finished_at": "2026-11-03T18:17:36.632382+08:00",
+        "output": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-00-direct",
+        "checks": {
+          "status": "completed",
+          "completed": [
+            {
+              "case": "mooncake_abc_360_4s_12_100GBps",
+              "arm": "direct",
+              "returncode": 0,
+              "status": "passed",
+              "smoke": true,
+              "requests": 6,
+              "warmup_requests": 0,
+              "K": 1,
+              "shared_storage_Bps": 100000000000.0,
+              "mean_ttft_ms": 582.2226508333396,
+              "p95_ttft_ms": 1086.3393610000003,
+              "slo_pct": 66.66666666666666,
+              "completion_ms": 1092.1788560000039,
+              "measured_read_bytes": 13980155904,
+              "storage_disks": 4,
+              "disk_Bps": 25000000000.0,
+              "shared_link_Bps": null,
+              "disk_bytes_including_warmup": [
+                3521396736,
+                3510853632,
+                3577626624,
+                3370278912
+              ],
+              "disk_peak_Bps": [
+                25000000000,
+                25000000000,
+                25000000000,
+                25000000000
+              ],
+              "storage_backend": "cpp"
+            }
+          ],
+          "total": 1
+        }
+      },
+      {
+        "index": 1,
+        "arm": "tfs-a01",
+        "smoke": true,
+        "returncode": 0,
+        "started_at": "2026-11-03T18:17:36.632764+08:00",
+        "finished_at": "2026-11-03T18:18:07.259129+08:00",
+        "output": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-01-tfs-a01",
+        "checks": {
+          "status": "completed",
+          "completed": [
+            {
+              "case": "mooncake_abc_360_4s_12_100GBps",
+              "arm": "tfs-a01",
+              "returncode": 0,
+              "status": "passed",
+              "smoke": true,
+              "requests": 6,
+              "warmup_requests": 0,
+              "K": 1,
+              "shared_storage_Bps": 100000000000.0,
+              "mean_ttft_ms": 560.3037064999986,
+              "p95_ttft_ms": 951.415795999992,
+              "slo_pct": 66.66666666666666,
+              "completion_ms": 958.9377510000077,
+              "measured_read_bytes": 13980155904,
+              "storage_disks": 4,
+              "disk_Bps": 25000000000.0,
+              "shared_link_Bps": null,
+              "disk_bytes_including_warmup": [
+                3521396736,
+                3510853632,
+                3577626624,
+                3370278912
+              ],
+              "disk_peak_Bps": [
+                25000000000,
+                25000000000.000004,
+                25000000000,
+                25000000000
+              ],
+              "storage_backend": "cpp"
+            }
+          ],
+          "total": 1
+        }
+      },
+      {
+        "index": 2,
+        "arm": "direct",
+        "smoke": false,
+        "returncode": 0,
+        "started_at": "2026-11-03T18:18:07.259746+08:00",
+        "finished_at": "2026-11-03T18:19:25.855229+08:00",
+        "output": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-02-direct",
+        "checks": {
+          "status": "completed",
+          "completed": [
+            {
+              "case": "mooncake_abc_360_4s_12_100GBps",
+              "arm": "direct",
+              "returncode": 0,
+              "status": "passed",
+              "smoke": false,
+              "requests": 360,
+              "warmup_requests": 72,
+              "K": 1,
+              "shared_storage_Bps": 100000000000.0,
+              "mean_ttft_ms": 2592.118361872223,
+              "p95_ttft_ms": 4784.0672840000025,
+              "slo_pct": 2.7777777777777777,
+              "completion_ms": 9026.427544,
+              "measured_read_bytes": 539571462144,
+              "storage_disks": 4,
+              "disk_Bps": 25000000000.0,
+              "shared_link_Bps": null,
+              "disk_bytes_including_warmup": [
+                166885036032,
+                167703883776,
+                158334578688,
+                145795313664
+              ],
+              "disk_peak_Bps": [
+                25000000000.00002,
+                25000000000.000023,
+                25000000000.000023,
+                25000000000.00002
+              ],
+              "storage_backend": "cpp"
+            }
+          ],
+          "total": 1
+        }
+      },
+      {
+        "index": 3,
+        "arm": "tfs-a01",
+        "smoke": false,
+        "returncode": 0,
+        "started_at": "2026-11-03T18:19:25.855796+08:00",
+        "finished_at": "2026-11-03T18:20:51.609915+08:00",
+        "output": "/home/zed/.local/share/state-aware-network/audits/cpp-delivery-20261103/r2/accept-03-tfs-a01",
+        "checks": {
+          "status": "completed",
+          "completed": [
+            {
+              "case": "mooncake_abc_360_4s_12_100GBps",
+              "arm": "tfs-a01",
+              "returncode": 0,
+              "status": "passed",
+              "smoke": false,
+              "requests": 360,
+              "warmup_requests": 72,
+              "K": 1,
+              "shared_storage_Bps": 100000000000.0,
+              "mean_ttft_ms": 1791.572150925,
+              "p95_ttft_ms": 4877.862819999962,
+              "slo_pct": 10.277777777777777,
+              "completion_ms": 8257.865208,
+              "measured_read_bytes": 539571462144,
+              "storage_disks": 4,
+              "disk_Bps": 25000000000.0,
+              "shared_link_Bps": null,
+              "disk_bytes_including_warmup": [
+                166885036032,
+                167703883776,
+                158334578688,
+                145795313664
+              ],
+              "disk_peak_Bps": [
+                25000000000.000015,
+                25000000000.000015,
+                25000000000.000023,
+                25000000000.000015
+              ],
+              "storage_backend": "cpp"
+            }
+          ],
+          "total": 1
+        }
+      }
+    ]
+  },
+  "retained_failures": [
+    {
+      "stage": "initial full unit suite",
+      "tests": 346,
+      "errors": 1,
+      "reason": "Old audit fixture omitted storage.final.json; fixture updated, final 348 passed",
+      "log_sha256": "a3062cb61201a9566b2ad9882d85775504a1ed2ed5fd0c99f4a86d9b816dbdb5"
+    },
+    {
+      "stage": "first delivery smoke preparation",
+      "reason": "CLI could not import sim from outside package root; explicit package path added; no requests executed",
+      "log_sha256": "86cd8991a9a3bb04b437f506efbe5ce17b78e6f0d85f5b914c3efc4b90b34dfb"
+    }
+  ],
+  "research_commit": "d2ccf1921d92faddd2e6e5bb0f9d5890e90b8998",
+  "delivery_base": "c0918d0514bf30716e13634a591613ed4960136f",
+  "raw_events_included": false
+}

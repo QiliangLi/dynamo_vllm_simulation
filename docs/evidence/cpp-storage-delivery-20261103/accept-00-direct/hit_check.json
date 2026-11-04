@@ -1,0 +1,72 @@
+{
+  "status": "pass",
+  "cache_model": "first_seen",
+  "requests": {
+    "conversation:L49": {
+      "hit_tokens": 5376,
+      "u_tokens": 15,
+      "actual_shapes": [
+        [
+          5376,
+          15
+        ]
+      ],
+      "read_bytes": 590413824
+    },
+    "conversation:L98": {
+      "hit_tokens": 120624,
+      "u_tokens": 9,
+      "actual_shapes": [
+        [
+          120624,
+          9
+        ]
+      ],
+      "read_bytes": 13247410176
+    },
+    "conversation:L155": {
+      "hit_tokens": 208,
+      "u_tokens": 768,
+      "actual_shapes": [
+        [
+          208,
+          768
+        ]
+      ],
+      "read_bytes": 22843392
+    },
+    "conversation:L323": {
+      "hit_tokens": 1088,
+      "u_tokens": 4152,
+      "actual_shapes": [
+        [
+          1088,
+          4152
+        ]
+      ],
+      "read_bytes": 119488512
+    },
+    "conversation:L247": {
+      "hit_tokens": 0,
+      "u_tokens": 892,
+      "actual_shapes": [
+        [
+          0,
+          892
+        ]
+      ],
+      "read_bytes": 0
+    },
+    "conversation:L217": {
+      "hit_tokens": 0,
+      "u_tokens": 965,
+      "actual_shapes": [
+        [
+          0,
+          965
+        ]
+      ],
+      "read_bytes": 0
+    }
+  }
+}

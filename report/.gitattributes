@@ -7,3 +7,5 @@
 **/report_data/** -text -whitespace
 **/online_timeline/** -text -whitespace
 **/figure/** -text
+# Reproduction files are also included in each report's exact-byte manifest.
+**/reproduce/** -text

@@ -282,7 +282,7 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
     source = {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
               for p in [*sorted((ROOT/"sim/stack").glob("*.py")),ROOT/"sim/admission.py",
                         ROOT/"sim/compute_time.py",ROOT/"sim/control_events.py",ROOT/"sim/request_profile.py",ROOT/"sim/storage.py",
-                        ROOT/"sim/grouped_storage.py",ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
+                        ROOT/"sim/grouped_storage.py",ROOT/"sim/cpp_grouped_storage.py",ROOT/"sim/native/grouped_storage.cpp",ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
                         ROOT/"sim/priority.py",ROOT/"sim/reference_time.py",
                         *sorted((ROOT/'sim/timing_models').glob('*.py')),
                         ROOT/'sim/timing_models/source.json',
@@ -523,6 +523,7 @@ def main():
     parser.add_argument("--workers",type=int,default=2)
     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
     parser.add_argument("--kv-mode",choices=["bulk","layer_serial","layer_pipeline"],help="KV loading/execution mode")
+    parser.add_argument("--storage-backend", choices=["python", "cpp"], help="optional native independent-disk layerwise backend")
     parser.add_argument("--time-scale",type=float,help="override wall_time_scale (>=1)")
     parser.add_argument('--storage-gc-policy', choices=['automatic', 'defer_during_run'],
                         help='default defer_during_run; automatic reproduces legacy GC behavior')
@@ -542,6 +543,8 @@ def main():
     if os.environ.get("PYTHONHASHSEED") != "0":
         parser.error("set PYTHONHASHSEED=0 for deterministic verification and child-process block hashes")
     cfg = json.loads(args.config.read_text())
+    if args.storage_backend is not None:
+        cfg.setdefault("storage", {})["backend"] = args.storage_backend
     if args.request_ordering is not None:
         cfg.update(request_ordering=args.request_ordering,
                    policy='priority' if args.request_ordering=='edf' else 'fcfs')

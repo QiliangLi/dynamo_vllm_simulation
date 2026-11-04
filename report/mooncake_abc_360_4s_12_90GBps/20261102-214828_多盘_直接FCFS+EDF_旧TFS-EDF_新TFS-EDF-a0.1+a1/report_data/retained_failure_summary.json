@@ -1,0 +1,13 @@
+{
+  "audit": "disk-matrix-20261102-r1",
+  "phase": "synthetic old-tfs smoke",
+  "error": "no observed native load reservation",
+  "cause": "1-second sampling missed subsecond positive load",
+  "evidence": "native selector raw_prefill_blocks: 21.750",
+  "correction": "positive native raw-prefill log accepted as additional activity evidence; native score comparison, minimum selection and zero final ledger still required",
+  "strategy_changed": false,
+  "polling_changed": false,
+  "full_regressions_passed": 336,
+  "formal_runs_before_correction": 0,
+  "r2_attempt_failures": 0
+}

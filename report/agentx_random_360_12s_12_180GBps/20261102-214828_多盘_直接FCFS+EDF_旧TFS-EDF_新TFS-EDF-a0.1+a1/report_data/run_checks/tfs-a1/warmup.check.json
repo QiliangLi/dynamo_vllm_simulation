@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "requests": 72,
+  "coverage": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "pending_reads": 0,
+  "threshold_reset": true,
+  "shared_http_client": true,
+  "prefix_cache": false
+}

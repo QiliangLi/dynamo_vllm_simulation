@@ -1,0 +1,981 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "date": "2026-11-03",
+  "research_base": "09312a5b956c6120e4dc448afee1e2f9cbffdfbc",
+  "delivery_base": "c0918d0514bf30716e13634a591613ed4960136f",
+  "runtime_change": "sim/grouped_storage.py only",
+  "unit_tests": 342,
+  "smokes": 2,
+  "formal_runs": 8,
+  "formal_read_bytes_per_run": 539571462144,
+  "input_sha256": "afb2b6c2f8015bcd224410b0e9e6d9d626115c2a85b8d89dd2bc7e43ee65c308",
+  "replay": {
+    "status": "passed",
+    "source_run": "/home/zed/.local/share/state-aware-network/audits/disk-matrix-20261102-r2/matrix/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+    "formal_layer_reads": 25740,
+    "result_equality": "bit-for-bit completion times and per-disk byte counters",
+    "runs": [
+      {
+        "seconds": 7.639129259000015,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "before"
+      },
+      {
+        "seconds": 3.7663700729999903,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "cached"
+      },
+      {
+        "seconds": 3.77275440599999,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "cached"
+      },
+      {
+        "seconds": 7.703795297999989,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "before"
+      },
+      {
+        "seconds": 8.900492342999996,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "before"
+      },
+      {
+        "seconds": 4.545235792999989,
+        "advance_calls": 171932,
+        "disk_bytes": [
+          140400758784.0,
+          141767847936.0,
+          133916749824.0,
+          123486105600.0
+        ],
+        "bytes": 539571462144.0,
+        "finish_s": 53.214338754759936,
+        "completion_sha256": "56a78e13e7078e210798f6ff059e93e2675da13241f27aeac685cb80a7ea677f",
+        "max_recorded_completion_error_s": 0.0,
+        "variant": "cached"
+      }
+    ],
+    "baseline_sha256": "bc5e8bbc2cb9e801f8c4c74cca671c5e699f4d2da478bc2e440f75e17c086827",
+    "cached_sha256": "65e9cfc55b69a73c72be896be02b4a24a58c8d89eaa7cfd93d03a081b37de603",
+    "before_median_s": 7.703795297999989,
+    "cached_median_s": 3.77275440599999,
+    "runtime_reduction_pct": 51.02732795899381
+  },
+  "online_summary": [
+    {
+      "arm": "direct",
+      "variant": "before",
+      "repeats": 2,
+      "completion_ms": 15614.981701499986,
+      "mean_ttft_ms": 5564.477108818057,
+      "p95_ttft_ms": 10025.05440250001,
+      "slo_pct": 3.1944444444444446,
+      "model_compute_pct": 20.060799919991,
+      "mean_bandwidth_GBps": 34.584515090983245,
+      "no_global_inflight_io_pct": 63.448520201174944,
+      "bandwidth_while_io_active_GBps": 94.61896790297433,
+      "completion_runs_ms": [
+        15156.727060000008,
+        16073.236342999962
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 4.247644757339176,
+        "storage_rpc.layer_status": 8.317957362461968,
+        "storage_service.layer_submit": 4.326492142126771,
+        "storage_service.layer_submit.lock": 3.1432009329242843,
+        "storage_service.layer_submit.process": 0.43953911179454763,
+        "storage_service.layer_status": 7.265405744329019,
+        "storage_service.layer_status.lock": 5.982915760998596,
+        "storage_service.layer_status.process": 0.63510294610905
+      }
+    },
+    {
+      "arm": "direct",
+      "variant": "cached",
+      "repeats": 2,
+      "completion_ms": 11979.078211000002,
+      "mean_ttft_ms": 4166.104222594444,
+      "p95_ttft_ms": 7585.489820999996,
+      "slo_pct": 3.4722222222222223,
+      "model_compute_pct": 26.33971382745593,
+      "mean_bandwidth_GBps": 45.07787294799857,
+      "no_global_inflight_io_pct": 52.47556922204505,
+      "bandwidth_while_io_active_GBps": 94.85234239138228,
+      "completion_runs_ms": [
+        12313.123023999993,
+        11645.03339800001
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 2.7120582379536278,
+        "storage_rpc.layer_status": 5.204609361030796,
+        "storage_service.layer_submit": 2.703117792435428,
+        "storage_service.layer_submit.lock": 1.8659073904412455,
+        "storage_service.layer_submit.process": 0.2474869899518204,
+        "storage_service.layer_status": 4.429913059375963,
+        "storage_service.layer_status.lock": 3.3551809220571247,
+        "storage_service.layer_status.process": 0.41534246578131406
+      }
+    },
+    {
+      "arm": "tfs-a01",
+      "variant": "before",
+      "repeats": 2,
+      "completion_ms": 13668.667498499985,
+      "mean_ttft_ms": 4613.033097086112,
+      "p95_ttft_ms": 9928.704214999982,
+      "slo_pct": 1.8055555555555556,
+      "model_compute_pct": 25.34550805318009,
+      "mean_bandwidth_GBps": 39.61372782778986,
+      "no_global_inflight_io_pct": 57.49912761713178,
+      "bandwidth_while_io_active_GBps": 93.20570136596444,
+      "completion_runs_ms": [
+        12859.958946999996,
+        14477.376049999975
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 2.801530541859747,
+        "storage_rpc.layer_status": 3.5522242547863936,
+        "storage_service.layer_submit": 2.8621262464515405,
+        "storage_service.layer_submit.lock": 2.042371386534483,
+        "storage_service.layer_submit.process": 0.32332160475912974,
+        "storage_service.layer_status": 2.9789041674402883,
+        "storage_service.layer_status.lock": 2.3859130283195196,
+        "storage_service.layer_status.process": 0.2860677137633807
+      }
+    },
+    {
+      "arm": "tfs-a01",
+      "variant": "cached",
+      "repeats": 2,
+      "completion_ms": 11122.793726499993,
+      "mean_ttft_ms": 3323.9941410180554,
+      "p95_ttft_ms": 7521.393989000018,
+      "slo_pct": 4.444444444444445,
+      "model_compute_pct": 31.235174288026663,
+      "mean_bandwidth_GBps": 48.51060907096753,
+      "no_global_inflight_io_pct": 48.00047885145648,
+      "bandwidth_while_io_active_GBps": 93.29042526055923,
+      "completion_runs_ms": [
+        11144.400407000034,
+        11101.18704599995
+      ],
+      "rpc_mean_ms": {
+        "storage_rpc.layer_submit": 2.046394613172307,
+        "storage_rpc.layer_status": 2.4654364127721284,
+        "storage_service.layer_submit": 2.0630395029261335,
+        "storage_service.layer_submit.lock": 1.459752903979596,
+        "storage_service.layer_submit.process": 0.21488283558540033,
+        "storage_service.layer_status": 2.046358156615508,
+        "storage_service.layer_status.lock": 1.5974585885589119,
+        "storage_service.layer_status.process": 0.192285827847057
+      }
+    }
+  ],
+  "online_runs": [
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 5755.699371330556,
+      "p95_ttft_ms": 9946.488196000004,
+      "slo_pct": 3.0555555555555554,
+      "completion_ms": 15156.727060000008,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002
+      ],
+      "variant": "before",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-02-before-direct-r1/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 37.63362876701152,
+      "model_compute_pct": 20.691378278235565,
+      "mean_bandwidth_GBps": 35.59947078337107,
+      "no_global_inflight_io_pct": 62.371616043673086,
+      "bandwidth_while_io_active_GBps": 94.60802468872782,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 10.438020228349698,
+        "p50_ms": 9.96928123563734,
+        "p95_ms": 20.008065986168333
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 4.933488471409121,
+          "p50_ms": 3.236751,
+          "p95_ms": 14.623158
+        },
+        "storage_rpc.layer_status": {
+          "calls": 10054,
+          "mean_ms": 8.332790840362046,
+          "p50_ms": 6.6041705,
+          "p95_ms": 21.826848
+        },
+        "storage_service.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 5.0411499841161795,
+          "p50_ms": 3.2968824999999997,
+          "p95_ms": 15.219519
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 8814,
+          "mean_ms": 3.699932422396188,
+          "p50_ms": 2.2576949999999996,
+          "p95_ms": 12.361203
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 8814,
+          "mean_ms": 0.499448509303381,
+          "p50_ms": 0.16765200000000002,
+          "p95_ms": 2.2153210000000003
+        },
+        "storage_service.layer_status": {
+          "calls": 10054,
+          "mean_ms": 7.098909297095684,
+          "p50_ms": 5.094614,
+          "p95_ms": 20.835646
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 10054,
+          "mean_ms": 5.788399574199324,
+          "p50_ms": 3.6376494999999998,
+          "p95_ms": 19.365174999999997
+        },
+        "storage_service.layer_status.process": {
+          "calls": 10054,
+          "mean_ms": 0.6285791389496718,
+          "p50_ms": 0.10009900000000001,
+          "p95_ms": 3.2774319999999997
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 4147.784170505556,
+      "p95_ttft_ms": 7628.960777999992,
+      "slo_pct": 3.6111111111111107,
+      "completion_ms": 12313.123023999993,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000023,
+        25000000000.000023,
+        25000000000.000023,
+        25000000000.00002
+      ],
+      "variant": "cached",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-03-cached-direct-r1/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 37.95198894187017,
+      "model_compute_pct": 25.68532563989957,
+      "mean_bandwidth_GBps": 43.82084553953535,
+      "no_global_inflight_io_pct": 53.806944429164446,
+      "bandwidth_while_io_active_GBps": 94.86457433485322,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 7.338428335257565,
+        "p50_ms": 7.204861841987764,
+        "p95_ms": 13.489085637615972
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 9048,
+          "mean_ms": 2.6912662921087533,
+          "p50_ms": 1.8712425000000001,
+          "p95_ms": 8.644582
+        },
+        "storage_rpc.layer_status": {
+          "calls": 12937,
+          "mean_ms": 5.272940706268842,
+          "p50_ms": 3.528794,
+          "p95_ms": 13.989596
+        },
+        "storage_service.layer_submit": {
+          "calls": 9048,
+          "mean_ms": 2.6916119228558797,
+          "p50_ms": 1.8952840000000002,
+          "p95_ms": 8.616347999999999
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 9048,
+          "mean_ms": 1.8710293431697613,
+          "p50_ms": 1.3354694999999999,
+          "p95_ms": 6.634003
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 9048,
+          "mean_ms": 0.24505515439876216,
+          "p50_ms": 0.1284065,
+          "p95_ms": 0.911937
+        },
+        "storage_service.layer_status": {
+          "calls": 12937,
+          "mean_ms": 4.532750344129242,
+          "p50_ms": 2.796198,
+          "p95_ms": 13.317395
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 12937,
+          "mean_ms": 3.475556804282291,
+          "p50_ms": 1.746543,
+          "p95_ms": 12.293962
+        },
+        "storage_service.layer_status.process": {
+          "calls": 12937,
+          "mean_ms": 0.42093747824070493,
+          "p50_ms": 0.082822,
+          "p95_ms": 2.2497599999999998
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 3301.977348691666,
+      "p95_ttft_ms": 7517.459050000014,
+      "slo_pct": 2.7777777777777777,
+      "completion_ms": 11144.400407000034,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000023,
+        25000000000.00002,
+        25000000000.000027,
+        25000000000.00002
+      ],
+      "variant": "cached",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-04-cached-tfs-a01-r1/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.93161376447021,
+      "model_compute_pct": 31.354770283059274,
+      "mean_bandwidth_GBps": 48.41637436187987,
+      "no_global_inflight_io_pct": 48.075865624436645,
+      "bandwidth_while_io_active_GBps": 93.24445162954066,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 5.915028451331062,
+        "p50_ms": 5.317810148955715,
+        "p95_ms": 14.954590183620553
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 13182,
+          "mean_ms": 1.9765029713245337,
+          "p50_ms": 0.6457200000000001,
+          "p95_ms": 7.196358
+        },
+        "storage_rpc.layer_status": {
+          "calls": 17348,
+          "mean_ms": 2.3595295866382293,
+          "p50_ms": 0.389507,
+          "p95_ms": 9.51366
+        },
+        "storage_service.layer_submit": {
+          "calls": 13182,
+          "mean_ms": 1.9913672103626157,
+          "p50_ms": 0.6572525,
+          "p95_ms": 7.31872
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 13182,
+          "mean_ms": 1.3735015963434987,
+          "p50_ms": 0.010606500000000001,
+          "p95_ms": 5.843768
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 13182,
+          "mean_ms": 0.2095557037627067,
+          "p50_ms": 0.07301500000000001,
+          "p95_ms": 0.799564
+        },
+        "storage_service.layer_status": {
+          "calls": 17348,
+          "mean_ms": 1.9488610450772423,
+          "p50_ms": 0.3143245,
+          "p95_ms": 8.331871
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 17348,
+          "mean_ms": 1.4958132611828452,
+          "p50_ms": 0.009955499999999999,
+          "p95_ms": 7.220487
+        },
+        "storage_service.layer_status.process": {
+          "calls": 17348,
+          "mean_ms": 0.18528147890246713,
+          "p50_ms": 0.0538985,
+          "p95_ms": 0.564389
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 4165.241349577777,
+      "p95_ttft_ms": 9078.631199000029,
+      "slo_pct": 1.6666666666666667,
+      "completion_ms": 12859.958946999996,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000015,
+        25000000000.000015,
+        25000000000.000015,
+        25000000000.000015
+      ],
+      "variant": "before",
+      "repeat": 1,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-05-before-tfs-a01-r1/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.5197576043021,
+      "model_compute_pct": 26.90506100850082,
+      "mean_bandwidth_GBps": 41.95747936426132,
+      "no_global_inflight_io_pct": 54.99347359929154,
+      "bandwidth_while_io_active_GBps": 93.22532245812432,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 7.257871768865391,
+        "p50_ms": 6.119119318359623,
+        "p95_ms": 20.131050918863025
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 12948,
+          "mean_ms": 2.5852015837194933,
+          "p50_ms": 1.2506754999999998,
+          "p95_ms": 9.669087
+        },
+        "storage_rpc.layer_status": {
+          "calls": 17101,
+          "mean_ms": 3.1273683889831,
+          "p50_ms": 0.584586,
+          "p95_ms": 13.059604
+        },
+        "storage_service.layer_submit": {
+          "calls": 12948,
+          "mean_ms": 2.670986453042941,
+          "p50_ms": 1.323172,
+          "p95_ms": 9.955432
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 12948,
+          "mean_ms": 1.913049469261662,
+          "p50_ms": 0.7066375,
+          "p95_ms": 7.850709000000001
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 12948,
+          "mean_ms": 0.3141816217948718,
+          "p50_ms": 0.081955,
+          "p95_ms": 1.153207
+        },
+        "storage_service.layer_status": {
+          "calls": 17101,
+          "mean_ms": 2.6393851742588152,
+          "p50_ms": 0.501134,
+          "p95_ms": 11.578531
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 17101,
+          "mean_ms": 2.156608063855915,
+          "p50_ms": 0.010307,
+          "p95_ms": 10.651272
+        },
+        "storage_service.layer_status.process": {
+          "calls": 17101,
+          "mean_ms": 0.2419969200631542,
+          "p50_ms": 0.068262,
+          "p95_ms": 0.705908
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 4184.424274683332,
+      "p95_ttft_ms": 7542.018864,
+      "slo_pct": 3.3333333333333335,
+      "completion_ms": 11645.03339800001,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00002,
+        25000000000.000023,
+        25000000000.000027,
+        25000000000.00002
+      ],
+      "variant": "cached",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-06-cached-direct-r2/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 37.721666341660494,
+      "model_compute_pct": 26.994102015012288,
+      "mean_bandwidth_GBps": 46.33490035646179,
+      "no_global_inflight_io_pct": 51.14419401492566,
+      "bandwidth_while_io_active_GBps": 94.84011044791134,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 7.480257239910847,
+        "p50_ms": 7.455025072626853,
+        "p95_ms": 14.44565421791566
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 2.732850183798502,
+          "p50_ms": 1.8190005,
+          "p95_ms": 8.94527
+        },
+        "storage_rpc.layer_status": {
+          "calls": 12854,
+          "mean_ms": 5.136278015792749,
+          "p50_ms": 3.1717335,
+          "p95_ms": 13.864557
+        },
+        "storage_service.layer_submit": {
+          "calls": 8814,
+          "mean_ms": 2.714623662014976,
+          "p50_ms": 1.839273,
+          "p95_ms": 8.981541
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 8814,
+          "mean_ms": 1.8607854377127298,
+          "p50_ms": 1.2332285,
+          "p95_ms": 7.320829
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 8814,
+          "mean_ms": 0.2499188255048786,
+          "p50_ms": 0.13142250000000003,
+          "p95_ms": 0.894668
+        },
+        "storage_service.layer_status": {
+          "calls": 12854,
+          "mean_ms": 4.327075774622685,
+          "p50_ms": 2.4587805,
+          "p95_ms": 13.102574
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 12854,
+          "mean_ms": 3.2348050398319588,
+          "p50_ms": 1.487846,
+          "p95_ms": 12.086428
+        },
+        "storage_service.layer_status.process": {
+          "calls": 12854,
+          "mean_ms": 0.40974745332192314,
+          "p50_ms": 0.099782,
+          "p95_ms": 2.217362
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "direct",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 5373.254846305557,
+      "p95_ttft_ms": 10103.620609000018,
+      "slo_pct": 3.3333333333333335,
+      "completion_ms": 16073.236342999962,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000023,
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002
+      ],
+      "variant": "before",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-07-before-direct-r2/mooncake_abc_360_4s_12_100GBps/package/results/direct/run",
+      "model_s": 37.476785203056515,
+      "model_compute_pct": 19.430221561746436,
+      "mean_bandwidth_GBps": 33.56955939859543,
+      "no_global_inflight_io_pct": 64.5254243586768,
+      "bandwidth_while_io_active_GBps": 94.62991111722086,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 10.650159187358511,
+        "p50_ms": 11.05678332415394,
+        "p95_ms": 17.877213382213597
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 8736,
+          "mean_ms": 3.561801043269231,
+          "p50_ms": 2.2172815,
+          "p95_ms": 12.074418
+        },
+        "storage_rpc.layer_status": {
+          "calls": 10785,
+          "mean_ms": 8.303123884561892,
+          "p50_ms": 5.70685,
+          "p95_ms": 20.519722
+        },
+        "storage_service.layer_submit": {
+          "calls": 8736,
+          "mean_ms": 3.611834300137363,
+          "p50_ms": 2.2778479999999997,
+          "p95_ms": 12.407471
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 8736,
+          "mean_ms": 2.5864694434523807,
+          "p50_ms": 1.5604675000000001,
+          "p95_ms": 9.956011
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 8736,
+          "mean_ms": 0.3796297142857143,
+          "p50_ms": 0.15330600000000003,
+          "p95_ms": 1.564059
+        },
+        "storage_service.layer_status": {
+          "calls": 10785,
+          "mean_ms": 7.431902191562355,
+          "p50_ms": 4.855334999999999,
+          "p95_ms": 19.811307
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 10785,
+          "mean_ms": 6.177431947797868,
+          "p50_ms": 3.284393,
+          "p95_ms": 19.001754
+        },
+        "storage_service.layer_status.process": {
+          "calls": 10785,
+          "mean_ms": 0.6416267532684284,
+          "p50_ms": 0.09203499999999999,
+          "p95_ms": 3.5112170000000003
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 5060.824844594446,
+      "p95_ttft_ms": 10778.777230999935,
+      "slo_pct": 1.9444444444444444,
+      "completion_ms": 14477.376049999975,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.000015,
+        25000000000.00002,
+        25000000000.000023,
+        25000000000.000015
+      ],
+      "variant": "before",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-08-before-tfs-a01-r2/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.32298599921488,
+      "model_compute_pct": 23.785955097859365,
+      "mean_bandwidth_GBps": 37.26997629131841,
+      "no_global_inflight_io_pct": 60.004781634972026,
+      "bandwidth_while_io_active_GBps": 93.18608027380458,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 8.601424427132669,
+        "p50_ms": 7.953369810561384,
+        "p95_ms": 21.51760458897911
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 12870,
+          "mean_ms": 3.0178595,
+          "p50_ms": 1.0514255000000001,
+          "p95_ms": 12.084572999999999
+        },
+        "storage_rpc.layer_status": {
+          "calls": 16212,
+          "mean_ms": 3.9770801205896866,
+          "p50_ms": 0.7291165000000001,
+          "p95_ms": 16.449528
+        },
+        "storage_service.layer_submit": {
+          "calls": 12870,
+          "mean_ms": 3.05326603986014,
+          "p50_ms": 1.0282915,
+          "p95_ms": 12.269798
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 12870,
+          "mean_ms": 2.1716933038073036,
+          "p50_ms": 0.014062,
+          "p95_ms": 9.918123
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 12870,
+          "mean_ms": 0.33246158772338774,
+          "p50_ms": 0.095331,
+          "p95_ms": 1.2285709999999999
+        },
+        "storage_service.layer_status": {
+          "calls": 16212,
+          "mean_ms": 3.318423160621762,
+          "p50_ms": 0.635388,
+          "p95_ms": 14.415643000000001
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 16212,
+          "mean_ms": 2.6152179927831236,
+          "p50_ms": 0.012885500000000001,
+          "p95_ms": 13.243463
+        },
+        "storage_service.layer_status.process": {
+          "calls": 16212,
+          "mean_ms": 0.33013850746360723,
+          "p50_ms": 0.081307,
+          "p95_ms": 0.942875
+        }
+      }
+    },
+    {
+      "status": "passed",
+      "case": "mooncake_abc_360_4s_12_100GBps",
+      "arm": "tfs-a01",
+      "smoke": false,
+      "requests": 360,
+      "warmup_requests": 72,
+      "K": 1,
+      "shared_storage_Bps": 100000000000.0,
+      "mean_ttft_ms": 3346.0109333444443,
+      "p95_ttft_ms": 7525.328928000022,
+      "slo_pct": 6.111111111111111,
+      "completion_ms": 11101.18704599995,
+      "measured_read_bytes": 539571462144,
+      "storage_disks": 4,
+      "disk_Bps": 25000000000.0,
+      "shared_link_Bps": null,
+      "disk_bytes_including_warmup": [
+        166885036032,
+        167703883776,
+        158334578688,
+        145795313664
+      ],
+      "disk_peak_Bps": [
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002,
+        25000000000.00002
+      ],
+      "variant": "cached",
+      "repeat": 2,
+      "run": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1/job-09-cached-tfs-a01-r2/mooncake_abc_360_4s_12_100GBps/package/results/tfs-a01/run",
+      "model_s": 41.45038256099794,
+      "model_compute_pct": 31.11557829299405,
+      "mean_bandwidth_GBps": 48.6048437800552,
+      "no_global_inflight_io_pct": 47.92509207847632,
+      "bandwidth_while_io_active_GBps": 93.33639889157782,
+      "read_observation_delay": {
+        "calls": 25740,
+        "mean_ms": 6.005553202904641,
+        "p50_ms": 5.685827849294611,
+        "p95_ms": 14.552708943341486
+      },
+      "rpc": {
+        "storage_rpc.layer_submit": {
+          "calls": 12948,
+          "mean_ms": 2.1162862550200803,
+          "p50_ms": 0.9863605000000001,
+          "p95_ms": 8.284116
+        },
+        "storage_rpc.layer_status": {
+          "calls": 16856,
+          "mean_ms": 2.5713432389060276,
+          "p50_ms": 0.5048025,
+          "p95_ms": 10.650395
+        },
+        "storage_service.layer_submit": {
+          "calls": 12948,
+          "mean_ms": 2.134711795489651,
+          "p50_ms": 0.9670805,
+          "p95_ms": 8.474822
+        },
+        "storage_service.layer_submit.lock": {
+          "calls": 12948,
+          "mean_ms": 1.5460042116156936,
+          "p50_ms": 0.016031000000000004,
+          "p95_ms": 6.682869
+        },
+        "storage_service.layer_submit.process": {
+          "calls": 12948,
+          "mean_ms": 0.22020996740809393,
+          "p50_ms": 0.07393,
+          "p95_ms": 0.8383200000000001
+        },
+        "storage_service.layer_status": {
+          "calls": 16856,
+          "mean_ms": 2.1438552681537733,
+          "p50_ms": 0.4018025,
+          "p95_ms": 9.428239
+        },
+        "storage_service.layer_status.lock": {
+          "calls": 16856,
+          "mean_ms": 1.6991039159349788,
+          "p50_ms": 0.011008500000000001,
+          "p95_ms": 8.561193
+        },
+        "storage_service.layer_status.process": {
+          "calls": 16856,
+          "mean_ms": 0.19929017679164687,
+          "p50_ms": 0.054505,
+          "p95_ms": 0.688761
+        }
+      }
+    }
+  ],
+  "local_raw_root": "/home/zed/.local/share/state-aware-network/audits/storage-rate-cache-20261103-r1"
+}

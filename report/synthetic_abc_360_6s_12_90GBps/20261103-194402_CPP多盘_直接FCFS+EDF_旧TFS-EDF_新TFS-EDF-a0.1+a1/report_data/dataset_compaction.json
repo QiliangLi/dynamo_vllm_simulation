@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "removed_fields": [
+    "disk_actual_Bps",
+    "disk_demand_Bps"
+  ],
+  "removed_array_count": 720960,
+  "source_sha256": "6765cc841b204864c3d51c95cbfdafc1463621fc0175f1f03204730c188ac75c",
+  "compact_uncompressed_sha256": "0961b89f0e8eabc3717d7f155e366b97fe25e230cc612652231be63b571e6a25",
+  "original_run_summary_comparison": {
+    "status": "passed",
+    "numeric_checks": 225,
+    "source": "/mnt/c/Users/zed/PycharmProjects/state_aware_network/note/tfs_dv/CPP独立多盘六负载五方案-20261103/synthetic_abc_360_6s_12_90GBps/report_data/run_summary.csv",
+    "sha256": "480d0cf911c935e166826db027b5763a9a7a9edae3145fb5885b2ee8aa036523",
+    "note": "只比较列出的同口径数值，不代表模型公式或运行实现已重新验收。"
+  },
+  "preserved": "aggregate events, request/compute/IO records, all clocks and per-disk 10ms integral table"
+}

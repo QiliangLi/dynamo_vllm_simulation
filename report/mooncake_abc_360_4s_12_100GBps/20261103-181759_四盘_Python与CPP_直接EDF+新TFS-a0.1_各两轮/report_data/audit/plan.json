@@ -1,0 +1,62 @@
+[
+  {
+    "backend": "cpp",
+    "arm": "direct",
+    "smoke": true,
+    "repeat": 0
+  },
+  {
+    "backend": "cpp",
+    "arm": "tfs-a01",
+    "smoke": true,
+    "repeat": 0
+  },
+  {
+    "backend": "python",
+    "arm": "direct",
+    "smoke": false,
+    "repeat": 1
+  },
+  {
+    "backend": "cpp",
+    "arm": "direct",
+    "smoke": false,
+    "repeat": 1
+  },
+  {
+    "backend": "cpp",
+    "arm": "tfs-a01",
+    "smoke": false,
+    "repeat": 1
+  },
+  {
+    "backend": "python",
+    "arm": "tfs-a01",
+    "smoke": false,
+    "repeat": 1
+  },
+  {
+    "backend": "cpp",
+    "arm": "direct",
+    "smoke": false,
+    "repeat": 2
+  },
+  {
+    "backend": "python",
+    "arm": "direct",
+    "smoke": false,
+    "repeat": 2
+  },
+  {
+    "backend": "python",
+    "arm": "tfs-a01",
+    "smoke": false,
+    "repeat": 2
+  },
+  {
+    "backend": "cpp",
+    "arm": "tfs-a01",
+    "smoke": false,
+    "repeat": 2
+  }
+]

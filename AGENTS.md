@@ -23,7 +23,10 @@
 - 第四臂tfs-lease（2026-10-31新增）另用带宽派生轻重线、每盘B/s租约账本五步放行与
   读开始/末层读毕事件释放（release_on=lease_events）；其分类口径与反馈模式与三臂不同，
   对照时须同轮重跑四臂，不得与旧轮三臂混比。合同型负载（AgentX/人工ABC）按冻结run_contract
-  只提供三臂。设计见docs/存储带宽租约调度实现方案-20261031.md。
+  只提供三臂。tfs-lease仅支持默认共享链路与Python存储后端，不得进入独立盘/C++矩阵。
+  设计见docs/存储带宽租约调度实现方案-20261031.md。
+- 显式独立多盘矩阵另见[五方案合同](docs/独立多盘五方案矩阵-20261102.md)：仅direct-fcfs使用原生FCFS，其余四种均使用EDF；旧TFS保留网关/动态分类。`--arm all`为该负载适用臂（Mooncake四臂含tfs-lease，合同型负载三臂），`all-five`才选择五方案矩阵（不含tfs-lease）。
+- 分盘实验必须显式指定盘数和单盘GB/s，保持总参考带宽不变；原benchmark配置保持不变。独立盘不能借带宽，TFS仍是全局配额，不能声称已实现逐盘压力治理。
 - 保留原生Dynamo picker、完整资源预留和vLLM token预算/slot分配。
 - 输入JSONL的h/u、token值、顺序、到达时刻不能为获得预期结果而修改。
 - 人工A/B/C/D标签不等于TFS运行期P75分类。首token释放不是实际IO结束释放。
