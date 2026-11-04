@@ -63,7 +63,9 @@ def check(folder, *, require_sampled_load=True):
     assert launch["router_mode"] == "kv"
     argv = launch["argv"]
     assert argv[argv.index("--router-mode")+1] == "kv"
-    assert "--no-router-kv-events" in argv and "--no-router-assume-kv-reuse" in argv
+    from sim.stack.tier_profile import enabled as tier_enabled
+    assert ("--no-router-kv-events" not in argv) if tier_enabled(cfg) else ("--no-router-kv-events" in argv)
+    assert "--no-router-assume-kv-reuse" in argv
     assert argv[argv.index("--router-temperature")+1] == "0"
     assert argv[argv.index("--router-kv-overlap-score-credit")+1] == "0"
     native_log=(folder/"frontend.log").read_text()

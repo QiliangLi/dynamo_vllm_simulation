@@ -55,6 +55,13 @@ def normalize_config(config):
          "retry_interval_wall_s": 0.002, "rpc_transport": "dynamo", "rpc_timeout_wall_s": 5.0,
          "idle_bypass": False}
     a.update(c.get("admission", {}))
+    a.setdefault('profile_source', 'trace')
+    if a['profile_source'] not in ('trace', 'dynamo_tier'):
+        raise ValueError('unknown admission.profile_source')
+    if a['profile_source'] == 'dynamo_tier' and (
+            a['placement'] != 'scheduler' or c.get('router_mode') != 'kv'
+            or c.get('cache_model') == 'first_seen'):
+        raise ValueError('Dynamo tier profiles require kv router, scheduler admission and a real shared-pool lookup; first_seen request binding is unsupported')
     if a['rpc_transport'] not in ('dynamo','tcp','unix'):
         raise ValueError('admission.rpc_transport must be dynamo, tcp or unix')
     if (type(a['rpc_timeout_wall_s']) not in (int,float)

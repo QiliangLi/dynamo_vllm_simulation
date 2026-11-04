@@ -30,7 +30,7 @@ class ReferenceTimeEstimator(ABC):
     def pressure(self, read_bytes, compute_s):
         return read_bytes/compute_s
 
-    def estimate(self, prompt_tokens, cached_tokens):
+    def estimate(self, prompt_tokens, cached_tokens, *, remote_read_tokens=None):
         if not 0 <= cached_tokens < prompt_tokens:
             raise ValueError('reference prefix must leave at least one new token')
         c=self.config
@@ -43,7 +43,11 @@ class ReferenceTimeEstimator(ABC):
             chunks.append(self.compute.estimate_step([(h,u)]))
             h+=u
         compute_s=math.fsum(t['duration_s'] for t in chunks)
-        read_bytes=cached_tokens*c['storage']['kv_bytes_per_token']
+        if remote_read_tokens is None:
+            remote_read_tokens = cached_tokens
+        if type(remote_read_tokens) is not int or not 0 <= remote_read_tokens <= cached_tokens:
+            raise ValueError('remote read tokens must be a subset of cached tokens')
+        read_bytes=remote_read_tokens*c['storage']['kv_bytes_per_token']
         bandwidth=self.effective_bandwidth()
         if not math.isfinite(bandwidth) or bandwidth<=0:
             raise ValueError('reference bandwidth must be positive and finite')

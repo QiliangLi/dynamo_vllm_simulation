@@ -1,0 +1,2361 @@
+{
+  "status": "ready",
+  "fatal": null,
+  "execution_feedback": "disabled",
+  "origin_monotonic_s": 1573.305770233,
+  "rpc": {
+    "endpoint": "dyn://tfs-d423b78895b34aa5b6db2fea70f65f20.ledger.control",
+    "transport": "dynamo",
+    "protocol": "dynamo-admission-v2",
+    "request_plane": "tcp",
+    "codec": "msgpack",
+    "instance_id": 17732780228588796872,
+    "ledger_epoch": "677ffa6d9f2845f883d1fcb861cc9111",
+    "server_pid": 450,
+    "persistent": true,
+    "response_completion": "validated_final_reply",
+    "clock_id": "linux:a7871521-0bb1-4a05-9386-f53e48d300b1:monotonic           0         0\nboottime            0         0"
+  },
+  "routing_score": {
+    "connected": true,
+    "factor": 0.1,
+    "epoch": "6b572222-8c66-420e-85df-c0d17167fe8d",
+    "entries": 6,
+    "registered": 0,
+    "waiting": 0,
+    "active": 0,
+    "closed": 6,
+    "waiting_workers": [
+      {
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "tokens": 0
+      },
+      {
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "tokens": 0
+      }
+    ],
+    "events": [
+      {
+        "event": "registered",
+        "id": "f3e659e97bb842e7a61549e021e9f243",
+        "t_wall_s": 3.080699992,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "f3e659e97bb842e7a61549e021e9f243",
+        "t_wall_s": 3.080729272,
+        "phase": "Waiting",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "1",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "registered",
+        "id": "64af5c391de4481bb0de0a52cc7e1672",
+        "t_wall_s": 3.08181364,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "64af5c391de4481bb0de0a52cc7e1672",
+        "t_wall_s": 3.081841129,
+        "phase": "Waiting",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "3",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "registered",
+        "id": "f345b410f9274e838017d3f3acfbd97e",
+        "t_wall_s": 3.081890151,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "f345b410f9274e838017d3f3acfbd97e",
+        "t_wall_s": 3.081912354,
+        "phase": "Waiting",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "2",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "registered",
+        "id": "d593ec8ef8fc4116af5bc16f359d863e",
+        "t_wall_s": 3.082189135,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "d593ec8ef8fc4116af5bc16f359d863e",
+        "t_wall_s": 3.082207622,
+        "phase": "Waiting",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "4",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "registered",
+        "id": "430b74bdbabb4188b9a3e98b4e83a839",
+        "t_wall_s": 3.082642526,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "430b74bdbabb4188b9a3e98b4e83a839",
+        "t_wall_s": 3.082658034,
+        "phase": "Waiting",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "5",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "registered",
+        "id": "7f5a122dd5f3428fb3da4fcddd8bf95e",
+        "t_wall_s": 3.083342285,
+        "phase": "Registered",
+        "worker_id": null,
+        "dp_rank": null,
+        "attempt": null,
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "bound_waiting",
+        "id": "7f5a122dd5f3428fb3da4fcddd8bf95e",
+        "t_wall_s": 3.083369041,
+        "phase": "Waiting",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "6",
+        "tokens": 1040,
+        "permit_id": null,
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "430b74bdbabb4188b9a3e98b4e83a839",
+        "t_wall_s": 3.099293485,
+        "phase": "Active",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "5",
+        "tokens": 1040,
+        "permit_id": "be20ce62bf2a4a799f4a07f435da4f93",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "430b74bdbabb4188b9a3e98b4e83a839",
+        "t_wall_s": 3.225467617,
+        "phase": "Closed",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "5",
+        "tokens": 1040,
+        "permit_id": "be20ce62bf2a4a799f4a07f435da4f93",
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "f345b410f9274e838017d3f3acfbd97e",
+        "t_wall_s": 3.227671439,
+        "phase": "Active",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "2",
+        "tokens": 1040,
+        "permit_id": "a04e1690fea1475ba1a62a7bbf613777",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "f345b410f9274e838017d3f3acfbd97e",
+        "t_wall_s": 3.314268577,
+        "phase": "Closed",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "2",
+        "tokens": 1040,
+        "permit_id": "a04e1690fea1475ba1a62a7bbf613777",
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "64af5c391de4481bb0de0a52cc7e1672",
+        "t_wall_s": 3.316813462,
+        "phase": "Active",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "3",
+        "tokens": 1040,
+        "permit_id": "779982262dbb4ef68d7eb386aa9986dd",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "64af5c391de4481bb0de0a52cc7e1672",
+        "t_wall_s": 3.400953191,
+        "phase": "Closed",
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "attempt": "3",
+        "tokens": 1040,
+        "permit_id": "779982262dbb4ef68d7eb386aa9986dd",
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "7f5a122dd5f3428fb3da4fcddd8bf95e",
+        "t_wall_s": 3.513297861,
+        "phase": "Active",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "6",
+        "tokens": 1040,
+        "permit_id": "ee8f42c5101640488c8ebe7d736a0723",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "7f5a122dd5f3428fb3da4fcddd8bf95e",
+        "t_wall_s": 3.600704029,
+        "phase": "Closed",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "6",
+        "tokens": 1040,
+        "permit_id": "ee8f42c5101640488c8ebe7d736a0723",
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "f3e659e97bb842e7a61549e021e9f243",
+        "t_wall_s": 3.603205672,
+        "phase": "Active",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "1",
+        "tokens": 1040,
+        "permit_id": "117d667f5b9745c7870941ab3ba53194",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "f3e659e97bb842e7a61549e021e9f243",
+        "t_wall_s": 3.689867419,
+        "phase": "Closed",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "1",
+        "tokens": 1040,
+        "permit_id": "117d667f5b9745c7870941ab3ba53194",
+        "factor": 0.1
+      },
+      {
+        "event": "activated",
+        "id": "d593ec8ef8fc4116af5bc16f359d863e",
+        "t_wall_s": 3.69271662,
+        "phase": "Active",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "4",
+        "tokens": 1040,
+        "permit_id": "7bc440c3ca164f9e879ce7ce4888c9c3",
+        "factor": 0.1
+      },
+      {
+        "event": "closed",
+        "id": "d593ec8ef8fc4116af5bc16f359d863e",
+        "t_wall_s": 3.776651518,
+        "phase": "Closed",
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "attempt": "4",
+        "tokens": 1040,
+        "permit_id": "7bc440c3ca164f9e879ce7ce4888c9c3",
+        "factor": 0.1
+      }
+    ]
+  },
+  "permits": {
+    "be20ce62bf2a4a799f4a07f435da4f93": {
+      "permit_id": "be20ce62bf2a4a799f4a07f435da4f93",
+      "id": "tier-smoke-0",
+      "worker": 0,
+      "attempt": 1,
+      "acquisition_key": "430b74bd-babb-4188-b9a3-e98b4e83a839-9a4c3325:allocation:0",
+      "state": "released",
+      "granted_s": 0.6530023166999968,
+      "registered_s": 0.6530023166999968,
+      "forced": false,
+      "released_s": 0.6593578628500041,
+      "release_reason": "first_token"
+    },
+    "a04e1690fea1475ba1a62a7bbf613777": {
+      "permit_id": "a04e1690fea1475ba1a62a7bbf613777",
+      "id": "tier-smoke-3",
+      "worker": 0,
+      "attempt": 1,
+      "acquisition_key": "f345b410-f927-4e83-8017-d3f3acfbd97e-969bffdc:allocation:0",
+      "state": "released",
+      "granted_s": 0.6594574302500064,
+      "registered_s": 0.6594574302500064,
+      "forced": false,
+      "released_s": 0.6637993824499973,
+      "release_reason": "first_token"
+    },
+    "779982262dbb4ef68d7eb386aa9986dd": {
+      "permit_id": "779982262dbb4ef68d7eb386aa9986dd",
+      "id": "tier-smoke-5",
+      "worker": 0,
+      "attempt": 1,
+      "acquisition_key": "64af5c39-1de4-481b-b0de-0a52cc7e1672-af43863b:allocation:0",
+      "state": "released",
+      "granted_s": 0.6639124428500054,
+      "registered_s": 0.6639124428500054,
+      "forced": false,
+      "released_s": 0.6681511753999985,
+      "release_reason": "first_token"
+    },
+    "ee8f42c5101640488c8ebe7d736a0723": {
+      "permit_id": "ee8f42c5101640488c8ebe7d736a0723",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "attempt": 1,
+      "acquisition_key": "7f5a122d-d5f3-428f-b3da-4fcddd8bf95e-8bdc446f:allocation:0",
+      "state": "released",
+      "granted_s": 0.6737338059499962,
+      "registered_s": 0.6737338059499962,
+      "forced": false,
+      "released_s": 0.6781186873500019,
+      "release_reason": "first_token"
+    },
+    "117d667f5b9745c7870941ab3ba53194": {
+      "permit_id": "117d667f5b9745c7870941ab3ba53194",
+      "id": "tier-smoke-2",
+      "worker": 1,
+      "attempt": 1,
+      "acquisition_key": "f3e659e9-7bb8-42e7-a615-49e021e9f243-aaeb5eeb:allocation:0",
+      "state": "released",
+      "granted_s": 0.6782360075500037,
+      "registered_s": 0.6782360075500037,
+      "forced": false,
+      "released_s": 0.6825674911499959,
+      "release_reason": "first_token"
+    },
+    "7bc440c3ca164f9e879ce7ce4888c9c3": {
+      "permit_id": "7bc440c3ca164f9e879ce7ce4888c9c3",
+      "id": "tier-smoke-4",
+      "worker": 1,
+      "attempt": 1,
+      "acquisition_key": "d593ec8e-f8fc-4116-af5b-c16f359d863e-a38796c0:allocation:0",
+      "state": "released",
+      "granted_s": 0.6827075470500062,
+      "registered_s": 0.6827075470500062,
+      "forced": false,
+      "released_s": 0.686926723199997,
+      "release_reason": "first_token"
+    }
+  },
+  "storage_hints": {
+    "tier-smoke-2": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 1
+    },
+    "tier-smoke-3": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 2
+    },
+    "tier-smoke-5": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 3
+    },
+    "tier-smoke-4": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 4
+    },
+    "tier-smoke-0": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 5
+    },
+    "tier-smoke-1": {
+      "version": 1,
+      "is_heavy_read": true,
+      "estimated_remote_read_bytes": 33554432,
+      "threshold_version": 6
+    },
+    "tier-smoke-7": {
+      "version": 1,
+      "is_heavy_read": false,
+      "estimated_remote_read_bytes": 0,
+      "threshold_version": 7
+    },
+    "tier-smoke-6": {
+      "version": 1,
+      "is_heavy_read": false,
+      "estimated_remote_read_bytes": 0,
+      "threshold_version": 8
+    }
+  },
+  "wall_time_scale": 20,
+  "snapshot": {
+    "now_s": 0.7048673781500042,
+    "threshold_version": 8,
+    "heavy_threshold_Bps": 8843337080.530964,
+    "heavy_cap": 1,
+    "heavy_held": 0,
+    "pending_ids": []
+  },
+  "records": {
+    "tier-smoke-2": {
+      "profile": {
+        "request_id": "tier-smoke-2",
+        "arrival_s": 0.6472111271000017,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6642855575582077
+      },
+      "state": "FINISHED",
+      "worker_id": 1,
+      "reserved_s": 0.6782360075500037,
+      "submitted_s": 0.6520623418500009,
+      "first_token_s": 0.6825658207500055,
+      "finish_s": 0.682624511649999,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-3": {
+      "profile": {
+        "request_id": "tier-smoke-3",
+        "arrival_s": 0.6472669476499959,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6643413781082019
+      },
+      "state": "FINISHED",
+      "worker_id": 0,
+      "reserved_s": 0.6594574302500064,
+      "submitted_s": 0.6521049781499982,
+      "first_token_s": 0.6637969067999961,
+      "finish_s": 0.6638500887499958,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-5": {
+      "profile": {
+        "request_id": "tier-smoke-5",
+        "arrival_s": 0.647382290500002,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.664456720958208
+      },
+      "state": "FINISHED",
+      "worker_id": 0,
+      "reserved_s": 0.6639124428500054,
+      "submitted_s": 0.6521328495000034,
+      "first_token_s": 0.6681491617999995,
+      "finish_s": 0.6681758872000045,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-4": {
+      "profile": {
+        "request_id": "tier-smoke-4",
+        "arrival_s": 0.6473285042000043,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6644029346582103
+      },
+      "state": "FINISHED",
+      "worker_id": 1,
+      "reserved_s": 0.6827075470500062,
+      "submitted_s": 0.6521612775999983,
+      "first_token_s": 0.6869246588500004,
+      "finish_s": 0.6869603926499963,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-0": {
+      "profile": {
+        "request_id": "tier-smoke-0",
+        "arrival_s": 0.6471550563500046,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6642294868082106
+      },
+      "state": "FINISHED",
+      "worker_id": 0,
+      "reserved_s": 0.6530023166999968,
+      "submitted_s": 0.6521892065999964,
+      "first_token_s": 0.6593556291000027,
+      "finish_s": 0.6594032363499991,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-1": {
+      "profile": {
+        "request_id": "tier-smoke-1",
+        "arrival_s": 0.6465019266500007,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6635763571082067
+      },
+      "state": "FINISHED",
+      "worker_id": 1,
+      "reserved_s": 0.6737338059499962,
+      "submitted_s": 0.6522127597000008,
+      "first_token_s": 0.6781171428999982,
+      "finish_s": 0.6781580802999997,
+      "lease_open": false,
+      "lease_release_reason": "first_token",
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-7": {
+      "profile": {
+        "request_id": "tier-smoke-7",
+        "arrival_s": 0.6546451375000061,
+        "class_id": "unlabelled",
+        "prompt_tokens": 512,
+        "estimated_remote_tokens": 0,
+        "estimated_read_bytes": 0,
+        "standalone_compute_s": 0.007555462928441826,
+        "pressure_Bps": 0.0,
+        "reference_service_s": 0.007555462928441826,
+        "deadline_s": 0.6848669892137734
+      },
+      "state": "FINISHED",
+      "worker_id": -1,
+      "reserved_s": null,
+      "submitted_s": 0.6565276249000022,
+      "first_token_s": 0.6739071950500033,
+      "finish_s": 0.6739660601499964,
+      "lease_open": false,
+      "lease_release_reason": null,
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    },
+    "tier-smoke-6": {
+      "profile": {
+        "request_id": "tier-smoke-6",
+        "arrival_s": 0.6546027220000041,
+        "class_id": "unlabelled",
+        "prompt_tokens": 512,
+        "estimated_remote_tokens": 0,
+        "estimated_read_bytes": 0,
+        "standalone_compute_s": 0.007555462928441826,
+        "pressure_Bps": 0.0,
+        "reference_service_s": 0.007555462928441826,
+        "deadline_s": 0.6848245737137715
+      },
+      "state": "FINISHED",
+      "worker_id": -1,
+      "reserved_s": null,
+      "submitted_s": 0.6565520574000061,
+      "first_token_s": 0.6738082195000061,
+      "finish_s": 0.6739348526500066,
+      "lease_open": false,
+      "lease_release_reason": null,
+      "no_external_load": false,
+      "load_submit_s": null,
+      "load_done_s": null,
+      "submitted_read_bytes": 0,
+      "load_attempts": 0
+    }
+  },
+  "delayed_events": 0,
+  "invalid_reasons": [],
+  "events": [
+    {
+      "t": 0.6465032777500028,
+      "event": "request_correlated",
+      "id": "tier-smoke-1",
+      "engine_uuid": "7f5a122d-d5f3-428f-b3da-4fcddd8bf95e"
+    },
+    {
+      "t": 0.6465059621500018,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-1"
+    },
+    {
+      "t": 0.6471558573500034,
+      "event": "request_correlated",
+      "id": "tier-smoke-0",
+      "engine_uuid": "430b74bd-babb-4188-b9a3-e98b4e83a839"
+    },
+    {
+      "t": 0.6471574047499985,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-0"
+    },
+    {
+      "t": 0.647211649150006,
+      "event": "request_correlated",
+      "id": "tier-smoke-2",
+      "engine_uuid": "f3e659e9-7bb8-42e7-a615-49e021e9f243"
+    },
+    {
+      "t": 0.6472123332500018,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-2"
+    },
+    {
+      "t": 0.6472674919500037,
+      "event": "request_correlated",
+      "id": "tier-smoke-3",
+      "engine_uuid": "f345b410-f927-4e83-8017-d3f3acfbd97e"
+    },
+    {
+      "t": 0.6472681519500043,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-3"
+    },
+    {
+      "t": 0.6473292807999996,
+      "event": "request_correlated",
+      "id": "tier-smoke-4",
+      "engine_uuid": "d593ec8e-f8fc-4116-af5b-c16f359d863e"
+    },
+    {
+      "t": 0.6473303959499959,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-4"
+    },
+    {
+      "t": 0.647382782249997,
+      "event": "request_correlated",
+      "id": "tier-smoke-5",
+      "engine_uuid": "64af5c39-1de4-481b-b0de-0a52cc7e1672"
+    },
+    {
+      "t": 0.6473833501000058,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-5"
+    },
+    {
+      "t": 0.6473878076000006,
+      "event": "http_forwarded",
+      "id": "tier-smoke-1",
+      "engine_uuid": "7f5a122d-d5f3-428f-b3da-4fcddd8bf95e"
+    },
+    {
+      "t": 0.6474120040499998,
+      "event": "http_forwarded",
+      "id": "tier-smoke-0",
+      "engine_uuid": "430b74bd-babb-4188-b9a3-e98b4e83a839"
+    },
+    {
+      "t": 0.6474230021000039,
+      "event": "http_forwarded",
+      "id": "tier-smoke-2",
+      "engine_uuid": "f3e659e9-7bb8-42e7-a615-49e021e9f243"
+    },
+    {
+      "t": 0.6474305964999985,
+      "event": "http_forwarded",
+      "id": "tier-smoke-3",
+      "engine_uuid": "f345b410-f927-4e83-8017-d3f3acfbd97e"
+    },
+    {
+      "t": 0.6474373983499959,
+      "event": "http_forwarded",
+      "id": "tier-smoke-4",
+      "engine_uuid": "d593ec8e-f8fc-4116-af5b-c16f359d863e"
+    },
+    {
+      "t": 0.6474439945999961,
+      "event": "http_forwarded",
+      "id": "tier-smoke-5",
+      "engine_uuid": "64af5c39-1de4-481b-b0de-0a52cc7e1672"
+    },
+    {
+      "t": 0.6520625473999985,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-2",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "f3e659e9-7bb8-42e7-a615-49e021e9f243"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.6520604677000051,
+      "event": "request_arrived",
+      "id": "tier-smoke-2",
+      "profile": {
+        "request_id": "tier-smoke-2",
+        "arrival_s": 0.6472111271000017,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6642855575582077
+      }
+    },
+    {
+      "t": 0.6520604677000051,
+      "event": "threshold_updated",
+      "threshold_version": 1,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 1,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6520604677000051,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-2",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 1
+      }
+    },
+    {
+      "t": 0.6520623418500009,
+      "event": "request_submitted",
+      "id": "tier-smoke-2",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6520679934499981,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-2",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 1
+      },
+      "engine_uuid": "f3e659e9-7bb8-42e7-a615-49e021e9f243",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.652105152050001,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-3",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "f345b410-f927-4e83-8017-d3f3acfbd97e"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.652103586450005,
+      "event": "request_arrived",
+      "id": "tier-smoke-3",
+      "profile": {
+        "request_id": "tier-smoke-3",
+        "arrival_s": 0.6472669476499959,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6643413781082019
+      }
+    },
+    {
+      "t": 0.652103586450005,
+      "event": "threshold_updated",
+      "threshold_version": 2,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 2,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.652103586450005,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-3",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 2
+      }
+    },
+    {
+      "t": 0.6521049781499982,
+      "event": "request_submitted",
+      "id": "tier-smoke-3",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6521096307499988,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-3",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 2
+      },
+      "engine_uuid": "f345b410-f927-4e83-8017-d3f3acfbd97e",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.652132978550003,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-5",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "64af5c39-1de4-481b-b0de-0a52cc7e1672"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.6521317984000007,
+      "event": "request_arrived",
+      "id": "tier-smoke-5",
+      "profile": {
+        "request_id": "tier-smoke-5",
+        "arrival_s": 0.647382290500002,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.664456720958208
+      }
+    },
+    {
+      "t": 0.6521317984000007,
+      "event": "threshold_updated",
+      "threshold_version": 3,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 3,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6521317984000007,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-5",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 3
+      }
+    },
+    {
+      "t": 0.6521328495000034,
+      "event": "request_submitted",
+      "id": "tier-smoke-5",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.652137053499996,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-5",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 3
+      },
+      "engine_uuid": "64af5c39-1de4-481b-b0de-0a52cc7e1672",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.652161390599997,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-4",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "d593ec8e-f8fc-4116-af5b-c16f359d863e"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.6521603591500025,
+      "event": "request_arrived",
+      "id": "tier-smoke-4",
+      "profile": {
+        "request_id": "tier-smoke-4",
+        "arrival_s": 0.6473285042000043,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6644029346582103
+      }
+    },
+    {
+      "t": 0.6521603591500025,
+      "event": "threshold_updated",
+      "threshold_version": 4,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 4,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6521603591500025,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-4",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 4
+      }
+    },
+    {
+      "t": 0.6521612775999983,
+      "event": "request_submitted",
+      "id": "tier-smoke-4",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6521656977500015,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-4",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 4
+      },
+      "engine_uuid": "d593ec8e-f8fc-4116-af5b-c16f359d863e",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.6521893407499988,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-0",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 16425429462612424270,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "430b74bd-babb-4188-b9a3-e98b4e83a839"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.6521882502000039,
+      "event": "request_arrived",
+      "id": "tier-smoke-0",
+      "profile": {
+        "request_id": "tier-smoke-0",
+        "arrival_s": 0.6471550563500046,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6642294868082106
+      }
+    },
+    {
+      "t": 0.6521882502000039,
+      "event": "threshold_updated",
+      "threshold_version": 5,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 5,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6521882502000039,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-0",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 5
+      }
+    },
+    {
+      "t": 0.6521892065999964,
+      "event": "request_submitted",
+      "id": "tier-smoke-0",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6521925224500024,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-0",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 5
+      },
+      "engine_uuid": "430b74bd-babb-4188-b9a3-e98b4e83a839",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.6522128716999986,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-1",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 1040,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 1024,
+        "request_id": "7f5a122d-d5f3-428f-b3da-4fcddd8bf95e"
+      },
+      "estimated_remote_tokens": 1024,
+      "cached_prefix_tokens": 1024
+    },
+    {
+      "t": 0.6522118215499972,
+      "event": "request_arrived",
+      "id": "tier-smoke-1",
+      "profile": {
+        "request_id": "tier-smoke-1",
+        "arrival_s": 0.6465019266500007,
+        "class_id": "unlabelled",
+        "prompt_tokens": 1040,
+        "estimated_remote_tokens": 1024,
+        "estimated_read_bytes": 33554432,
+        "standalone_compute_s": 0.0037943178796013225,
+        "pressure_Bps": 8843337080.530964,
+        "reference_service_s": 0.0042686076145514885,
+        "deadline_s": 0.6635763571082067
+      }
+    },
+    {
+      "t": 0.6522118215499972,
+      "event": "threshold_updated",
+      "threshold_version": 6,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 0,
+      "held_before": 0,
+      "history_size": 6,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6522118215499972,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-1",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 6
+      }
+    },
+    {
+      "t": 0.6522127597000008,
+      "event": "request_submitted",
+      "id": "tier-smoke-1",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6522162453499959,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-1",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": true,
+        "estimated_remote_read_bytes": 33554432,
+        "threshold_version": 6
+      },
+      "engine_uuid": "7f5a122d-d5f3-428f-b3da-4fcddd8bf95e",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.6530592984500003,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-0",
+      "permit_id": "be20ce62bf2a4a799f4a07f435da4f93",
+      "duration_wall_ns": 1070151
+    },
+    {
+      "t": 0.6530023166999968,
+      "event": "worker_assigned",
+      "id": "tier-smoke-0",
+      "worker": 0
+    },
+    {
+      "t": 0.6530023166999968,
+      "event": "admission_reserved",
+      "id": "tier-smoke-0",
+      "worker": 0,
+      "permit_id": "be20ce62bf2a4a799f4a07f435da4f93",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 6,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6530023166999968,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.6530657341500046,
+      "event": "worker_assigned",
+      "id": "tier-smoke-1",
+      "worker": 1
+    },
+    {
+      "t": 0.6530657341500046,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6532471414500037,
+      "event": "worker_assigned",
+      "id": "tier-smoke-3",
+      "worker": 0
+    },
+    {
+      "t": 0.6532471414500037,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-3",
+      "worker": 0,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6532921036500057,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6534858933500004,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.653687372950003,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6538960168500012,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6541109125500043,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6542969603500068,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6544913933999965,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6546035392500016,
+      "event": "request_correlated",
+      "id": "tier-smoke-6",
+      "engine_uuid": "da056446-1c3d-4196-97b5-f871ba59f44a"
+    },
+    {
+      "t": 0.654604881199998,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-6"
+    },
+    {
+      "t": 0.6546457592000025,
+      "event": "request_correlated",
+      "id": "tier-smoke-7",
+      "engine_uuid": "0e5c84e7-44a1-4f91-bb15-e1feb2c478dd"
+    },
+    {
+      "t": 0.6546466062000036,
+      "event": "tier_profile_pending",
+      "id": "tier-smoke-7"
+    },
+    {
+      "t": 0.654651349300002,
+      "event": "http_forwarded",
+      "id": "tier-smoke-6",
+      "engine_uuid": "da056446-1c3d-4196-97b5-f871ba59f44a"
+    },
+    {
+      "t": 0.6546664620999991,
+      "event": "http_forwarded",
+      "id": "tier-smoke-7",
+      "engine_uuid": "0e5c84e7-44a1-4f91-bb15-e1feb2c478dd"
+    },
+    {
+      "t": 0.6547616503999961,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6549647035000021,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6551714036500016,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6553760638499966,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6555822587999955,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6557855795500018,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6560032975000013,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6562159901499968,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6564005727999984,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6565277811999977,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-7",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 512,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "request_id": "0e5c84e7-44a1-4f91-bb15-e1feb2c478dd"
+      },
+      "estimated_remote_tokens": 0,
+      "cached_prefix_tokens": 0
+    },
+    {
+      "t": 0.6565262742500068,
+      "event": "request_arrived",
+      "id": "tier-smoke-7",
+      "profile": {
+        "request_id": "tier-smoke-7",
+        "arrival_s": 0.6546451375000061,
+        "class_id": "unlabelled",
+        "prompt_tokens": 512,
+        "estimated_remote_tokens": 0,
+        "estimated_read_bytes": 0,
+        "standalone_compute_s": 0.007555462928441826,
+        "pressure_Bps": 0.0,
+        "reference_service_s": 0.007555462928441826,
+        "deadline_s": 0.6848669892137734
+      }
+    },
+    {
+      "t": 0.6565262742500068,
+      "event": "threshold_updated",
+      "threshold_version": 7,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 1,
+      "held_before": 1,
+      "history_size": 7,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6565262742500068,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-7",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": false,
+        "estimated_remote_read_bytes": 0,
+        "threshold_version": 7
+      }
+    },
+    {
+      "t": 0.6565276249000022,
+      "event": "request_submitted",
+      "id": "tier-smoke-7",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6565320363000069,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-7",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": false,
+        "estimated_remote_read_bytes": 0,
+        "threshold_version": 7
+      },
+      "engine_uuid": "0e5c84e7-44a1-4f91-bb15-e1feb2c478dd",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.6565521666999985,
+      "event": "dynamo_tier_profile_resolved",
+      "id": "tier-smoke-6",
+      "snapshot": {
+        "version": 1,
+        "worker_id": 214605792464537067,
+        "dp_rank": 0,
+        "block_size": 1,
+        "prompt_tokens": 512,
+        "dp_device_blocks": [
+          [
+            0,
+            0
+          ]
+        ],
+        "gpu_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "request_id": "da056446-1c3d-4196-97b5-f871ba59f44a"
+      },
+      "estimated_remote_tokens": 0,
+      "cached_prefix_tokens": 0
+    },
+    {
+      "t": 0.6565510844500068,
+      "event": "request_arrived",
+      "id": "tier-smoke-6",
+      "profile": {
+        "request_id": "tier-smoke-6",
+        "arrival_s": 0.6546027220000041,
+        "class_id": "unlabelled",
+        "prompt_tokens": 512,
+        "estimated_remote_tokens": 0,
+        "estimated_read_bytes": 0,
+        "standalone_compute_s": 0.007555462928441826,
+        "pressure_Bps": 0.0,
+        "reference_service_s": 0.007555462928441826,
+        "deadline_s": 0.6848245737137715
+      }
+    },
+    {
+      "t": 0.6565510844500068,
+      "event": "threshold_updated",
+      "threshold_version": 8,
+      "theta": 8843337080.530964,
+      "raw_quantile": 8843337080.530964,
+      "cap": 1,
+      "held": 1,
+      "held_before": 1,
+      "history_size": 8,
+      "reclassified_over_cap": false,
+      "zero_rule": "minimum_positive_if_quantile_zero"
+    },
+    {
+      "t": 0.6565510844500068,
+      "event": "storage_hint_created",
+      "id": "tier-smoke-6",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": false,
+        "estimated_remote_read_bytes": 0,
+        "threshold_version": 8
+      }
+    },
+    {
+      "t": 0.6565520574000061,
+      "event": "request_submitted",
+      "id": "tier-smoke-6",
+      "worker": -1,
+      "reserved": false
+    },
+    {
+      "t": 0.6565550161500028,
+      "event": "storage_hint_forwarded",
+      "id": "tier-smoke-6",
+      "hint": {
+        "version": 1,
+        "is_heavy_read": false,
+        "estimated_remote_read_bytes": 0,
+        "threshold_version": 8
+      },
+      "engine_uuid": "da056446-1c3d-4196-97b5-f871ba59f44a",
+      "source": "dynamo_tier"
+    },
+    {
+      "t": 0.656586183349998,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6567734482999981,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6592639193499963,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-3",
+      "worker": 0,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6593565893000004,
+      "event": "feedback_received",
+      "id": "tier-smoke-0",
+      "kind": "first_token",
+      "event_id": "gateway:1",
+      "worker": 0,
+      "occurred_s": 0.6593556291000027,
+      "visible_s": 0.6593556291000027,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6593593782499966,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-0",
+      "kind": "first_token",
+      "event_id": "gateway:1",
+      "occurred_s": 0.6593556291000027,
+      "visible_s": 0.6593556291000027,
+      "worker": 0
+    },
+    {
+      "t": 0.6593578628500041,
+      "event": "admission_released",
+      "id": "tier-smoke-0",
+      "reason": "first_token",
+      "occurred_s": 0.6593556291000027,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6594037757500019,
+      "event": "feedback_received",
+      "id": "tier-smoke-0",
+      "kind": "request_finished",
+      "event_id": "gateway:3",
+      "worker": 0,
+      "occurred_s": 0.6594032363499991,
+      "visible_s": 0.6594032363499991,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.659405394099997,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-0",
+      "kind": "request_finished",
+      "event_id": "gateway:3",
+      "occurred_s": 0.6594032363499991,
+      "visible_s": 0.6594032363499991,
+      "worker": 0
+    },
+    {
+      "t": 0.6594745449000016,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-3",
+      "permit_id": "a04e1690fea1475ba1a62a7bbf613777",
+      "duration_wall_ns": 285588
+    },
+    {
+      "t": 0.6594574302500064,
+      "event": "admission_reserved",
+      "id": "tier-smoke-3",
+      "worker": 0,
+      "permit_id": "a04e1690fea1475ba1a62a7bbf613777",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 8,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6594574302500064,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.6596130482000035,
+      "event": "worker_assigned",
+      "id": "tier-smoke-5",
+      "worker": 0
+    },
+    {
+      "t": 0.6596130482000035,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-5",
+      "worker": 0,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6637056833499969,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-5",
+      "worker": 0,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6637975987999993,
+      "event": "feedback_received",
+      "id": "tier-smoke-3",
+      "kind": "first_token",
+      "event_id": "gateway:5",
+      "worker": 0,
+      "occurred_s": 0.6637969067999961,
+      "visible_s": 0.6637969067999961,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6638011717500035,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-3",
+      "kind": "first_token",
+      "event_id": "gateway:5",
+      "occurred_s": 0.6637969067999961,
+      "visible_s": 0.6637969067999961,
+      "worker": 0
+    },
+    {
+      "t": 0.6637993824499973,
+      "event": "admission_released",
+      "id": "tier-smoke-3",
+      "reason": "first_token",
+      "occurred_s": 0.6637969067999961,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6638506527000004,
+      "event": "feedback_received",
+      "id": "tier-smoke-3",
+      "kind": "request_finished",
+      "event_id": "gateway:7",
+      "worker": 0,
+      "occurred_s": 0.6638500887499958,
+      "visible_s": 0.6638500887499958,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6638522456000032,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-3",
+      "kind": "request_finished",
+      "event_id": "gateway:7",
+      "occurred_s": 0.6638500887499958,
+      "visible_s": 0.6638500887499958,
+      "worker": 0
+    },
+    {
+      "t": 0.6639365163999968,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-5",
+      "permit_id": "779982262dbb4ef68d7eb386aa9986dd",
+      "duration_wall_ns": 439293
+    },
+    {
+      "t": 0.6639124428500054,
+      "event": "admission_reserved",
+      "id": "tier-smoke-5",
+      "worker": 0,
+      "permit_id": "779982262dbb4ef68d7eb386aa9986dd",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 8,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6639124428500054,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.668149909500005,
+      "event": "feedback_received",
+      "id": "tier-smoke-5",
+      "kind": "first_token",
+      "event_id": "gateway:9",
+      "worker": 0,
+      "occurred_s": 0.6681491617999995,
+      "visible_s": 0.6681491617999995,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6681523130500068,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-5",
+      "kind": "first_token",
+      "event_id": "gateway:9",
+      "occurred_s": 0.6681491617999995,
+      "visible_s": 0.6681491617999995,
+      "worker": 0
+    },
+    {
+      "t": 0.6681511753999985,
+      "event": "admission_released",
+      "id": "tier-smoke-5",
+      "reason": "first_token",
+      "occurred_s": 0.6681491617999995,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6681762964999962,
+      "event": "feedback_received",
+      "id": "tier-smoke-5",
+      "kind": "request_finished",
+      "event_id": "gateway:11",
+      "worker": 0,
+      "occurred_s": 0.6681758872000045,
+      "visible_s": 0.6681758872000045,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6681777783000029,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-5",
+      "kind": "request_finished",
+      "event_id": "gateway:11",
+      "occurred_s": 0.6681758872000045,
+      "visible_s": 0.6681758872000045,
+      "worker": 0
+    },
+    {
+      "t": 0.6737625685500006,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-1",
+      "permit_id": "ee8f42c5101640488c8ebe7d736a0723",
+      "duration_wall_ns": 531361
+    },
+    {
+      "t": 0.6737338059499962,
+      "event": "admission_reserved",
+      "id": "tier-smoke-1",
+      "worker": 1,
+      "permit_id": "ee8f42c5101640488c8ebe7d736a0723",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 8,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6737338059499962,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.673808757300003,
+      "event": "feedback_received",
+      "id": "tier-smoke-6",
+      "kind": "first_token",
+      "event_id": "gateway:13",
+      "worker": -1,
+      "occurred_s": 0.6738082195000061,
+      "visible_s": 0.6738082195000061,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6738101957000027,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-6",
+      "kind": "first_token",
+      "event_id": "gateway:13",
+      "occurred_s": 0.6738082195000061,
+      "visible_s": 0.6738082195000061,
+      "worker": -1
+    },
+    {
+      "t": 0.6739077594500031,
+      "event": "feedback_received",
+      "id": "tier-smoke-7",
+      "kind": "first_token",
+      "event_id": "gateway:15",
+      "worker": -1,
+      "occurred_s": 0.6739071950500033,
+      "visible_s": 0.6739071950500033,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6739098936999994,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-7",
+      "kind": "first_token",
+      "event_id": "gateway:15",
+      "occurred_s": 0.6739071950500033,
+      "visible_s": 0.6739071950500033,
+      "worker": -1
+    },
+    {
+      "t": 0.6739351758999987,
+      "event": "feedback_received",
+      "id": "tier-smoke-6",
+      "kind": "request_finished",
+      "event_id": "gateway:17",
+      "worker": -1,
+      "occurred_s": 0.6739348526500066,
+      "visible_s": 0.6739348526500066,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6739365668999995,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-6",
+      "kind": "request_finished",
+      "event_id": "gateway:17",
+      "occurred_s": 0.6739348526500066,
+      "visible_s": 0.6739348526500066,
+      "worker": -1
+    },
+    {
+      "t": 0.6739502054500008,
+      "event": "worker_assigned",
+      "id": "tier-smoke-2",
+      "worker": 1
+    },
+    {
+      "t": 0.6739502054500008,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-2",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6739663556499977,
+      "event": "feedback_received",
+      "id": "tier-smoke-7",
+      "kind": "request_finished",
+      "event_id": "gateway:19",
+      "worker": -1,
+      "occurred_s": 0.6739660601499964,
+      "visible_s": 0.6739660601499964,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6739673670499997,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-7",
+      "kind": "request_finished",
+      "event_id": "gateway:19",
+      "occurred_s": 0.6739660601499964,
+      "visible_s": 0.6739660601499964,
+      "worker": -1
+    },
+    {
+      "t": 0.6780371748499988,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-2",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6781177130500055,
+      "event": "feedback_received",
+      "id": "tier-smoke-1",
+      "kind": "first_token",
+      "event_id": "gateway:21",
+      "worker": 1,
+      "occurred_s": 0.6781171428999982,
+      "visible_s": 0.6781171428999982,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6781195450500036,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-1",
+      "kind": "first_token",
+      "event_id": "gateway:21",
+      "occurred_s": 0.6781171428999982,
+      "visible_s": 0.6781171428999982,
+      "worker": 1
+    },
+    {
+      "t": 0.6781186873500019,
+      "event": "admission_released",
+      "id": "tier-smoke-1",
+      "reason": "first_token",
+      "occurred_s": 0.6781171428999982,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6781584036000027,
+      "event": "feedback_received",
+      "id": "tier-smoke-1",
+      "kind": "request_finished",
+      "event_id": "gateway:23",
+      "worker": 1,
+      "occurred_s": 0.6781580802999997,
+      "visible_s": 0.6781580802999997,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6781596235000051,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-1",
+      "kind": "request_finished",
+      "event_id": "gateway:23",
+      "occurred_s": 0.6781580802999997,
+      "visible_s": 0.6781580802999997,
+      "worker": 1
+    },
+    {
+      "t": 0.6782501460000049,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-2",
+      "permit_id": "117d667f5b9745c7870941ab3ba53194",
+      "duration_wall_ns": 251001
+    },
+    {
+      "t": 0.6782360075500037,
+      "event": "admission_reserved",
+      "id": "tier-smoke-2",
+      "worker": 1,
+      "permit_id": "117d667f5b9745c7870941ab3ba53194",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 8,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6782360075500037,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.6783812130999991,
+      "event": "worker_assigned",
+      "id": "tier-smoke-4",
+      "worker": 1
+    },
+    {
+      "t": 0.6783812130999991,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-4",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6824997992000021,
+      "event": "read_permit_denied",
+      "id": "tier-smoke-4",
+      "worker": 1,
+      "reason": "full",
+      "held": 1,
+      "cap": 1
+    },
+    {
+      "t": 0.6825664298499987,
+      "event": "feedback_received",
+      "id": "tier-smoke-2",
+      "kind": "first_token",
+      "event_id": "gateway:25",
+      "worker": 1,
+      "occurred_s": 0.6825658207500055,
+      "visible_s": 0.6825658207500055,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6825684845000068,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-2",
+      "kind": "first_token",
+      "event_id": "gateway:25",
+      "occurred_s": 0.6825658207500055,
+      "visible_s": 0.6825658207500055,
+      "worker": 1
+    },
+    {
+      "t": 0.6825674911499959,
+      "event": "admission_released",
+      "id": "tier-smoke-2",
+      "reason": "first_token",
+      "occurred_s": 0.6825658207500055,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6826249753500064,
+      "event": "feedback_received",
+      "id": "tier-smoke-2",
+      "kind": "request_finished",
+      "event_id": "gateway:27",
+      "worker": 1,
+      "occurred_s": 0.682624511649999,
+      "visible_s": 0.682624511649999,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.682626469249999,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-2",
+      "kind": "request_finished",
+      "event_id": "gateway:27",
+      "occurred_s": 0.682624511649999,
+      "visible_s": 0.682624511649999,
+      "worker": 1
+    },
+    {
+      "t": 0.6827273840999964,
+      "event": "routing_score_activated",
+      "id": "tier-smoke-4",
+      "permit_id": "7bc440c3ca164f9e879ce7ce4888c9c3",
+      "duration_wall_ns": 359713
+    },
+    {
+      "t": 0.6827075470500062,
+      "event": "admission_reserved",
+      "id": "tier-smoke-4",
+      "worker": 1,
+      "permit_id": "7bc440c3ca164f9e879ce7ce4888c9c3",
+      "heavy": true,
+      "held_before": 0,
+      "held_after": 1,
+      "cap": 1,
+      "theta": 8843337080.530964,
+      "threshold_version": 8,
+      "mode": "tfs",
+      "reason": "normal",
+      "placement": "scheduler",
+      "decision_s": 0.6827075470500062,
+      "proof": null,
+      "over_cap": false,
+      "release_on": "first_token"
+    },
+    {
+      "t": 0.686925387849999,
+      "event": "feedback_received",
+      "id": "tier-smoke-4",
+      "kind": "first_token",
+      "event_id": "gateway:29",
+      "worker": 1,
+      "occurred_s": 0.6869246588500004,
+      "visible_s": 0.6869246588500004,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6869277721000003,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-4",
+      "kind": "first_token",
+      "event_id": "gateway:29",
+      "occurred_s": 0.6869246588500004,
+      "visible_s": 0.6869246588500004,
+      "worker": 1
+    },
+    {
+      "t": 0.686926723199997,
+      "event": "admission_released",
+      "id": "tier-smoke-4",
+      "reason": "first_token",
+      "occurred_s": 0.6869246588500004,
+      "held_before": 1,
+      "held_after": 0,
+      "threshold_version": 8
+    },
+    {
+      "t": 0.6869609000999958,
+      "event": "feedback_received",
+      "id": "tier-smoke-4",
+      "kind": "request_finished",
+      "event_id": "gateway:31",
+      "worker": 1,
+      "occurred_s": 0.6869603926499963,
+      "visible_s": 0.6869603926499963,
+      "payload": {},
+      "engine_id": null
+    },
+    {
+      "t": 0.6869624271000021,
+      "event": "feedback_delivered",
+      "id": "tier-smoke-4",
+      "kind": "request_finished",
+      "event_id": "gateway:31",
+      "occurred_s": 0.6869603926499963,
+      "visible_s": 0.6869603926499963,
+      "worker": 1
+    }
+  ]
+}

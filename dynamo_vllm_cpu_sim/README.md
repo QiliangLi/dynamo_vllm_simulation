@@ -1,5 +1,11 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
+2026-11-04：可选 `admission.profile_source=dynamo_tier` 使用原生 Dynamo 最终选中实例的
+分级命中生成画像，拒绝客户端提供命中量。构建增加 `--tier-admission`，运行增加
+`--profile-source dynamo_tier`；Scheduler 仍在执行前申请额度。
+口径、单 DP rank 限制、严格命中核对和小测入口见
+[Dynamo分级命中画像接入](../docs/Dynamo分级命中画像接入-20261104.md)。
+
 ## 2026-10-30：与研究版运行代码同步
 
 当前实现已同步研究版的直接组合计时、四种加载反馈移除、强制准入释放等待移除，以及Dynamo Runtime最终答复/后台EOF收尾。

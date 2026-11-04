@@ -1,0 +1,54 @@
+{
+  "status": "pass",
+  "requests": 12,
+  "workers": [
+    0,
+    1
+  ],
+  "central_wait_mean_s": 0.0015966234666640229,
+  "central_wait_max_s": 0.004077998200000543,
+  "held_heavy_peak": 1,
+  "peak_storage_pending": 1,
+  "actual_batch_sizes": [
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1
+  ],
+  "model_sum_s": 0.06210279074780031,
+  "formula_max_error_s": 1.734723475976807e-18,
+  "ttft_mean_s": 0.4290398501000008,
+  "http_window_s": 6.176731113999949,
+  "model_window_s": 0.6176731113999949,
+  "wall_time_scale": 10,
+  "actual_submitted_read_bytes": 2150236160,
+  "transfer_lower_bound_s": 0.017918634666666666,
+  "transfer_span_s": 0.5951457853666731,
+  "disk_bytes_submitted": [
+    2150236160
+  ],
+  "disk_peak_Bps": [
+    120000000000.0
+  ],
+  "release_reasons": {
+    "score-smoke-2": "first_token",
+    "score-smoke-1": "first_token",
+    "score-smoke-0": "first_token",
+    "score-smoke-3": "first_token",
+    "score-smoke-4": "first_token",
+    "score-smoke-5": "first_token",
+    "score-smoke-6": "first_token",
+    "score-smoke-7": "first_token",
+    "score-smoke-8": null,
+    "score-smoke-9": null,
+    "score-smoke-10": null,
+    "score-smoke-11": null
+  },
+  "router_mode": "kv"
+}

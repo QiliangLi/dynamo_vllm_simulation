@@ -1,5 +1,16 @@
 # 在 CPU 上运行真实 Dynamo / vLLM / vLLM-Ascend 调度代码：可行性与实施设计
 
+## 2026-11-04：可选 Dynamo 分级命中画像
+
+`admission.profile_source=dynamo_tier` 将画像生成移至原生分级查询和最终实例选择之后。
+使用 selected_worker_tiers 原始累计计数，扣除 GPU/HostPinned，估计 Disk/External 读取量；
+计算估时使用全部已缓存前缀。Python 画像/分类及中央账本仍在原服务，Dynamo 内部回调并下发结果。
+Scheduler 的额度申请、原生 booking、picker、块分配和首 token 释放保持原策略。
+选中实例快照聚合多 DP rank，本版只接受每 worker 一个 rank；分级事件缺失和命中变化不作自动补造。
+实际 Connector 命中与画像不同则退回未提交额度并报错，自动重分类尚未实现。
+默认 trace 模式不变。模型和存储仍为 CPU 仿真，测试事件不是生产存储事件适配。
+说明见 [Dynamo分级命中画像接入](Dynamo分级命中画像接入-20261104.md)。
+
 ## 2026-10-30：与研究版运行代码同步
 
 当前实现已同步研究版的直接组合计时、四种加载反馈移除、强制准入释放等待移除，以及Dynamo Runtime最终答复/后台EOF收尾。

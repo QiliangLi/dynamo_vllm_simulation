@@ -85,7 +85,7 @@ async def one_request(
 
 async def replay(
     trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool, api: str,
-    *, admission: bool = False, time_scale: float = 1.,
+    *, admission: bool = False, time_scale: float = 1., admission_profile_source: str = 'trace',
 ) -> int:
     clock = TimeScale(time_scale)
     chat_url = url.rstrip("/") + (
@@ -112,6 +112,8 @@ async def replay(
             delay = row["arrival_s"]
             meta = dict(id=row["id"],estimated_remote_tokens=row.get("remote_prefix_tokens",0),
                         class_id=row.get("class_id","unclassified")) if admission else None
+            if admission and admission_profile_source == 'dynamo_tier':
+                meta = dict(id=row['id'])  # Correlation only; no hit/timing oracle.
             jobs.append((delay, row["id"], text, row["output_tokens"],meta))
         t0 = time.perf_counter()
         tasks = []

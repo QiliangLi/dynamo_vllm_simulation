@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "python_regression_tests": 359,
+  "tier_targeted_tests": 11,
+  "native_tier_requests": 8,
+  "legacy_requests": 12,
+  "native_build_profile": "dev; debug=0",
+  "performance_benchmark": false,
+  "full_local_audit": "/home/zed/.local/share/state-aware-network/audits/dynamo-tier-admission-20261104",
+  "files_sha256": {
+    "build.json": "d3da998894bf9770fdc8a5091e1005a4cc33bf13115e0ba8a9c58e420a5a2dfc",
+    "legacy/admission.events.jsonl": "24ed0207ad1978102b1fe5042e10151956f70ecbee166775cdc2ce016938a70a",
+    "legacy/admission.runtime.final.json": "f0cdfbc1690ca4c9dced56704b9dac62c2ec25771e5a6ac641c289bc96da43ed",
+    "legacy/check.json": "416a4a9e1ea15161e5289172fda3f0d81355a865fc33a440bbe0f51f8439e8cc",
+    "legacy/config.json": "bab125e3de8dfa3fa28101db82de78d8446ceed463755ddd361ccccd2bd71e7b",
+    "legacy/implementation.json": "6a44624f0de90cd80a154eb20df603f43ee6f8300c4c3412cf7f0e55c56fa64e",
+    "legacy/read_admission.check.json": "c0e7ffbcfceb15cc4e0b9afddb511cb37c835e28b44e03d683c7d264135f39db",
+    "legacy/report.json": "04f51636693fe4a171ece435903e9efbf2be5c60e1595208f4845b6aea951bbc",
+    "legacy/routing.check.json": "ddf92b918a126dfb774b8bf351cf29532a692fb973bb318a07f191118587296d",
+    "legacy/routing.score.check.json": "cdbc8e317b44e874515fbe3899807f0eb592f84ab4cc4a48218d5f0f5c69bd2d",
+    "native_tier/admission.events.jsonl": "63664ea0dd1c2d3945c65c875456fb96b8337dddbc8092b2bf22de901207cd0c",
+    "native_tier/admission.runtime.final.json": "e10829f05d9d2ce26dcc66bb75764e308a325d9a25d0b4cc6a12704d071dbf83",
+    "native_tier/check.json": "eaf0fea52995bd44dab42742da550629b65d089ef118656a37763f924900bea7",
+    "native_tier/config.json": "db764b7996f5d4c362994d667af39342728b2d6da9c9e8e5d4bd437c154c0190",
+    "native_tier/implementation.json": "6a44624f0de90cd80a154eb20df603f43ee6f8300c4c3412cf7f0e55c56fa64e",
+    "native_tier/read_admission.check.json": "56bd175a9070e5b570279d812d364e143b4a2ef477e8b898721fce0860248a09",
+    "native_tier/report.json": "0f5dd5f47b05a0584d34a7cf9ad4220e3f5c4a971b9a392cf4497522f367bd70",
+    "native_tier/routing.check.json": "49a811efc1a65cc19c2595943a3d50841dfc12f98517fb4e895e521d2ae3b91d",
+    "native_tier/routing.score.check.json": "8468f4315dd9514eed13fc89e2355cea10ae0f5c8bef06a6f85abf7e64e39a4a",
+    "validation.json": "956473f99981caae33c5d8edb32648dae3c526a901b2821ba56f96f1087ab398"
+  }
+}

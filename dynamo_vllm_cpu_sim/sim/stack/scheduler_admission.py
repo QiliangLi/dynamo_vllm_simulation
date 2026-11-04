@@ -20,7 +20,8 @@ SCHEDULE_SHA256 = "b6a0770641b37718aecf9bd94dc28b6fcca8e944e99a706bf4005b0b5a674
 
 
 class ReadGate:
-    def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False):
+    def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False,
+                 tier_kv_bytes_per_token=None):
         if client is None:
             raise RuntimeError("read admission requires a control connection")
         self.client = client
@@ -36,6 +37,7 @@ class ReadGate:
         self.no_remote = set()
         self.log_path = Path(log_path) if log_path else None
         self.idle_bypass = idle_bypass
+        self.tier_kv_bytes_per_token = tier_kv_bytes_per_token
         self.force_candidate = None
         self.force_committed = False
         self.idle_proof = None
@@ -156,6 +158,20 @@ class ReadGate:
             self.client.control('routing_ready',request.request_id)
             self.no_remote.add(request.request_id)
 
+    def verify_tier_lookup(self, request, external_tokens):
+        if self.tier_kv_bytes_per_token is None:
+            return
+        expected_bytes = self.hint(request)['estimated_remote_read_bytes']
+        if external_tokens * self.tier_kv_bytes_per_token != expected_bytes:
+            self.log('tier_lookup_mismatch', request_id=request.request_id,
+                     expected_read_bytes=expected_bytes,
+                     actual_read_bytes=external_tokens*self.tier_kv_bytes_per_token)
+            self.rollback(request)
+            # Do not run under an obsolete classification or silently treat an
+            # unknown storage read as light. Dynamic reclassification is a
+            # separate follow-up; this first integration explicitly fails closed.
+            raise RuntimeError('Dynamo tier estimate differs from KV Connector lookup; reconciliation required')
+
 
 def patch_schedule(original):
     source = inspect.getsource(original)
@@ -212,6 +228,9 @@ if not self._read_gate.allow(request):
         RollbackExits().visit(node)
     query.body.insert(0, hook)
     query.body.append(ast.parse('''
+self._read_gate.verify_tier_lookup(request, num_external_computed_tokens)
+''').body[0])
+    query.body.append(ast.parse('''
 if num_external_computed_tokens == 0:
     self._read_gate.rollback(request)
     self._read_gate.resolved_no_remote(request)
@@ -246,7 +265,9 @@ def install_scheduler_adapter():
         self._read_gate = ReadGate(feedback_client(),
             cfg["admission"].get("retry_interval_wall_s", 0.002),
             config_path.parent/f"worker{worker}.read_admission.jsonl",
-            idle_bypass=cfg['admission'].get('idle_bypass',False))
+            idle_bypass=cfg['admission'].get('idle_bypass',False),
+            tier_kv_bytes_per_token=(cfg['storage']['kv_bytes_per_token']
+                if cfg['admission'].get('profile_source') == 'dynamo_tier' else None))
 
     @functools.wraps(original_add)
     def add_request(self, request):

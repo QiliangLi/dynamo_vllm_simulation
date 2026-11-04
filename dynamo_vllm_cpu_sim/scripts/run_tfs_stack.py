@@ -46,7 +46,9 @@ def frontend_command(config, workers):
         raise ValueError("router_mode must be kv or round-robin")
     command = ["-m", "dynamo.frontend", "--http-port", "28765", "--router-mode", mode]
     if mode == "kv":
-        command += ["--no-router-kv-events", "--no-router-assume-kv-reuse",
+        from sim.stack.tier_profile import enabled as tier_enabled
+        command += ([] if tier_enabled(config) else ["--no-router-kv-events"])
+        command += ["--no-router-assume-kv-reuse",
                     "--router-kv-overlap-score-credit", "0", "--router-temperature", "0",
                     "--router-track-prefill-tokens", "--router-min-initial-workers", str(workers)]
     return command
@@ -250,16 +252,28 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
     cfg.setdefault("admission",{}).update(mode=mode,release_on=release)
     from sim.request_profile import normalize_config
     cfg = normalize_config(cfg)
+    from sim.stack.tier_profile import enabled as tier_enabled
+    tier_mode = tier_enabled(cfg)
+    if tier_mode and not cfg['routing_accounting'].get('python_path'):
+        raise ValueError('Dynamo tier profiles require an isolated --tier-admission build')
     if cfg['routing_accounting']['enabled'] and not cfg['routing_accounting'].get('python_path'):
         raise ValueError('weighted accounting needs the isolated patched Dynamo python_path; see weighted-routing build instructions')
     if cfg['routing_accounting'].get('python_path'):
         overlay = Path(cfg['routing_accounting']['python_path']).resolve()
         receipt = json.loads((overlay.parent/'build.json').read_text())
         native_hash = hashlib.sha256((overlay/'dynamo/_core.abi3.so').read_bytes()).hexdigest()
+        tier_recipe = receipt.get('tier_admission_recipe')
+        if tier_recipe is not None:
+            expected = {p.name:hashlib.sha256(p.read_bytes()).hexdigest()
+                        for p in (ROOT/'patched/tier_admission').iterdir() if p.is_file()}
+            if tier_recipe != expected:
+                raise ValueError('Dynamo tier-admission recipe mismatch')
+        elif tier_mode:
+            raise ValueError('Dynamo build lacks tier-admission capability')
         if (receipt['base_commit'] != 'b83b1d9304ebfc624709ac46db32b1b6f1ff1615'
                 or receipt['native_sha256'] != native_hash
                 or receipt.get('overlay_recipe_sha256') != hashlib.sha256((ROOT/'patched/weighted_routing/apply_patch.py').read_bytes()).hexdigest()
-                or receipt['patch']['lib/kv-router/src/pending_score.rs'] != hashlib.sha256((ROOT/'patched/weighted_routing/pending_score.rs').read_bytes()).hexdigest()):
+                or (tier_recipe is None and receipt['patch']['lib/kv-router/src/pending_score.rs'] != hashlib.sha256((ROOT/'patched/weighted_routing/pending_score.rs').read_bytes()).hexdigest())):
             raise ValueError('weighted Dynamo build receipt or binary SHA mismatch')
         write(folder/'routing.build.json',receipt)
     from sim.stack.clock import TimeScale
@@ -287,6 +301,9 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
                         *sorted((ROOT/'patched/weighted_routing').glob('*.py')),
                         *sorted((ROOT/'patched/weighted_routing').glob('*.rs')),
                         ROOT/'patched/weighted_routing/source_hashes.json',
+                        *sorted((ROOT/'patched/tier_admission').glob('*.py')),
+                        *sorted((ROOT/'patched/tier_admission').glob('*.rs')),
+                        ROOT/'patched/tier_admission/source_hashes.json',
                         ROOT/"scripts/run_stack_experiment.sh"]}
     write(folder/"implementation.json",source)
     env = dict(os.environ,PYTHONPATH=str(ROOT),VLLM_PLUGINS="",HF_HUB_OFFLINE="1",
@@ -295,6 +312,8 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
                DYN_DISCOVERY_BACKEND="file",DYN_FILE_KV=str(folder/"discovery"),DYN_REQUEST_PLANE="tcp",
                SIM_STACK_CONFIG=str(folder/"config.json"),
                SIM_STACK_ADMISSION_STATUS_DIR=str(folder/'admission_rpc'))
+    if tier_mode:
+        env['SIM_STACK_TIER_PROFILE_TOKEN'] = uuid.uuid4().hex
     for key in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","http_proxy","https_proxy","all_proxy"):
         env.pop(key,None)
         os.environ.pop(key,None)
@@ -388,6 +407,9 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
             checked_monotonic_s=time.monotonic(),
             generate_files=sorted(p.name for p in (folder/"discovery/v1/instances").glob("*generate*"))))
         frontend_env = {}
+        if tier_mode:
+            frontend_env.update(DYN_TIER_PROFILE_URL='http://127.0.0.1:28766/internal/dynamo-tier-profile',
+                                DYN_TIER_PROFILE_TOKEN=env['SIM_STACK_TIER_PROFILE_TOKEN'])
         if cfg['routing_accounting'].get('python_path'):
             frontend_env['PYTHONPATH'] = str(Path(cfg['routing_accounting']['python_path']).resolve())+os.pathsep+str(ROOT)
         if cfg['routing_accounting']['enabled']:
@@ -400,7 +422,7 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
             frontend_env["DYN_LOG"] = ("info,dynamo_kv_router::scheduling::selector=debug,"
                                        "dynamo_llm::kv_router::routing_host=debug")
         write(folder/"routing.launch.json",dict(router_mode=cfg["router_mode"],
-              argv=frontend_args,environment=frontend_env))
+              argv=frontend_args,environment={k:v for k,v in frontend_env.items() if not k.endswith('_TOKEN')}))
         launch("frontend",frontend_args,frontend_env)
         wait_for(lambda:frontend_ready(workers))
         if cfg['routing_accounting']['enabled']:
@@ -428,7 +450,8 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
         gc_client = StorageClient(str(storage_socket))
         write(folder/'storage.gc.begin.json', gc_client.gc_begin())
         code = asyncio.run(replay(folder/"trace.jsonl","http://127.0.0.1:28766","sim-opt",folder,
-                                  False,"completions",admission=True,time_scale=clock.factor))
+                                  False,"completions",admission=True,time_scale=clock.factor,
+                                  admission_profile_source=cfg['admission']['profile_source']))
         assert code==0
         wait_for(lambda:all(r["state"]=="FINISHED" and not r["lease_open"]
                            for r in request_json("http://127.0.0.1:28766/sim/admission")["records"].values()),clock.to_wall(10))
@@ -522,6 +545,8 @@ def main():
                         help="scheduler opts into v1 frozen hints and late heavy permits")
     parser.add_argument('--admission-transport',choices=['dynamo','tcp','unix'],
                         help='default native Dynamo TCP/MessagePack; tcp/unix are JSON-lines baselines')
+    parser.add_argument('--profile-source', choices=['trace','dynamo_tier'],
+                        help='derive profiles after Dynamo tier lookup instead of client hit metadata')
     parser.add_argument('--idle-bypass', action=argparse.BooleanOptionalAction, default=None,
                         help='allow one allocated heavy request on an otherwise idle scheduler')
     parser.add_argument('--waiting-score-factor',type=float,
@@ -545,6 +570,8 @@ def main():
         cfg.setdefault('routing_accounting',{})['python_path']=str(args.routing_python_path.resolve())
     if args.admission_transport is not None:
         cfg.setdefault('admission',{})['rpc_transport'] = args.admission_transport
+    if args.profile_source is not None:
+        cfg.setdefault('admission',{})['profile_source'] = args.profile_source
     if args.idle_bypass is not None:
         cfg.setdefault('admission',{})['idle_bypass'] = args.idle_bypass
     if args.router_mode is not None:

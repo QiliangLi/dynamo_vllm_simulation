@@ -44,6 +44,8 @@ class AdmissionState:
         self.aliases = {}
         self.futures = {}
         self.uuid_by_id = {}
+        self.tier_pending = {}
+        self.tier_snapshots = {}
         self.events = []
         self.delayed = []
         self.sequence = 0
@@ -77,16 +79,60 @@ class AdmissionState:
     def arrive(self, row):
         now = self.now()
         row = dict(row,arrival_s=now)
-        profile = build_profile(row,self.config)
-        self.controller.on_arrivals([profile],now)
-        self.drain()
+        from sim.stack.tier_profile import enabled as tier_enabled
+        if not tier_enabled(self.config):
+            profile = build_profile(row,self.config)
+            self.controller.on_arrivals([profile],now)
+            self.drain()
         identity = uuid.uuid4()
         self.aliases[identity.hex] = row["id"]
         self.uuid_by_id[row["id"]] = str(identity)
         self.futures[row["id"]] = asyncio.get_running_loop().create_future()
         self.log_event("request_correlated",id=row["id"],engine_uuid=str(identity))
+        if tier_enabled(self.config):
+            self.tier_pending[row['id']] = dict(arrival_s=now,
+                                               prompt_tokens=len(row['prompt_token_ids']))
+            self.futures[row['id']].set_result(str(identity))
+            self.log_event('tier_profile_pending', id=row['id'])
         self.wakeup.set()
         return self.futures[row["id"]]
+
+    def resolve_tier_profile(self, snapshot):
+        from sim.stack.tier_profile import build_tier_profile, enabled, validate_snapshot
+        if not enabled(self.config):
+            raise ValueError('Dynamo tier profile mode is disabled')
+        snapshot = validate_snapshot(snapshot, self.config)
+        match = UUID_RE.search(snapshot['request_id'])
+        key = uuid.UUID(match.group()).hex if match else None
+        rid = self.aliases.get(key)
+        if rid is None or rid not in self.tier_pending:
+            raise ValueError('unregistered tier-profile request')
+        row = self.tier_pending[rid]
+        if snapshot['prompt_tokens'] != row['prompt_tokens']:
+            raise ValueError('Dynamo and ingress token counts differ')
+        if rid in self.tier_snapshots:
+            if self.tier_snapshots[rid] != snapshot:
+                raise ValueError('tier profile changed after classification; retry/reconciliation is unsupported')
+        else:
+            profile = build_tier_profile(snapshot, self.config, rid, row['arrival_s'])
+            self.controller.on_arrivals([profile], self.now())
+            self.controller.dispatch_unreserved(rid, self.now())
+            self.tier_snapshots[rid] = snapshot
+            self.log_event('dynamo_tier_profile_resolved', id=rid, snapshot=snapshot,
+                           estimated_remote_tokens=profile.estimated_remote_tokens,
+                           cached_prefix_tokens=min(snapshot['disk_blocks'],
+                               (profile.prompt_tokens - 1)//snapshot['block_size'])*snapshot['block_size'])
+            self.drain()
+        from sim.stack.storage_hint import attach_http_hint
+        body = attach_http_hint({}, self.controller.hints[rid])
+        from sim.stack.edf_priority import enabled as edf_enabled, attach_http
+        if edf_enabled(self.config):
+            body, _ = attach_http(body, self.controller.records[rid].profile,
+                                  self.origin, self.clock.factor)
+        self.log_event('storage_hint_forwarded', id=rid, hint=self.controller.hints[rid],
+                       engine_uuid=self.uuid_by_id[rid], source='dynamo_tier')
+        return dict(annotations=body['nvext']['annotations'],
+                    is_heavy_read=self.controller.hints[rid]['is_heavy_read'])
 
     def receive(self, raw, *, transport="unix"):
         raise ValueError('execution feedback RPCs were removed; only admission controls are accepted')
@@ -209,6 +255,8 @@ class AdmissionState:
             self.drain()
 
     def cancel_queued(self,rid):
+        if rid not in self.controller.records:
+            return False
         record = self.controller.records[rid]
         if record.state != "QUEUED":
             return False  # 已放行的请求必须继续执行/排空，不能在此伪造完成。
@@ -370,14 +418,34 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
         response = await app.state.client.get(upstream+"/v1/models")
         return response.json()
 
+    @app.post('/internal/dynamo-tier-profile')
+    async def tier_profile(request: Request):
+        import hmac
+        secret = os.environ.get('SIM_STACK_TIER_PROFILE_TOKEN', '')
+        if not secret or not hmac.compare_digest(
+                request.headers.get('x-tier-profile-token', ''), secret):
+            raise HTTPException(403, 'invalid internal tier-profile identity')
+        if state.fatal:
+            raise HTTPException(503, state.fatal)
+        try:
+            return state.resolve_tier_profile(await request.json())
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+
     @app.post("/v1/completions")
     async def completion(request: Request):
         if state.fatal:
             raise HTTPException(503,state.fatal)
         body = await request.json()
+        from sim.stack.tier_profile import enabled as tier_enabled
+        tier_mode = tier_enabled(state.config)
         meta = body.pop("_sim_admission",{})
-        rid = meta.get("id")
-        if not isinstance(rid,str) or not rid or rid in state.controller.records:
+        if not isinstance(meta, dict):
+            raise HTTPException(400, 'invalid simulation metadata')
+        if tier_mode and set(meta) - {'id'}:
+            raise HTTPException(400, 'Dynamo tier mode does not accept client hit or timing metadata')
+        rid = meta.get("id", uuid.uuid4().hex if tier_mode else None)
+        if not isinstance(rid,str) or not rid or rid in state.uuid_by_id:
             raise HTTPException(400,"unique _sim_admission.id is required")
         if body.get("max_tokens") != 1 or body.get("stream") is not True or not isinstance(body.get("prompt"),str):
             raise HTTPException(400,"this prefill gateway requires text prompt, stream=true, max_tokens=1")
@@ -394,6 +462,9 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
                 validate_http_metadata(body)
             except ValueError as exc:
                 raise HTTPException(400,str(exc)) from exc
+        if tier_mode and any(a.startswith(('edf_priority_v1:', 'budget_priority_v1:'))
+                             for a in (body.get('nvext') or {}).get('annotations', [])):
+            raise HTTPException(400, 'caller cannot supply EDF metadata')
         future = state.arrive(dict(id=rid,prompt_token_ids=tokens,output_tokens=1,
                                    remote_prefix_tokens=remote,class_id=meta.get("class_id","unclassified")))
         try:
@@ -406,14 +477,14 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
                     break  # 检查连接期间已放行：仍启动独立 producer 排空上游。
                 await asyncio.sleep(0.002)
             engine_uuid = future.result()
-            if state.config["admission"]["placement"] == "scheduler":
+            if state.config["admission"]["placement"] == "scheduler" and not tier_mode:
                 from sim.stack.storage_hint import attach_http_hint
                 hint = state.controller.hints[rid]
                 body = attach_http_hint(body, hint)
                 state.log_event("storage_hint_forwarded", id=rid, hint=hint,
                                 engine_uuid=engine_uuid)
             from sim.stack.edf_priority import enabled as edf_priority_enabled
-            if edf_priority_enabled(state.config):
+            if edf_priority_enabled(state.config) and not tier_mode:
                 from sim.stack.edf_priority import attach_http as attach_edf_priority
                 body, priority_metadata = attach_edf_priority(
                     body, state.controller.records[rid].profile,
@@ -425,7 +496,8 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
                 state.cancel_queued(rid)
             else:
                 # 尚未发往上游，可以确认不存在设备在途工作。
-                state.local_event("request_finished",rid)
+                if rid in state.controller.records:
+                    state.local_event("request_finished",rid)
             raise
         queue = asyncio.Queue()
 
@@ -443,7 +515,7 @@ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
                             client.close()
                     await asyncio.to_thread(bind_hit)
                     state.log_event("hit_contract_bound",id=rid,engine_uuid=engine_uuid,hit_tokens=remote)
-                if state.routing_score is not None and state.controller.hints[rid]['is_heavy_read']:
+                if not tier_mode and state.routing_score is not None and state.controller.hints[rid]['is_heavy_read']:
                     reply = await asyncio.to_thread(state.routing_score.exchange,'register',engine_uuid,
                                                     prompt_tokens=len(tokens))
                     state.log_event('routing_score_registered',id=rid,engine_uuid=engine_uuid,
