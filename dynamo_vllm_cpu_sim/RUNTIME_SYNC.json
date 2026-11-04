@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "research_commit": "MERGE-PENDING",
+  "research_commit": "755f051c83c21ddf58576185f3f04253a306a539",
   "research_base": "d2ccf1921d92faddd2e6e5bb0f9d5890e90b8998",
   "delivery_base": "808a05bdf2ebd7ff90bacffd6351e298d9552bea",
   "scope": "All research-tracked sim/scripts/configs/patched/tests files including the C++ independent-disk storage backend and lease admission; results and documentation excluded",
