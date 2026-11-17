@@ -94,6 +94,15 @@ def apply_lease_tuning(cfg):
     return cfg
 
 
+def apply_tfs_tuning(cfg):
+    """三臂 TFS 调参入口：BENCH_TFS_JSON 覆盖 admission 键（cap 策略/弹性超发）。
+
+    只影响 cap 数值来源与超发旁路；分类口径、释放时机与 EDF 不经此入口修改。"""
+    tuning = os.environ.get('BENCH_TFS_JSON')
+    if tuning:
+        cfg['admission'].update(json.loads(tuning))
+
+
 def arm_config(cfg,arm,manifest):
     cfg=deepcopy(cfg);new=arm in ('tfs-a01','tfs-a1');lease=arm=='tfs-lease'
     cfg['admission'].update(mode='tfs' if new or lease or arm=='old-tfs' else 'immediate',
@@ -111,6 +120,8 @@ def arm_config(cfg,arm,manifest):
             1.0/normalize_config(cfg)['admission']['lease']['compute_slots'],6)
     elif new or manifest.get('runner_profile') not in ('agentx360_v1','synthetic_abc360_v1'):
         cfg['routing_accounting']['waiting_factor']=ARMS[arm]
+    if new:
+        apply_tfs_tuning(cfg)
     return cfg
 
 

@@ -53,7 +53,12 @@ def normalize_config(config):
          "aging_wait_s": 0.5, "aging_cooldown_s": 0.05, "feedback_delay_s": 0.0,
          "placement": "gateway", "classification": "dynamic",
          "retry_interval_wall_s": 0.002, "rpc_transport": "dynamo", "rpc_timeout_wall_s": 5.0,
-         "idle_bypass": False}
+         "idle_bypass": False,
+         # cap 数值来源（2026-11-17 cap 塌缩探索）：legacy=θ 分位口径（缺省，行为不变）；
+         # measured=已完成重读实测占用中位数；fixed=常数定标扫描。
+         "cap_policy": "legacy", "cap_fixed_int": None, "cap_measured_min_samples": 12,
+         # 弹性超发：等待超 overdraft_wait_s 的重读允许超过 cap 至多 overdraft_max_extra 条。
+         "overdraft_wait_s": 0.0, "overdraft_max_extra": 2}
     a.update(c.get("admission", {}))
     if a['rpc_transport'] not in ('dynamo','tcp','unix'):
         raise ValueError('admission.rpc_transport must be dynamo, tcp or unix')
@@ -124,6 +129,22 @@ def normalize_config(config):
         a["heavy_line_Bps"] = sc["disk_Bps"] * lease["line_factor_heavy"]
     if type(a['idle_bypass']) is not bool:
         raise ValueError('admission.idle_bypass must be boolean')
+    if a['cap_policy'] not in ('legacy', 'measured', 'fixed'):
+        raise ValueError('admission.cap_policy must be legacy, measured or fixed')
+    if a['cap_policy'] == 'fixed' and (not isinstance(a['cap_fixed_int'], int)
+            or isinstance(a['cap_fixed_int'], bool) or a['cap_fixed_int'] <= 0):
+        raise ValueError('admission.cap_fixed_int must be a positive integer when cap_policy is fixed')
+    if (not isinstance(a['cap_measured_min_samples'], int)
+            or isinstance(a['cap_measured_min_samples'], bool)
+            or a['cap_measured_min_samples'] <= 0):
+        raise ValueError('admission.cap_measured_min_samples must be a positive integer')
+    if (not isinstance(a['overdraft_wait_s'], (int, float))
+            or isinstance(a['overdraft_wait_s'], bool)
+            or not math.isfinite(a['overdraft_wait_s']) or a['overdraft_wait_s'] < 0):
+        raise ValueError('admission.overdraft_wait_s must be finite and nonnegative')
+    if (not isinstance(a['overdraft_max_extra'], int)
+            or isinstance(a['overdraft_max_extra'], bool) or a['overdraft_max_extra'] < 0):
+        raise ValueError('admission.overdraft_max_extra must be a nonnegative integer')
     if a['idle_bypass'] and (a['placement'] != 'scheduler'
             or c.get('kv_transfer_mode', 'bulk') not in ('layer_pipeline', 'layer_serial')
             or a['feedback_delay_s'] != 0):

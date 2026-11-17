@@ -58,7 +58,7 @@
     "scripts/check_layerwise.py": "afd22616dc71f764487e524aba375201366c0ba14187cf89465fbf812158a4b4",
     "scripts/check_lease_accounting.py": "2443e4e634a17fd7c1428e5d23f467d72f9d8f119cd5469d9f9d172ff8835661",
     "scripts/check_prefill_formula.py": "f3e3f87053c9e7bd2f2d50cc162a6e755a2b747ddccbce91fecee94baf300231",
-    "scripts/check_read_admission.py": "2f006b65b9e382a7b318e95ed0dd9941db640ff521af7be9640e53c017325037",
+    "scripts/check_read_admission.py": "89983940a8fcf912975f8a29b1040cc0dbd78c1fe113812d8f50fb54c12a0620",
     "scripts/check_results.py": "d6890253526a72aa8e687ab18941dd5e60a4523cc594d4b73cef6437e44564f3",
     "scripts/check_routing_accounting.py": "c42b639b7c9127b119a2efe6c9b7c8cad0151c840b2a890277e1bed3e897957c",
     "scripts/check_sa_results.py": "1c25c1737f1788c00cd3efde4475378a7161cb2dc2a688e679ac78369d81c08c",
@@ -105,7 +105,7 @@
     "scripts/verify_rollout_copy.py": "0122a63546046593b175a163b355c9fd4a74cfaffa956a43cf11ac8f3cd84604",
     "scripts/verify_sa_alignment.py": "7293b915cdb59ed1f5e615336e40d7da14caddeb0b2c42894ad5b012412036f9",
     "sim/__init__.py": "a3e6b9e5d96e46c76042757b8b2e93f340841268683af5f89d7a4e5f9b816883",
-    "sim/admission.py": "ca7b8be81cf0f2c787acdb358d04bbce5a6fd95699cb8d49c0a59192a58735b7",
+    "sim/admission.py": "f9328acfee952e5e709bee4cb4e563e42ee1760f3c9e55273ea7e2dd3cc6e626",
     "sim/compute_time.py": "b44b72d5ab3e414ca3b8b81cc184e633ddf7bbdef377c7dc28bd9360e0069fdb",
     "sim/connector.py": "17daaac2b7efb9ffe41b7ea678e19cd0273679724afc5d94fd0eb50489bb9f3f",
     "sim/control_events.py": "6e3e74eb7cdcef2739a1b6ae19e2c04af31c3a2ef7bd1299b6f580c049646e44",
@@ -117,7 +117,7 @@
     "sim/native/grouped_storage.cpp": "948c90d795f9c1d2fe7abf9cc4507face348cb13801dfa91ee18a41152d0e377",
     "sim/priority.py": "3cb7f8e3141a3c7a1295c712ebcaa8046f7d17d23d46684afb0aa8635f370f43",
     "sim/reference_time.py": "b3802eb0a7c238a6a044a80957bc749184654454e0c38ee4f11e740e8cd89bec",
-    "sim/request_profile.py": "7bfd96167de4fb5c16ce2365ec04185fb21ca849a1e26bad4a7670283ab0e1b5",
+    "sim/request_profile.py": "816483c1b9218f4c1f8dfd50472de396fbd20d2b7912fc84b9b69b481e8b1f85",
     "sim/router.py": "33a8bd0f9344cc9a2f717ea610213131be4216c5ea7c207cde43f690f3b7b098",
     "sim/run.py": "76edbb1bc1cacea0635b4fec8faf7d7a36d4f260e41b650151369aaa9e2508de",
     "sim/sa_admission.py": "ada2037ff019cb081cd90a5b0fec4e8f8ea8359d1ea2c0bd710c0d678eae6855",
@@ -144,7 +144,7 @@
     "sim/stack/lease_events.py": "d07f572e8af24bc6f7bef31f3c32cef3f47b273852a806dd50d55255f4eb705d",
     "sim/stack/lease_ledger.py": "659b685ba35aa25a06c3122a85c8f8625e7f90d77fa1e8b9a0d39e22847a7d1c",
     "sim/stack/load_observation.py": "3bbd69b2e0b1f0345159d8484e9b081c9dc4d9c5fc53d893a2093e55e949c603",
-    "sim/stack/read_admission.py": "a3399ba4e062872c3df42dced62729ed952c1557a2ad46a47292d3cc4f4fb304",
+    "sim/stack/read_admission.py": "0df32f00d7313d71ec7319707d758ee3f4d75235a5aa244544f586dd5bcea71f",
     "sim/stack/routing_accounting.py": "de6db2c7f004245acae8a281ebe4121f804e9f0b9ba49c7cf3ed0d9ad1712383",
     "sim/stack/sa_storage.py": "29faa4cdbc719272f7c10cee0ba057f060ac88fb620497e8805a4220a1a9b8cf",
     "sim/stack/scheduler_admission.py": "f567c15c7e7618336f9fc39768264cde6ce24c875a054ab31d0760109902a6b0",
@@ -244,6 +244,22 @@
     "tests/test_cpp_storage.py": {
       "sha256": "0c247f308586296d93c483dc1b8e164dce989685a556f9bbe34ad2b802b8ebc7",
       "reason": "Retain delivery poll/locked path; exclude notification/single-writer experiments; native test additionally skips unsupported non-Linux hosts"
+    },
+    "sim/admission.py": {
+      "sha256": "ca7b8be81cf0f2c787acdb358d04bbce5a6fd95699cb8d49c0a59192a58735b7",
+      "reason": "lql_dev cap 数值来源策略扩展（cap_policy legacy/measured/fixed 与实测样本采集）；研究版未含，默认 legacy 行为逐值一致"
+    },
+    "sim/request_profile.py": {
+      "sha256": "7bfd96167de4fb5c16ce2365ec04185fb21ca849a1e26bad4a7670283ab0e1b5",
+      "reason": "lql_dev admission 新键默认值与校验（cap_policy/cap_fixed_int/cap_measured_min_samples/overdraft_*）；研究版未含，缺省行为不变"
+    },
+    "sim/stack/read_admission.py": {
+      "sha256": "a3399ba4e062872c3df42dced62729ed952c1557a2ad46a47292d3cc4f4fb304",
+      "reason": "lql_dev acquire 判满弹性超发旁路（overdraft_wait_s/overdraft_max_extra，默认关闭）；研究版未含"
+    },
+    "scripts/check_read_admission.py": {
+      "sha256": "2f006b65b9e382a7b318e95ed0dd9941db640ff521af7be9640e53c017325037",
+      "reason": "lql_dev 验收脚本接受 overdraft 获准并核对超发上限与 read_permit_overdraft 记录；研究版未含该 reason"
     }
   }
 }

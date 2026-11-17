@@ -1110,3 +1110,10 @@ fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，
 `all-five`为五方案矩阵（不含tfs-lease）。tfs-lease仅支持默认共享链路与Python后端，
 显式独立盘/C++与tfs-lease组合在启动前拒绝。五方案矩阵与lease四臂属不同矩阵，比较时各自同轮重跑。
 独立盘矩阵驱动固定遍历五方案臂，不随`tfs-lease`扩展。
+
+
+## 2026-11-17：cap 数值来源策略与弹性超发（默认关闭）
+
+三臂TFS的重读并发额度cap缺省仍为`floor(reference_bandwidth_Bps÷θ)`（θ=全体到达画像P75，含零带最小正值规则），与旧版逐值一致。新增`admission.cap_policy`只改变cap分母来源：`measured`用已完成重读的实测占用（`estimated_read_bytes÷(授予→首token)`）中位数作分母，样本数低于`cap_measured_min_samples`（缺省12）时回退legacy；`fixed`用`cap_fixed_int`常数。分类线θ、冻结arrival分类、first_token释放与EDF排序不变；threshold_updated日志新增cap_basis与样本计数字段。
+
+调度器申请判满新增弹性超发旁路：`overdraft_wait_s`（缺省0关闭）大于0时，等待超过该阈值的重读允许在`overdraft_max_extra`（缺省2）条以内超额获准，日志记read_permit_overdraft并标记permit.overdraft。benchmark入口`BENCH_TFS_JSON`可在tfs-a01/tfs-a1臂覆盖这些admission键，仿BENCH_LEASE_JSON；不影响其他臂与合同负载默认行为。动机、探索过程与同轮验证数据见docs/evidence/tfs-cap-relief-20261117/。

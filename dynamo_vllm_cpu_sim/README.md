@@ -261,6 +261,15 @@ macOS 可使用本地 `.venv/run-sim` 运行入口。没有该本地便利脚本
   `pressure_Bps` 为请求级估计，不能复用存储分配的 `demand_Bps`。
 - P75 采用 `floor(q*(N-1))` 下标，仅统计已到达历史，包含已完成请求。同刻全部到达一次更新。
   全零读时无限流；P75=0 但有正读时使用最小正值。元数据记录该 dv 适配规则。
+- `admission.cap_policy` 决定重读并发额度 cap 的数值来源（2026-11-17 起）：
+  `legacy`（缺省）= `floor(参考带宽÷θ)`，行为与旧版逐值一致；`measured` = 已完成重读
+  实测占用（`estimated_read_bytes ÷ 授予→首token 窗口`）的中位数作分母，样本数低于
+  `cap_measured_min_samples`（缺省 12）时回退 legacy；`fixed` = `cap_fixed_int` 常数。
+  分类线 θ 始终按 legacy 口径更新，cap_policy 只改 cap 分母。
+- `admission.overdraft_wait_s`（缺省 0 关闭）与 `admission.overdraft_max_extra`（缺省 2）：
+  调度器申请判满时，等待超龄的重读允许超过 cap 至多 extra 条，日志记
+  `read_permit_overdraft`，permit 标记 `overdraft`。benchmark 入口 `BENCH_TFS_JSON`
+  可在 tfs-a01/tfs-a1 臂上覆盖这些键（仿 `BENCH_LEASE_JSON`）。
 - 所有获准请求都开启租约；门槛改变时重算仍开放租约的重分类，不重开已释放租约。
   受限重请求不会阻塞后面的轻请求。老化每次最多豁免一个，并受固定冷却时间限制。
 - 反馈分 `occurred_s` 和 `visible_s`。观测延迟不延迟 vLLM 实际 KV 完成；反馈排空不延长业务 makespan 或 Worker 积分。

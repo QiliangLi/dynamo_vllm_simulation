@@ -148,8 +148,14 @@ def check(folder, status=None):
             assert not any(r['request_id'] == forced[e['id']]['request_id']
                            and r['round'] == forced[e['id']]['round'] for r in responses)
         else:
-            assert e['reason'] in ('normal', 'lease')
-            assert e['cap'] is None or e['held_after']<=e['cap']
+            assert e['reason'] in ('normal', 'lease', 'overdraft')
+            if e['reason'] == 'overdraft':
+                # 超发获准：必须先有 read_permit_overdraft 记录，且超额量受配置上限约束。
+                assert any(o['event']=='read_permit_overdraft' and o['id']==e['id'] for o in events)
+                extra = json.loads((folder/'config.json').read_text())['admission'].get('overdraft_max_extra',2)
+                assert e['cap'] is None or e['held_after']<=e['cap']+extra
+            else:
+                assert e['cap'] is None or e['held_after']<=e['cap']
             if not lease_arm:
                 assert e['held_after']==e['held_before']+1
     # Sweep every permit independently. Same-worker forced leases may overlap;

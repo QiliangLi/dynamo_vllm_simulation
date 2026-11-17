@@ -87,23 +87,34 @@ class FrozenClassification:
         if rec.worker_id == -1:
             rec.worker_id = worker
             self._log("worker_assigned", now_s, id=rid, worker=worker)
+        overdraft = False
         if not force and self.cap is not None and self.held >= self.cap:
-            self._log("read_permit_denied", now_s, id=rid, worker=worker,
-                      reason="full", held=self.held, cap=self.cap)
-            return dict(granted=False, permit_id=None, reason="full")
+            # 弹性超发（overdraft）：等待超龄的重读允许超过 cap 有限条数，
+            # 削等待长尾；permit 与日志均标记 overdraft，便于审计超发量。
+            od_wait = self.c.get("overdraft_wait_s", 0) or 0
+            od_extra = self.c.get("overdraft_max_extra", 0) or 0
+            overdraft = (od_wait > 0 and od_extra > 0
+                         and now_s - rec.profile.arrival_s >= od_wait
+                         and self.held < self.cap + od_extra)
+            if not overdraft:
+                self._log("read_permit_denied", now_s, id=rid, worker=worker,
+                          reason="full", held=self.held, cap=self.cap)
+                return dict(granted=False, permit_id=None, reason="full")
+            self._log("read_permit_overdraft", now_s, id=rid, worker=worker,
+                      held=self.held, cap=self.cap, waited_s=now_s - rec.profile.arrival_s)
         before = self.held
         token = permit_id if force else uuid.uuid4().hex
         grant_time = decision_s if force else now_s
         permit = dict(permit_id=token, id=rid, worker=worker, attempt=attempt,
                       acquisition_key=key, state="reserved", granted_s=grant_time,
-                      registered_s=now_s, forced=force)
+                      registered_s=now_s, forced=force, overdraft=overdraft)
         self.permits[token] = permit
         self.permit_keys[identity] = token
         rec.reserved_s, rec.lease_open, rec.lease_release_reason = grant_time, True, None
         self._log("admission_reserved", now_s, id=rid, worker=worker, permit_id=token,
                   heavy=True, held_before=before, held_after=self.held, cap=self.cap,
                   theta=self.theta, threshold_version=self.threshold_version,
-                  mode=self.c["mode"], reason="idle_bypass" if force else "normal", placement="scheduler",
+                  mode=self.c["mode"], reason="idle_bypass" if force else ("overdraft" if overdraft else "normal"), placement="scheduler",
                   decision_s=grant_time, proof=proof, over_cap=self.cap is not None and self.held > self.cap,
                   release_on=self.c["release_on"])
         return dict(granted=True, permit_id=token, reason="granted", replay=False)

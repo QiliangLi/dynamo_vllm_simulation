@@ -56,6 +56,8 @@ class AdmissionController:
         self.layer_attempts = {}
         self.exemptions = 0
         self.invalid_reasons = set()
+        # cap_measured：已完成重读的实测占用速率样本（estimated_read_bytes / 持额窗口）。
+        self.heavy_rate_samples = []
 
     def _log(self, event, now_s, **values):
         self.logs.append({"t": now_s, "event": event, **values})
@@ -85,13 +87,40 @@ class AdmissionController:
         positive = [x for x in xs if x > 0]
         raw = xs[math.floor(self.c["quantile"] * (len(xs) - 1))]
         self.theta = (raw if raw > 0 else min(positive)) if positive else None
-        self.cap = max(1, math.floor(self.c["reference_bandwidth_Bps"] / self.theta)) if self.theta else None
+        self.cap, cap_basis = self._compute_cap()
         self.threshold_version += 1
         self._log("threshold_updated", now_s, threshold_version=self.threshold_version,
                   theta=self.theta, raw_quantile=raw, cap=self.cap, held=self.held,
                   held_before=old_held, history_size=len(xs),
                   reclassified_over_cap=self.cap is not None and self.held > self.cap,
-                  zero_rule="minimum_positive_if_quantile_zero")
+                  zero_rule="minimum_positive_if_quantile_zero",
+                  cap_basis=cap_basis, measured_samples=len(self.heavy_rate_samples),
+                  measured_median_Bps=(self._measured_median() if cap_basis == "measured" else None))
+
+    def _measured_median(self):
+        xs = sorted(self.heavy_rate_samples)
+        n = len(xs)
+        return (xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2)
+
+    def _compute_cap(self):
+        """cap 数值来源：legacy=θ 分位口径；measured=实测占用中位数；fixed=常数。
+
+        分类线 θ 始终按 legacy 口径更新，cap_policy 只改变 cap 分母。"""
+        policy = self.c.get("cap_policy", "legacy")
+        if policy == "fixed":
+            return self.c["cap_fixed_int"], "fixed"
+        if policy == "measured" and self.theta is not None:
+            if len(self.heavy_rate_samples) >= self.c.get("cap_measured_min_samples", 12):
+                median = self._measured_median()
+                return max(1, math.floor(self.c["reference_bandwidth_Bps"] / max(median, 1.0))), "measured"
+            cap, _ = self._legacy_cap()
+            return cap, "measured_fallback_theta"
+        return self._legacy_cap()
+
+    def _legacy_cap(self):
+        if self.theta is None:
+            return None, "no_positive_history"
+        return max(1, math.floor(self.c["reference_bandwidth_Bps"] / self.theta)), "theta"
 
     def _key(self, rid, now_s):
         p = self.records[rid].profile
@@ -190,6 +219,17 @@ class AdmissionController:
         elif kind == "first_token":
             if r.first_token_s is None:
                 r.first_token_s = event.occurred_s
+                # cap_measured 采样：持额重读首token时的实测占用速率。
+                # 窗口=授予→首token；lease_open 保证额度由该请求持有（完整栈仅重读开额）。
+                if (self.c.get("cap_policy") == "measured" and r.lease_open
+                        and self.is_heavy(r.profile) and r.reserved_s is not None
+                        and event.occurred_s > r.reserved_s
+                        and r.profile.estimated_read_bytes > 0):
+                    hold_s = event.occurred_s - r.reserved_s
+                    self.heavy_rate_samples.append(r.profile.estimated_read_bytes / hold_s)
+                    self._log("heavy_rate_sample", now_s, id=rid,
+                              rate_Bps=self.heavy_rate_samples[-1],
+                              read_bytes=r.profile.estimated_read_bytes, hold_s=hold_s)
         elif kind == "request_finished":
             r.state = "FINISHED"
             if r.finish_s is None:
