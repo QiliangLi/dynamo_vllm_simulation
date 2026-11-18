@@ -21,6 +21,8 @@ class RequestProfile:
     pressure_Bps: float
     reference_service_s: float
     deadline_s: float
+    compute_time_source: str = ""
+    model_sha256: str = ""
 
 
 def normalize_config(config):
@@ -60,6 +62,21 @@ def normalize_config(config):
          # 弹性超发：等待超 overdraft_wait_s 的重读允许超过 cap 至多 overdraft_max_extra 条。
          "overdraft_wait_s": 0.0, "overdraft_max_extra": 2}
     a.update(c.get("admission", {}))
+    a.setdefault("dev_mode", False)
+    if type(a["dev_mode"]) is not bool:
+        raise ValueError("admission.dev_mode must be boolean")
+    a.setdefault('profile_source', 'trace')
+    native = a.get('native_ingress', False)
+    if type(native) is not bool or native and a['profile_source'] != 'dynamo_tier':
+        raise ValueError('native_ingress requires dynamo_tier profiles')
+    if native and a['feedback_delay_s'] != 0:
+        raise ValueError('native ingress requires zero simulated feedback delay')
+    if a['profile_source'] not in ('trace', 'dynamo_tier'):
+        raise ValueError('unknown admission.profile_source')
+    if a['profile_source'] == 'dynamo_tier' and (
+            a['placement'] != 'scheduler' or c.get('router_mode') != 'kv'
+            or c.get('cache_model') == 'first_seen'):
+        raise ValueError('Dynamo tier profiles require kv router, scheduler admission and a real shared-pool lookup; first_seen request binding is unsupported')
     if a['rpc_transport'] not in ('dynamo','tcp','unix'):
         raise ValueError('admission.rpc_transport must be dynamo, tcp or unix')
     if (type(a['rpc_timeout_wall_s']) not in (int,float)
@@ -85,8 +102,9 @@ def normalize_config(config):
             raise ValueError("scheduler admission requires tfs and aging off; "
                              "v1 pairs arrival+first_token, lease pairs bandwidth_line"
                              "+lease_events（first_token 仅用于事件记账消融）")
-        if c.get("scheduler", "upstream") != "upstream":
-            raise ValueError("scheduler admission v1 supports the pinned upstream scheduler only")
+        supported = ("upstream", "ascend_default") if native else ("upstream",)
+        if c.get("scheduler", "upstream") not in supported:
+            raise ValueError("unsupported scheduler for read admission")
     if a["classification"] == "bandwidth_line":
         sc = c["storage"]
         if (a["mode"] != "tfs" or a["placement"] != "scheduler" or a["aging_enabled"]
@@ -161,15 +179,17 @@ def normalize_config(config):
         raise ValueError("aging_enabled must be boolean")
     if a["aging_enabled"] and a["aging_cooldown_s"] <= 0:
         raise ValueError("enabled aging needs positive cooldown")
-    profile_mode = {"glm5_d950pr":"glm5_reference_v3","sa_e26f":"sa_reference_v2"}.get(
+    profile_mode = {"glm5_d950pr":"glm5_reference_v3","sa_e26f":"sa_reference_v2",
+                    "prefill_fit":"prefill_fit_reference_v1"}.get(
         c["compute"].get("mode"),"linear_reference_v2")
-    p = {"mode": profile_mode, "profile_token_budget": 8192,
+    fit = profile_mode == 'prefill_fit_reference_v1'
+    p = {"mode": profile_mode, "profile_token_budget": 50000 if fit else 8192,
          "slo_multiplier": 4.0}
     p.update(c.get("request_profile", {}))
     legacy_modes = ({"glm5_reference_v1", "glm5_reference_v2"}
                     if profile_mode == "glm5_reference_v3"
                     else {profile_mode.replace('_v2', '_v1')})
-    if p["mode"] in legacy_modes:
+    if p["mode"] != profile_mode and p["mode"] in legacy_modes:
         warnings.warn('request_profile is migrated to '+profile_mode+'; '
                       'old results require their frozen runtime',FutureWarning,stacklevel=2)
         p['mode']=profile_mode
@@ -186,6 +206,11 @@ def normalize_config(config):
         if not isinstance(c[name], int) or isinstance(c[name], bool) or c[name] <= 0:
             raise ValueError(f"{name} must be a positive integer")
     validate_compute(c["compute"])
+    if fit and not (native or (c.get("server_dynamo") and a["mode"] == "immediate")):
+        raise ValueError("MiniMax fit requires the native ingress or direct server baseline process stack")
+    if fit and (c["max_num_seqs"] != 1 or c["max_model_len"] > 98000
+                or max(p["profile_token_budget"], c["max_num_batched_tokens"]) > 50000):
+        raise ValueError("MiniMax fit requires batch=1, context <= 98000 and chunk <= 50000")
     from sim.stack.layerwise import layer_spec
     layer_spec(c)
     if c["compute"].get("mode") == "glm5_d950pr" and c["max_num_seqs"] > 8:

@@ -9,6 +9,7 @@ class LayerStorageState:
     def __init__(self, service, config):
         self.service = service
         self.spec = layer_spec(config)
+        self.inflight_layers = 2 if config.get("server_dynamo") and config["kv_transfer_mode"] == "layer_pipeline" else 1
         self.loads = {}
         self.history = []
         self.reads = {}
@@ -39,9 +40,11 @@ class LayerStorageState:
         # Validate the whole batch before mutating any state.
         for rid in rids:
             load = self.loads[rid]
+            if load.get("canceled"):
+                raise ValueError("external load canceled")
             if load["worker"]!=worker or layer!=len(load["submitted_layers"]):
                 raise ValueError("wrong worker, duplicate or out-of-order layer")
-            if layer and layer-1 not in load["completed_layers"]:
+            if layer >= self.inflight_layers and layer-self.inflight_layers not in load["completed_layers"]:
                 raise ValueError("lookahead exceeds one layer")
         for rid in rids:
             load = self.loads[rid]
@@ -68,12 +71,30 @@ class LayerStorageState:
         load["completed_bytes"] += row["bytes"]
 
     def status(self, worker, rids, layer):
-        self.service._advance_to_wall()
+        self.service._refresh_query()
         ready = []
         for rid in rids:
             if self.loads[rid]["worker"]!=worker:raise ValueError("wrong layer worker")
             if layer in self.loads[rid]["completed_layers"]:ready.append(rid)
         return dict(ok=True,ready=ready,completed_s={rid:self.reads[(worker,rid,layer)]["completed_s"] for rid in ready})
+
+    def cancel(self, worker, rid):
+        s = self.service
+        s._advance_to_wall()
+        load = self.loads[rid]
+        if load["worker"] != worker:
+            raise ValueError("wrong layer worker")
+        load["canceled"] = True
+        for key in list(s.store.pending):
+            if key[:2] != (worker, rid):
+                continue
+            for path in [p for p, q in s.store.queues.items() if q[0].key == key]:
+                del s.store.queues[path]
+            del s.store.pending[key]
+            self.reads[key]["canceled_s"] = s.store.now
+            s.progress.publish(key, None, error="layer read canceled")
+        s.store._invalidate_rates()
+        return dict(ok=True)
 
     def snapshot(self):
         return dict(layer_spec=self.spec,layer_loads=self.loads,layer_read_history=self.history,

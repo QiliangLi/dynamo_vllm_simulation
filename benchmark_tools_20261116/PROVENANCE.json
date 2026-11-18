@@ -1,0 +1,9 @@
+{
+  "engine_source": "server\\auto_deploy_vllm\\drt_dev\\atlas2_benchmark_20261112\\tracebench.py",
+  "source_sha256": "4a6516e2c009245875b0ae6e8adf17cbd1c2d4e419b0d9eac6616f025fc7a74a",
+  "changes": [
+    "Remove strategy-specific paired/SLO orchestration and old CLI",
+    "Retain HTTP/SSE measurement, prepare validation, content hashes and single-use replay guard",
+    "Use label only as experiment metadata"
+  ]
+}

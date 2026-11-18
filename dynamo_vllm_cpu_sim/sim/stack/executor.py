@@ -64,6 +64,10 @@ def load_stack_config() -> dict:
 
 
 class SimExecutor(Executor):
+    @classmethod
+    def supports_async_scheduling(cls) -> bool:
+        return bool(load_stack_config().get("server_dynamo"))
+
     def _init_executor(self) -> None:
         global CURRENT
         self.cfg = load_stack_config()
@@ -95,8 +99,18 @@ class SimExecutor(Executor):
         if transfer_mode(self.cfg) != "bulk":
             if self._storage is None:
                 raise ValueError("layerwise requires shared storage service")
-            self._layer_runner = LayerRunner(self.cfg,self._storage,self.worker_id,
-                                            self.clock,self._load_observer,self._layer_event)
+            from sim.stack.lmcache_bridge import enabled as lmcache_enabled
+            if lmcache_enabled(self.cfg):
+                from sim.stack.lmcache_bridge import LMCacheRunner
+                self._layer_runner = LMCacheRunner(self.cfg,self._storage,self.worker_id,
+                    self.clock,self._load_observer,self._layer_event,self.vllm_config)
+                if self._step_log_path:
+                    from sim.stack.lmcache_bridge import provenance
+                    Path(self._step_log_path).with_suffix(".lmcache.json").write_text(
+                        json.dumps(provenance(self.cfg), indent=2)+"\n")
+            else:
+                self._layer_runner = LayerRunner(self.cfg,self._storage,self.worker_id,
+                                                self.clock,self._load_observer,self._layer_event)
         CURRENT = self
 
     def _layer_event(self,event,**values):
@@ -302,6 +316,16 @@ class SimExecutor(Executor):
         return None
 
     def shutdown(self) -> None:
+        runner = getattr(self, "_layer_runner", None)
+        if runner is not None and hasattr(runner, "close"):
+            if self._step_log_path and hasattr(runner, "hash_stats"):
+                Path(self._step_log_path).with_suffix(".lmcache.hash.json").write_text(
+                    json.dumps(runner.hash_stats(), indent=2)+"\n")
+            runner.close()
+            self._layer_runner = None
+        if self._storage is not None:
+            self._storage.close()
+            self._storage = None
         if self._load_observer is not None:
             self._load_observer.close()
         if self._step_log is not None:

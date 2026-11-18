@@ -2,7 +2,6 @@
 import math
 import random
 import shutil
-import sys
 import unittest
 
 from sim.cpp_grouped_storage import CppGroupedStorage,storage_class
@@ -14,7 +13,7 @@ def config(disks=4):
         shared_link_Bps=None,kv_bytes_per_token=100,read_latency_s=.001,bandwidth_policy='max_min_fair')
 
 
-@unittest.skipUnless(sys.platform=='linux' and shutil.which('g++'),'Linux and native compiler are required')
+@unittest.skipUnless(shutil.which('g++'),'native compiler is required')
 class CppStorageTest(unittest.TestCase):
     def test_random_counted_parity(self):
         for disks in [1,4]:

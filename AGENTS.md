@@ -48,3 +48,7 @@
 
 只在用户指定的实验分支提交。完成并验证的修改直接 `git push` 到**当前分支**的远端（如 `origin/lql_dev`），无需逐次确认（用户已授权）；推送目标始终是当前分支的远端，不推其他分支。
 不自动向原仓库main推送，不强推，不自动合并其他分支；合回main需用户明确指示（PR或手动合并）。
+
+## 2026-11-18 服务器入口
+
+当前三实例服务器仿真先读 `docs/服务器三实例仿真.md`。使用 `run_server_benchmark.py`、`configs/minimax_server_3w.json` 与仓库内 `source_dev/dynamo`，不能套用上文旧 Mooncake 12 实例合同。服务器 benchmark 在 `benchmark_tools_20261116`；它只构建和发送请求。发布范围不包含原始 profile、运行日志或已编译二进制。

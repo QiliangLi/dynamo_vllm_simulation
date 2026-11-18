@@ -30,6 +30,9 @@ def register(client):
     if not directory:
         return
     if threading.current_thread() is not threading.main_thread():
+        if os.environ.get('SIM_STACK_NATIVE_INGRESS') == '1':
+            # Reconnect must not attempt to install a signal handler.
+            return
         raise RuntimeError('admission audit signal must be installed on the owning main thread')
     folder = Path(directory)
     folder.mkdir(parents=True, exist_ok=True)

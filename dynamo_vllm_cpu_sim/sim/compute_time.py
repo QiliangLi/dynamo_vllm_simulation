@@ -5,7 +5,7 @@ from fractions import Fraction
 
 def validate_compute(compute):
     mode = compute.get("mode", "linear")
-    if mode not in ("linear", "glm5_d950pr", "sa_e26f"):
+    if mode not in ("linear", "glm5_d950pr", "sa_e26f", "prefill_fit"):
         raise ValueError(f"unknown compute.mode: {mode}")
     if mode == "linear":
         for key in ("step_overhead_s", "prefill_token_s", "decode_token_s"):
@@ -25,7 +25,7 @@ def validate_compute(compute):
                 raise ValueError("nonpositive SA profile coefficient")
         if Fraction(p["eta_floor"]) > 1:
             raise ValueError("SA eta_floor must not exceed 1")
-    else:
+    elif mode == "glm5_d950pr":
         from sim.timing_models.prefill_time_batch import VERSION, _validate, validate_batch_options
         validate_batch_options(compute.get("batch_time_model", VERSION),
                                compute.get("launch_saving_fraction"))
@@ -47,6 +47,9 @@ def get_compute_time_model(compute):
     from sim.timing_models.compute_models import (LinearComputeTimeModel,
         SAComputeTimeModel, GLM5ComputeTimeModel)
     mode=validate_compute(compute)
+    if mode == 'prefill_fit':
+        from sim.timing_models.minimax_compute import MiniMaxPrefillCompute
+        return MiniMaxPrefillCompute(compute)
     return {'linear':LinearComputeTimeModel,'sa_e26f':SAComputeTimeModel,
             'glm5_d950pr':GLM5ComputeTimeModel}[mode](compute)
 

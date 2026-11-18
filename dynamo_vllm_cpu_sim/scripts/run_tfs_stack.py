@@ -46,8 +46,17 @@ def frontend_command(config, workers):
     if mode not in ("kv", "round-robin"):
         raise ValueError("router_mode must be kv or round-robin")
     command = ["-m", "dynamo.frontend", "--http-port", "28765", "--router-mode", mode]
+    tokenizer = config.get("frontend_tokenizer", "default")
+    if tokenizer not in ("default", "fastokens"):
+        raise ValueError("frontend_tokenizer must be default or fastokens")
+    if tokenizer != "default":
+        command += ["--tokenizer", tokenizer]
     if mode == "kv":
-        command += ["--no-router-kv-events", "--no-router-assume-kv-reuse",
+        if config.get("server_dynamo"):
+            return command + ["--router-min-initial-workers", str(workers)]
+        from sim.stack.tier_profile import enabled as tier_enabled
+        command += ([] if tier_enabled(config) else ["--no-router-kv-events"])
+        command += ["--no-router-assume-kv-reuse",
                     "--router-kv-overlap-score-credit", "0", "--router-temperature", "0",
                     "--router-track-prefill-tokens", "--router-min-initial-workers", str(workers)]
     return command
@@ -66,6 +75,30 @@ def frontend_has_workers(snapshot, expected):
     return (snapshot.get("model")=="sim-opt" and snapshot.get("ready") is True
             and namespace.get("ready") is True
             and namespace.get("worker_types",{}).get("aggregated",{}).get("workers")==expected)
+
+
+def check_minimax_steps(paths):
+    from minimax_prefill import PrefillTimeModel
+    model = PrefillTimeModel()
+    rows = []
+    for path in paths:
+        for line in path.read_text().splitlines():
+            step = json.loads(line)
+            if not step.get("num_scheduled_tokens"):
+                continue
+            timing = step["timing"]
+            assert timing["mode"] == "prefill_fit" and step["decode"] == 0
+            (h, u), = timing["shapes"]
+            assert u == step["prefill"] == sum(step["num_scheduled_tokens"].values())
+            fit = model.estimate(h, u)
+            assert timing["model_sha256"] == model.model_sha256
+            assert timing["compute_time_source"] == fit.source
+            error = abs(fit.compute_s - timing["duration_s"])
+            assert error <= 1e-12
+            rows.append(dict(bs=1, h=h, u=u, program_s=timing["duration_s"], error_s=error))
+    assert rows, "no executed prefill_fit steps"
+    return dict(rows=rows, max_abs_error_s=max(row["error_s"] for row in rows),
+                model_sha256=model.model_sha256)
 
 
 def verify(folder,status,report,storage):
@@ -150,7 +183,7 @@ def verify(folder,status,report,storage):
     events = status["events"]
     for e in events:
         if e["event"]=="admission_reserved" and e["heavy"] and e["reason"]=="normal" and e["mode"]=="tfs":
-            assert e["held_after"]<=e["cap"]
+            assert e["cap"] is None or e["held_after"]<=e["cap"]
         if e["event"]=="feedback_received" and e["kind"]=="load_submitted":
             r = records[e["id"]]
             assert e["occurred_s"]>=r["submitted_s"]
@@ -211,6 +244,8 @@ def verify(folder,status,report,storage):
         from check_sa_stack import check,check_storage
         formula=check(sorted(folder.glob("worker*.steps.jsonl")),config)
         write(folder/"sa_storage_check.json",check_storage(storage,config))
+    elif config["compute"].get("mode") == "prefill_fit":
+        formula = check_minimax_steps(sorted(folder.glob("worker*.steps.jsonl")))
     else:
         from check_prefill_formula import check
         formula = check(sorted(folder.glob("worker*.steps.jsonl")))
@@ -241,7 +276,8 @@ def verify(folder,status,report,storage):
     return summary
 
 
-def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startup_timeout_s=40):
+def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startup_timeout_s=40,
+            server_dynamo=None):
     if type(admission_startup_timeout_s) not in (int,float) or not 0<admission_startup_timeout_s<=600:
         raise ValueError('admission_startup_timeout_s must be finite and in (0,600]')
     folder = Path(output).resolve()
@@ -249,22 +285,45 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
     cfg = deepcopy(config)
     cfg.setdefault('storage', {}).setdefault('gc_policy', 'defer_during_run')
     cfg["workers"] = workers
+    direct_default = server_dynamo and mode == "immediate"
+    if server_dynamo:
+        cfg['server_dynamo'] = True
+        if direct_default:
+            cfg['admission'].update(placement='gateway', profile_source='trace', native_ingress=False)
+            cfg['routing_accounting']['enabled'] = False
     cfg.setdefault("router_mode", "round-robin")
     frontend_args = frontend_command(cfg, workers)
     cfg.setdefault("admission",{}).update(mode=mode,release_on=release)
     from sim.request_profile import normalize_config
     cfg = normalize_config(cfg)
     lease_mode = cfg['admission']['classification'] == 'bandwidth_line'
-    if cfg['routing_accounting']['enabled'] and not cfg['routing_accounting'].get('python_path'):
+    from sim.stack.tier_profile import enabled as tier_enabled
+    tier_mode = tier_enabled(cfg)
+    native_ingress = cfg['admission'].get('native_ingress', False)
+    if native_ingress and not cfg['routing_accounting']['enabled']:
+        raise ValueError('native ingress requires the weighted router overlay')
+    if tier_mode and not (server_dynamo or cfg['routing_accounting'].get('python_path')):
+        raise ValueError('Dynamo tier profiles require an isolated --tier-admission build')
+    if cfg['routing_accounting']['enabled'] and not (server_dynamo or cfg['routing_accounting'].get('python_path')):
         raise ValueError('weighted accounting needs the isolated patched Dynamo python_path; see weighted-routing build instructions')
     if cfg['routing_accounting'].get('python_path'):
         overlay = Path(cfg['routing_accounting']['python_path']).resolve()
         receipt = json.loads((overlay.parent/'build.json').read_text())
         native_hash = hashlib.sha256((overlay/'dynamo/_core.abi3.so').read_bytes()).hexdigest()
+        tier_recipe = receipt.get('tier_admission_recipe')
+        if tier_recipe is not None:
+            expected = {p.name:hashlib.sha256(p.read_bytes()).hexdigest()
+                        for p in (ROOT/'patched/tier_admission').iterdir() if p.is_file()}
+            if tier_recipe != expected:
+                raise ValueError('Dynamo tier-admission recipe mismatch')
+            if native_ingress and 'tfs_ingress.rs' not in tier_recipe:
+                raise ValueError('Dynamo build lacks the native ingress overlay')
+        elif tier_mode:
+            raise ValueError('Dynamo build lacks tier-admission capability')
         if (receipt['base_commit'] != 'b83b1d9304ebfc624709ac46db32b1b6f1ff1615'
                 or receipt['native_sha256'] != native_hash
                 or receipt.get('overlay_recipe_sha256') != hashlib.sha256((ROOT/'patched/weighted_routing/apply_patch.py').read_bytes()).hexdigest()
-                or receipt['patch']['lib/kv-router/src/pending_score.rs'] != hashlib.sha256((ROOT/'patched/weighted_routing/pending_score.rs').read_bytes()).hexdigest()):
+                or (tier_recipe is None and receipt['patch']['lib/kv-router/src/pending_score.rs'] != hashlib.sha256((ROOT/'patched/weighted_routing/pending_score.rs').read_bytes()).hexdigest())):
             raise ValueError('weighted Dynamo build receipt or binary SHA mismatch')
         write(folder/'routing.build.json',receipt)
     from sim.stack.clock import TimeScale
@@ -272,6 +331,10 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
     from sim.trace_io import load_trace
     rows = load_trace(trace)
     assert all(r["output_tokens"]==1 for r in rows)
+    if native_ingress or direct_default:
+        identities = {r['id']: uuid.uuid4().hex for r in rows}
+        write(folder/'request_ids.json', identities)
+        rows = [dict(r, id=identities[r['id']]) for r in rows]
     if cfg.get("cache_model") == "first_seen":
         from sim.mooncake import validate_hit_row
         for row in rows:
@@ -282,16 +345,22 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
     source = {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
               for p in [*sorted((ROOT/"sim/stack").glob("*.py")),ROOT/"sim/admission.py",
                         ROOT/"sim/compute_time.py",ROOT/"sim/control_events.py",ROOT/"sim/request_profile.py",ROOT/"sim/storage.py",
-                        ROOT/"sim/grouped_storage.py",ROOT/"sim/cpp_grouped_storage.py",ROOT/"sim/native/grouped_storage.cpp",ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
+                        ROOT/"sim/grouped_storage.py",ROOT/"sim/cpp_grouped_storage.py",ROOT/"sim/native/grouped_storage.cpp",
+                        ROOT/"sim/mooncake.py",ROOT/"sim/sa_model.py",ROOT/"sim/sa_admission.py",
                         ROOT/"sim/priority.py",ROOT/"sim/reference_time.py",
                         *sorted((ROOT/'sim/timing_models').glob('*.py')),
                         ROOT/'sim/timing_models/source.json',
+                        *sorted((ROOT/'minimax_prefill').glob('*.py')),
+                        ROOT/'minimax_prefill/model.json',ROOT/'patched/ascend_balance_schedule.py',
                         ROOT/"scripts/run_tfs_stack.py",ROOT/"scripts/stack_vllm_worker.py",
                         ROOT/"scripts/check_read_admission.py",ROOT/"scripts/check_stack_routing.py",
                         ROOT/"scripts/check_routing_accounting.py",ROOT/"scripts/build_weighted_dynamo.py",
                         *sorted((ROOT/'patched/weighted_routing').glob('*.py')),
                         *sorted((ROOT/'patched/weighted_routing').glob('*.rs')),
                         ROOT/'patched/weighted_routing/source_hashes.json',
+                        *sorted((ROOT/'patched/tier_admission').glob('*.py')),
+                        *sorted((ROOT/'patched/tier_admission').glob('*.rs')),
+                        ROOT/'patched/tier_admission/source_hashes.json',
                         ROOT/"scripts/run_stack_experiment.sh"]}
     write(folder/"implementation.json",source)
     env = dict(os.environ,PYTHONPATH=str(ROOT),VLLM_PLUGINS="",HF_HUB_OFFLINE="1",
@@ -300,6 +369,27 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
                DYN_DISCOVERY_BACKEND="file",DYN_FILE_KV=str(folder/"discovery"),DYN_REQUEST_PLANE="tcp",
                SIM_STACK_CONFIG=str(folder/"config.json"),
                SIM_STACK_ADMISSION_STATUS_DIR=str(folder/'admission_rpc'))
+    if server_dynamo:
+        overlay = Path(server_dynamo).resolve()
+        env['PYTHONPATH'] = os.pathsep.join(map(str, (overlay, overlay.parent/'source/components/src', ROOT)))
+        env.update(DYN_EVENT_PLANE='zmq', DYN_REQUEST_PLANE_CODEC='msgpack', DYN_TFS_VLLM='0',
+                   SIM_STACK_SERVER_DYNAMO='1')
+        probe = subprocess.check_output([str(python), '-c',
+            'import dynamo._core, dynamo.frontend; '
+            'print(dynamo._core.__file__); print(dynamo.frontend.__file__)'], env=env, text=True)
+        core, frontend = map(Path, probe.strip().splitlines()[-2:])
+        if not core.resolve().is_relative_to(overlay) or not frontend.resolve().is_relative_to(
+                overlay.parent/'source/components/src'):
+            raise RuntimeError('Dynamo 1.2 build and Python components must come from the same server build')
+        write(folder/'dynamo.source.json',dict(core=str(core), frontend=str(frontend),
+            native_sha256=hashlib.sha256(core.read_bytes()).hexdigest()))
+    for key in ('DYN_TFS_NATIVE_INGRESS', 'DYN_TFS_INGRESS_URL',
+                'DYN_TIER_PROFILE_URL', 'DYN_TIER_PROFILE_TOKEN', 'SIM_STACK_NATIVE_INGRESS'):
+        env.pop(key, None)
+    if native_ingress:
+        env['SIM_STACK_NATIVE_INGRESS'] = '1'
+    if tier_mode:
+        env['SIM_STACK_TIER_PROFILE_TOKEN'] = uuid.uuid4().hex
     for key in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","http_proxy","https_proxy","all_proxy"):
         env.pop(key,None)
         os.environ.pop(key,None)
@@ -355,32 +445,41 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
         launch("storage",["-m","sim.stack.storage_service","--config",str(folder/"config.json"),
                           "--trace",str(folder/"trace.jsonl"),"--socket",str(storage_socket)])
         wait_for(lambda:storage_socket.exists(),40)
-        launch("admission",["-m","sim.stack.admission_service","--config",str(folder/"config.json"),
+        if not direct_default:
+            launch("admission",["-m","sim.stack.admission_service","--config",str(folder/"config.json"),
                             "--upstream","http://127.0.0.1:28765","--port","28766",
                             *listener_args,"--feedback-ready-file",str(rpc_ready),
                             "--event-log",str(folder/"admission.events.jsonl")],
                dict(SIM_STACK_STORAGE_SOCKET=str(storage_socket),DYN_SYSTEM_PORT='-1'))
-        wait_for(lambda:rpc_ready.exists(),admission_startup_timeout_s)
-        rpc = json.loads(rpc_ready.read_text())
-        assert rpc['transport'] == cfg['admission']['rpc_transport']
+            wait_for(lambda:rpc_ready.exists(),admission_startup_timeout_s)
+            rpc = json.loads(rpc_ready.read_text())
+            assert rpc['transport'] == cfg['admission']['rpc_transport']
+        else:
+            rpc = dict(transport=None, endpoint='')
         rpc_identity = (dict(SIM_STACK_ADMISSION_INSTANCE_ID=str(rpc['instance_id']),
                              SIM_STACK_ADMISSION_LEDGER_EPOCH=rpc['ledger_epoch'])
                         if rpc['transport'] == 'dynamo' else {})
         readiness = {}
         def frontend_ready(expected):
             nonlocal readiness
+            if server_dynamo:
+                readiness = request_json("http://127.0.0.1:28765/v1/models")
+                return any(model['id'] == 'sim-opt' for model in readiness.get('data', []))
             readiness = request_json("http://127.0.0.1:28765/v1/models/sim-opt/ready")
             write(folder/"readiness.latest.json",readiness)
             return frontend_has_workers(readiness,expected)
         for w in range(workers):
+            worker_script = "scripts/tier_fixture_worker.py" if server_dynamo else "scripts/stack_vllm_worker.py"
             worker_env = dict(SIM_STACK_WORKER_ID=str(w),SIM_STACK_TOKEN_ID="290",DYN_SYSTEM_PORT=str(29111+w),
                      SIM_STACK_STORAGE_SOCKET=str(storage_socket),
                      SIM_STACK_ADMISSION_ENDPOINT=rpc['endpoint'],
                      SIM_STACK_ADMISSION_TIMEOUT_S=str(cfg['admission']['rpc_timeout_wall_s']),
-                     SIM_STACK_STEP_LOG=str(folder/f"worker{w}.steps.jsonl"),**rpc_identity)
+                     SIM_STACK_STEP_LOG=str(folder/f"worker{w}.steps.jsonl"),
+                     **({'SIM_TIER_FIXTURE_TRACE': str(folder/'trace.jsonl')} if server_dynamo else {}),
+                     **rpc_identity)
             if lease_mode:
                 worker_env['SIM_STACK_LEASE_EVENTS'] = '1'
-            launch(f"worker{w}",["scripts/stack_vllm_worker.py","--model","configs/model",
+            launch(f"worker{w}",[worker_script,"--model","configs/model",
                 "--served-model-name","sim-opt","--endpoint","dyn://dynamo.backend.generate",
                 "--dtype","float32","--max-model-len",str(cfg["max_model_len"]),
                 "--block-size",str(cfg["block_size"]),"--num-gpu-blocks-override",str(cfg["num_blocks"]),
@@ -397,28 +496,44 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
             checked_monotonic_s=time.monotonic(),
             generate_files=sorted(p.name for p in (folder/"discovery/v1/instances").glob("*generate*"))))
         frontend_env = {}
+        if tier_mode:
+            frontend_env.update(DYN_TIER_PROFILE_URL='http://127.0.0.1:28766/internal/dynamo-tier-profile',
+                                DYN_TIER_PROFILE_TOKEN=env['SIM_STACK_TIER_PROFILE_TOKEN'])
+        if native_ingress:
+            frontend_env.update(DYN_TFS_NATIVE_INGRESS='1',
+                                DYN_TFS_INGRESS_URL='http://127.0.0.1:28766/internal/dynamo-ingress')
         if cfg['routing_accounting'].get('python_path'):
             frontend_env['PYTHONPATH'] = str(Path(cfg['routing_accounting']['python_path']).resolve())+os.pathsep+str(ROOT)
         if cfg['routing_accounting']['enabled']:
             rc = cfg['routing_accounting']
             frontend_env.update(DYN_WAITING_SCORE_FACTOR=str(rc['waiting_factor']),
                                 DYN_WAITING_SCORE_READY=env['SIM_STACK_ROUTING_SCORE_READY'],
-                                PYTHONPATH=str(Path(rc['python_path']).resolve())+os.pathsep+str(ROOT))
+                                PYTHONPATH=(env['PYTHONPATH'] if server_dynamo else
+                                            str(Path(rc['python_path']).resolve())+os.pathsep+str(ROOT)))
             if lease_mode:
                 frontend_env['DYN_LEASE_LOADING_SLOTS'] = str(cfg['admission']['lease']['loading_slots_per_worker'])
         if cfg["router_mode"] == "kv":
             # Targeted native diagnostics, not a replacement selection algorithm.
             frontend_env["DYN_LOG"] = ("info,dynamo_kv_router::scheduling::selector=debug,"
                                        "dynamo_llm::kv_router::routing_host=debug")
+            if tier_mode:
+                frontend_env['DYN_LOG'] += ',dynamo_llm::kv_router::tier_admission=debug,dynamo_kv_router::pending_score=debug'
         write(folder/"routing.launch.json",dict(router_mode=cfg["router_mode"],
-              argv=frontend_args,environment=frontend_env))
+              argv=frontend_args,environment={k:v for k,v in frontend_env.items() if not k.endswith('_TOKEN')}))
         launch("frontend",frontend_args,frontend_env)
         wait_for(lambda:frontend_ready(workers))
+        if server_dynamo:
+            # Seed publishers emit a snapshot every 250 ms after binding.
+            # Exclude subscription warm-up from measured replay.
+            time.sleep(0.75)
         if cfg['routing_accounting']['enabled']:
             wait_for(lambda:(folder/'routing.score.identity.json').exists(),10)
             identity = json.loads((folder/'routing.score.identity.json').read_text())
             if identity.get('factor') != cfg['routing_accounting']['waiting_factor']:
                 raise RuntimeError('native waiting-score capability/config mismatch')
+            if native_ingress:
+                wait_for(lambda: request_json('http://127.0.0.1:28766/sim/admission')
+                         ['routing_score']['connected'], 10)
         write(folder/"readiness.json",dict(expected_workers=workers,frontend=readiness,
             checked_monotonic_s=time.monotonic()))
         if cfg["router_mode"] == "kv":
@@ -438,11 +553,35 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
         from sim.stack.storage_client import StorageClient
         gc_client = StorageClient(str(storage_socket))
         write(folder/'storage.gc.begin.json', gc_client.gc_begin())
-        code = asyncio.run(replay(folder/"trace.jsonl","http://127.0.0.1:28766","sim-opt",folder,
-                                  False,"completions",admission=True,time_scale=clock.factor))
-        assert code==0
-        wait_for(lambda:all(r["state"]=="FINISHED" and not r["lease_open"]
-                           for r in request_json("http://127.0.0.1:28766/sim/admission")["records"].values()),clock.to_wall(10))
+        port = 28765 if native_ingress or direct_default else 28766
+        code = asyncio.run(replay(folder/"trace.jsonl", f"http://127.0.0.1:{port}", "sim-opt", folder,
+                                  False,"completions",admission=not (native_ingress or direct_default),time_scale=clock.factor,
+                                  admission_profile_source=cfg['admission']['profile_source'],
+                                  native_ingress=bool(native_ingress or direct_default),
+                                  phase2_dump=False if server_dynamo else None))
+        assert code == 0
+        if direct_default:
+            write(folder/'storage.gc.end.json', gc_client.gc_end())
+            storage = gc_client.stats()
+            gc_client.close()
+            gc_client = None
+            write(folder/'storage.final.json', storage)
+            report = json.loads((folder/'report.json').read_text())
+            assert report['n_total'] == report['n_ok'] == len(rows)
+            assert storage['pending_reads'] == 0
+            expected_bytes = sum(r.get('remote_prefix_tokens', 0) for r in rows) * cfg['storage']['kv_bytes_per_token']
+            assert storage['bytes_submitted'] == expected_bytes
+            from check_layerwise import check as check_layers
+            write(folder/'layer_check.json', check_layers(folder, cfg, storage))
+            result = dict(status='pass', requests=len(rows), read_bytes=expected_bytes,
+                          timing=check_minimax_steps(sorted(folder.glob('worker*.steps.jsonl'))))
+            write(folder/'check.json', result)
+            return result
+        def admissions_drained():
+            records = request_json("http://127.0.0.1:28766/sim/admission")["records"]
+            return len(records) == len(rows) and all(
+                r["state"]=="FINISHED" and not r["lease_open"] for r in records.values())
+        wait_for(admissions_drained, clock.to_wall(10))
         write(folder/'storage.gc.end.json', gc_client.gc_end())
         gc_client.close()
         gc_client = None
@@ -452,6 +591,13 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
               expected_workers=workers if cfg['admission']['rpc_transport']=='dynamo'
               and cfg['admission']['placement']=='scheduler' else 0))
         status = request_json("http://127.0.0.1:28766/sim/admission")
+        if server_dynamo:
+            from minimax_prefill import PrefillTimeModel
+            model_sha = PrefillTimeModel().model_sha256
+            for row in rows:
+                profile = status['records'][row['id']]['profile']
+                assert profile['estimated_remote_tokens'] == row['remote_prefix_tokens'], (row['id'], profile)
+                assert profile['model_sha256'] == model_sha, (row['id'], profile)
         write(folder/"admission.final.json",status)
         from sim.stack.storage_client import StorageClient
         client = StorageClient(str(storage_socket))
@@ -468,18 +614,31 @@ def run_one(config,trace,output,python,mode,release,workers=2,*,admission_startu
             write(folder/"routing.final.json",dict(lines=router_metrics()))
             # All-light short runs may finish between metric samples. Native
             # unequal-cost decisions and final zero gauges remain mandatory.
-            write(folder/"routing.check.json",check_routing(folder,require_sampled_load=not cfg['routing_accounting']['enabled']))
+            if not server_dynamo:
+                write(folder/"routing.check.json",check_routing(folder,require_sampled_load=not cfg['routing_accounting']['enabled']))
         if cfg['routing_accounting']['enabled']:
+            def score_snapshot():
+                if native_ingress:
+                    from sim.stack.routing_accounting import ScoreClient
+                    score = ScoreClient(folder/'routing.score.identity.json',
+                        cfg['routing_accounting']['waiting_factor'], cfg['admission']['rpc_timeout_wall_s'])
+                    try:
+                        return score.snapshot()
+                    finally:
+                        score.close()
+                return request_json('http://127.0.0.1:28766/sim/admission')['routing_score']
+
             def score_drained():
-                current = request_json('http://127.0.0.1:28766/sim/admission')
-                score = current['routing_score']
+                score = score_snapshot()
                 return score['connected'] and score['registered']==score['waiting']==score['active']==0
             wait_for(score_drained,5)
             status = request_json('http://127.0.0.1:28766/sim/admission')
+            status['routing_score'] = score_snapshot()
             status = save_admission_snapshot(folder, status)
             write(folder/'routing.score.final.json',status['routing_score'])
             from check_routing_accounting import check as check_weighted_routing
-            write(folder/'routing.score.check.json',check_weighted_routing(folder))
+            if not server_dynamo:
+                write(folder/'routing.score.check.json',check_weighted_routing(folder))
         result["router_mode"] = cfg["router_mode"]
         write(folder/"check.json",result)
         write(folder/"processes.json",dict(root_pids={role:p.pid for role,p in roots},startup_wall_s=startup))
@@ -521,10 +680,21 @@ def main():
     parser.add_argument("--mode",choices=["immediate","tfs","quota_fcfs","slack_only"],default="tfs")
     parser.add_argument("--release-on",choices=["first_token","lease_events"],default="first_token")
     parser.add_argument("--workers",type=int,default=2)
+    parser.add_argument("--server-dynamo", type=Path, help="isolated Dynamo 1.2 build's python directory")
     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
     parser.add_argument("--kv-mode",choices=["bulk","layer_serial","layer_pipeline"],help="KV loading/execution mode")
-    parser.add_argument("--storage-backend", choices=["python", "cpp"], help="optional native independent-disk layerwise backend")
     parser.add_argument("--time-scale",type=float,help="override wall_time_scale (>=1)")
+    parser.add_argument("--storage-completion-mode", choices=["poll", "notify"],
+                        help="layerwise completion: legacy polling or background progress/notifications")
+    parser.add_argument("--storage-backend", choices=["python", "cpp"],
+                        help="cpp: native per-disk cache for independent-disk grouped layerwise poll/locked")
+    parser.add_argument("--storage-service-mode", choices=["locked", "single_writer"],
+                        help="single_writer queues storage commands; requires completion_mode=notify")
+
+    parser.add_argument("--kv-connector-implementation", choices=["sim", "lmcache"],
+                        help="optional real LMCache 0.3.11 CPU adapter; requires layer_pipeline/notify")
+    parser.add_argument("--lmcache-reuse-vllm-hashes", action=argparse.BooleanOptionalAction, default=None,
+                        help="reuse compatible native prefix hashes in the LMCache CPU adapter")
     parser.add_argument('--storage-gc-policy', choices=['automatic', 'defer_during_run'],
                         help='default defer_during_run; automatic reproduces legacy GC behavior')
     parser.add_argument('--request-ordering',choices=['fcfs','edf'],
@@ -533,6 +703,9 @@ def main():
                         help="scheduler opts into v1 frozen hints and late heavy permits")
     parser.add_argument('--admission-transport',choices=['dynamo','tcp','unix'],
                         help='default native Dynamo TCP/MessagePack; tcp/unix are JSON-lines baselines')
+    parser.add_argument('--native-ingress', action='store_true', help='direct Dynamo completions; metadata-only central')
+    parser.add_argument('--profile-source', choices=['trace','dynamo_tier'],
+                        help='derive profiles after Dynamo tier lookup instead of client hit metadata')
     parser.add_argument('--idle-bypass', action=argparse.BooleanOptionalAction, default=None,
                         help='allow one allocated heavy request on an otherwise idle scheduler')
     parser.add_argument('--waiting-score-factor',type=float,
@@ -543,8 +716,17 @@ def main():
     if os.environ.get("PYTHONHASHSEED") != "0":
         parser.error("set PYTHONHASHSEED=0 for deterministic verification and child-process block hashes")
     cfg = json.loads(args.config.read_text())
+    if args.storage_completion_mode is not None:
+        cfg.setdefault("storage", {})["completion_mode"] = args.storage_completion_mode
     if args.storage_backend is not None:
         cfg.setdefault("storage", {})["backend"] = args.storage_backend
+    if args.storage_service_mode is not None:
+        cfg.setdefault("storage", {})["service_mode"] = args.storage_service_mode
+
+    if args.kv_connector_implementation is not None:
+        cfg["kv_connector_implementation"] = args.kv_connector_implementation
+    if args.lmcache_reuse_vllm_hashes is not None:
+        cfg.setdefault("lmcache_sim", {})["reuse_vllm_hashes"] = args.lmcache_reuse_vllm_hashes
     if args.request_ordering is not None:
         cfg.update(request_ordering=args.request_ordering,
                    policy='priority' if args.request_ordering=='edf' else 'fcfs')
@@ -556,6 +738,10 @@ def main():
         cfg.setdefault('routing_accounting',{})['python_path']=str(args.routing_python_path.resolve())
     if args.admission_transport is not None:
         cfg.setdefault('admission',{})['rpc_transport'] = args.admission_transport
+    if args.native_ingress:
+        cfg.setdefault('admission', {})['native_ingress'] = True
+    if args.profile_source is not None:
+        cfg.setdefault('admission',{})['profile_source'] = args.profile_source
     if args.idle_bypass is not None:
         cfg.setdefault('admission',{})['idle_bypass'] = args.idle_bypass
     if args.router_mode is not None:
@@ -568,7 +754,8 @@ def main():
         cfg.setdefault("admission", {})["placement"] = args.admission_placement
         if args.admission_placement == "scheduler":
             cfg["admission"].update(classification="arrival", aging_enabled=False)
-    run_one(cfg,args.trace,args.output,args.python,args.mode,args.release_on,args.workers)
+    run_one(cfg,args.trace,args.output,args.python,args.mode,args.release_on,args.workers,
+            server_dynamo=args.server_dynamo)
 
 
 if __name__ == "__main__":

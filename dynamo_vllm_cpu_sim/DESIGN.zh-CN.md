@@ -1116,3 +1116,12 @@ fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，
 三臂TFS的重读并发额度cap缺省仍为`floor(reference_bandwidth_Bps÷θ)`（θ=全体到达画像P75，含零带最小正值规则），与旧版逐值一致。新增`admission.cap_policy`只改变cap分母来源：`measured`用已完成重读的实测占用（`estimated_read_bytes÷(授予→首token)`）中位数作分母，样本数低于`cap_measured_min_samples`（缺省12）时回退legacy；`fixed`用`cap_fixed_int`常数。分类线θ、冻结arrival分类、first_token释放与EDF排序不变；threshold_updated日志新增cap_basis与样本计数字段。
 
 调度器申请判满新增弹性超发旁路：`overdraft_wait_s`（缺省0关闭）大于0时，等待超过该阈值的重读允许在`overdraft_max_extra`（缺省2）条以内超额获准，日志记read_permit_overdraft并标记permit.overdraft。benchmark入口`BENCH_TFS_JSON`可在tfs-a01/tfs-a1臂覆盖这些admission键，仿BENCH_LEASE_JSON；不影响其他臂与合同负载默认行为。动机、探索过程与同轮验证数据见docs/evidence/tfs-cap-relief-20261117/。
+
+
+## 2026-11-18 服务器对齐入口
+
+新增服务器 Dynamo 1.2 的独立入口，与旧 Dynamo 1.5 入口分开构建。Dynamo 接收请求、查询 KV 索引、路由并返回流；central 只处理元数据、分类、额度和反馈。完成反馈可越过缺失的首 token 反馈；重复完成不重复释放。不确定请求按请求释放额度，不将单请求失败升级为全局停机。hello 结果按 central 身份复用，失效后重新握手。
+
+vLLM 使用 CPU 环境的实际 EngineCore / AsyncScheduler / KV 分配；模型数值前向和 OD 传输由 MiniMax 拟合模型与 6 盘共享 25 GB/s 存储模拟。每实例最多一条运行请求，token 预算 50000。不是 NPU 上真实运行 vLLM-Ascend，不能验证 RDMA 或 TP 保存确认。
+
+α 默认为 0.1，只改变等待重读评分。dev 模式使重读额度无上限，保留逐请求许可记录和反馈。原生 booking、α 评分和存储额度各自保留职责。详细命令见 docs/服务器三实例仿真.md（仓库相对路径）。

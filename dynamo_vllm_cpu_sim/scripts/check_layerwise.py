@@ -18,7 +18,7 @@ def check(folder,config,storage):
     assert sum(r["bytes"] for r in history)==storage["bytes_submitted"]
     completed_mono={}
     for rid,load in loads.items():
-        assert load["submitted_layers"]==load["completed_layers"]==list(range(layers))
+        assert load["submitted_layers"]==sorted(load["completed_layers"])==list(range(layers))
         assert load["submitted_bytes"]==load["completed_bytes"]==load["total_bytes"]
         assert load["total_bytes"]==len(load["blocks_hex"])*config["block_size"]*config["storage"]["kv_bytes_per_token"]
         expected=Counter(max(range(config["storage"]["disks"]),key=lambda d:
@@ -57,6 +57,8 @@ def check(folder,config,storage):
                 ref=manual_timing(timing)
                 durations=[ref["dense_layer_us"]*1e-6]*3+[ref["moe_layer_us"]*1e-6]*75
                 durations[0]+=timing["engine_overhead_s"]
+            elif timing["mode"]=="prefill_fit":
+                durations=[timing["duration_s"]/layers]*layers
             else:
                 overhead=config["compute"]["step_overhead_s"]
                 durations=[(timing["duration_s"]-overhead)/layers]*layers;durations[0]+=overhead

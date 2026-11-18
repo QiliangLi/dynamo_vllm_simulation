@@ -1,0 +1,628 @@
+// SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+//! Zero-copy TCP message decoder for high-concurrency scenarios
+//!
+//! This decoder eliminates message reconstruction copies by:
+//! 1. Reading into a reusable buffer
+//! 2. Parsing headers in-place
+//! 3. Splitting off exact message sizes (zero-copy via Bytes::split_to)
+//! 4. Returning Arc-counted Bytes that can be cloned cheaply
+
+use super::{
+    check_tcp_request_max_message_size, parse_tcp_request_frame_header, tcp_request_endpoint_len,
+    tcp_request_header_size, tcp_request_headers_len,
+};
+use crate::pipeline::network::get_tcp_max_message_size;
+use bytes::{Bytes, BytesMut};
+use std::io;
+use std::sync::OnceLock;
+use tokio::io::{AsyncRead, AsyncReadExt};
+
+const INITIAL_BUFFER_SIZE: usize = 262144; // 256KB
+const DEFAULT_SHRINK_SIZE: usize = 8 * 1024 * 1024; // 8MB
+
+static SHRINK_MESSAGE_SIZE: OnceLock<usize> = OnceLock::new();
+
+/// Get the shrink message size threshold.
+fn get_shrink_message_size() -> usize {
+    *SHRINK_MESSAGE_SIZE.get_or_init(|| {
+        let max_size = get_tcp_max_message_size();
+        // Check for environment variable override
+        let env_result = std::env::var("DYN_TCP_SHRINK_MESSAGE_SIZE");
+        let env_shrink_size = env_result.as_ref().ok().and_then(|s| {
+            s.parse::<usize>().ok().or_else(|| {
+                tracing::warn!(
+                    env_var = "DYN_TCP_SHRINK_MESSAGE_SIZE",
+                    value = %s,
+                    "Invalid value for DYN_TCP_SHRINK_MESSAGE_SIZE, using default"
+                );
+                None
+            })
+        });
+
+        let resolved = resolve_shrink_message_size(max_size, env_shrink_size);
+
+        // Warn if the configured value was clamped
+        if let Some(configured) = env_shrink_size
+            && configured != resolved
+        {
+            tracing::warn!(
+                configured_size = configured,
+                resolved_size = resolved,
+                max_size = max_size,
+                initial_buffer_size = INITIAL_BUFFER_SIZE,
+                "DYN_TCP_SHRINK_MESSAGE_SIZE was clamped to valid range. Note the size is in bytes."
+            );
+        }
+
+        resolved
+    })
+}
+
+/// Resolve the shrink message size threshold based on configuration and constraints.
+///
+fn resolve_shrink_message_size(max_size: usize, env_shrink_size: Option<usize>) -> usize {
+    let configured_size = env_shrink_size.unwrap_or(DEFAULT_SHRINK_SIZE);
+
+    // Clamp to valid range: [INITIAL_BUFFER_SIZE, max_size]
+    configured_size
+        .min(max_size) // Don't exceed max message size
+        .max(INITIAL_BUFFER_SIZE) // Don't go below initial buffer size
+}
+
+/// Zero-copy streaming decoder that reuses buffers
+///
+/// This decoder maintains an internal buffer and only allocates when necessary.
+/// Messages are returned as Arc-counted Bytes slices, making cloning extremely cheap.
+/// The reusable buffer resets back to INITIAL_BUFFER_SIZE only when unread data
+/// is empty and capacity exceeds DYN_TCP_SHRINK_MESSAGE_SIZE.
+pub struct ZeroCopyTcpDecoder {
+    /// Reusable read buffer - grows as needed, shrinks when empty and oversized
+    read_buffer: BytesMut,
+    /// Maximum allowed message size
+    max_message_size: usize,
+    /// Threshold for shrinking buffer back to initial size when empty
+    shrink_threshold: usize,
+}
+
+impl ZeroCopyTcpDecoder {
+    /// Create a new decoder with default buffer size
+    pub fn new() -> Self {
+        Self::with_capacity(INITIAL_BUFFER_SIZE)
+    }
+
+    /// Create a new decoder with specific initial capacity
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            read_buffer: BytesMut::with_capacity(capacity),
+            max_message_size: get_tcp_max_message_size(),
+            shrink_threshold: get_shrink_message_size(),
+        }
+    }
+
+    /// Read one complete message with ZERO copies
+    ///
+    /// This method:
+    /// 1. Ensures headers are buffered
+    /// 2. Parses headers in-place (no allocation)
+    /// 3. Ensures entire message is buffered
+    /// 4. Splits off exact message size (zero-copy pointer arithmetic)
+    /// 5. Returns Arc-counted Bytes (cheap to clone)
+    pub async fn read_message<R: AsyncRead + Unpin>(
+        &mut self,
+        reader: &mut R,
+    ) -> io::Result<TcpRequestMessageZeroCopy> {
+        // Fill buffer if needed
+        while self.read_buffer.len() < super::TCP_REQUEST_ENDPOINT_LEN_WIDTH {
+            let n = reader.read_buf(&mut self.read_buffer).await?;
+            if n == 0 {
+                if self.read_buffer.is_empty() {
+                    return Err(io::Error::new(
+                        io::ErrorKind::UnexpectedEof,
+                        "connection closed",
+                    ));
+                } else {
+                    return Err(io::Error::new(
+                        io::ErrorKind::UnexpectedEof,
+                        "incomplete message header",
+                    ));
+                }
+            }
+        }
+
+        // Parse endpoint path length (first 2 bytes) - NO COPY
+        let path_len = tcp_request_endpoint_len(&self.read_buffer)?;
+
+        // Ensure we have path + headers_len
+        let initial_header_size =
+            super::TCP_REQUEST_ENDPOINT_LEN_WIDTH + path_len + super::TCP_REQUEST_HEADERS_LEN_WIDTH;
+        while self.read_buffer.len() < initial_header_size {
+            let n = reader.read_buf(&mut self.read_buffer).await?;
+            if n == 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "incomplete message header",
+                ));
+            }
+        }
+
+        // Parse headers length (2 bytes after path) - NO COPY
+        let headers_len = tcp_request_headers_len(&self.read_buffer, path_len)?;
+
+        // Ensure we have headers + payload length
+        let full_header_size = tcp_request_header_size(path_len, headers_len);
+        while self.read_buffer.len() < full_header_size {
+            let n = reader.read_buf(&mut self.read_buffer).await?;
+            if n == 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "incomplete message header",
+                ));
+            }
+        }
+
+        let parsed = parse_tcp_request_frame_header(&self.read_buffer)?;
+
+        // Sanity check total message length (including all overhead)
+        check_tcp_request_max_message_size(parsed.total_len, self.max_message_size)?;
+
+        // Ensure entire message is buffered
+        while self.read_buffer.len() < parsed.total_len {
+            let n = reader.read_buf(&mut self.read_buffer).await?;
+            if n == 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    format!(
+                        "incomplete message: expected {} bytes, got {}",
+                        parsed.total_len,
+                        self.read_buffer.len()
+                    ),
+                ));
+            }
+        }
+
+        // Split off exactly what we need - ZERO COPY!
+        // split_to() just advances the internal pointer, doesn't allocate or copy
+        let message_bytes = self.read_buffer.split_to(parsed.total_len).freeze();
+
+        // Shrink buffer if it grew too large and is now empty, could be optimized with lock-free buffer pool in the future.
+        if self.read_buffer.is_empty() && self.read_buffer.capacity() > self.shrink_threshold {
+            self.read_buffer = BytesMut::with_capacity(INITIAL_BUFFER_SIZE);
+        }
+
+        // Return zero-copy message wrapper
+        Ok(TcpRequestMessageZeroCopy::new(message_bytes, parsed))
+    }
+
+    /// Get the current buffer capacity
+    pub fn buffer_capacity(&self) -> usize {
+        self.read_buffer.capacity()
+    }
+
+    /// Get the current buffered data size
+    pub fn buffered_len(&self) -> usize {
+        self.read_buffer.len()
+    }
+}
+
+impl Default for ZeroCopyTcpDecoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Zero-copy message representation
+///
+/// This struct holds an Arc-counted Bytes buffer containing the entire message.
+/// All accessors return zero-copy slices or references into this buffer.
+#[derive(Clone)]
+pub struct TcpRequestMessageZeroCopy {
+    /// Entire message as Arc-counted buffer
+    /// Format: [path_len(2)][path(var)][headers_len(2)][headers(var)][payload_len(4)][payload(var)]
+    raw: Bytes,
+    parsed: super::TcpRequestWireHeader,
+}
+
+impl TcpRequestMessageZeroCopy {
+    /// Create a new zero-copy message from raw bytes
+    fn new(raw: Bytes, parsed: super::TcpRequestWireHeader) -> Self {
+        Self { raw, parsed }
+    }
+
+    /// Get endpoint path as a string slice (zero-copy)
+    ///
+    /// This returns a reference into the message buffer, no allocation.
+    pub fn endpoint_path(&self) -> Result<&str, std::str::Utf8Error> {
+        std::str::from_utf8(&self.raw[self.parsed.endpoint_start()..self.parsed.endpoint_end()])
+    }
+
+    /// Get endpoint path as bytes (zero-copy)
+    pub fn endpoint_path_bytes(&self) -> &[u8] {
+        &self.raw[self.parsed.endpoint_start()..self.parsed.endpoint_end()]
+    }
+
+    /// Get headers as bytes (zero-copy)
+    pub fn headers_bytes(&self) -> &[u8] {
+        &self.raw[self.parsed.headers_start()..self.parsed.headers_end()]
+    }
+
+    /// Get headers as a HashMap (requires parsing)
+    pub fn headers(&self) -> std::collections::HashMap<String, String> {
+        let headers_bytes = self.headers_bytes();
+        if headers_bytes.is_empty() {
+            return std::collections::HashMap::new();
+        }
+
+        // Parse headers from JSON format
+        serde_json::from_slice(headers_bytes).unwrap_or_default()
+    }
+
+    /// Get the payload length
+    #[inline]
+    fn payload_len(&self) -> usize {
+        self.parsed.payload_len
+    }
+
+    /// Get payload as zero-copy Bytes
+    ///
+    /// This returns an Arc-counted slice of the message buffer.
+    /// Cloning the returned Bytes is extremely cheap (just Arc clone).
+    pub fn payload(&self) -> Bytes {
+        self.raw.slice(self.parsed.payload_start()..) // ZERO COPY! Just Arc clone + offset
+    }
+
+    /// Get total message size in bytes
+    pub fn total_size(&self) -> usize {
+        self.raw.len()
+    }
+
+    /// Get the raw message bytes (for debugging)
+    pub fn raw_bytes(&self) -> &Bytes {
+        &self.raw
+    }
+}
+
+impl std::fmt::Debug for TcpRequestMessageZeroCopy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TcpRequestMessageZeroCopy")
+            .field("total_size", &self.total_size())
+            .field("endpoint_path", &self.endpoint_path().ok())
+            .field("payload_len", &self.payload_len())
+            .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::io::AsyncWriteExt;
+
+    #[test]
+    fn test_resolve_shrink_message_size_edge_cases() {
+        // Test case: max_size = 10MB (larger than DEFAULT_SHRINK_SIZE)
+        // Should return DEFAULT_SHRINK_SIZE (8MB) since env is None
+        let max_size_10mb = 10 * 1024 * 1024;
+        let result = resolve_shrink_message_size(max_size_10mb, None);
+        assert_eq!(
+            result, DEFAULT_SHRINK_SIZE,
+            "10MB max should return default 8MB"
+        );
+
+        // Test case: max_size < DEFAULT_SHRINK_SIZE
+        // Should return max_size (capped by .min())
+        let max_size_1mb = 1024 * 1024;
+        let result = resolve_shrink_message_size(max_size_1mb, None);
+        assert_eq!(result, max_size_1mb, "1MB max should be capped to 1MB");
+
+        // Test case: max_size = DEFAULT_SHRINK_SIZE
+        // Should return DEFAULT_SHRINK_SIZE (exact match)
+        let result = resolve_shrink_message_size(DEFAULT_SHRINK_SIZE, None);
+        assert_eq!(
+            result, DEFAULT_SHRINK_SIZE,
+            "exact match should return default"
+        );
+
+        // Test case: env_shrink_size provided and within bounds
+        let env_size = 2 * 1024 * 1024; // 2MB
+        let result = resolve_shrink_message_size(max_size_10mb, Some(env_size));
+        assert_eq!(
+            result, env_size,
+            "env var should be used when within bounds"
+        );
+
+        // Test case: env_shrink_size exceeds max_size
+        let env_size_large = 20 * 1024 * 1024; // 20MB
+        let result = resolve_shrink_message_size(max_size_10mb, Some(env_size_large));
+        assert_eq!(
+            result, max_size_10mb,
+            "env var should be capped to max_size"
+        );
+
+        // Test case: env_shrink_size below INITIAL_BUFFER_SIZE
+        let env_size_small = 100 * 1024; // 100KB < 256KB
+        let result = resolve_shrink_message_size(max_size_10mb, Some(env_size_small));
+        assert_eq!(
+            result, INITIAL_BUFFER_SIZE,
+            "env var should be clamped to INITIAL_BUFFER_SIZE"
+        );
+
+        // Test case: max_size below INITIAL_BUFFER_SIZE
+        let max_size_small = 100 * 1024; // 100KB < 256KB
+        let result = resolve_shrink_message_size(max_size_small, None);
+        assert_eq!(
+            result, INITIAL_BUFFER_SIZE,
+            "result should be clamped to INITIAL_BUFFER_SIZE"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_basic() {
+        // Create a test message with headers
+        let endpoint = "test/endpoint";
+        let payload = b"Hello, World!";
+        let headers: Vec<u8> = vec![]; // Empty headers
+
+        let mut message = Vec::new();
+        // path_len + path
+        message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message.extend_from_slice(endpoint.as_bytes());
+        // headers_len + headers
+        message.extend_from_slice(&(headers.len() as u16).to_be_bytes());
+        message.extend_from_slice(&headers);
+        // payload_len + payload
+        message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message.extend_from_slice(payload);
+
+        // Create a mock reader
+        let mut reader = &message[..];
+
+        // Decode
+        let mut decoder = ZeroCopyTcpDecoder::new();
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+
+        // Verify
+        assert_eq!(msg.endpoint_path().unwrap(), endpoint);
+        assert_eq!(msg.payload().as_ref(), payload);
+        assert_eq!(msg.total_size(), message.len());
+        assert_eq!(msg.headers().len(), 0); // Empty headers
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_allows_empty_and_long_endpoint_paths() {
+        for endpoint in [String::new(), "x".repeat(2048)] {
+            let payload = b"payload";
+
+            let mut message = Vec::new();
+            message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+            message.extend_from_slice(endpoint.as_bytes());
+            message.extend_from_slice(&(0u16).to_be_bytes());
+            message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+            message.extend_from_slice(payload);
+
+            let mut reader = &message[..];
+            let mut decoder = ZeroCopyTcpDecoder::new();
+            let msg = decoder.read_message(&mut reader).await.unwrap();
+
+            assert_eq!(msg.endpoint_path().unwrap(), endpoint.as_str());
+            assert_eq!(msg.payload().as_ref(), payload);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_large_payload() {
+        // Create a large payload (200KB)
+        let endpoint = "large/endpoint";
+        let payload = vec![0x42u8; 200 * 1024];
+        let headers: Vec<u8> = vec![]; // Empty headers
+
+        let mut message = Vec::new();
+        // path_len + path
+        message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message.extend_from_slice(endpoint.as_bytes());
+        // headers_len + headers
+        message.extend_from_slice(&(headers.len() as u16).to_be_bytes());
+        message.extend_from_slice(&headers);
+        // payload_len + payload
+        message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message.extend_from_slice(&payload);
+
+        let mut reader = &message[..];
+        let mut decoder = ZeroCopyTcpDecoder::new();
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+
+        assert_eq!(msg.endpoint_path().unwrap(), endpoint);
+        assert_eq!(msg.payload().len(), payload.len());
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_total_size_limit() {
+        // Test that the decoder validates total message size, not just payload size
+        // Create a message where total_len exceeds max but payload alone might not
+        let max_size = 1024; // 1KB limit
+        let mut decoder = ZeroCopyTcpDecoder::with_capacity(256);
+        decoder.max_message_size = max_size;
+
+        // Create a message that exceeds the limit with overhead included
+        let endpoint = "test/endpoint";
+        let payload = vec![0x42u8; max_size]; // Payload equals max
+        let headers: Vec<u8> = vec![]; // Empty headers
+
+        let mut message = Vec::new();
+        // path_len + path
+        message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message.extend_from_slice(endpoint.as_bytes());
+        // headers_len + headers
+        message.extend_from_slice(&(headers.len() as u16).to_be_bytes());
+        message.extend_from_slice(&headers);
+        // payload_len + payload
+        message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message.extend_from_slice(&payload);
+
+        // total_len = 2 + 13 + 2 + 0 + 4 + 1024 = 1045 bytes > 1024 max
+        let mut reader = &message[..];
+        let result = decoder.read_message(&mut reader).await;
+
+        // Should fail with InvalidData error
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+        assert!(err.to_string().contains("message too large"));
+        assert!(err.to_string().contains("1045")); // total_len
+        assert!(err.to_string().contains("1024")); // max_message_size
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_with_headers() {
+        // Test header parsing with actual header data
+        let endpoint = "api/v1/inference";
+        let payload = b"Request payload data";
+
+        // Create mock headers as JSON
+        let mut headers_map = std::collections::HashMap::new();
+        headers_map.insert("traceparent".to_string(), "00-abc123-def456-01".to_string());
+        headers_map.insert("user-agent".to_string(), "test-client/1.0".to_string());
+        headers_map.insert("request-id".to_string(), "req-12345".to_string());
+
+        let headers_json = serde_json::to_vec(&headers_map).unwrap();
+
+        let mut message = Vec::new();
+        // path_len + path
+        message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message.extend_from_slice(endpoint.as_bytes());
+        // headers_len + headers (non-empty this time)
+        message.extend_from_slice(&(headers_json.len() as u16).to_be_bytes());
+        message.extend_from_slice(&headers_json);
+        // payload_len + payload
+        message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message.extend_from_slice(payload);
+
+        // Decode the message
+        let mut reader = &message[..];
+        let mut decoder = ZeroCopyTcpDecoder::new();
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+
+        // Verify endpoint
+        assert_eq!(msg.endpoint_path().unwrap(), endpoint);
+
+        // Verify payload
+        assert_eq!(msg.payload().as_ref(), payload);
+
+        // Verify total size includes all components
+        assert_eq!(msg.total_size(), message.len());
+
+        // Verify headers are correctly parsed
+        let decoded_headers = msg.headers();
+        assert_eq!(decoded_headers.len(), 3);
+        assert_eq!(
+            decoded_headers.get("traceparent").unwrap(),
+            "00-abc123-def456-01"
+        );
+        assert_eq!(
+            decoded_headers.get("user-agent").unwrap(),
+            "test-client/1.0"
+        );
+        assert_eq!(decoded_headers.get("request-id").unwrap(), "req-12345");
+
+        // Verify headers_bytes returns the raw JSON
+        let headers_bytes = msg.headers_bytes();
+        assert_eq!(headers_bytes, &headers_json[..]);
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_empty_vs_populated_headers() {
+        // Test both empty and populated headers in sequence to ensure proper parsing
+        let endpoint = "test/endpoint";
+        let payload = b"test data";
+
+        // Test 1: Empty headers
+        let mut message_empty = Vec::new();
+        message_empty.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message_empty.extend_from_slice(endpoint.as_bytes());
+        message_empty.extend_from_slice(&(0u16).to_be_bytes()); // headers_len = 0
+        // No headers bytes
+        message_empty.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message_empty.extend_from_slice(payload);
+
+        let mut reader = &message_empty[..];
+        let mut decoder = ZeroCopyTcpDecoder::new();
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+
+        assert_eq!(msg.endpoint_path().unwrap(), endpoint);
+        assert_eq!(msg.payload().as_ref(), payload);
+        assert_eq!(msg.headers().len(), 0);
+        assert_eq!(msg.headers_bytes().len(), 0);
+
+        // Test 2: Populated headers with same decoder
+        let mut headers_map = std::collections::HashMap::new();
+        headers_map.insert("x-test-header".to_string(), "test-value".to_string());
+        let headers_json = serde_json::to_vec(&headers_map).unwrap();
+
+        let mut message_with_headers = Vec::new();
+        message_with_headers.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+        message_with_headers.extend_from_slice(endpoint.as_bytes());
+        message_with_headers.extend_from_slice(&(headers_json.len() as u16).to_be_bytes());
+        message_with_headers.extend_from_slice(&headers_json);
+        message_with_headers.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        message_with_headers.extend_from_slice(payload);
+
+        let mut reader = &message_with_headers[..];
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+
+        assert_eq!(msg.endpoint_path().unwrap(), endpoint);
+        assert_eq!(msg.payload().as_ref(), payload);
+        assert_eq!(msg.headers().len(), 1);
+        assert_eq!(msg.headers().get("x-test-header").unwrap(), "test-value");
+    }
+
+    #[tokio::test]
+    async fn test_zero_copy_decoder_buffer_shrinking() {
+        // Test that buffer shrinks back after reading a large message.
+        // Uses small sizes to avoid env var dependencies and keep test fast.
+        let endpoint = "test/endpoint";
+        let small_payload = b"small";
+        // Use 1MB payload with 512KB shrink threshold
+        let large_payload = vec![0x42u8; 1024 * 1024]; // 1MB
+
+        fn make_message(endpoint: &str, payload: &[u8]) -> Vec<u8> {
+            let mut message = Vec::new();
+            message.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+            message.extend_from_slice(endpoint.as_bytes());
+            message.extend_from_slice(&(0u16).to_be_bytes()); // empty headers
+            message.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+            message.extend_from_slice(payload);
+            message
+        }
+
+        // Create decoder with explicit settings to avoid env var dependencies
+        let mut decoder = ZeroCopyTcpDecoder::with_capacity(INITIAL_BUFFER_SIZE);
+        decoder.max_message_size = 2 * 1024 * 1024; // 2MB max
+        decoder.shrink_threshold = 512 * 1024; // 512KB shrink threshold
+
+        assert!(decoder.buffer_capacity() <= INITIAL_BUFFER_SIZE);
+
+        // Read large message - buffer grows during read, then shrinks after split_to()
+        let large_message = make_message(endpoint, &large_payload);
+        let mut reader = &large_message[..];
+        decoder.read_message(&mut reader).await.unwrap();
+
+        // After reading, buffer should have shrunk back because:
+        // - The buffer grew to ~1MB to hold the message
+        // - 1MB >= 512KB shrink threshold, so it triggers the shrink
+        assert!(
+            decoder.buffer_capacity() <= INITIAL_BUFFER_SIZE,
+            "buffer should shrink after large message, got capacity {}",
+            decoder.buffer_capacity()
+        );
+        assert!(
+            decoder.buffered_len() == 0,
+            "buffer should be empty after read"
+        );
+
+        // Read small message - should work fine with shrunk buffer
+        let small_message = make_message(endpoint, small_payload);
+        let mut reader = &small_message[..];
+        let msg = decoder.read_message(&mut reader).await.unwrap();
+        assert_eq!(msg.payload().as_ref(), small_payload);
+    }
+}

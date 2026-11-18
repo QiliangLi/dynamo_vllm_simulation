@@ -9,12 +9,13 @@ import time
 
 
 class FinalReplyStreams:
-    def __init__(self, timeout_s, *, max_pending=64, observe=None):
+    def __init__(self, timeout_s, *, max_pending=64, observe=None, strict_tail=True):
         if timeout_s <= 0 or max_pending < 1:
             raise ValueError('positive drain timeout and capacity required')
         self.timeout_s = timeout_s
         self.max_pending = max_pending
         self.observe = observe
+        self.strict_tail = strict_tail
         self.failure = None
         self.pending = set()
         self.lock = asyncio.Lock()
@@ -67,7 +68,10 @@ class FinalReplyStreams:
             task.result()
         except BaseException as error:
             self.failed += 1
-            self.fail(error)
+            if self.strict_tail:
+                self.fail(error)
+            else:
+                self.emit('tail_cleanup_failed', error=repr(error))
         else:
             self.drained += 1
 
@@ -79,6 +83,12 @@ class FinalReplyStreams:
                 if task.done():
                     self.done(task)
             self.check()
+            if len(self.pending) >= self.max_pending and not self.strict_tail:
+                task = next(iter(self.pending))
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
+                self.done(task)
+                self.emit('tail_cleanup_evicted', max_pending=self.max_pending)
             if len(self.pending) >= self.max_pending:
                 error = RuntimeError('admission response drain capacity exceeded')
                 self.fail(error)
