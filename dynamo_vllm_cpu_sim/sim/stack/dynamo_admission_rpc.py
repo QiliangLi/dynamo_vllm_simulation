@@ -44,6 +44,8 @@ def new_runtime(loop, *, client=False):
         os.environ['DYN_SYSTEM_PORT'] = '-1'
     if os.environ.get('DYN_REQUEST_PLANE_CODEC', 'msgpack').lower() != 'msgpack':
         raise ValueError('native admission requires DYN_REQUEST_PLANE_CODEC=msgpack')
+    if os.environ.get('SIM_STACK_SERVER_DYNAMO') == '1':
+        return DistributedRuntime(loop, os.environ.get('DYN_DISCOVERY_BACKEND', 'etcd'), 'tcp')
     return DistributedRuntime(loop, os.environ.get('DYN_DISCOVERY_BACKEND', 'etcd'),
                               'tcp', event_plane='zmq')
 
@@ -155,7 +157,8 @@ class DynamoAdmissionRPC:
     def run(self):
         asyncio.set_event_loop(self.loop)
         try:
-            self.streams = FinalReplyStreams(self.timeout_s, observe=self.observe)
+            self.streams = FinalReplyStreams(self.timeout_s, observe=self.observe,
+                strict_tail=os.environ.get('SIM_STACK_NATIVE_INGRESS') != '1')
             self.loop.run_until_complete(self.connect())
             self.ready.set_result(True)
             self.loop.run_forever()

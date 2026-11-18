@@ -1,0 +1,198 @@
+package secrets
+
+import (
+	"slices"
+	"testing"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+)
+
+func TestDockerSecretIndexer_RefreshIndex(t *testing.T) {
+
+	// Create mock secrets
+	mockSecrets := []corev1.Secret{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "secret1",
+				Namespace: "default",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"docker.io":{}, "my-registry.com:5005/registry1":{}}}`),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "secret2",
+				Namespace: "default",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"my-registry.com:5005/registry2":{}}}`),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "secret3",
+				Namespace: "another-namespace",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"my-registry.com:5005/registry2":{}}}`),
+			},
+		},
+	}
+
+	// Create fake client with mock secrets
+	fakeClient := fake.NewClientBuilder().
+		WithScheme(scheme.Scheme).
+		WithObjects(&mockSecrets[0], &mockSecrets[1], &mockSecrets[2]).
+		Build()
+
+	i := NewDockerSecretIndexer(fakeClient, "")
+	if err := i.RefreshIndex(t.Context()); err != nil {
+		t.Errorf("DockerSecretIndexer.RefreshIndex() error = %v, wantErr %v", err, nil)
+	}
+
+	secrets, err := i.GetSecrets("default", "docker.io")
+	if err != nil {
+		t.Errorf("DockerSecretIndexer.GetSecrets() error = %v, wantErr %v", err, nil)
+	}
+	if len(secrets) != 1 {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", len(secrets), 1)
+	}
+	if secrets[0] != "secret1" {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", secrets[0], "secret1")
+	}
+
+	secrets, err = i.GetSecrets("default", "my-registry.com:5005")
+	if err != nil {
+		t.Errorf("DockerSecretIndexer.GetSecrets() error = %v, wantErr %v", err, nil)
+	}
+	if len(secrets) != 2 {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", len(secrets), 2)
+	}
+	if secrets[0] != "secret1" {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", secrets[0], "secret1")
+	}
+	if secrets[1] != "secret2" {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", secrets[1], "secret2")
+	}
+
+	secrets, err = i.GetSecrets("another-namespace", "my-registry.com:5005")
+	if err != nil {
+		t.Errorf("DockerSecretIndexer.GetSecrets() error = %v, wantErr %v", err, nil)
+	}
+	if len(secrets) != 1 {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", len(secrets), 1)
+	}
+	if secrets[0] != "secret3" {
+		t.Errorf("DockerSecretIndexer.GetSecrets() = %v, want %v", secrets[0], "secret3")
+	}
+}
+
+func TestDockerSecretIndexer_DeterministicSecrets(t *testing.T) {
+	mockSecrets := []corev1.Secret{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "secret-b",
+				Namespace: "default",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"my-registry.com/team-a":{}, "my-registry.com/team-b":{}}}`),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "secret-a",
+				Namespace: "default",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"my-registry.com/team-a":{}}}`),
+			},
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().
+		WithScheme(scheme.Scheme).
+		WithObjects(&mockSecrets[0], &mockSecrets[1]).
+		Build()
+
+	i := NewDockerSecretIndexer(fakeClient, "")
+	if err := i.RefreshIndex(t.Context()); err != nil {
+		t.Fatalf("DockerSecretIndexer.RefreshIndex() error = %v", err)
+	}
+
+	secrets, err := i.GetSecrets("default", "my-registry.com")
+	if err != nil {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() error = %v", err)
+	}
+	if got, want := secrets, []string{"secret-a", "secret-b"}; !slices.Equal(got, want) {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() = %v, want %v", got, want)
+	}
+
+	secrets[0] = "mutated"
+	secrets, err = i.GetSecrets("default", "my-registry.com")
+	if err != nil {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() error = %v", err)
+	}
+	if got, want := secrets, []string{"secret-a", "secret-b"}; !slices.Equal(got, want) {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() after caller mutation = %v, want %v", got, want)
+	}
+}
+
+func TestDockerSecretIndexer_RefreshIndexRespectsNamespaceScope(t *testing.T) {
+	mockSecrets := []corev1.Secret{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "target-secret",
+				Namespace: "target",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`{"auths":{"target-registry.io/team":{}}}`),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "malformed-secret",
+				Namespace: "other",
+			},
+			Type: corev1.SecretTypeDockerConfigJson,
+			Data: map[string][]byte{
+				".dockerconfigjson": []byte(`not-json`),
+			},
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().
+		WithScheme(scheme.Scheme).
+		WithObjects(&mockSecrets[0], &mockSecrets[1]).
+		Build()
+
+	i := NewDockerSecretIndexer(fakeClient, "target")
+	if err := i.RefreshIndex(t.Context()); err != nil {
+		t.Fatalf("DockerSecretIndexer.RefreshIndex() error = %v", err)
+	}
+
+	secrets, err := i.GetSecrets("target", "target-registry.io")
+	if err != nil {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() error = %v", err)
+	}
+	if got, want := secrets, []string{"target-secret"}; !slices.Equal(got, want) {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() = %v, want %v", got, want)
+	}
+
+	secrets, err = i.GetSecrets("other", "target-registry.io")
+	if err != nil {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() error = %v", err)
+	}
+	if len(secrets) != 0 {
+		t.Fatalf("DockerSecretIndexer.GetSecrets() = %v, want no out-of-scope secrets", secrets)
+	}
+}

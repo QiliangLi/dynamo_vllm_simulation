@@ -1,0 +1,9034 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package dynamo
+
+import (
+	"context"
+	"fmt"
+	"reflect"
+	"sort"
+	"strings"
+	"testing"
+	"time"
+
+	configv1alpha1 "github.com/ai-dynamo/dynamo/deploy/operator/api/config/v1alpha1"
+	"github.com/ai-dynamo/dynamo/deploy/operator/api/v1alpha1"
+	"github.com/ai-dynamo/dynamo/deploy/operator/api/v1beta1"
+	"github.com/ai-dynamo/dynamo/deploy/operator/internal/checkpoint"
+	commonconsts "github.com/ai-dynamo/dynamo/deploy/operator/internal/consts"
+	"github.com/ai-dynamo/dynamo/deploy/operator/internal/controller_common"
+	snapshotprotocol "github.com/ai-dynamo/dynamo/deploy/snapshot/protocol"
+	grovev1alpha1 "github.com/ai-dynamo/grove/operator/api/core/v1alpha1"
+	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	istioNetworking "istio.io/api/networking/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	ptr "k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+)
+
+func TestGenerateDynamoComponentsDeployments(t *testing.T) {
+	type args struct {
+		parentDynamoGraphDeployment *v1alpha1.DynamoGraphDeployment
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    map[string]*v1alpha1.DynamoComponentDeployment
+		wantErr bool
+	}{
+		{
+			name: "Test GenerateDynamoComponentsDeployments",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace:  &[]string{"default"}[0],
+								ComponentType:    "frontend",
+								SubComponentType: "test-sub-component",
+								Replicas:         &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+							"service2": {
+								DynamoNamespace: &[]string{"default"}[0],
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:      "service1",
+							DynamoNamespace:  &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:    "frontend",
+							SubComponentType: "test-sub-component",
+							Replicas:         &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+						},
+					},
+				},
+				"service2": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service2",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service2",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service2",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							Replicas:        &[]int32{3}[0],
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service2",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test GenerateDynamoComponentsDeployments with default dynamo namespace",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace: nil,
+								ComponentType:   "frontend",
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+							"service2": {
+								DynamoNamespace: nil,
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service1",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:   "frontend",
+							Replicas:        &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+						},
+					},
+				},
+				"service2": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service2",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service2",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service2",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							Replicas:        &[]int32{3}[0],
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service2",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test GenerateDynamoComponentsDeployments with frontend component",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace: nil,
+								ComponentType:   "frontend",
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+							"service2": {
+								DynamoNamespace: nil,
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service1",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:   "frontend",
+							Replicas:        &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+						},
+					},
+				},
+				"service2": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service2",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service2",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service2",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							Replicas:        &[]int32{3}[0],
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service2",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test GenerateDynamoComponentsDeployments with config from DYN_DEPLOYMENT_CONFIG env var",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Envs: []corev1.EnvVar{
+							{
+								Name:  "DYN_DEPLOYMENT_CONFIG",
+								Value: `{"service1":{"port":8080,"ServiceArgs":{"Workers":2, "Resources":{"CPU":"2", "Memory":"2Gi", "GPU":"2"}}}}`,
+							},
+						},
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace: nil,
+								ComponentType:   "frontend",
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+							"service2": {
+								DynamoNamespace: nil,
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service1",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:   "frontend",
+							Replicas:        &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "2",
+									Memory: "2Gi",
+									GPU:    "2",
+									Custom: map[string]string{},
+								},
+								Limits: &v1alpha1.ResourceItem{
+									CPU:    "2",
+									Memory: "2Gi",
+									GPU:    "2",
+									Custom: nil,
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "DYN_DEPLOYMENT_CONFIG",
+									Value: fmt.Sprintf(`{"service1":{"ServiceArgs":{"Resources":{"CPU":"2","GPU":"2","Memory":"2Gi"},"Workers":2},"port":%d}}`, commonconsts.DynamoServicePort),
+								},
+							},
+						},
+					},
+				},
+				"service2": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service2",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service2",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service2",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							Replicas:        &[]int32{3}[0],
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service2",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "DYN_DEPLOYMENT_CONFIG",
+									Value: `{"service1":{"port":8080,"ServiceArgs":{"Workers":2, "Resources":{"CPU":"2", "Memory":"2Gi", "GPU":"2"}}}}`,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test GenerateDynamoComponentsDeployments with ExtraPodSpec.MainContainer Command and Args",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						BackendFramework: string(BackendFrameworkSGLang),
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace: &[]string{"default-test-dynamographdeployment-44136fa3"}[0],
+								ComponentType:   "frontend",
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Command: []string{"sh", "-c"},
+										Args:    []string{"echo hello world", "sleep 99999"},
+									},
+								},
+							},
+							"service2": {
+								DynamoNamespace: &[]string{"default-test-dynamographdeployment-44136fa3"}[0],
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+						Envs: []corev1.EnvVar{
+							{
+								Name:  "TEST_ENV",
+								Value: "test-value",
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						BackendFramework: string(BackendFrameworkSGLang),
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service1",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:   "frontend",
+							Replicas:        &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+								MainContainer: &corev1.Container{
+									Command: []string{"sh", "-c"},
+									Args:    []string{"echo hello world", "sleep 99999"},
+								},
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "TEST_ENV",
+									Value: "test-value",
+								},
+							},
+						},
+					},
+				},
+				"service2": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service2",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service2",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						BackendFramework: string(BackendFrameworkSGLang),
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:     "service2",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							Replicas:        &[]int32{3}[0],
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service2",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "TEST_ENV",
+									Value: "test-value",
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test GenerateDynamoComponentsDeployments with Discover Backend and Metrics Annotatitions",
+			args: args{
+				parentDynamoGraphDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment",
+						Namespace: "default",
+						Annotations: map[string]string{
+							commonconsts.KubeAnnotationEnableMetrics:          "false",
+							commonconsts.KubeAnnotationDynamoDiscoveryBackend: "test",
+						},
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						BackendFramework: string(BackendFrameworkSGLang),
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"service1": {
+								DynamoNamespace: &[]string{"default-test-dynamographdeployment-44136fa3"}[0],
+								ComponentType:   "frontend",
+								Replicas:        &[]int32{3}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "0",
+										Custom: map[string]string{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: map[string]*v1alpha1.DynamoComponentDeployment{
+				"service1": {
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamographdeployment-service1",
+						Namespace: "default",
+						Labels: map[string]string{
+							commonconsts.KubeLabelDynamoComponent:           "service1",
+							commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+							commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+						},
+					},
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						BackendFramework: string(BackendFrameworkSGLang),
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							Annotations: map[string]string{
+								commonconsts.KubeAnnotationEnableMetrics:          "false",
+								commonconsts.KubeAnnotationDynamoDiscoveryBackend: "test",
+							},
+							ServiceName:     "service1",
+							DynamoNamespace: &[]string{"default-test-dynamographdeployment"}[0],
+							ComponentType:   "frontend",
+							Replicas:        &[]int32{3}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "0",
+									Custom: map[string]string{},
+								},
+							},
+							Labels: map[string]string{
+								commonconsts.KubeLabelDynamoComponent:           "service1",
+								commonconsts.KubeLabelDynamoNamespace:           "default-test-dynamographdeployment",
+								commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamographdeployment",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GenerateDynamoComponentsDeployments(betaDGD(t, tt.args.parentDynamoGraphDeployment), nil, nil, RollingUpdateContext{})
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GenerateDynamoComponentsDeployments() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			want := normalizeGeneratedDCDMap(betaDCDMap(t, tt.want))
+			got = normalizeGeneratedDCDMap(got)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("GenerateDynamoComponentsDeployments() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_GetDynamoComponentDeploymentsGlobalNamespace(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dynamographdeployment",
+			Namespace: "default",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			BackendFramework: string(BackendFrameworkSGLang),
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"service1": {
+					ComponentType:         "frontend",
+					GlobalDynamoNamespace: true,
+					Replicas:              &[]int32{3}[0],
+				},
+				"service2": {
+					ComponentType: "worker",
+					Replicas:      &[]int32{3}[0],
+				},
+			},
+		},
+	}
+
+	got, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), nil, nil, RollingUpdateContext{})
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Len(t, got, 2) {
+		return
+	}
+
+	for _, d := range got {
+		switch d.Spec.ComponentType {
+		case commonconsts.ComponentTypeFrontend:
+			assert.Equal(t, commonconsts.GlobalDynamoNamespace, d.Labels[commonconsts.KubeLabelDynamoNamespace])
+		case commonconsts.ComponentTypeWorker:
+			expectedNamespace := fmt.Sprintf("%s-%s", dgd.Namespace, dgd.Name)
+			assert.Equal(t, expectedNamespace, d.Labels[commonconsts.KubeLabelDynamoNamespace])
+		default:
+			t.Errorf("unexpected component type: %s", d.Spec.ComponentType)
+		}
+	}
+}
+
+func TestGenerateDynamoComponentsDeployments_UsesDynDeploymentWorkers(t *testing.T) {
+	tests := []struct {
+		name              string
+		componentReplicas *int32
+		wantReplicas      int32
+	}{
+		{
+			name:         "dyn config workers used when component replicas omitted",
+			wantReplicas: 2,
+		},
+		{
+			name:              "component replicas override dyn config workers",
+			componentReplicas: ptr.To(int32(3)),
+			wantReplicas:      3,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			const (
+				dgdName       = "test-dgd"
+				componentName = "service1"
+			)
+			dgd := &v1beta1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      dgdName,
+					Namespace: "default",
+				},
+				Spec: v1beta1.DynamoGraphDeploymentSpec{
+					Env: []corev1.EnvVar{{
+						Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+						Value: fmt.Sprintf(`{"%s":{"ServiceArgs":{"workers":2}}}`, componentName),
+					}},
+					Components: []v1beta1.DynamoComponentDeploymentSharedSpec{{
+						ComponentName: componentName,
+						ComponentType: v1beta1.ComponentTypeFrontend,
+						Replicas:      tt.componentReplicas,
+					}},
+				},
+			}
+
+			dcds, err := GenerateDynamoComponentsDeployments(dgd, nil, nil, RollingUpdateContext{})
+			require.NoError(t, err)
+			dcd, ok := dcds[componentName]
+			require.True(t, ok, "expected generated DCD for component %q", componentName)
+			require.NotNil(t, dcd.Spec.Replicas)
+			assert.Equal(t, tt.wantReplicas, *dcd.Spec.Replicas)
+		})
+	}
+}
+
+func TestAppendMissingPVCVolumesForMountsAddsMissingPVCs(t *testing.T) {
+	volumes := []corev1.Volume{
+		{Name: "config", VolumeSource: corev1.VolumeSource{ConfigMap: &corev1.ConfigMapVolumeSource{}}},
+		{Name: "cache", VolumeSource: corev1.VolumeSource{PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "cache-pvc"}}},
+	}
+	mounts := []corev1.VolumeMount{
+		{Name: "cache", MountPath: "/cache"},
+		{Name: "model-cache", MountPath: "/models"},
+	}
+
+	got := appendMissingPVCVolumesForMounts(volumes, mounts)
+
+	require.Len(t, got, 3)
+	assert.Equal(t, "cache", got[0].Name)
+	assert.Equal(t, "model-cache", got[1].Name)
+	require.NotNil(t, got[1].PersistentVolumeClaim)
+	assert.Equal(t, "model-cache", got[1].PersistentVolumeClaim.ClaimName)
+	assert.Equal(t, "config", got[2].Name)
+}
+
+func TestGenerateDynamoComponentsDeployments_PropagatesPreservedAlphaServiceAnnotations(t *testing.T) {
+	className := "nginx"
+	alpha := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "default",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"frontend": {
+					ServiceName:      "frontend",
+					DynamoNamespace:  ptr.To("custom-ns"),
+					ComponentType:    commonconsts.ComponentTypeFrontend,
+					SubComponentType: "legacy-sub",
+					Annotations:      map[string]string{"legacy-annotation": "kept"},
+					Labels:           map[string]string{"legacy-label": "kept"},
+					Ingress: &v1alpha1.IngressSpec{
+						Enabled:                    true,
+						Host:                       "legacy.example",
+						IngressControllerClassName: &className,
+					},
+				},
+			},
+		},
+	}
+	beta := &v1beta1.DynamoGraphDeployment{}
+	require.NoError(t, alpha.ConvertTo(beta))
+
+	got, err := GenerateDynamoComponentsDeployments(beta, nil, nil, RollingUpdateContext{})
+	require.NoError(t, err)
+	dcd := got["frontend"]
+	require.NotNil(t, dcd)
+
+	assert.Equal(t, "custom-ns", GetDCDDynamoNamespace(dcd))
+	assert.Equal(t, "legacy-sub", GetDCDSubComponentType(dcd))
+	assert.Equal(t, map[string]string{"legacy-annotation": "kept"}, GetDCDPreservedAlphaAnnotations(dcd))
+	assert.Equal(t, map[string]string{"legacy-label": "kept"}, GetDCDPreservedAlphaLabels(dcd))
+	ingressSpec, ok, err := GetDCDPreservedAlphaIngressSpec(dcd)
+	require.NoError(t, err)
+	require.True(t, ok)
+	assert.Equal(t, "legacy.example", ingressSpec.Host)
+	assert.Equal(t, "nginx", ptr.Deref(ingressSpec.IngressControllerClassName, ""))
+}
+
+func TestGenerateLabelsAndAnnotations_UsePreservedAlphaDGDServiceMetadata(t *testing.T) {
+	alpha := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "default",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Annotations: map[string]string{
+				"dgd-annotation":          "from-dgd",
+				"legacy-annotation":       "from-dgd",
+				"pod-template-annotation": "from-dgd",
+			},
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"worker": {
+					ComponentType:    commonconsts.ComponentTypeWorker,
+					SubComponentType: "legacy-sub",
+					Annotations:      map[string]string{"legacy-annotation": "kept"},
+					Labels:           map[string]string{"legacy-label": "kept"},
+				},
+			},
+		},
+	}
+	beta := &v1beta1.DynamoGraphDeployment{}
+	require.NoError(t, alpha.ConvertTo(beta))
+
+	service := beta.GetComponentByName("worker")
+	require.NotNil(t, service)
+	component := service
+	ensurePodTemplate(component).Annotations["pod-template-annotation"] = "from-pod-template"
+
+	labels, err := generateLabels(component, beta, "worker", DiscoveryContext{})
+	require.NoError(t, err)
+	assert.Equal(t, "kept", labels["legacy-label"])
+	assert.Equal(t, "legacy-sub", labels[commonconsts.KubeLabelDynamoSubComponentType])
+
+	annotations, err := generateAnnotations(component, beta, "worker")
+	require.NoError(t, err)
+	assert.Equal(t, "from-dgd", annotations["dgd-annotation"])
+	assert.Equal(t, "kept", annotations["legacy-annotation"])
+	assert.Equal(t, "from-pod-template", annotations["pod-template-annotation"])
+}
+
+// TestGenerateComponentContext tests the generateComponentContext function
+// to ensure it correctly computes the DynamoNamespace from authoritative sources
+// (k8s namespace + DGD name), ignoring any deprecated dynamoNamespace field.
+func TestGenerateComponentContext(t *testing.T) {
+	tests := []struct {
+		name                       string
+		component                  *v1alpha1.DynamoComponentDeploymentSharedSpec
+		parentGraphDeploymentName  string
+		namespace                  string
+		numberOfNodes              int32
+		discoveryBackend           configv1alpha1.DiscoveryBackend
+		expectedDynamoNamespace    string
+		expectedComponentType      string
+		expectedParentDGDName      string
+		expectedParentDGDNamespace string
+	}{
+		{
+			name: "namespace-scoped operator: computes correct dynamo namespace",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypePlanner,
+				// Deprecated field set to incorrect value - should be ignored
+				DynamoNamespace: ptr.To("old-incorrect-value"),
+			},
+			parentGraphDeploymentName:  "my-deployment",
+			namespace:                  "my-namespace",
+			numberOfNodes:              1,
+			discoveryBackend:           configv1alpha1.DiscoveryBackendKubernetes,
+			expectedDynamoNamespace:    "my-namespace-my-deployment",
+			expectedComponentType:      commonconsts.ComponentTypePlanner,
+			expectedParentDGDName:      "my-deployment",
+			expectedParentDGDNamespace: "my-namespace",
+		},
+		{
+			name: "deprecated dynamoNamespace field is ignored",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				// This is the bug case: profiler sets dynamoNamespace to just DGD name
+				DynamoNamespace: ptr.To("vllm-disagg"),
+			},
+			parentGraphDeploymentName:  "vllm-disagg",
+			namespace:                  "djangoz",
+			numberOfNodes:              1,
+			discoveryBackend:           configv1alpha1.DiscoveryBackendKubernetes,
+			expectedDynamoNamespace:    "djangoz-vllm-disagg",
+			expectedComponentType:      commonconsts.ComponentTypeFrontend,
+			expectedParentDGDName:      "vllm-disagg",
+			expectedParentDGDNamespace: "djangoz",
+		},
+		{
+			name: "GlobalDynamoNamespace takes precedence",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType:         commonconsts.ComponentTypeWorker,
+				GlobalDynamoNamespace: true,
+				// Even with deprecated field set, GlobalDynamoNamespace should win
+				DynamoNamespace: ptr.To("should-be-ignored"),
+			},
+			parentGraphDeploymentName:  "shared-frontend",
+			namespace:                  "production",
+			numberOfNodes:              2,
+			discoveryBackend:           configv1alpha1.DiscoveryBackendEtcd,
+			expectedDynamoNamespace:    commonconsts.GlobalDynamoNamespace,
+			expectedComponentType:      commonconsts.ComponentTypeWorker,
+			expectedParentDGDName:      "shared-frontend",
+			expectedParentDGDNamespace: "production",
+		},
+		{
+			name: "nil dynamoNamespace field still computes correctly",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType:   commonconsts.ComponentTypePlanner,
+				DynamoNamespace: nil,
+			},
+			parentGraphDeploymentName:  "test-dgd",
+			namespace:                  "default",
+			numberOfNodes:              1,
+			discoveryBackend:           configv1alpha1.DiscoveryBackendKubernetes,
+			expectedDynamoNamespace:    "default-test-dgd",
+			expectedComponentType:      commonconsts.ComponentTypePlanner,
+			expectedParentDGDName:      "test-dgd",
+			expectedParentDGDNamespace: "default",
+		},
+		{
+			name: "different namespace and DGD name combinations",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+			},
+			parentGraphDeploymentName:  "llama-70b-prod",
+			namespace:                  "ml-inference",
+			numberOfNodes:              4,
+			discoveryBackend:           configv1alpha1.DiscoveryBackendEtcd,
+			expectedDynamoNamespace:    "ml-inference-llama-70b-prod",
+			expectedComponentType:      commonconsts.ComponentTypeFrontend,
+			expectedParentDGDName:      "llama-70b-prod",
+			expectedParentDGDNamespace: "ml-inference",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := generateComponentContext(
+				betaComponent(t, tt.component),
+				tt.parentGraphDeploymentName,
+				tt.namespace,
+				tt.numberOfNodes,
+				DiscoveryContext{Backend: tt.discoveryBackend, Mode: configv1alpha1.KubeDiscoveryModePod},
+			)
+
+			assert.Equal(t, tt.expectedDynamoNamespace, ctx.DynamoNamespace,
+				"DynamoNamespace should be computed from k8s namespace + DGD name")
+			assert.Equal(t, tt.expectedComponentType, ctx.ComponentType)
+			assert.Equal(t, tt.expectedParentDGDName, ctx.ParentGraphDeploymentName)
+			assert.Equal(t, tt.expectedParentDGDNamespace, ctx.ParentGraphDeploymentNamespace)
+			assert.Equal(t, tt.numberOfNodes, ctx.numberOfNodes)
+			assert.Equal(t, tt.discoveryBackend, ctx.Discovery.Backend)
+		})
+	}
+}
+
+func Test_updateDynDeploymentConfig(t *testing.T) {
+	type args struct {
+		dynamoDeploymentComponent *v1alpha1.DynamoComponentDeployment
+		newPort                   int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name: "main component",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName:   "Frontend",
+							ComponentType: commonconsts.ComponentTypeFrontend,
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "OTHER",
+									Value: `value`,
+								},
+								{
+									Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+									Value: `{"Frontend":{"port":8080},"Planner":{"environment":"kubernetes"}}`,
+								},
+							},
+						},
+					},
+				},
+				newPort: commonconsts.DynamoServicePort,
+			},
+			want:    []byte(fmt.Sprintf(`{"Frontend":{"port":%d},"Planner":{"environment":"kubernetes"}}`, commonconsts.DynamoServicePort)),
+			wantErr: false,
+		},
+		{
+			name: "not main component",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName: "Other",
+							Envs: []corev1.EnvVar{
+								{
+									Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+									Value: `{"Frontend":{"port":8000},"Planner":{"environment":"kubernetes"}}`,
+								},
+							},
+						},
+					},
+				},
+				newPort: commonconsts.DynamoServicePort,
+			},
+			want:    []byte(fmt.Sprintf(`{"Frontend":{"port":%d},"Planner":{"environment":"kubernetes"}}`, commonconsts.DynamoServicePort)),
+			wantErr: false,
+		},
+		{
+			name: "no config variable",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName: "Frontend",
+							Envs: []corev1.EnvVar{
+								{
+									Name:  "OTHER",
+									Value: `value`,
+								},
+							},
+						},
+					},
+				},
+				newPort: 8080,
+			},
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := updateDynDeploymentConfig(tt.args.dynamoDeploymentComponent, tt.args.newPort)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("updateDynDeploymentConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.args.dynamoDeploymentComponent.GetDynamoDeploymentConfig(), tt.want); diff != "" {
+				t.Errorf("updateDynDeploymentConfig() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_overrideWithDynDeploymentConfig(t *testing.T) {
+	type args struct {
+		dynamoDeploymentComponent *v1alpha1.DynamoComponentDeployment
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantErr  bool
+		expected *v1alpha1.DynamoComponentDeployment
+	}{
+		{
+			name: "no env var",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName: "Frontend",
+							Replicas:    &[]int32{1}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "1",
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			expected: &v1alpha1.DynamoComponentDeployment{
+				Spec: v1alpha1.DynamoComponentDeploymentSpec{
+					DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+						ServiceName: "Frontend",
+						Replicas:    &[]int32{1}[0],
+						Resources: &v1alpha1.Resources{
+							Requests: &v1alpha1.ResourceItem{
+								CPU:    "1",
+								Memory: "1Gi",
+								GPU:    "1",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "override workers and resources",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName: "Frontend",
+							Replicas:    &[]int32{1}[0],
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "1",
+								},
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+									Value: `{"Frontend":{"port":8080,"ServiceArgs":{"Workers":3, "Resources":{"CPU":"2", "Memory":"2Gi", "GPU":"2"}}},"Planner":{"environment":"kubernetes"}}`,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			expected: &v1alpha1.DynamoComponentDeployment{
+				Spec: v1alpha1.DynamoComponentDeploymentSpec{
+					DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+						ServiceName: "Frontend",
+						Replicas:    &[]int32{3}[0],
+						Resources: &v1alpha1.Resources{
+							Requests: &v1alpha1.ResourceItem{
+								CPU:    "2",
+								Memory: "2Gi",
+								GPU:    "2",
+							},
+							Limits: &v1alpha1.ResourceItem{
+								CPU:    "2",
+								Memory: "2Gi",
+								GPU:    "2",
+							},
+						},
+						Envs: []corev1.EnvVar{
+							{
+								Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+								Value: `{"Frontend":{"port":8080,"ServiceArgs":{"Workers":3, "Resources":{"CPU":"2", "Memory":"2Gi", "GPU":"2"}}},"Planner":{"environment":"kubernetes"}}`,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "override subset of resources",
+			args: args{
+				dynamoDeploymentComponent: &v1alpha1.DynamoComponentDeployment{
+					Spec: v1alpha1.DynamoComponentDeploymentSpec{
+						DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+							ServiceName: "Frontend",
+							Replicas:    nil,
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									CPU:    "1",
+									Memory: "1Gi",
+									GPU:    "1",
+								},
+							},
+							Envs: []corev1.EnvVar{
+								{
+									Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+									Value: `{"Frontend":{"port":8080,"ServiceArgs":{"Workers":3, "Resources":{"GPU":"2"}}},"Planner":{"environment":"kubernetes"}}`,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			expected: &v1alpha1.DynamoComponentDeployment{
+				Spec: v1alpha1.DynamoComponentDeploymentSpec{
+					DynamoComponentDeploymentSharedSpec: v1alpha1.DynamoComponentDeploymentSharedSpec{
+						ServiceName: "Frontend",
+						Replicas:    &[]int32{3}[0],
+						Resources: &v1alpha1.Resources{
+							Requests: &v1alpha1.ResourceItem{
+								CPU:    "1",
+								Memory: "1Gi",
+								GPU:    "2",
+							},
+							Limits: &v1alpha1.ResourceItem{
+								CPU:    "",
+								Memory: "",
+								GPU:    "2",
+							},
+						},
+						Envs: []corev1.EnvVar{
+							{
+								Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+								Value: `{"Frontend":{"port":8080,"ServiceArgs":{"Workers":3, "Resources":{"GPU":"2"}}},"Planner":{"environment":"kubernetes"}}`,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := overrideWithDynDeploymentConfig(tt.args.dynamoDeploymentComponent); (err != nil) != tt.wantErr {
+				t.Errorf("overrideWithDynDeploymentConfig() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(tt.args.dynamoDeploymentComponent, tt.expected); diff != "" {
+				t.Errorf("overrideWithDynDeploymentConfig() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_mergeEnvs(t *testing.T) {
+	type args struct {
+		common   []corev1.EnvVar
+		specific []corev1.EnvVar
+	}
+	tests := []struct {
+		name string
+		args args
+		want []corev1.EnvVar
+	}{
+		{
+			name: "no_common_envs",
+			args: args{
+				common:   []corev1.EnvVar{},
+				specific: []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+			},
+			want: []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+		},
+		{
+			name: "no_specific_envs",
+			args: args{
+				common:   []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+				specific: []corev1.EnvVar{},
+			},
+			want: []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+		},
+		{
+			name: "common_and_specific_envs",
+			args: args{
+				specific: []corev1.EnvVar{{Name: "BAZ", Value: "QUX"}},
+				common:   []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+			},
+			want: []corev1.EnvVar{{Name: "BAZ", Value: "QUX"}, {Name: "FOO", Value: "BAR"}},
+		},
+		{
+			name: "common_and_specific_envs_with_same_name",
+			args: args{
+				common:   []corev1.EnvVar{{Name: "FOO", Value: "BAR"}},
+				specific: []corev1.EnvVar{{Name: "FOO", Value: "QUX"}},
+			},
+			want: []corev1.EnvVar{{Name: "FOO", Value: "QUX"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MergeEnvs(tt.args.common, tt.args.specific)
+			sort.Slice(got, func(i, j int) bool {
+				return got[i].Name < got[j].Name
+			})
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("mergeEnvs() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateGrovePodCliqueSet(t *testing.T) {
+	type args struct {
+		ctx              context.Context
+		dynamoDeployment *v1alpha1.DynamoGraphDeployment
+		controllerConfig *configv1alpha1.OperatorConfiguration
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *grovev1alpha1.PodCliqueSet
+		wantErr bool
+	}{
+		{
+			name: "test_generate_grove_pod_clique_set_single_node",
+			args: args{
+				ctx: context.Background(),
+				controllerConfig: &configv1alpha1.OperatorConfiguration{
+					Infrastructure: configv1alpha1.InfrastructureConfiguration{
+						ETCDAddress:        "etcd-address",
+						NATSAddress:        "nats-address",
+						ModelExpressURL:    "model-express-url",
+						PrometheusEndpoint: "http://localhost:9090",
+					},
+					Orchestrators: configv1alpha1.OrchestratorConfiguration{
+						Grove: configv1alpha1.GroveConfiguration{
+							TerminationDelay: metav1.Duration{Duration: 15 * time.Minute},
+						},
+					},
+				},
+				dynamoDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamo-graph-deployment",
+						Namespace: "test-namespace",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Envs: []corev1.EnvVar{
+							{
+								Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+								Value: "1",
+							},
+						},
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"Frontend": {
+								ComponentType:    "frontend", // Frontend component
+								SubComponentType: "test-sub-component",
+								ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+									Annotations: map[string]string{
+										"nvidia.com/annotation1": "annotation1",
+										"nvidia.com/annotation2": "annotation2",
+									},
+									Labels: map[string]string{
+										"nvidia.com/label1": "label1",
+										"nvidia.com/label2": "label2",
+									},
+								},
+								Replicas: &[]int32{1}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "1",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "FRONTEND_ENV_1",
+										Value: "1",
+									},
+								},
+								EnvFromSecret: &[]string{"frontend-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									PodSpec: &corev1.PodSpec{
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+									},
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $FRONTEND_ENV_1",
+										},
+										Args: []string{
+											"--frontend-env-1",
+											"1",
+										},
+										Image: "frontend-image",
+									},
+								},
+							},
+							"Planner": {
+								Replicas:      &[]int32{2}[0],
+								ComponentType: commonconsts.ComponentTypePlanner,
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+										GPU:    "2",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "PLANNER_ENV_1",
+										Value: "2",
+									},
+								},
+								VolumeMounts: []v1alpha1.VolumeMount{
+									{
+										Name:       "dynamo-pvc",
+										MountPoint: "/planner",
+									},
+								},
+								EnvFromSecret: &[]string{"planner-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $PLANNER_ENV_1",
+										},
+										Args: []string{
+											"--planner-env-1",
+											"1",
+										},
+										Image: "planner-image",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &grovev1alpha1.PodCliqueSet{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-dynamo-graph-deployment",
+					Namespace: "test-namespace",
+					Labels: map[string]string{
+						commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+					},
+				},
+				Spec: grovev1alpha1.PodCliqueSetSpec{
+					Replicas: 1,
+					Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+						StartupType: ptr.To(grovev1alpha1.CliqueStartupTypeAnyOrder),
+						HeadlessServiceConfig: &grovev1alpha1.HeadlessServiceConfig{
+							PublishNotReadyAddresses: true,
+						},
+						TerminationDelay: &metav1.Duration{Duration: 15 * time.Minute},
+						Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{
+							{
+								Name: "frontend",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-frontend",
+									commonconsts.KubeLabelDynamoComponent:           "Frontend",
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeFrontend,
+									commonconsts.KubeLabelDynamoSubComponentType:    "test-sub-component",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+									"nvidia.com/label1":                             "label1",
+									"nvidia.com/label2":                             "label2",
+								},
+								Annotations: map[string]string{
+									"nvidia.com/annotation1": "annotation1",
+									"nvidia.com/annotation2": "annotation2",
+								},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "frontend",
+									Replicas:     1,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "frontend-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $FRONTEND_ENV_1",
+												},
+												Args: []string{
+													"--frontend-env-1",
+													"1",
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "frontend-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYN_HTTP_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "FRONTEND_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "DYNAMO_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoNamespacePrefixEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeFrontend,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name:  "MODEL_EXPRESS_URL",
+														Value: "model-express-url",
+													},
+													{
+														Name:  "PROMETHEUS_ENDPOINT",
+														Value: "http://localhost:9090",
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("1"),
+														corev1.ResourceMemory: resource.MustParse("1Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("1"),
+														corev1.ResourceMemory:                 resource.MustParse("1Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("1"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      "shared-memory",
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoContainerPortName,
+														ContainerPort: int32(commonconsts.DynamoServicePort),
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "planner",
+								Labels: map[string]string{
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-planner",
+									commonconsts.KubeLabelDynamoComponent:           "Planner",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypePlanner,
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+								},
+								Annotations: map[string]string{},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "planner",
+									Replicas:     2,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										Volumes: []corev1.Volume{
+											{
+												Name: "dynamo-pvc",
+												VolumeSource: corev1.VolumeSource{
+													PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+														ClaimName: "dynamo-pvc",
+													},
+												},
+											},
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										ServiceAccountName:            commonconsts.PlannerServiceAccountName,
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "planner-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $PLANNER_ENV_1",
+												},
+												Args: []string{
+													"--planner-env-1",
+													"1",
+												},
+												Ports: []corev1.ContainerPort{
+													{Name: commonconsts.DynamoMetricsPortName, ContainerPort: int32(commonconsts.DynamoPlannerMetricsPort), Protocol: corev1.ProtocolTCP},
+													{Name: commonconsts.DynamoSystemPortName, ContainerPort: int32(commonconsts.DynamoSystemPort), Protocol: corev1.ProtocolTCP},
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "planner-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												StartupProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/live",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													PeriodSeconds:    10,
+													TimeoutSeconds:   5,
+													FailureThreshold: 720,
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "PLANNER_ENV_1",
+														Value: "2",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypePlanner,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoSystemPort),
+													},
+													{
+														Name:  "MODEL_EXPRESS_URL",
+														Value: "model-express-url",
+													},
+													{
+														Name:  "PROMETHEUS_ENDPOINT",
+														Value: "http://localhost:9090",
+													},
+													{
+														Name:  "PLANNER_PROMETHEUS_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoPlannerMetricsPort),
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      "dynamo-pvc",
+														MountPath: "/planner",
+													},
+													{
+														Name:      "shared-memory",
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "test_generate_grove_pod_gang_set_multinode sglang",
+			args: args{
+				ctx: context.Background(),
+				controllerConfig: &configv1alpha1.OperatorConfiguration{
+					Infrastructure: configv1alpha1.InfrastructureConfiguration{
+						ETCDAddress: "etcd-address",
+						NATSAddress: "nats-address",
+					},
+					Orchestrators: configv1alpha1.OrchestratorConfiguration{
+						Grove: configv1alpha1.GroveConfiguration{
+							TerminationDelay: metav1.Duration{Duration: 15 * time.Minute},
+						},
+					},
+				},
+				dynamoDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamo-graph-deployment",
+						Namespace: "test-namespace",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Envs: []corev1.EnvVar{
+							{
+								Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+								Value: "1",
+							},
+						},
+						BackendFramework: string(BackendFrameworkSGLang),
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"Frontend": {
+								Replicas: &[]int32{1}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "1",
+									},
+								},
+								ComponentType: commonconsts.ComponentTypeFrontend,
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "FRONTEND_ENV_1",
+										Value: "1",
+									},
+								},
+								EnvFromSecret: &[]string{"frontend-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									PodSpec: &corev1.PodSpec{
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+									},
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $FRONTEND_ENV_1",
+										},
+										Args: []string{
+											"--frontend-env-1",
+											"1",
+										},
+										Image: "frontend-image",
+									},
+								},
+							},
+							"worker": {
+								Multinode: &v1alpha1.MultinodeSpec{
+									NodeCount: 3,
+								},
+								ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+									Annotations: map[string]string{
+										"nvidia.com/annotation1": "annotation1",
+										"nvidia.com/annotation2": "annotation2",
+									},
+									Labels: map[string]string{
+										"nvidia.com/label1": "label1",
+										"nvidia.com/label2": "label2",
+									},
+								},
+								Replicas:         &[]int32{5}[0],
+								ComponentType:    commonconsts.ComponentTypeWorker,
+								SubComponentType: "test-sub-component",
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Image: "worker-image",
+										Command: []string{
+											"/bin/sh",
+											"-c",
+										},
+										Args: []string{
+											"python3 -m dynamo.sglang --custom-flag custom-value",
+										},
+									},
+								},
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+										GPU:    "2",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "WORKER_ENV_1",
+										Value: "1",
+									},
+								},
+							},
+							"Planner": {
+								ComponentType: commonconsts.ComponentTypePlanner,
+								Replicas:      &[]int32{2}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+										GPU:    "2",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "PLANNER_ENV_1",
+										Value: "2",
+									},
+								},
+								VolumeMounts: []v1alpha1.VolumeMount{
+									{
+										Name:       "dynamo-pvc",
+										MountPoint: "/planner",
+									},
+								},
+								EnvFromSecret: &[]string{"planner-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $PLANNER_ENV_1",
+										},
+										Args: []string{
+											"--planner-env-1",
+											"1",
+										},
+										Image: "planner-image",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &grovev1alpha1.PodCliqueSet{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-dynamo-graph-deployment",
+					Namespace: "test-namespace",
+					Labels: map[string]string{
+						commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+					},
+				},
+				Spec: grovev1alpha1.PodCliqueSetSpec{
+					Replicas: 1,
+					Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+						HeadlessServiceConfig: &grovev1alpha1.HeadlessServiceConfig{
+							PublishNotReadyAddresses: true,
+						},
+						TerminationDelay: &metav1.Duration{Duration: 15 * time.Minute},
+						PodCliqueScalingGroupConfigs: []grovev1alpha1.PodCliqueScalingGroupConfig{
+							{
+								Name: "worker",
+								CliqueNames: []string{
+									"worker-ldr",
+									"worker-wkr",
+								},
+								Replicas:     ptr.To(int32(5)),
+								MinAvailable: ptr.To(int32(1)),
+							},
+						},
+						// StartupType: ptr.To(grovev1alpha1.CliqueStartupTypeExplicit),
+						StartupType: ptr.To(grovev1alpha1.CliqueStartupTypeAnyOrder),
+						Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{
+							{
+								Name: "worker-ldr",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeWorker,
+									commonconsts.KubeLabelDynamoSubComponentType:    "test-sub-component",
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-worker",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponent:           "worker",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+									"nvidia.com/label1":                             "label1",
+									"nvidia.com/label2":                             "label2",
+								},
+								Annotations: map[string]string{
+									"nvidia.com/annotation1": "annotation1",
+									"nvidia.com/annotation2": "annotation2",
+								},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "worker-ldr",
+									Replicas:     1,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										RestartPolicy:                 corev1.RestartPolicyAlways,
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "worker-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+												},
+												Args: []string{
+													"python3 -m dynamo.sglang --dist-init-addr $(GROVE_PCSG_NAME)-$(GROVE_PCSG_INDEX)-worker-ldr-0.$(GROVE_HEADLESS_SERVICE):29500 --nnodes 3 --node-rank 0 --custom-flag custom-value",
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoSystemPortName,
+														ContainerPort: int32(commonconsts.DynamoSystemPort),
+													},
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoNixlPortName,
+														ContainerPort: int32(commonconsts.DynamoNixlPort),
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "DYN_SYSTEM_ENABLED",
+														Value: "true",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: "9090",
+													},
+													{
+														Name:  "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+														Value: "[\"generate\"]",
+													},
+													{
+														Name:  "WORKER_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeWorker,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_HEALTH_CHECK_ENABLED",
+														Value: "false",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_ENABLE",
+														Value: "n",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_EXPORTER",
+														Value: "prometheus",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_PROMETHEUS_PORT",
+														Value: "19090",
+													},
+													{
+														Name:  "DYN_FORWARDPASS_METRIC_PORT",
+														Value: "20380",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/live",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													TimeoutSeconds:   4,
+													PeriodSeconds:    5,
+													SuccessThreshold: 0,
+													FailureThreshold: 1,
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													TimeoutSeconds:   4,
+													PeriodSeconds:    10,
+													SuccessThreshold: 0,
+													FailureThreshold: 3,
+												},
+												StartupProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/live",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													TimeoutSeconds:   5,
+													PeriodSeconds:    10,
+													SuccessThreshold: 0,
+													FailureThreshold: 720,
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "worker-wkr",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeWorker,
+									commonconsts.KubeLabelDynamoSubComponentType:    "test-sub-component",
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-worker",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponent:           "worker",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+									"nvidia.com/label1":                             "label1",
+									"nvidia.com/label2":                             "label2",
+								},
+								Annotations: map[string]string{
+									"nvidia.com/annotation1": "annotation1",
+									"nvidia.com/annotation2": "annotation2",
+								},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "worker-wkr",
+									Replicas:     2,
+									MinAvailable: ptr.To(int32(2)),
+									// StartsAfter: []string{"worker-ldr"},
+									PodSpec: corev1.PodSpec{
+										RestartPolicy:                 corev1.RestartPolicyAlways,
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "worker-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+												},
+												Args: []string{
+													"python3 -m dynamo.sglang --dist-init-addr $(GROVE_PCSG_NAME)-$(GROVE_PCSG_INDEX)-worker-ldr-0.$(GROVE_HEADLESS_SERVICE):29500 --nnodes 3 --node-rank $((GROVE_PCLQ_POD_INDEX + 1)) --custom-flag custom-value",
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoSystemPortName,
+														ContainerPort: int32(commonconsts.DynamoSystemPort),
+													},
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoNixlPortName,
+														ContainerPort: int32(commonconsts.DynamoNixlPort),
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "DYN_SYSTEM_ENABLED",
+														Value: "true",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: "9090",
+													},
+													{
+														Name:  "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+														Value: "[\"generate\"]",
+													},
+													{
+														Name:  "WORKER_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeWorker,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_HEALTH_CHECK_ENABLED",
+														Value: "false",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_ENABLE",
+														Value: "n",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_EXPORTER",
+														Value: "prometheus",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_PROMETHEUS_PORT",
+														Value: "19090",
+													},
+													{
+														Name:  "DYN_FORWARDPASS_METRIC_PORT",
+														Value: "20380",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "frontend",
+								Labels: map[string]string{
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-frontend",
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeFrontend,
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponent:           "Frontend",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+								},
+								Annotations: map[string]string{},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "frontend",
+									Replicas:     1,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "frontend-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $FRONTEND_ENV_1",
+												},
+												Args: []string{
+													"--frontend-env-1",
+													"1",
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "frontend-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYN_HTTP_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "FRONTEND_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "DYNAMO_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoNamespacePrefixEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeFrontend,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("1"),
+														corev1.ResourceMemory: resource.MustParse("1Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("1"),
+														corev1.ResourceMemory:                 resource.MustParse("1Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("1"),
+													},
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoContainerPortName,
+														ContainerPort: int32(commonconsts.DynamoServicePort),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "planner",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-planner",
+									commonconsts.KubeLabelDynamoComponent:           "Planner",
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypePlanner,
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+								},
+								Annotations: map[string]string{},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "planner",
+									Replicas:     2,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										ServiceAccountName:            commonconsts.PlannerServiceAccountName,
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Volumes: []corev1.Volume{
+											{
+												Name: "dynamo-pvc",
+												VolumeSource: corev1.VolumeSource{
+													PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+														ClaimName: "dynamo-pvc",
+													},
+												},
+											},
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "planner-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $PLANNER_ENV_1",
+												},
+												Args: []string{
+													"--planner-env-1",
+													"1",
+												},
+												Ports: []corev1.ContainerPort{
+													{Name: commonconsts.DynamoMetricsPortName, ContainerPort: int32(commonconsts.DynamoPlannerMetricsPort), Protocol: corev1.ProtocolTCP},
+													{Name: commonconsts.DynamoSystemPortName, ContainerPort: int32(commonconsts.DynamoSystemPort), Protocol: corev1.ProtocolTCP},
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "planner-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												StartupProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/live",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													PeriodSeconds:    10,
+													TimeoutSeconds:   5,
+													FailureThreshold: 720,
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "PLANNER_ENV_1",
+														Value: "2",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypePlanner,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoSystemPort),
+													},
+													{
+														Name:  "PLANNER_PROMETHEUS_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoPlannerMetricsPort),
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      "dynamo-pvc",
+														MountPath: "/planner",
+													},
+													{
+														Name:      "shared-memory",
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "test_generate_grove_pod_gang_set_multinode vllm",
+			args: args{
+				ctx: context.Background(),
+				controllerConfig: &configv1alpha1.OperatorConfiguration{
+					Infrastructure: configv1alpha1.InfrastructureConfiguration{
+						ETCDAddress: "etcd-address",
+						NATSAddress: "nats-address",
+					},
+					Orchestrators: configv1alpha1.OrchestratorConfiguration{
+						Grove: configv1alpha1.GroveConfiguration{
+							TerminationDelay: metav1.Duration{Duration: 15 * time.Minute},
+						},
+					},
+				},
+				dynamoDeployment: &v1alpha1.DynamoGraphDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-dynamo-graph-deployment",
+						Namespace: "test-namespace",
+					},
+					Spec: v1alpha1.DynamoGraphDeploymentSpec{
+						Envs: []corev1.EnvVar{
+							{
+								Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+								Value: "1",
+							},
+						},
+						BackendFramework: string(BackendFrameworkVLLM),
+						Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+							"Frontend": {
+								Replicas:      &[]int32{1}[0],
+								ComponentType: commonconsts.ComponentTypeFrontend,
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "1",
+										Memory: "1Gi",
+										GPU:    "1",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "FRONTEND_ENV_1",
+										Value: "1",
+									},
+								},
+								EnvFromSecret: &[]string{"frontend-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									PodSpec: &corev1.PodSpec{
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+									},
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $FRONTEND_ENV_1",
+										},
+										Args: []string{
+											"--frontend-env-1",
+											"1",
+										},
+										Image: "frontend-image",
+									},
+								},
+							},
+							"worker": {
+
+								Multinode: &v1alpha1.MultinodeSpec{
+									NodeCount: 3,
+								},
+								ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+									Annotations: map[string]string{
+										"nvidia.com/annotation1": "annotation1",
+										"nvidia.com/annotation2": "annotation2",
+									},
+									Labels: map[string]string{
+										"nvidia.com/label1": "label1",
+										"nvidia.com/label2": "label2",
+									},
+								},
+								Replicas:      &[]int32{5}[0],
+								ComponentType: commonconsts.ComponentTypeWorker,
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Image: "worker-image",
+										Command: []string{
+											"python3",
+											"-m",
+											"dynamo.vllm",
+										},
+										Args: []string{
+											"--custom-flag",
+											"custom-value",
+											"--tensor-parallel-size",
+											"4",
+											"--pipeline-parallel-size",
+											"1",
+										},
+										StartupProbe: &corev1.Probe{
+											ProbeHandler: corev1.ProbeHandler{
+												HTTPGet: &corev1.HTTPGetAction{
+													Path: "/startup",
+													Port: intstr.FromInt(8080),
+												},
+											},
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+										GPU:    "2",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "WORKER_ENV_1",
+										Value: "1",
+									},
+								},
+							},
+							"Planner": {
+
+								ComponentType: commonconsts.ComponentTypePlanner,
+								Replicas:      &[]int32{2}[0],
+								Resources: &v1alpha1.Resources{
+									Requests: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+									},
+									Limits: &v1alpha1.ResourceItem{
+										CPU:    "2",
+										Memory: "2Gi",
+										GPU:    "2",
+									},
+								},
+								Envs: []corev1.EnvVar{
+									{
+										Name:  "PLANNER_ENV_1",
+										Value: "2",
+									},
+								},
+								VolumeMounts: []v1alpha1.VolumeMount{
+									{
+										Name:       "dynamo-pvc",
+										MountPoint: "/planner",
+									},
+								},
+								EnvFromSecret: &[]string{"planner-secret"}[0],
+								LivenessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/health",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ReadinessProbe: &corev1.Probe{
+									ProbeHandler: corev1.ProbeHandler{
+										HTTPGet: &corev1.HTTPGetAction{
+											Path: "/ready",
+											Port: intstr.FromInt(8080),
+										},
+									},
+								},
+								ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+									MainContainer: &corev1.Container{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"echo $PLANNER_ENV_1",
+										},
+										Args: []string{
+											"--planner-env-1",
+											"1",
+										},
+										Image: "planner-image",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &grovev1alpha1.PodCliqueSet{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-dynamo-graph-deployment",
+					Namespace: "test-namespace",
+					Labels: map[string]string{
+						commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+					},
+				},
+				Spec: grovev1alpha1.PodCliqueSetSpec{
+					Replicas: 1,
+					Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+						StartupType: ptr.To(grovev1alpha1.CliqueStartupTypeAnyOrder),
+						HeadlessServiceConfig: &grovev1alpha1.HeadlessServiceConfig{
+							PublishNotReadyAddresses: true,
+						},
+						TerminationDelay: &metav1.Duration{Duration: 15 * time.Minute},
+						PodCliqueScalingGroupConfigs: []grovev1alpha1.PodCliqueScalingGroupConfig{
+							{
+								Name: "worker",
+								CliqueNames: []string{
+									"worker-ldr",
+									"worker-wkr",
+								},
+								Replicas:     ptr.To(int32(5)),
+								MinAvailable: ptr.To(int32(1)),
+							},
+						},
+						// StartupType: ptr.To(grovev1alpha1.CliqueStartupTypeExplicit),
+						Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{
+							{
+								Name: "worker-ldr",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-worker",
+									commonconsts.KubeLabelDynamoComponent:           "worker",
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeWorker,
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+									"nvidia.com/label1":                             "label1",
+									"nvidia.com/label2":                             "label2",
+								},
+								Annotations: map[string]string{
+									"nvidia.com/annotation1": "annotation1",
+									"nvidia.com/annotation2": "annotation2",
+								},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "worker-ldr",
+									Replicas:     1,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "worker-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+												},
+												Args: []string{
+													"ray start --head --port=6379 && python3 -m dynamo.vllm --custom-flag custom-value --tensor-parallel-size 4 --pipeline-parallel-size 1 --distributed-executor-backend ray",
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoSystemPortName,
+														ContainerPort: int32(commonconsts.DynamoSystemPort),
+													},
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoNixlPortName,
+														ContainerPort: int32(commonconsts.DynamoNixlPort),
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: "9090",
+													},
+													{
+														Name:  "DYN_SYSTEM_ENABLED",
+														Value: "true",
+													},
+													{
+														Name:  "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+														Value: "[\"generate\"]",
+													},
+													{
+														Name:  "WORKER_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeWorker,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_HEALTH_CHECK_ENABLED",
+														Value: "false",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_ENABLE",
+														Value: "n",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_EXPORTER",
+														Value: "prometheus",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_PROMETHEUS_PORT",
+														Value: "19090",
+													},
+													{
+														Name:  "DYN_FORWARDPASS_METRIC_PORT",
+														Value: "20380",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												StartupProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/startup",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "worker-wkr",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeWorker,
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-worker",
+									commonconsts.KubeLabelDynamoComponent:           "worker",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+									"nvidia.com/label1":                             "label1",
+									"nvidia.com/label2":                             "label2",
+								},
+								Annotations: map[string]string{
+									"nvidia.com/annotation1": "annotation1",
+									"nvidia.com/annotation2": "annotation2",
+								},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "worker-wkr",
+									Replicas:     2,
+									MinAvailable: ptr.To(int32(2)),
+									// StartsAfter: []string{"worker-ldr"},
+									PodSpec: corev1.PodSpec{
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "worker-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+												},
+												Args: []string{
+													"ray start --address=$(GROVE_PCSG_NAME)-$(GROVE_PCSG_INDEX)-worker-ldr-0.$(GROVE_HEADLESS_SERVICE):6379 --block",
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoSystemPortName,
+														ContainerPort: int32(commonconsts.DynamoSystemPort),
+													},
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoNixlPortName,
+														ContainerPort: int32(commonconsts.DynamoNixlPort),
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: "9090",
+													},
+													{
+														Name:  "DYN_SYSTEM_ENABLED",
+														Value: "true",
+													},
+													{
+														Name:  "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+														Value: "[\"generate\"]",
+													},
+													{
+														Name:  "WORKER_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeWorker,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_HEALTH_CHECK_ENABLED",
+														Value: "false",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_ENABLE",
+														Value: "n",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_EXPORTER",
+														Value: "prometheus",
+													},
+													{
+														Name:  "NIXL_TELEMETRY_PROMETHEUS_PORT",
+														Value: "19090",
+													},
+													{
+														Name:  "DYN_FORWARDPASS_METRIC_PORT",
+														Value: "20380",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "frontend",
+								Labels: map[string]string{
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeFrontend,
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-frontend",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponent:           "Frontend",
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+								},
+								Annotations: map[string]string{},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "frontend",
+									Replicas:     1,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										Volumes: []corev1.Volume{
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										ImagePullSecrets: []corev1.LocalObjectReference{
+											{
+												Name: "frontend-secret",
+											},
+										},
+										TerminationGracePeriodSeconds: ptr.To(int64(10)),
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "frontend-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $FRONTEND_ENV_1",
+												},
+												Args: []string{
+													"--frontend-env-1",
+													"1",
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "frontend-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYN_HTTP_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "FRONTEND_ENV_1",
+														Value: "1",
+													},
+													{
+														Name:  "DYNAMO_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoNamespacePrefixEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypeFrontend,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("1"),
+														corev1.ResourceMemory: resource.MustParse("1Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("1"),
+														corev1.ResourceMemory:                 resource.MustParse("1Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("1"),
+													},
+												},
+												Ports: []corev1.ContainerPort{
+													{
+														Protocol:      corev1.ProtocolTCP,
+														Name:          commonconsts.DynamoContainerPortName,
+														ContainerPort: int32(commonconsts.DynamoServicePort),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      commonconsts.KubeValueNameSharedMemory,
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "planner",
+								Labels: map[string]string{
+									commonconsts.KubeLabelMetricsEnabled:            commonconsts.KubeLabelValueTrue,
+									commonconsts.KubeLabelDynamoSelector:            "test-dynamo-graph-deployment-planner",
+									commonconsts.KubeLabelDynamoComponent:           "Planner",
+									commonconsts.KubeLabelDynamoGraphDeploymentName: "test-dynamo-graph-deployment",
+									commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypePlanner,
+									commonconsts.KubeLabelDynamoNamespace:           "test-namespace-test-dynamo-graph-deployment",
+								},
+								Annotations: map[string]string{},
+								Spec: grovev1alpha1.PodCliqueSpec{
+									RoleName:     "planner",
+									Replicas:     2,
+									MinAvailable: ptr.To(int32(1)),
+									PodSpec: corev1.PodSpec{
+										TerminationGracePeriodSeconds: ptr.To(int64(60)),
+										ServiceAccountName:            commonconsts.PlannerServiceAccountName,
+										SecurityContext: &corev1.PodSecurityContext{
+											FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+										},
+										Volumes: []corev1.Volume{
+											{
+												Name: "dynamo-pvc",
+												VolumeSource: corev1.VolumeSource{
+													PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+														ClaimName: "dynamo-pvc",
+													},
+												},
+											},
+											{
+												Name: "shared-memory",
+												VolumeSource: corev1.VolumeSource{
+													EmptyDir: &corev1.EmptyDirVolumeSource{
+														Medium:    corev1.StorageMediumMemory,
+														SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+													},
+												},
+											},
+										},
+										RestartPolicy: corev1.RestartPolicyAlways,
+										Containers: []corev1.Container{
+											{
+												Name:  commonconsts.MainContainerName,
+												Image: "planner-image",
+												Command: []string{
+													"/bin/sh",
+													"-c",
+													"echo $PLANNER_ENV_1",
+												},
+												Args: []string{
+													"--planner-env-1",
+													"1",
+												},
+												Ports: []corev1.ContainerPort{
+													{Name: commonconsts.DynamoMetricsPortName, ContainerPort: int32(commonconsts.DynamoPlannerMetricsPort), Protocol: corev1.ProtocolTCP},
+													{Name: commonconsts.DynamoSystemPortName, ContainerPort: int32(commonconsts.DynamoSystemPort), Protocol: corev1.ProtocolTCP},
+												},
+												EnvFrom: []corev1.EnvFromSource{
+													{
+														SecretRef: &corev1.SecretEnvSource{
+															LocalObjectReference: corev1.LocalObjectReference{
+																Name: "planner-secret",
+															},
+														},
+													},
+												},
+												LivenessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/health",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												ReadinessProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/ready",
+															Port: intstr.FromInt(8080),
+														},
+													},
+												},
+												StartupProbe: &corev1.Probe{
+													ProbeHandler: corev1.ProbeHandler{
+														HTTPGet: &corev1.HTTPGetAction{
+															Path: "/live",
+															Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+														},
+													},
+													PeriodSeconds:    10,
+													TimeoutSeconds:   5,
+													FailureThreshold: 720,
+												},
+												Env: []corev1.EnvVar{
+													{
+														Name:  "DYNAMO_POD_GANG_SET_REPLICAS",
+														Value: "1",
+													},
+													{
+														Name:  "PLANNER_ENV_1",
+														Value: "2",
+													},
+													{
+														Name:  "NATS_SERVER",
+														Value: "nats-address",
+													},
+													{
+														Name:  "ETCD_ENDPOINTS",
+														Value: "etcd-address",
+													},
+													{
+														Name:  commonconsts.DynamoNamespaceEnvVar,
+														Value: "test-namespace-test-dynamo-graph-deployment",
+													},
+													{
+														Name:  commonconsts.DynamoComponentEnvVar,
+														Value: commonconsts.ComponentTypePlanner,
+													},
+													{
+														Name:  commonconsts.DynamoDiscoveryBackendEnvVar,
+														Value: "kubernetes",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAME",
+														Value: "test-dynamo-graph-deployment",
+													},
+													{
+														Name:  "DYN_PARENT_DGD_K8S_NAMESPACE",
+														Value: "test-namespace",
+													},
+													{
+														Name:  "DYN_SYSTEM_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoSystemPort),
+													},
+													{
+														Name:  "PLANNER_PROMETHEUS_PORT",
+														Value: fmt.Sprintf("%d", commonconsts.DynamoPlannerMetricsPort),
+													},
+													{
+														Name: "POD_NAME",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.name",
+															},
+														},
+													},
+													{
+														Name: "POD_NAMESPACE",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.namespace",
+															},
+														},
+													},
+													{
+														Name: "POD_UID",
+														ValueFrom: &corev1.EnvVarSource{
+															FieldRef: &corev1.ObjectFieldSelector{
+																FieldPath: "metadata.uid",
+															},
+														},
+													},
+												},
+												Resources: corev1.ResourceRequirements{
+													Requests: corev1.ResourceList{
+														corev1.ResourceCPU:    resource.MustParse("2"),
+														corev1.ResourceMemory: resource.MustParse("2Gi"),
+													},
+													Limits: corev1.ResourceList{
+														corev1.ResourceCPU:                    resource.MustParse("2"),
+														corev1.ResourceMemory:                 resource.MustParse("2Gi"),
+														corev1.ResourceName("nvidia.com/gpu"): resource.MustParse("2"),
+													},
+												},
+												VolumeMounts: []corev1.VolumeMount{
+													{
+														Name:      "dynamo-pvc",
+														MountPath: "/planner",
+													},
+													{
+														Name:      "shared-memory",
+														MountPath: commonconsts.DefaultSharedMemoryMountPath,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GenerateGrovePodCliqueSet(tt.args.ctx, betaDGD(t, tt.args.dynamoDeployment), tt.args.controllerConfig, &controller_common.RuntimeConfig{}, nil, nil, nil, nil, nil)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GenerateGrovePodCliqueSet() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			sort.Slice(got.Spec.Template.Cliques, func(i, j int) bool {
+				return got.Spec.Template.Cliques[i].Name < got.Spec.Template.Cliques[j].Name
+			})
+			sort.Slice(tt.want.Spec.Template.Cliques, func(i, j int) bool {
+				return tt.want.Spec.Template.Cliques[i].Name < tt.want.Spec.Template.Cliques[j].Name
+			})
+
+			// Sort environment variables for all containers in all cliques
+			for _, clique := range got.Spec.Template.Cliques {
+				for i := range clique.Spec.PodSpec.Containers {
+					clique.Spec.PodSpec.Containers[i].Env = sortEnvVars(clique.Spec.PodSpec.Containers[i].Env)
+				}
+			}
+			for _, clique := range tt.want.Spec.Template.Cliques {
+				for i := range clique.Spec.PodSpec.Containers {
+					clique.Spec.PodSpec.Containers[i].Env = sortEnvVars(clique.Spec.PodSpec.Containers[i].Env)
+				}
+			}
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("GenerateGrovePodCliqueSet() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func sortEnvVars(envs []corev1.EnvVar) []corev1.EnvVar {
+	sorted := make([]corev1.EnvVar, len(envs))
+	copy(sorted, envs)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Name < sorted[j].Name
+	})
+	return sorted
+}
+
+func Test_GeneratePodCliqueSetGlobalDynamoNamespace(t *testing.T) {
+	dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dynamo-graph",
+			Namespace: "k8s-namespace",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType:         commonconsts.ComponentTypeFrontend,
+					GlobalDynamoNamespace: true,
+					Replicas:              ptr.To(int32(1)),
+				},
+				"Planner": {
+					ComponentType: commonconsts.ComponentTypePlanner,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+		},
+	}
+
+	got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dynamoDeployment), &configv1alpha1.OperatorConfiguration{}, &controller_common.RuntimeConfig{}, nil, nil, nil, nil, nil)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Len(t, got.Spec.Template.Cliques, 2) {
+		return
+	}
+
+	for _, clique := range got.Spec.Template.Cliques {
+		switch clique.Name {
+		case "frontend":
+			assert.Equal(t, commonconsts.GlobalDynamoNamespace, clique.Labels[commonconsts.KubeLabelDynamoNamespace])
+			assertDYNNamespace(t, clique.Spec.PodSpec, commonconsts.GlobalDynamoNamespace)
+		case "planner":
+			expectedNamespace := fmt.Sprintf("%s-%s", dynamoDeployment.Namespace, dynamoDeployment.Name)
+			assert.Equal(t, expectedNamespace, clique.Labels[commonconsts.KubeLabelDynamoNamespace])
+			assertDYNNamespace(t, clique.Spec.PodSpec, expectedNamespace)
+		default:
+			t.Errorf("GenerateGrovePodCliqueSet() clique = %v, want %v", clique.Name, "frontend or planner")
+		}
+	}
+}
+
+func assertDYNNamespace(t *testing.T, podSpec corev1.PodSpec, expectedNamespace string) {
+	if assert.Len(t, podSpec.Containers, 1) {
+		foundDYNNamespace := false
+		for _, env := range podSpec.Containers[0].Env {
+			if env.Name == commonconsts.DynamoNamespaceEnvVar {
+				assert.Equal(t, expectedNamespace, env.Value)
+				foundDYNNamespace = true
+				break
+			}
+		}
+		assert.True(t, foundDYNNamespace, fmt.Sprintf("%s not found in container environment variables", commonconsts.DynamoNamespaceEnvVar))
+	}
+}
+
+// Mock SecretsRetriever for testing
+type mockSecretsRetriever struct{}
+
+func (m *mockSecretsRetriever) RetrieveImagePullSecrets(ctx context.Context, deployment *v1alpha1.DynamoGraphDeployment) ([]corev1.LocalObjectReference, error) {
+	return []corev1.LocalObjectReference{}, nil
+}
+
+func (m *mockSecretsRetriever) GetSecrets(namespace, registry string) ([]string, error) {
+	return []string{}, nil
+}
+
+// Mock SecretsRetriever that returns secrets for testing docker secrets functionality
+type mockSecretsRetrieverWithSecrets struct{}
+
+func (m *mockSecretsRetrieverWithSecrets) RetrieveImagePullSecrets(ctx context.Context, deployment *v1alpha1.DynamoGraphDeployment) ([]corev1.LocalObjectReference, error) {
+	return []corev1.LocalObjectReference{
+		{Name: "test-docker-secret"},
+	}, nil
+}
+
+func (m *mockSecretsRetrieverWithSecrets) GetSecrets(namespace, registry string) ([]string, error) {
+	// Return some mock secrets when called
+	return []string{"test-docker-secret"}, nil
+}
+
+func TestGeneratePodSpecForComponent_SGLang(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-deployment",
+			Namespace: "default",
+		},
+	}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name              string
+		component         *v1alpha1.DynamoComponentDeploymentSharedSpec
+		backendFramework  BackendFramework
+		role              Role
+		numberOfNodes     int32
+		expectError       bool
+		expectContains    []string
+		expectNotContains []string
+	}{
+		{
+			name: "SGLang single node worker",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3 -m dynamo.sglang"},
+					},
+				},
+			},
+			backendFramework:  BackendFrameworkSGLang,
+			role:              RoleMain,
+			numberOfNodes:     1,
+			expectError:       false,
+			expectContains:    []string{"python3", "-m", "dynamo.sglang"},
+			expectNotContains: []string{"dist-init-addr", "nnodes", "tp-size"},
+		},
+		{
+			name: "SGLang multinode leader",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3 -m dynamo.sglang"},
+					},
+				},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			role:             RoleLeader,
+			numberOfNodes:    3,
+			expectError:      false,
+			expectContains:   []string{"python3", "-m", "dynamo.sglang", "dist-init-addr", "nnodes", "node-rank"},
+		},
+		{
+			name: "SGLang multinode worker",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3 -m dynamo.sglang"},
+					},
+				},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			role:             RoleWorker,
+			numberOfNodes:    3,
+			expectError:      false,
+			expectContains:   []string{"python3", "-m", "dynamo.sglang", "dist-init-addr", "nnodes", "node-rank"},
+		},
+		{
+			name: "SGLang with user command override",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Command: []string{"custom", "command"},
+					},
+				},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			role:             RoleMain,
+			numberOfNodes:    1,
+			expectError:      false,
+			expectContains:   []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GeneratePodSpecForComponent(
+				betaComponent(t, tt.component),
+				tt.backendFramework,
+				secretsRetriever,
+				betaDGD(t, dynamoDeployment),
+				tt.role,
+				tt.numberOfNodes,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"worker",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GeneratePodSpecForComponent() expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GeneratePodSpecForComponent() unexpected error: %v", err)
+				return
+			}
+
+			// Check container exists
+			if len(podSpec.Containers) == 0 {
+				t.Errorf("GeneratePodSpecForComponent() no containers in podSpec")
+				return
+			}
+
+			container := podSpec.Containers[0]
+
+			// Check command and args contain expected strings
+			allArgs := append(container.Command, container.Args...)
+			allArgsStr := strings.Join(allArgs, " ")
+
+			for _, expected := range tt.expectContains {
+				if !strings.Contains(allArgsStr, expected) {
+					t.Errorf("GeneratePodSpecForComponent() args = %v, should contain %s", allArgs, expected)
+				}
+			}
+
+			for _, notExpected := range tt.expectNotContains {
+				if strings.Contains(allArgsStr, notExpected) {
+					t.Errorf("GeneratePodSpecForComponent() args = %v, should NOT contain %s", allArgs, notExpected)
+				}
+			}
+
+			// Check that container name is set
+			if container.Name != commonconsts.MainContainerName {
+				t.Errorf("GeneratePodSpecForComponent() container name = %s, want main", container.Name)
+			}
+		})
+	}
+}
+
+func TestGeneratePodSpecForComponent_VLLM(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-deployment",
+			Namespace: "default",
+		},
+	}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name              string
+		component         *v1alpha1.DynamoComponentDeploymentSharedSpec
+		backendFramework  BackendFramework
+		role              Role
+		numberOfNodes     int32
+		expectError       bool
+		expectContains    []string
+		expectNotContains []string
+	}{
+		{
+			name: "VLLM single node worker",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3", "-m", "dynamo.vllm"},
+					},
+				},
+			},
+			backendFramework:  BackendFrameworkVLLM,
+			role:              RoleMain,
+			numberOfNodes:     1,
+			expectError:       false,
+			expectContains:    []string{"python3", "-m", "dynamo.vllm"},
+			expectNotContains: []string{"ray start"},
+		},
+		{
+			name: "VLLM multinode leader",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3", "-m", "dynamo.vllm", "--tensor-parallel-size", "4", "--pipeline-parallel-size", "1"},
+					},
+				},
+				Resources: &v1alpha1.Resources{
+					Limits: &v1alpha1.ResourceItem{
+						GPU: "2",
+					},
+				},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			role:             RoleLeader,
+			numberOfNodes:    3,
+			expectError:      false,
+			expectContains:   []string{"ray start --head --port=6379", "python3", "-m", "dynamo.vllm"},
+		},
+		{
+			name: "VLLM multinode worker",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3", "-m", "dynamo.vllm", "--tensor-parallel-size", "4", "--pipeline-parallel-size", "1"},
+					},
+				},
+				Resources: &v1alpha1.Resources{
+					Limits: &v1alpha1.ResourceItem{
+						GPU: "2",
+					},
+				},
+			},
+			backendFramework:  BackendFrameworkVLLM,
+			role:              RoleWorker,
+			numberOfNodes:     3,
+			expectError:       false,
+			expectContains:    []string{"ray start --address=$(GROVE_PCSG_NAME)-$(GROVE_PCSG_INDEX)-worker-ldr-0.$(GROVE_HEADLESS_SERVICE):6379 --block"},
+			expectNotContains: []string{"python3 -m dynamo.vllm"},
+		},
+		{
+			name: "VLLM worker single node",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python3", "-m", "dynamo.vllm", "--is-prefill-worker"},
+					},
+				},
+			},
+			backendFramework:  BackendFrameworkVLLM,
+			role:              RoleMain,
+			numberOfNodes:     1,
+			expectError:       false,
+			expectContains:    []string{"python3", "-m", "dynamo.vllm", "--is-prefill-worker"},
+			expectNotContains: []string{"ray start"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GeneratePodSpecForComponent(
+				betaComponent(t, tt.component),
+				tt.backendFramework,
+				secretsRetriever,
+				betaDGD(t, dynamoDeployment),
+				tt.role,
+				tt.numberOfNodes,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"worker",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GeneratePodSpecForComponent() expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GeneratePodSpecForComponent() unexpected error: %v", err)
+				return
+			}
+
+			// Check container exists
+			if len(podSpec.Containers) == 0 {
+				t.Errorf("GeneratePodSpecForComponent() no containers in podSpec")
+				return
+			}
+
+			container := podSpec.Containers[0]
+
+			// Check command and args contain expected strings
+			allArgs := append(container.Command, container.Args...)
+			allArgsStr := strings.Join(allArgs, " ")
+
+			for _, expected := range tt.expectContains {
+				if !strings.Contains(allArgsStr, expected) {
+					t.Errorf("GeneratePodSpecForComponent() args = %v, should contain %s", allArgs, expected)
+				}
+			}
+
+			for _, notExpected := range tt.expectNotContains {
+				if strings.Contains(allArgsStr, notExpected) {
+					t.Errorf("GeneratePodSpecForComponent() args = %v, should NOT contain %s", allArgs, notExpected)
+				}
+			}
+		})
+	}
+}
+
+func TestGeneratePodSpecForComponent_UnsupportedBackend(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-deployment",
+			Namespace: "default",
+		},
+	}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	component := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+		ComponentType: commonconsts.ComponentTypeWorker,
+	}
+
+	tests := []struct {
+		name             string
+		backendFramework BackendFramework
+		expectError      bool
+		errorContains    string
+	}{
+		{
+			name:             "TRTLLM backend implemented",
+			backendFramework: BackendFrameworkTRTLLM,
+			expectError:      false,
+		},
+		{
+			name:             "unknown backend",
+			backendFramework: BackendFramework("unknown"),
+			expectError:      true,
+			errorContains:    "unsupported backend framework",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := GeneratePodSpecForComponent(
+				betaComponent(t, component),
+				tt.backendFramework,
+				secretsRetriever,
+				betaDGD(t, dynamoDeployment),
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"worker",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GeneratePodSpecForComponent() expected error, got nil")
+					return
+				}
+				if !strings.Contains(err.Error(), tt.errorContains) {
+					t.Errorf("GeneratePodSpecForComponent() error = %v, should contain %s", err, tt.errorContains)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("GeneratePodSpecForComponent() unexpected error: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestExpandRolesForService(t *testing.T) {
+	tests := []struct {
+		name            string
+		serviceName     string
+		numberOfNodes   int32
+		serviceReplicas *int32
+		component       *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expected        []ServiceRole
+	}{
+		{
+			name:            "single node",
+			serviceName:     "test-service",
+			numberOfNodes:   1,
+			serviceReplicas: ptr.To(int32(2)),
+			expected: []ServiceRole{
+				{Name: "test-service", Role: RoleMain, Replicas: 2},
+			},
+		},
+		{
+			name:          "multinode 2 nodes",
+			serviceName:   "test-service",
+			numberOfNodes: 2,
+			expected: []ServiceRole{
+				{Name: "test-service-ldr", Role: RoleLeader, Replicas: 1},
+				{Name: "test-service-wkr", Role: RoleWorker, Replicas: 1},
+			},
+		},
+		{
+			name:          "multinode 5 nodes",
+			serviceName:   "test-service",
+			numberOfNodes: 5,
+			expected: []ServiceRole{
+				{Name: "test-service-ldr", Role: RoleLeader, Replicas: 1},
+				{Name: "test-service-wkr", Role: RoleWorker, Replicas: 4},
+			},
+		},
+		{
+			name:            "zero nodes should return main",
+			serviceName:     "test-service",
+			numberOfNodes:   0,
+			serviceReplicas: ptr.To(int32(1)),
+			expected: []ServiceRole{
+				{Name: "test-service", Role: RoleMain, Replicas: 1},
+			},
+		},
+		{
+			name:          "nil replicas defaults to 1",
+			serviceName:   "test-service",
+			numberOfNodes: 1,
+			expected: []ServiceRole{
+				{Name: "test-service", Role: RoleMain, Replicas: 1},
+			},
+		},
+		{
+			name:            "zero replicas preserved",
+			serviceName:     "test-service",
+			numberOfNodes:   1,
+			serviceReplicas: ptr.To(int32(0)),
+			expected: []ServiceRole{
+				{Name: "test-service", Role: RoleMain, Replicas: 0},
+			},
+		},
+		{
+			name:          "single-node GMS with 1 shadow",
+			serviceName:   "svc",
+			numberOfNodes: 1,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+				Failover:         &v1alpha1.FailoverSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod, NumShadows: 1},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc", Role: RoleMain, Replicas: 2, Rank: 0},
+			},
+		},
+		{
+			name:          "single-node GMS with 3 shadows",
+			serviceName:   "svc",
+			numberOfNodes: 1,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+				Failover:         &v1alpha1.FailoverSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod, NumShadows: 3},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc", Role: RoleMain, Replicas: 4, Rank: 0},
+			},
+		},
+		{
+			name:          "single-node standalone inter-pod GMS (no failover)",
+			serviceName:   "svc",
+			numberOfNodes: 1,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc", Role: RoleMain, Replicas: 1, Rank: 0},
+			},
+		},
+		{
+			name:          "multinode GMS 2 nodes 1 shadow",
+			serviceName:   "svc",
+			numberOfNodes: 2,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+				Failover:         &v1alpha1.FailoverSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod, NumShadows: 1},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc-ldr", Role: RoleLeader, Replicas: 2, Rank: 0},
+				{Name: "svc-gms-1", Role: RoleGMS, Replicas: 1, Rank: 1},
+				{Name: "svc-wkr-1", Role: RoleWorker, Replicas: 2, Rank: 1},
+			},
+		},
+		{
+			name:          "multinode GMS 3 nodes 2 shadows",
+			serviceName:   "svc",
+			numberOfNodes: 3,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+				Failover:         &v1alpha1.FailoverSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod, NumShadows: 2},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc-ldr", Role: RoleLeader, Replicas: 3, Rank: 0},
+				{Name: "svc-gms-1", Role: RoleGMS, Replicas: 1, Rank: 1},
+				{Name: "svc-wkr-1", Role: RoleWorker, Replicas: 3, Rank: 1},
+				{Name: "svc-gms-2", Role: RoleGMS, Replicas: 1, Rank: 2},
+				{Name: "svc-wkr-2", Role: RoleWorker, Replicas: 3, Rank: 2},
+			},
+		},
+		{
+			name:          "multinode standalone inter-pod GMS (no failover)",
+			serviceName:   "svc",
+			numberOfNodes: 2,
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+			},
+			expected: []ServiceRole{
+				{Name: "svc-gms-0", Role: RoleGMS, Replicas: 1, Rank: 0},
+				{Name: "svc-ldr", Role: RoleLeader, Replicas: 1, Rank: 0},
+				{Name: "svc-gms-1", Role: RoleGMS, Replicas: 1, Rank: 1},
+				{Name: "svc-wkr-1", Role: RoleWorker, Replicas: 1, Rank: 1},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			component := tt.component
+			if component == nil {
+				component = &v1alpha1.DynamoComponentDeploymentSharedSpec{}
+			}
+			result := expandRolesForComponent(tt.serviceName, tt.serviceReplicas, tt.numberOfNodes, betaComponent(t, component))
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("expandRolesForComponent() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestRoleEnum(t *testing.T) {
+	// Test that role constants are defined correctly
+	if RoleLeader != "leader" {
+		t.Errorf("RoleLeader = %v, want \"leader\"", RoleLeader)
+	}
+	if RoleWorker != "worker" {
+		t.Errorf("RoleWorker = %v, want \"worker\"", RoleWorker)
+	}
+	if RoleMain != "main" {
+		t.Errorf("RoleMain = %v, want \"main\"", RoleMain)
+	}
+
+	// Test that roles can be compared
+	roles := []Role{RoleLeader, RoleWorker, RoleMain}
+	for _, role := range roles {
+		switch role {
+		case RoleLeader, RoleWorker, RoleMain:
+			// Expected
+		default:
+			t.Errorf("Unexpected role value: %v", role)
+		}
+	}
+}
+
+func TestBackendFrameworkEnum(t *testing.T) {
+	// Test that backend framework constants are defined correctly
+	if BackendFrameworkSGLang != "sglang" {
+		t.Errorf("BackendFrameworkSGLang = %v, want \"sglang\"", BackendFrameworkSGLang)
+	}
+	if BackendFrameworkVLLM != "vllm" {
+		t.Errorf("BackendFrameworkVLLM = %v, want \"vllm\"", BackendFrameworkVLLM)
+	}
+	if BackendFrameworkTRTLLM != "trtllm" {
+		t.Errorf("BackendFrameworkTRTLLM = %v, want \"trtllm\"", BackendFrameworkTRTLLM)
+	}
+
+	// Test that frameworks can be compared
+	frameworks := []BackendFramework{BackendFrameworkSGLang, BackendFrameworkVLLM, BackendFrameworkTRTLLM}
+	for _, framework := range frameworks {
+		switch framework {
+		case BackendFrameworkSGLang, BackendFrameworkVLLM, BackendFrameworkTRTLLM:
+			// Expected
+		default:
+			t.Errorf("Unexpected framework value: %v", framework)
+		}
+	}
+}
+
+func TestServiceRoleStruct(t *testing.T) {
+	// Test ServiceRole struct creation and field access
+	sr := ServiceRole{
+		Name:     "test-service",
+		Role:     RoleLeader,
+		Replicas: 3,
+	}
+
+	if sr.Name != "test-service" {
+		t.Errorf("ServiceRole.Name = %v, want \"test-service\"", sr.Name)
+	}
+	if sr.Role != RoleLeader {
+		t.Errorf("ServiceRole.Role = %v, want %v", sr.Role, RoleLeader)
+	}
+	if sr.Replicas != 3 {
+		t.Errorf("ServiceRole.Replicas = %v, want 3", sr.Replicas)
+	}
+}
+
+func TestDetectBackendFrameworkFromArgs(t *testing.T) {
+	tests := []struct {
+		name        string
+		command     []string
+		args        []string
+		expected    BackendFramework
+		expectError bool
+	}{
+		{
+			name:     "detect VLLM from args",
+			command:  []string{"/bin/sh", "-c"},
+			args:     []string{"python -m dynamo.vllm.worker --model test"},
+			expected: BackendFrameworkVLLM,
+		},
+		{
+			name:     "detect SGLang from args",
+			command:  []string{"/bin/sh", "-c"},
+			args:     []string{"python -m dynamo.sglang --model test"},
+			expected: BackendFrameworkSGLang,
+		},
+		{
+			name:     "detect TRTLLM from args",
+			command:  []string{"/bin/sh", "-c"},
+			args:     []string{"python -m dynamo.trtllm.worker --model test"},
+			expected: BackendFrameworkTRTLLM,
+		},
+		{
+			name:     "detect from complex command with pipes",
+			command:  []string{},
+			args:     []string{"echo start && python -m dynamo.vllm.worker --model test | tee /tmp/log"},
+			expected: BackendFrameworkVLLM,
+		},
+		{
+			name:     "detect from python3.11",
+			command:  []string{},
+			args:     []string{"python3.11 -m dynamo.sglang"},
+			expected: BackendFrameworkSGLang,
+		},
+		{
+			name:     "no backend detected",
+			command:  []string{"/bin/sh", "-c"},
+			args:     []string{"echo hello world"},
+			expected: BackendFrameworkNoop,
+		},
+		{
+			name:        "multiple backends detected",
+			command:     []string{},
+			args:        []string{"python -m dynamo.vllm.worker && python -m dynamo.sglang"},
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := detectBackendFrameworkFromArgs(tt.command, tt.args)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("detectBackendFrameworkFromArgs() expected error, got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("detectBackendFrameworkFromArgs() unexpected error: %v", err)
+				return
+			}
+
+			if result != tt.expected {
+				t.Errorf("detectBackendFrameworkFromArgs() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDetermineBackendFramework(t *testing.T) {
+	tests := []struct {
+		name                     string
+		componentType            string
+		command                  []string
+		args                     []string
+		explicitBackendFramework string
+		expected                 BackendFramework
+		expectError              bool
+		errorContains            string
+	}{
+		{
+			name:          "non-worker component returns noop",
+			componentType: "frontend",
+			command:       []string{"/bin/sh", "-c"},
+			args:          []string{"echo hello world"},
+			expected:      BackendFrameworkNoop,
+		},
+		{
+			name:          "worker with VLLM detection",
+			componentType: "worker",
+			command:       []string{},
+			args:          []string{"python -m dynamo.vllm.worker --model test"},
+			expected:      BackendFrameworkVLLM,
+		},
+		{
+			name:                     "worker with explicit framework only",
+			componentType:            "worker",
+			explicitBackendFramework: "sglang",
+			expected:                 BackendFrameworkSGLang,
+		},
+		{
+			name:                     "worker with detected matching explicit",
+			componentType:            "worker",
+			args:                     []string{"python -m dynamo.sglang"},
+			explicitBackendFramework: "sglang",
+			expected:                 BackendFrameworkSGLang,
+		},
+		{
+			name:                     "worker with detected conflicting explicit",
+			componentType:            "worker",
+			args:                     []string{"python -m dynamo.vllm.worker"},
+			explicitBackendFramework: "sglang",
+			expectError:              true,
+			errorContains:            "backend framework mismatch",
+		},
+		{
+			name:          "worker with no detection, no explicit - returns noop",
+			componentType: "worker",
+			expected:      BackendFrameworkNoop,
+			expectError:   false,
+		},
+		{
+			name:          "worker with detection failure, no explicit - returns noop",
+			componentType: "worker",
+			args:          []string{"echo hello world"},
+			expected:      BackendFrameworkNoop,
+			expectError:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := determineBackendFramework(
+				tt.componentType,
+				tt.command,
+				tt.args,
+				tt.explicitBackendFramework,
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("determineBackendFramework() expected error, got none")
+					return
+				}
+				if tt.errorContains != "" && !strings.Contains(err.Error(), tt.errorContains) {
+					t.Errorf("determineBackendFramework() error = %v, should contain %q", err, tt.errorContains)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("determineBackendFramework() unexpected error: %v", err)
+				return
+			}
+
+			if result != tt.expected {
+				t.Errorf("determineBackendFramework() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestGetBackendFrameworkFromComponent(t *testing.T) {
+	tests := []struct {
+		name          string
+		component     *v1alpha1.DynamoComponentDeploymentSharedSpec
+		deployment    *v1alpha1.DynamoGraphDeployment
+		expected      BackendFramework
+		expectError   bool
+		errorContains string
+	}{
+		{
+			name: "detect from args - VLLM",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python -m dynamo.vllm.worker --model test"},
+					},
+				},
+			},
+			deployment: &v1alpha1.DynamoGraphDeployment{},
+			expected:   BackendFrameworkVLLM,
+		},
+		{
+			name: "explicit framework only",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+			},
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					BackendFramework: "sglang",
+				},
+			},
+			expected: BackendFrameworkSGLang,
+		},
+		{
+			name: "detected matches explicit",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python -m dynamo.sglang"},
+					},
+				},
+			},
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					BackendFramework: "sglang",
+				},
+			},
+			expected: BackendFrameworkSGLang,
+		},
+		{
+			name: "detected conflicts with explicit",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"python -m dynamo.vllm.worker"},
+					},
+				},
+			},
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					BackendFramework: "sglang",
+				},
+			},
+			expectError:   true,
+			errorContains: "backend framework mismatch",
+		},
+		{
+			name: "non-worker component returns noop",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "frontend", // Frontend component
+			},
+			deployment: &v1alpha1.DynamoGraphDeployment{},
+			expected:   BackendFrameworkNoop,
+		},
+		{
+			name: "worker with no detection, no explicit - returns noop",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+			},
+			deployment:  &v1alpha1.DynamoGraphDeployment{},
+			expected:    BackendFrameworkNoop,
+			expectError: false,
+		},
+		{
+			name: "worker with detection failure, no explicit - returns noop",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: "worker", // Worker component
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Args: []string{"echo hello world"},
+					},
+				},
+			},
+			deployment:  &v1alpha1.DynamoGraphDeployment{},
+			expected:    BackendFrameworkNoop,
+			expectError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := getBackendFrameworkFromComponent(betaComponent(t, tt.component), betaDGD(t, tt.deployment))
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("getBackendFrameworkFromComponent() expected error, got none")
+					return
+				}
+				if tt.errorContains != "" && !strings.Contains(err.Error(), tt.errorContains) {
+					t.Errorf("getBackendFrameworkFromComponent() error = %v, should contain %q", err, tt.errorContains)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("getBackendFrameworkFromComponent() unexpected error: %v", err)
+				return
+			}
+
+			if result != tt.expected {
+				t.Errorf("getBackendFrameworkFromComponent() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestApplyCliqueStartupDependencies(t *testing.T) {
+	tests := []struct {
+		name              string
+		roles             []ServiceRole
+		backendFramework  BackendFramework
+		numberOfNodes     int32
+		expectedDeps      map[string][]string // clique name -> expected StartsAfter dependencies
+		expectStartupType bool
+	}{
+		{
+			name: "vllm_multinode_applies_dependencies",
+			roles: []ServiceRole{
+				{Name: "service-ldr", Role: RoleLeader, Replicas: 1},
+				{Name: "service-wkr", Role: RoleWorker, Replicas: 2},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			numberOfNodes:    3,
+			expectedDeps: map[string][]string{
+				"service-ldr": nil,
+				"service-wkr": nil,
+			},
+			expectStartupType: false,
+		},
+		{
+			name: "sglang_multinode_applies_dependencies",
+			roles: []ServiceRole{
+				{Name: "service-ldr", Role: RoleLeader, Replicas: 1},
+				{Name: "service-wkr", Role: RoleWorker, Replicas: 2},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			numberOfNodes:    3,
+			expectedDeps: map[string][]string{
+				"service-ldr": nil,
+				"service-wkr": nil,
+			},
+			expectStartupType: false,
+		},
+		{
+			name: "trtllm_multinode_applies_dependencies",
+			roles: []ServiceRole{
+				{Name: "service-ldr", Role: RoleLeader, Replicas: 1},
+				{Name: "service-wkr", Role: RoleWorker, Replicas: 2},
+			},
+			backendFramework: BackendFrameworkTRTLLM,
+			numberOfNodes:    3,
+			expectedDeps: map[string][]string{
+				"service-ldr": {"service-wkr"},
+				"service-wkr": nil,
+			},
+			expectStartupType: true,
+		},
+		{
+			name: "single_node_no_dependencies",
+			roles: []ServiceRole{
+				{Name: "service", Role: RoleMain, Replicas: 1},
+			},
+			backendFramework: BackendFrameworkTRTLLM,
+			numberOfNodes:    1,
+			expectedDeps: map[string][]string{
+				"service": nil,
+			},
+			expectStartupType: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a PodCliqueSet with cliques matching the roles
+			gangSet := &grovev1alpha1.PodCliqueSet{
+				Spec: grovev1alpha1.PodCliqueSetSpec{
+					Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+						Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{},
+					},
+				},
+			}
+
+			// Add cliques for each role
+			for _, role := range tt.roles {
+				clique := &grovev1alpha1.PodCliqueTemplateSpec{
+					Name: strings.ToLower(role.Name),
+					Spec: grovev1alpha1.PodCliqueSpec{
+						RoleName: strings.ToLower(role.Name),
+						Replicas: role.Replicas,
+					},
+				}
+				gangSet.Spec.Template.Cliques = append(gangSet.Spec.Template.Cliques, clique)
+			}
+
+			// Apply dependencies (non-GMS)
+			applyCliqueStartupDependencies(gangSet, tt.roles, tt.backendFramework, tt.numberOfNodes, false)
+
+			// Verify StartupType
+			if tt.expectStartupType {
+				if gangSet.Spec.Template.StartupType == nil || *gangSet.Spec.Template.StartupType != grovev1alpha1.CliqueStartupTypeExplicit {
+					t.Errorf("Expected StartupType to be CliqueStartupTypeExplicit, got %v", gangSet.Spec.Template.StartupType)
+				}
+			} else {
+				if gangSet.Spec.Template.StartupType != nil {
+					t.Errorf("Expected StartupType to be nil, got %v", *gangSet.Spec.Template.StartupType)
+				}
+			}
+
+			// Verify dependencies for each clique
+			for _, clique := range gangSet.Spec.Template.Cliques {
+				expectedDeps, exists := tt.expectedDeps[clique.Name]
+				if !exists {
+					t.Errorf("Unexpected clique %s", clique.Name)
+					continue
+				}
+
+				if !reflect.DeepEqual(clique.Spec.StartsAfter, expectedDeps) {
+					t.Errorf("Clique %s: expected StartsAfter %v, got %v", clique.Name, expectedDeps, clique.Spec.StartsAfter)
+				}
+			}
+		})
+	}
+}
+
+func TestApplyCliqueStartupDependencies_GMS(t *testing.T) {
+	t.Run("gms_single_node_engine_starts_after_gms", func(t *testing.T) {
+		gmsRoles := []ServiceRole{
+			{Name: "svc-gms-0", Role: RoleGMS, Rank: 0, Replicas: 1},
+			{Name: "svc", Role: RoleMain, Rank: 0, Replicas: 2},
+		}
+		gangSet := &grovev1alpha1.PodCliqueSet{
+			Spec: grovev1alpha1.PodCliqueSetSpec{
+				Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+					Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{
+						{Name: "svc-gms-0", Spec: grovev1alpha1.PodCliqueSpec{RoleName: "svc-gms-0", Replicas: 1}},
+						{Name: "svc", Spec: grovev1alpha1.PodCliqueSpec{RoleName: "svc", Replicas: 2}},
+					},
+				},
+			},
+		}
+
+		applyCliqueStartupDependencies(gangSet, gmsRoles, BackendFrameworkVLLM, 1, true)
+
+		if gangSet.Spec.Template.StartupType == nil || *gangSet.Spec.Template.StartupType != grovev1alpha1.CliqueStartupTypeExplicit {
+			t.Fatal("expected CliqueStartupTypeExplicit")
+		}
+		for _, c := range gangSet.Spec.Template.Cliques {
+			switch c.Name {
+			case "svc-gms-0":
+				if c.Spec.StartsAfter != nil {
+					t.Errorf("GMS clique should have no startsAfter, got %v", c.Spec.StartsAfter)
+				}
+			case "svc":
+				if !reflect.DeepEqual(c.Spec.StartsAfter, []string{"svc-gms-0"}) {
+					t.Errorf("engine clique startsAfter = %v, want [svc-gms-0]", c.Spec.StartsAfter)
+				}
+			}
+		}
+	})
+
+	t.Run("gms_does_not_leak_startsAfter_to_unrelated_cliques", func(t *testing.T) {
+		gmsRoles := []ServiceRole{
+			{Name: "engine-gms-0", Role: RoleGMS, Rank: 0, Replicas: 1},
+			{Name: "engine", Role: RoleMain, Rank: 0, Replicas: 2},
+		}
+		gangSet := &grovev1alpha1.PodCliqueSet{
+			Spec: grovev1alpha1.PodCliqueSetSpec{
+				Template: grovev1alpha1.PodCliqueSetTemplateSpec{
+					Cliques: []*grovev1alpha1.PodCliqueTemplateSpec{
+						{Name: "frontend", Spec: grovev1alpha1.PodCliqueSpec{RoleName: "frontend", Replicas: 1}},
+						{Name: "engine-gms-0", Spec: grovev1alpha1.PodCliqueSpec{RoleName: "engine-gms-0", Replicas: 1}},
+						{Name: "engine", Spec: grovev1alpha1.PodCliqueSpec{RoleName: "engine", Replicas: 2}},
+					},
+				},
+			},
+		}
+
+		applyCliqueStartupDependencies(gangSet, gmsRoles, BackendFrameworkVLLM, 1, true)
+
+		for _, c := range gangSet.Spec.Template.Cliques {
+			switch c.Name {
+			case "frontend":
+				if c.Spec.StartsAfter != nil {
+					t.Errorf("frontend clique should have no startsAfter, got %v", c.Spec.StartsAfter)
+				}
+			case "engine-gms-0":
+				if c.Spec.StartsAfter != nil {
+					t.Errorf("GMS clique should have no startsAfter, got %v", c.Spec.StartsAfter)
+				}
+			case "engine":
+				if !reflect.DeepEqual(c.Spec.StartsAfter, []string{"engine-gms-0"}) {
+					t.Errorf("engine clique startsAfter = %v, want [engine-gms-0]", c.Spec.StartsAfter)
+				}
+			}
+		}
+	})
+}
+
+func TestGetCliqueStartupDependencies(t *testing.T) {
+	tests := []struct {
+		name              string
+		role              Role
+		backendFramework  BackendFramework
+		leaderCliqueName  string
+		workerCliqueNames []string
+		expected          []string
+	}{
+		{
+			name:              "trtllm_leader_depends_on_workers",
+			role:              RoleLeader,
+			backendFramework:  BackendFrameworkTRTLLM,
+			leaderCliqueName:  "service-ldr",
+			workerCliqueNames: []string{"service-wkr1", "service-wkr2"},
+			expected:          []string{"service-wkr1", "service-wkr2"},
+		},
+		{
+			name:              "trtllm_worker_has_no_dependencies",
+			role:              RoleWorker,
+			backendFramework:  BackendFrameworkTRTLLM,
+			leaderCliqueName:  "service-ldr",
+			workerCliqueNames: []string{"service-wkr"},
+			expected:          nil,
+		},
+		{
+			name:              "leader_with_empty_worker_names",
+			role:              RoleLeader,
+			backendFramework:  BackendFrameworkTRTLLM,
+			leaderCliqueName:  "service-ldr",
+			workerCliqueNames: nil,
+			expected:          nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := getCliqueStartupDependencies(
+				tt.role,
+				tt.backendFramework,
+				tt.leaderCliqueName,
+				tt.workerCliqueNames,
+			)
+
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("getCliqueStartupDependencies() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestGenerateGrovePodCliqueSet_StartsAfterDependencies(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+
+	tests := []struct {
+		name              string
+		backendFramework  string
+		expectedDeps      map[string][]string // clique name -> expected StartsAfter dependencies
+		expectStartupType bool
+	}{
+		{
+			name:             "vllm_worker_starts_after_leader",
+			backendFramework: string(BackendFrameworkVLLM),
+			expectedDeps: map[string][]string{
+				"main-wkr": nil, // worker starts after leader
+				"main-ldr": nil, // leader has no dependencies
+			},
+			expectStartupType: false,
+		},
+		{
+			name:             "sglang_worker_starts_after_leader",
+			backendFramework: string(BackendFrameworkSGLang),
+			expectedDeps: map[string][]string{
+				"main-wkr": nil, // worker starts after leader
+				"main-ldr": nil, // leader has no dependencies
+			},
+			expectStartupType: false,
+		},
+		{
+			name:             "trtllm_leader_starts_after_worker",
+			backendFramework: string(BackendFrameworkTRTLLM),
+			expectedDeps: map[string][]string{
+				"main-ldr": {"main-wkr"}, // leader starts after worker
+				"main-wkr": nil,          // worker has no dependencies
+			},
+			expectStartupType: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-deployment",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					BackendFramework: tt.backendFramework,
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"main": {
+							Multinode: &v1alpha1.MultinodeSpec{
+								NodeCount: 2,
+							},
+							ComponentType: "worker", // Must be worker to trigger backend detection
+							Replicas:      ptr.To(int32(1)),
+							Resources: &v1alpha1.Resources{
+								Requests: &v1alpha1.ResourceItem{
+									GPU: "1", // 1 GPU per node
+								},
+							},
+						},
+					},
+				},
+			}
+
+			controllerConfig := &configv1alpha1.OperatorConfiguration{
+				Infrastructure: configv1alpha1.InfrastructureConfiguration{
+					ETCDAddress: "etcd-av1alpha1",
+					NATSAddress: "nats-address",
+				},
+			}
+
+			got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dynamoDeployment), controllerConfig, &controller_common.RuntimeConfig{}, nil, secretsRetriever, nil, nil, nil)
+			if err != nil {
+				t.Errorf("GenerateGrovePodCliqueSet() error = %v", err)
+				return
+			}
+
+			// Verify that StartupType is set to Explicit
+			if tt.expectStartupType {
+				if got.Spec.Template.StartupType == nil || *got.Spec.Template.StartupType != grovev1alpha1.CliqueStartupTypeExplicit {
+					t.Errorf("Expected StartupType to be CliqueStartupTypeExplicit, got %v", got.Spec.Template.StartupType)
+				}
+			} else {
+				if got.Spec.Template.StartupType == nil || *got.Spec.Template.StartupType != grovev1alpha1.CliqueStartupTypeAnyOrder {
+					t.Errorf("Expected StartupType to be CliqueStartupTypeAnyOrder, got %v", got.Spec.Template.StartupType)
+				}
+			}
+
+			// Verify StartsAfter dependencies for each clique
+			cliqueMap := make(map[string]*grovev1alpha1.PodCliqueTemplateSpec)
+			for _, clique := range got.Spec.Template.Cliques {
+				cliqueMap[clique.Name] = clique
+			}
+
+			for cliqueName, expectedDeps := range tt.expectedDeps {
+				clique, exists := cliqueMap[cliqueName]
+				if !exists {
+					t.Errorf("Expected clique %s not found", cliqueName)
+					continue
+				}
+
+				if expectedDeps == nil {
+					if len(clique.Spec.StartsAfter) != 0 {
+						t.Errorf("Clique %s should have no StartsAfter dependencies, but has %v", cliqueName, clique.Spec.StartsAfter)
+					}
+				} else {
+					if len(clique.Spec.StartsAfter) != len(expectedDeps) {
+						t.Errorf("Clique %s expected %d StartsAfter dependencies, got %d", cliqueName, len(expectedDeps), len(clique.Spec.StartsAfter))
+						continue
+					}
+
+					for i, expectedDep := range expectedDeps {
+						if i >= len(clique.Spec.StartsAfter) || clique.Spec.StartsAfter[i] != expectedDep {
+							t.Errorf("Clique %s expected StartsAfter[%d] = %s, got %v", cliqueName, i, expectedDep, clique.Spec.StartsAfter)
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_Frontend(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+	dynamoDeployment := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-deployment",
+			Namespace: "default",
+		},
+	}
+
+	tests := []struct {
+		name             string
+		component        *v1alpha1.DynamoComponentDeploymentSharedSpec
+		backendFramework BackendFramework
+		wantEnvVars      map[string]string
+		wantErr          bool
+	}{
+		{
+			name: "frontend with default command",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+			},
+			backendFramework: BackendFrameworkVLLM,
+			wantEnvVars: map[string]string{
+				"DYN_HTTP_PORT": fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+			},
+		},
+		{
+			name: "frontend with overriding env var",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Envs: []corev1.EnvVar{
+					{
+						Name:  "DYN_HTTP_PORT",
+						Value: "3000",
+					},
+				},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			wantEnvVars: map[string]string{
+				"DYN_HTTP_PORT": "3000",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				tt.backendFramework,
+				secretsRetriever,
+				dynamoDeployment.Name,
+				dynamoDeployment.Namespace,
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GenerateBasePodSpec() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+
+			// Check command and args
+			wantCommand := []string{"python3"}
+			wantArgs := []string{"-m", "dynamo.frontend"}
+			if !reflect.DeepEqual(podSpec.Containers[0].Command, wantCommand) {
+				t.Errorf("GenerateBasePodSpec() command = %v, want %v",
+					podSpec.Containers[0].Command, wantCommand)
+			}
+			if !reflect.DeepEqual(podSpec.Containers[0].Args, wantArgs) {
+				t.Errorf("GenerateBasePodSpec() args = %v, want %v",
+					podSpec.Containers[0].Args, wantArgs)
+			}
+
+			// Check environment variables
+			envVars := make(map[string]string)
+			for _, env := range podSpec.Containers[0].Env {
+				envVars[env.Name] = env.Value
+			}
+			for k, v := range tt.wantEnvVars {
+				if envVars[k] != v {
+					t.Errorf("GenerateBasePodSpec() env var %s = %v, want %v",
+						k, envVars[k], v)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_PlannerServiceAccount(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name               string
+		component          *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expectedServiceAcc string
+	}{
+		{
+			name: "Planner component should have planner service account",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypePlanner,
+			},
+			expectedServiceAcc: commonconsts.PlannerServiceAccountName,
+		},
+		{
+			name: "Planner service account should not be set for non-planner components",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+			},
+			expectedServiceAcc: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkSGLang,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() error = %v", err)
+				return
+			}
+
+			if podSpec.ServiceAccountName != tt.expectedServiceAcc {
+				t.Errorf("GenerateBasePodSpec() serviceAccountName = %v, want %v",
+					podSpec.ServiceAccountName, tt.expectedServiceAcc)
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_DisableImagePullSecretDiscovery(t *testing.T) {
+	tests := []struct {
+		name                     string
+		component                *v1alpha1.DynamoComponentDeploymentSharedSpec
+		secretsRetriever         SecretsRetriever
+		expectedImagePullSecrets []corev1.LocalObjectReference
+	}{
+		{
+			name: "disable docker secrets annotation set to true",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDisableImagePullSecretDiscovery: commonconsts.KubeLabelValueTrue,
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Image: "test-registry/test-image:latest",
+					},
+				},
+			},
+			secretsRetriever:         &mockSecretsRetrieverWithSecrets{},
+			expectedImagePullSecrets: nil, // Should be nil when disabled
+		},
+		{
+			name: "disable docker secrets annotation set to false",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDisableImagePullSecretDiscovery: commonconsts.KubeLabelValueFalse,
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Image: "test-registry/test-image:latest",
+					},
+				},
+			},
+			secretsRetriever: &mockSecretsRetrieverWithSecrets{},
+			expectedImagePullSecrets: []corev1.LocalObjectReference{
+				{Name: "test-docker-secret"},
+			}, // Should be present when enabled
+		},
+		{
+			name: "disable docker secrets annotation not set (default behavior)",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Image: "test-registry/test-image:latest",
+					},
+				},
+			},
+			secretsRetriever: &mockSecretsRetrieverWithSecrets{},
+			expectedImagePullSecrets: []corev1.LocalObjectReference{
+				{Name: "test-docker-secret"},
+			}, // Should be present by default
+		},
+		{
+			name: "disable docker secrets annotation set to invalid value",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDisableImagePullSecretDiscovery: "invalid",
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Image: "test-registry/test-image:latest",
+					},
+				},
+			},
+			secretsRetriever: &mockSecretsRetrieverWithSecrets{},
+			expectedImagePullSecrets: []corev1.LocalObjectReference{
+				{Name: "test-docker-secret"},
+			}, // Should be present when annotation is not "true"
+		},
+		{
+			name: "disable docker secrets but no secrets retriever",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDisableImagePullSecretDiscovery: commonconsts.KubeLabelValueFalse,
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Image: "test-registry/test-image:latest",
+					},
+				},
+			},
+			secretsRetriever:         nil,
+			expectedImagePullSecrets: nil, // Should be nil when no retriever
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkNoop,
+				tt.secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() error = %v", err)
+				return
+			}
+
+			if !reflect.DeepEqual(podSpec.ImagePullSecrets, tt.expectedImagePullSecrets) {
+				t.Errorf("GenerateBasePodSpec() ImagePullSecrets = %v, want %v",
+					podSpec.ImagePullSecrets, tt.expectedImagePullSecrets)
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_DiscoverBackend(t *testing.T) {
+	tests := []struct {
+		name             string
+		component        *v1alpha1.DynamoComponentDeploymentSharedSpec
+		controllerConfig *configv1alpha1.OperatorConfiguration
+		wantEnvVar       string
+	}{
+		{
+			name: "Kubernetes discovery backend should set env var to kubernetes",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDynamoDiscoveryBackend: "kubernetes",
+				},
+			},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{},
+			wantEnvVar:       "kubernetes",
+		},
+		{
+			name: "Kubernetes discovery from controller config should set env var to kubernetes",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: map[string]string{},
+			},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{
+				Discovery: configv1alpha1.DiscoveryConfiguration{
+					Backend: "kubernetes",
+				},
+			},
+			wantEnvVar: "kubernetes",
+		},
+		{
+			name: "Etcd discovery backend annotation should not set env var",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDynamoDiscoveryBackend: "etcd",
+				},
+			},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{
+				Discovery: configv1alpha1.DiscoveryConfiguration{
+					Backend: "kubernetes",
+				},
+			},
+			wantEnvVar: "", // etcd is the runtime default, no env var needed
+		},
+		{
+			name: "Etcd discovery from controller config should not set env var",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: map[string]string{},
+			},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{
+				Discovery: configv1alpha1.DiscoveryConfiguration{
+					Backend: "etcd",
+				},
+			},
+			wantEnvVar: "", // etcd is the runtime default, no env var needed
+		},
+		{
+			name: "Empty discovery backend defaults to kubernetes",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: map[string]string{
+					commonconsts.KubeAnnotationDynamoDiscoveryBackend: "",
+				},
+			},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{
+				Discovery: configv1alpha1.DiscoveryConfiguration{
+					Backend: "",
+				},
+			},
+			wantEnvVar: "kubernetes", // empty defaults to kubernetes
+		},
+		{
+			name:             "Discovery backend not set defaults to kubernetes",
+			component:        &v1alpha1.DynamoComponentDeploymentSharedSpec{},
+			controllerConfig: &configv1alpha1.OperatorConfiguration{},
+			wantEnvVar:       "kubernetes", // not set defaults to kubernetes
+		},
+	}
+	secretsRetriever := &mockSecretsRetriever{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkSGLang,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				tt.controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+			if !assert.NoError(t, err) {
+				return
+			}
+			if tt.wantEnvVar != "" {
+				assert.Contains(t, podSpec.Containers[0].Env, corev1.EnvVar{Name: commonconsts.DynamoDiscoveryBackendEnvVar, Value: tt.wantEnvVar})
+			} else {
+				for _, env := range podSpec.Containers[0].Env {
+					if env.Name == commonconsts.DynamoDiscoveryBackendEnvVar {
+						t.Errorf("GenerateBasePodSpec() Discover backend env var should not be set, got %s", env.Value)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_Worker(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name            string
+		component       *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expectedPodSpec *corev1.PodSpec
+	}{
+		{
+			name: "Worker component with DynamoNamespace set",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Envs: []corev1.EnvVar{
+					{Name: "ANOTHER_COMPONENTENV", Value: "true"},
+				},
+				ComponentType:   commonconsts.ComponentTypeWorker,
+				DynamoNamespace: ptr.To("default-test-deployment"), // Namespace set by caller
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					MainContainer: &corev1.Container{
+						Command: []string{"python3"},
+						Args:    []string{"-m", "dynamo.worker"},
+						Env: []corev1.EnvVar{
+							{Name: "ANOTHER_CONTAINER_ENV", Value: "true"},
+						},
+					},
+				},
+			},
+			expectedPodSpec: &corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Name:    commonconsts.MainContainerName,
+						Command: []string{"python3"},
+						Args:    []string{"-m", "dynamo.worker"},
+						Env: []corev1.EnvVar{
+							{Name: "ANOTHER_COMPONENTENV", Value: "true"},
+							{Name: "ANOTHER_CONTAINER_ENV", Value: "true"},
+							{Name: commonconsts.DynamoComponentEnvVar, Value: "worker"},
+							{Name: commonconsts.DynamoDiscoveryBackendEnvVar, Value: "kubernetes"},
+							{Name: "DYN_FORWARDPASS_METRIC_PORT", Value: "20380"},
+							{Name: "DYN_HEALTH_CHECK_ENABLED", Value: "false"},
+							{Name: commonconsts.DynamoNamespaceEnvVar, Value: "default-test-deployment"},
+							{Name: "DYN_PARENT_DGD_K8S_NAME", Value: "test-deployment"},
+							{Name: "DYN_PARENT_DGD_K8S_NAMESPACE", Value: "default"},
+							{Name: "DYN_SYSTEM_ENABLED", Value: "true"},
+							{Name: "DYN_SYSTEM_PORT", Value: "9090"},
+							{Name: "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS", Value: "[\"generate\"]"},
+							{Name: "NIXL_TELEMETRY_ENABLE", Value: "n"},
+							{Name: "NIXL_TELEMETRY_EXPORTER", Value: "prometheus"},
+							{Name: "NIXL_TELEMETRY_PROMETHEUS_PORT", Value: "19090"},
+							{Name: "POD_NAME", ValueFrom: &corev1.EnvVarSource{
+								FieldRef: &corev1.ObjectFieldSelector{
+									FieldPath: "metadata.name",
+								},
+							}},
+							{Name: "POD_NAMESPACE", ValueFrom: &corev1.EnvVarSource{
+								FieldRef: &corev1.ObjectFieldSelector{
+									FieldPath: "metadata.namespace",
+								},
+							}},
+							{Name: "POD_UID", ValueFrom: &corev1.EnvVarSource{
+								FieldRef: &corev1.ObjectFieldSelector{
+									FieldPath: "metadata.uid",
+								},
+							}},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "shared-memory",
+								MountPath: "/dev/shm",
+							},
+						},
+						LivenessProbe: &corev1.Probe{
+							ProbeHandler: corev1.ProbeHandler{
+								HTTPGet: &corev1.HTTPGetAction{
+									Path: "/live",
+									Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+								},
+							},
+							PeriodSeconds:    5,
+							TimeoutSeconds:   4,
+							FailureThreshold: 1,
+						},
+						ReadinessProbe: &corev1.Probe{
+							ProbeHandler: corev1.ProbeHandler{
+								HTTPGet: &corev1.HTTPGetAction{
+									Path: "/health",
+									Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+								},
+							},
+							PeriodSeconds:    10,
+							TimeoutSeconds:   4,
+							FailureThreshold: 3,
+						},
+						StartupProbe: &corev1.Probe{
+							ProbeHandler: corev1.ProbeHandler{
+								HTTPGet: &corev1.HTTPGetAction{
+									Path: "/live",
+									Port: intstr.FromString(commonconsts.DynamoSystemPortName),
+								},
+							},
+							PeriodSeconds:    10,
+							TimeoutSeconds:   5,
+							FailureThreshold: 720,
+						},
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          commonconsts.DynamoSystemPortName,
+								ContainerPort: int32(commonconsts.DynamoSystemPort),
+								Protocol:      corev1.ProtocolTCP,
+							},
+							{
+								Name:          commonconsts.DynamoNixlPortName,
+								ContainerPort: int32(commonconsts.DynamoNixlPort),
+								Protocol:      corev1.ProtocolTCP,
+							},
+						},
+					},
+				},
+				RestartPolicy:                 corev1.RestartPolicyAlways,
+				TerminationGracePeriodSeconds: ptr.To(int64(60)),
+				SecurityContext: &corev1.PodSecurityContext{
+					// Only fsGroup is injected by default for volume permissions
+					FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+				},
+				Volumes: []corev1.Volume{
+					{
+						Name: "shared-memory",
+						VolumeSource: corev1.VolumeSource{
+							EmptyDir: &corev1.EmptyDirVolumeSource{
+								Medium:    corev1.StorageMediumMemory,
+								SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkSGLang,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() error = %v", err)
+				return
+			}
+
+			diff := cmp.Diff(tt.expectedPodSpec, podSpec)
+			if diff != "" {
+				t.Errorf("GenerateBasePodSpec() podSpec = %v, want %v, diff = %v", podSpec, tt.expectedPodSpec, diff)
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_VolumeMounts(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name           string
+		component      *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expectError    bool
+		expectedPVCs   []string
+		expectedMounts []corev1.VolumeMount
+	}{
+		{
+			name: "valid volumeMounts",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:       "test-pvc",
+						MountPoint: "/data",
+					},
+				},
+			},
+			expectError:  false,
+			expectedPVCs: []string{"test-pvc"},
+			expectedMounts: []corev1.VolumeMount{
+				{Name: "test-pvc", MountPath: "/data"},
+				{Name: "shared-memory", MountPath: "/dev/shm"},
+			},
+		},
+		{
+			name: "volumeMounts keep generated PVC when podTemplate has other volumes",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:       "test-pvc",
+						MountPoint: "/data",
+					},
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						Volumes: []corev1.Volume{
+							{
+								Name: "config",
+								VolumeSource: corev1.VolumeSource{
+									ConfigMap: &corev1.ConfigMapVolumeSource{
+										LocalObjectReference: corev1.LocalObjectReference{Name: "config"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectError:  false,
+			expectedPVCs: []string{"test-pvc"},
+			expectedMounts: []corev1.VolumeMount{
+				{Name: "test-pvc", MountPath: "/data"},
+				{Name: "shared-memory", MountPath: "/dev/shm"},
+			},
+		},
+		{
+			name: "multiple volumeMounts",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "pvc1", MountPoint: "/data1"},
+					{Name: "pvc2", MountPoint: "/data2"},
+				},
+			},
+			expectError:  false,
+			expectedPVCs: []string{"pvc1", "pvc2"},
+			expectedMounts: []corev1.VolumeMount{
+				{Name: "pvc1", MountPath: "/data1"},
+				{Name: "pvc2", MountPath: "/data2"},
+				{Name: "shared-memory", MountPath: "/dev/shm"},
+			},
+		},
+		{
+			name: "empty volumeMount name",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "", MountPoint: "/data"},
+				},
+			},
+			expectError: true,
+		},
+		{
+			name: "empty volumeMount mountPoint",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "test-pvc", MountPoint: ""},
+				},
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkVLLM,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GenerateBasePodSpec() expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() unexpected error: %v", err)
+				return
+			}
+
+			// Check expected PVCs are present in volumes
+			for _, expectedPVC := range tt.expectedPVCs {
+				found := false
+				for _, volume := range podSpec.Volumes {
+					if volume.Name == expectedPVC && volume.PersistentVolumeClaim != nil {
+						if volume.PersistentVolumeClaim.ClaimName == expectedPVC {
+							found = true
+							break
+						}
+					}
+				}
+				if !found {
+					t.Errorf("GenerateBasePodSpec() expected PVC volume %s not found", expectedPVC)
+				}
+			}
+
+			// Check expected mounts are present
+			if len(podSpec.Containers) == 0 {
+				t.Errorf("GenerateBasePodSpec() no containers found")
+				return
+			}
+
+			container := podSpec.Containers[0]
+			for _, expectedMount := range tt.expectedMounts {
+				found := false
+				for _, mount := range container.VolumeMounts {
+					if mount.Name == expectedMount.Name && mount.MountPath == expectedMount.MountPath {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("GenerateBasePodSpec() expected volume mount %+v not found", expectedMount)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_TRTLLMSSHMountUsesSecretVolume(t *testing.T) {
+	sshSecretName := "mpi-run-ssh-secret"
+	component := betaComponent(t, &v1alpha1.DynamoComponentDeploymentSharedSpec{
+		ComponentType: commonconsts.ComponentTypeWorker,
+		Resources: &v1alpha1.Resources{
+			Limits: &v1alpha1.ResourceItem{GPU: "1"},
+		},
+		ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+			MainContainer: &corev1.Container{
+				Command: []string{"python3"},
+				Args:    []string{"-m", "dynamo.trtllm", "--model-path", "/model"},
+			},
+		},
+	})
+
+	podSpec, err := GenerateBasePodSpec(
+		component,
+		BackendFrameworkTRTLLM,
+		&mockSecretsRetriever{},
+		"test-deployment",
+		"default",
+		RoleLeader,
+		2,
+		&configv1alpha1.OperatorConfiguration{
+			MPI: configv1alpha1.MPIConfiguration{SSHSecretName: sshSecretName},
+		},
+		commonconsts.MultinodeDeploymentTypeGrove,
+		"worker",
+		nil,
+		nil,
+	)
+	require.NoError(t, err)
+
+	var sshVolumes []corev1.Volume
+	for _, volume := range podSpec.Volumes {
+		if volume.Name == sshSecretName {
+			sshVolumes = append(sshVolumes, volume)
+		}
+	}
+	require.Len(t, sshVolumes, 1)
+	assert.NotNil(t, sshVolumes[0].Secret)
+	assert.Nil(t, sshVolumes[0].PersistentVolumeClaim)
+}
+
+func TestGenerateBasePodSpec_ResourceClaims(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name                   string
+		component              *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expectError            bool
+		expectedResourceClaims []corev1.ResourceClaim
+		expectedPodClaims      []corev1.PodResourceClaim
+		expectedVolumes        []corev1.Volume
+	}{
+		{
+			name: "component with resource claims",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				Resources: &v1alpha1.Resources{
+					Requests: &v1alpha1.ResourceItem{
+						CPU:    "130",
+						Memory: "800Gi",
+					},
+					Limits: &v1alpha1.ResourceItem{
+						CPU:    "130",
+						Memory: "800Gi",
+						GPU:    "4",
+					},
+					Claims: []corev1.ResourceClaim{
+						{
+							Name: "compute-domain-channel",
+						},
+					},
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						ResourceClaims: []corev1.PodResourceClaim{
+							{
+								Name:                      "compute-domain-channel",
+								ResourceClaimTemplateName: ptr.To("trtllm-test-compute-domain-channel"),
+							},
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "model-storage",
+								VolumeSource: corev1.VolumeSource{
+									PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+										ClaimName: "dynamo-pvc",
+									},
+								},
+							},
+						},
+					},
+					MainContainer: &corev1.Container{
+						Image: "rohanv672/dynamo:v0.5.1-trtllm",
+						Args: []string{
+							"python3 -m dynamo.trtllm --model-path /data/deepseek-r1 --served-model-name deepseek-ai/DeepSeek-R1 --extra-engine-args /data/engine_configs/wide_ep_agg.yaml",
+						},
+						Command: []string{"/bin/sh", "-c"},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "model-storage",
+								MountPath: "/data",
+							},
+						},
+					},
+				},
+			},
+			expectError: false,
+			expectedResourceClaims: []corev1.ResourceClaim{
+				{
+					Name: "compute-domain-channel",
+				},
+			},
+			expectedPodClaims: []corev1.PodResourceClaim{
+				{
+					Name:                      "compute-domain-channel",
+					ResourceClaimTemplateName: ptr.To("trtllm-test-compute-domain-channel"),
+				},
+			},
+			expectedVolumes: []corev1.Volume{
+				{
+					Name: "model-storage",
+					VolumeSource: corev1.VolumeSource{
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+							ClaimName: "dynamo-pvc",
+						},
+					},
+				},
+				{
+					Name: "shared-memory",
+					VolumeSource: corev1.VolumeSource{
+						EmptyDir: &corev1.EmptyDirVolumeSource{
+							Medium:    corev1.StorageMediumMemory,
+							SizeLimit: func() *resource.Quantity { q := resource.MustParse(commonconsts.DefaultSharedMemorySize); return &q }(),
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "component with multiple resource claims",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				Resources: &v1alpha1.Resources{
+					Claims: []corev1.ResourceClaim{
+						{
+							Name: "compute-domain-channel",
+						},
+						{
+							Name: "network-domain-channel",
+						},
+					},
+				},
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						ResourceClaims: []corev1.PodResourceClaim{
+							{
+								Name:                      "compute-domain-channel",
+								ResourceClaimTemplateName: ptr.To("compute-template"),
+							},
+							{
+								Name:                      "network-domain-channel",
+								ResourceClaimTemplateName: ptr.To("network-template"),
+							},
+						},
+					},
+					MainContainer: &corev1.Container{
+						Image:   "test-image",
+						Command: []string{"python3"},
+						Args:    []string{"-m", "dynamo.worker"},
+					},
+				},
+			},
+			expectError: false,
+			expectedResourceClaims: []corev1.ResourceClaim{
+				{
+					Name: "compute-domain-channel",
+				},
+				{
+					Name: "network-domain-channel",
+				},
+			},
+			expectedPodClaims: []corev1.PodResourceClaim{
+				{
+					Name:                      "compute-domain-channel",
+					ResourceClaimTemplateName: ptr.To("compute-template"),
+				},
+				{
+					Name:                      "network-domain-channel",
+					ResourceClaimTemplateName: ptr.To("network-template"),
+				},
+			},
+		},
+		{
+			name: "component without resource claims",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				Resources: &v1alpha1.Resources{
+					Requests: &v1alpha1.ResourceItem{
+						CPU:    "1",
+						Memory: "1Gi",
+					},
+				},
+			},
+			expectError:            false,
+			expectedResourceClaims: nil,
+			expectedPodClaims:      nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkTRTLLM,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GenerateBasePodSpec() expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() unexpected error: %v", err)
+				return
+			}
+
+			// Check containers exist
+			if len(podSpec.Containers) == 0 {
+				t.Errorf("GenerateBasePodSpec() no containers found")
+				return
+			}
+
+			container := podSpec.Containers[0]
+
+			// Check resource claims in container resources using reflect.DeepEqual
+			if !reflect.DeepEqual(container.Resources.Claims, tt.expectedResourceClaims) {
+				t.Errorf("GenerateBasePodSpec() resource claims mismatch:\ngot:  %+v\nwant: %+v",
+					container.Resources.Claims, tt.expectedResourceClaims)
+			}
+
+			// Check pod resource claims using reflect.DeepEqual
+			if !reflect.DeepEqual(podSpec.ResourceClaims, tt.expectedPodClaims) {
+				t.Errorf("GenerateBasePodSpec() pod resource claims mismatch:\ngot:  %+v\nwant: %+v",
+					podSpec.ResourceClaims, tt.expectedPodClaims)
+			}
+
+			// Check expected volumes if specified using reflect.DeepEqual
+			if tt.expectedVolumes != nil {
+				if !reflect.DeepEqual(podSpec.Volumes, tt.expectedVolumes) {
+					t.Errorf("GenerateBasePodSpec() volumes mismatch:\ngot:  %+v\nwant: %+v",
+						podSpec.Volumes, tt.expectedVolumes)
+				}
+			}
+
+			// Verify resource requests and limits are properly set when claims are present
+			if len(tt.expectedResourceClaims) > 0 {
+				// Check that standard resources are still processed correctly
+				if tt.component.Resources != nil {
+					if tt.component.Resources.Requests != nil {
+						if tt.component.Resources.Requests.CPU != "" {
+							if container.Resources.Requests == nil {
+								t.Errorf("GenerateBasePodSpec() expected CPU request to be set")
+							} else if cpu, exists := container.Resources.Requests[corev1.ResourceCPU]; !exists || cpu.IsZero() {
+								t.Errorf("GenerateBasePodSpec() expected CPU request to be set")
+							}
+						}
+						if tt.component.Resources.Requests.Memory != "" {
+							if container.Resources.Requests == nil {
+								t.Errorf("GenerateBasePodSpec() expected Memory request to be set")
+							} else if memory, exists := container.Resources.Requests[corev1.ResourceMemory]; !exists || memory.IsZero() {
+								t.Errorf("GenerateBasePodSpec() expected Memory request to be set")
+							}
+						}
+					}
+					if tt.component.Resources.Limits != nil {
+						if tt.component.Resources.Limits.GPU != "" {
+							if container.Resources.Limits == nil {
+								t.Errorf("GenerateBasePodSpec() expected GPU limit to be set")
+							} else if gpu, exists := container.Resources.Limits[corev1.ResourceName("nvidia.com/gpu")]; !exists || gpu.IsZero() {
+								t.Errorf("GenerateBasePodSpec() expected GPU limit to be set")
+							}
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_UseAsCompilationCache_BackendSupport(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name             string
+		component        *v1alpha1.DynamoComponentDeploymentSharedSpec
+		backendFramework BackendFramework
+		expectError      bool
+		expectedMount    *corev1.VolumeMount
+	}{
+		{
+			name: "useAsCompilationCache with custom mount point",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						MountPoint:            "/custom/cache",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			expectError:      false,
+			expectedMount:    &corev1.VolumeMount{Name: "cache-pvc", MountPath: "/custom/cache"},
+		},
+		{
+			name: "useAsCompilationCache with default mount point for VLLM",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			expectError:      false,
+			expectedMount:    &corev1.VolumeMount{Name: "cache-pvc", MountPath: commonconsts.DefaultVLLMCacheMountPoint},
+		},
+		{
+			name: "useAsCompilationCache without mount point for SGLang - should error",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			expectError:      true, // SGLang doesn't support compilation cache, requires explicit mount point
+			expectedMount:    nil,
+		},
+		{
+			name: "useAsCompilationCache with explicit mount point for SGLang - should work",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						MountPoint:            "/custom/sglang/cache",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkSGLang,
+			expectError:      false,
+			expectedMount:    &corev1.VolumeMount{Name: "cache-pvc", MountPath: "/custom/sglang/cache"},
+		},
+		{
+			name: "useAsCompilationCache without mount point for TensorRT-LLM - should error",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkTRTLLM,
+			expectError:      true, // TensorRT-LLM doesn't support compilation cache, requires explicit mount point
+			expectedMount:    nil,
+		},
+		{
+			name: "useAsCompilationCache with explicit mount point for TensorRT-LLM - should work",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:                  "cache-pvc",
+						MountPoint:            "/custom/trtllm/cache",
+						UseAsCompilationCache: true,
+					},
+				},
+			},
+			backendFramework: BackendFrameworkTRTLLM,
+			expectError:      false,
+			expectedMount:    &corev1.VolumeMount{Name: "cache-pvc", MountPath: "/custom/trtllm/cache"},
+		},
+		{
+			name: "no useAsCompilationCache volumes - should be ignored",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{
+						Name:       "regular-pvc",
+						MountPoint: "/data",
+					},
+				},
+			},
+			backendFramework: BackendFrameworkVLLM,
+			expectError:      false,
+			expectedMount:    nil, // Should be ignored, not error
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				tt.backendFramework,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("GenerateBasePodSpec() expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() unexpected error: %v", err)
+				return
+			}
+
+			if tt.expectedMount != nil {
+				// Check PVC volume exists
+				found := false
+				for _, volume := range podSpec.Volumes {
+					if volume.Name == tt.expectedMount.Name && volume.PersistentVolumeClaim != nil {
+						if volume.PersistentVolumeClaim.ClaimName == tt.expectedMount.Name {
+							found = true
+							break
+						}
+					}
+				}
+				if !found {
+					t.Errorf("GenerateBasePodSpec() expected PVC volume %s not found", tt.expectedMount.Name)
+				}
+
+				// Check volume mount exists
+				if len(podSpec.Containers) == 0 {
+					t.Errorf("GenerateBasePodSpec() no containers found")
+					return
+				}
+
+				container := podSpec.Containers[0]
+				found = false
+				for _, mount := range container.VolumeMounts {
+					if mount.Name == tt.expectedMount.Name && mount.MountPath == tt.expectedMount.MountPath {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("GenerateBasePodSpec() expected volume mount %+v not found", tt.expectedMount)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateBasePodSpec_SecurityContext(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name                    string
+		component               *v1alpha1.DynamoComponentDeploymentSharedSpec
+		expectedSecurityContext *corev1.PodSecurityContext
+		description             string
+	}{
+		{
+			name: "no security context provided - should apply fsGroup default only",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				FSGroup: ptr.To(int64(commonconsts.DefaultSecurityContextFSGroup)),
+			},
+			description: "Operator should only inject fsGroup for volume permissions, not UID/GID (backward compatible)",
+		},
+		{
+			name: "full security context override - should use user values",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						SecurityContext: &corev1.PodSecurityContext{
+							RunAsNonRoot: ptr.To(true),
+							RunAsUser:    ptr.To(int64(5000)),
+							RunAsGroup:   ptr.To(int64(5000)),
+							FSGroup:      ptr.To(int64(5000)),
+						},
+					},
+				},
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				RunAsNonRoot: ptr.To(true),
+				RunAsUser:    ptr.To(int64(5000)),
+				RunAsGroup:   ptr.To(int64(5000)),
+				FSGroup:      ptr.To(int64(5000)),
+			},
+			description: "User-provided security context should completely override defaults",
+		},
+		{
+			name: "partial security context override - user gets full control",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						SecurityContext: &corev1.PodSecurityContext{
+							RunAsUser:  ptr.To(int64(2000)),
+							RunAsGroup: ptr.To(int64(3000)),
+						},
+					},
+				},
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				RunAsUser:  ptr.To(int64(2000)),
+				RunAsGroup: ptr.To(int64(3000)),
+			},
+			description: "Partial user override gets full control - no defaults injected",
+		},
+		{
+			name: "only fsGroup override - user gets full control",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						SecurityContext: &corev1.PodSecurityContext{
+							FSGroup: ptr.To(int64(7000)),
+						},
+					},
+				},
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				FSGroup: ptr.To(int64(7000)),
+			},
+			description: "Only fsGroup override - user gets full control, no defaults injected",
+		},
+		{
+			name: "fsGroup 2000 example - exactly what user requested",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						SecurityContext: &corev1.PodSecurityContext{
+							FSGroup: ptr.To(int64(2000)),
+						},
+					},
+				},
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				FSGroup: ptr.To(int64(2000)),
+			},
+			description: "User sets fsGroup:2000, gets ONLY that - critical for allowing root users",
+		},
+		{
+			name: "OpenShift-style namespace range - should use user values",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeFrontend,
+				ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+					PodSpec: &corev1.PodSpec{
+						SecurityContext: &corev1.PodSecurityContext{
+							RunAsNonRoot: ptr.To(true),
+							RunAsUser:    ptr.To(int64(1000700001)),
+							RunAsGroup:   ptr.To(int64(1000700001)),
+							FSGroup:      ptr.To(int64(1000700001)),
+						},
+					},
+				},
+			},
+			expectedSecurityContext: &corev1.PodSecurityContext{
+				RunAsNonRoot: ptr.To(true),
+				RunAsUser:    ptr.To(int64(1000700001)),
+				RunAsGroup:   ptr.To(int64(1000700001)),
+				FSGroup:      ptr.To(int64(1000700001)),
+			},
+			description: "OpenShift namespace UID/GID ranges should be respected",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				BackendFrameworkNoop,
+				secretsRetriever,
+				"test-deployment",
+				"default",
+				RoleMain,
+				1,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // No checkpoint info in tests
+				nil, // Use default deployer
+			)
+
+			if err != nil {
+				t.Errorf("GenerateBasePodSpec() unexpected error: %v", err)
+				return
+			}
+
+			// Compare the entire SecurityContext using cmp.Diff
+			if diff := cmp.Diff(tt.expectedSecurityContext, podSpec.SecurityContext); diff != "" {
+				t.Errorf("GenerateBasePodSpec() SecurityContext mismatch (-want +got):\n%s\nDescription: %s", diff, tt.description)
+			}
+		})
+	}
+}
+
+func TestDetermineGroveRestartState(t *testing.T) {
+	restartID := "restart-1"
+	oldRestartID := "restart-0"
+
+	tests := []struct {
+		name          string
+		dgd           *v1alpha1.DynamoGraphDeployment
+		restartStatus *v1alpha1.RestartStatus
+		want          *RestartState
+		wantNil       bool
+		wantSvcs      []string // expected services to annotate (sorted)
+		wantTimestamp *string
+	}{
+		{
+			name: "restartStatus nil returns nil",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+				},
+			},
+			wantNil: true,
+		},
+		{
+			name: "spec.restart.at nil and restartStatus.observedAt nil returns nil",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: "",
+			},
+			wantNil: true,
+		},
+		{
+			name: "new parallel restart annotates all services",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+						Strategy: &v1alpha1.RestartStrategy{
+							Type: v1alpha1.RestartStrategyTypeParallel,
+						},
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseRestarting,
+				InProgress: []string{"Frontend", "Worker"},
+			},
+			wantSvcs:      []string{"Frontend", "Worker"},
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "new sequential restart annotates only first service",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+						Strategy: &v1alpha1.RestartStrategy{
+							Type:  v1alpha1.RestartStrategyTypeSequential,
+							Order: []string{"Worker", "Frontend"},
+						},
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseRestarting,
+				InProgress: []string{"Worker"},
+			},
+			wantSvcs:      []string{"Worker"},
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "sequential restart in progress annotates completed + in-progress",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+						"Backend":  {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+						Strategy: &v1alpha1.RestartStrategy{
+							Type:  v1alpha1.RestartStrategyTypeSequential,
+							Order: []string{"Frontend", "Worker", "Backend"},
+						},
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseRestarting,
+				InProgress: []string{"Worker"},
+			},
+			wantSvcs:      []string{"Frontend", "Worker"}, // Frontend completed, Worker in progress
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "default restart in progress annotates completed + in-progress",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+						"Backend":  {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseRestarting,
+				InProgress: []string{"Worker"},
+			},
+			wantSvcs:      []string{"Frontend", "Worker", "Backend"},
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "completed restart with empty spec restart preserves all annotations",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: oldRestartID,
+				Phase:      v1alpha1.RestartPhaseCompleted,
+			},
+			wantSvcs:      []string{"Frontend", "Worker"},
+			wantTimestamp: ptr.To(oldRestartID),
+		},
+		{
+			name: "completed restart",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseCompleted,
+			},
+			wantSvcs:      []string{"Frontend", "Worker"},
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "new restart after completed restart",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID, // new time
+						Strategy: &v1alpha1.RestartStrategy{
+							Type: v1alpha1.RestartStrategyTypeParallel,
+						},
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: oldRestartID,
+				Phase:      v1alpha1.RestartPhaseCompleted,
+			},
+			wantSvcs:      []string{"Frontend", "Worker"},
+			wantTimestamp: ptr.To(restartID),
+		},
+		{
+			name: "superseded restart returns nil - preserves existing annotations via fallback",
+			dgd: &v1alpha1.DynamoGraphDeployment{
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Frontend": {},
+						"Worker":   {},
+					},
+					Restart: &v1alpha1.Restart{
+						ID: restartID,
+					},
+				},
+			},
+			restartStatus: &v1alpha1.RestartStatus{
+				ObservedID: restartID,
+				Phase:      v1alpha1.RestartPhaseSuperseded,
+			},
+			wantNil: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := DetermineRestartState(betaDGD(t, tt.dgd), betaRestartStatus(tt.restartStatus))
+
+			if tt.wantNil {
+				if got != nil {
+					t.Errorf("DetermineGroveRestartState() = %v, want nil", got)
+				}
+				return
+			}
+
+			if got == nil {
+				t.Errorf("DetermineGroveRestartState() = nil, want non-nil")
+				return
+			}
+
+			var gotSvcs []string
+			for svc, shouldAnnotate := range got.ComponentsToAnnotate {
+				if shouldAnnotate {
+					gotSvcs = append(gotSvcs, svc)
+				}
+			}
+			sort.Strings(gotSvcs)
+			sort.Strings(tt.wantSvcs)
+
+			if !reflect.DeepEqual(gotSvcs, tt.wantSvcs) {
+				t.Errorf("DetermineGroveRestartState() services = %v, want %v", gotSvcs, tt.wantSvcs)
+			}
+			if tt.wantTimestamp != nil && (got.Timestamp != *tt.wantTimestamp) {
+				t.Errorf("DetermineGroveRestartState() timestamp = %v, want %v", got.Timestamp, *tt.wantTimestamp)
+			}
+		})
+	}
+}
+
+func TestGroveRestartStateShouldAnnotateComponent(t *testing.T) {
+	tests := []struct {
+		name        string
+		state       *RestartState
+		serviceName string
+		want        bool
+	}{
+		{
+			name:        "nil state returns false",
+			state:       nil,
+			serviceName: "Frontend",
+			want:        false,
+		},
+		{
+			name: "nil services map returns false",
+			state: &RestartState{
+				Timestamp:            "2024-01-01T00:00:00Z",
+				ComponentsToAnnotate: nil,
+			},
+			serviceName: "Frontend",
+			want:        false,
+		},
+		{
+			name: "service in map returns true",
+			state: &RestartState{
+				Timestamp:            "2024-01-01T00:00:00Z",
+				ComponentsToAnnotate: map[string]bool{"Frontend": true, "Worker": true},
+			},
+			serviceName: "Frontend",
+			want:        true,
+		},
+		{
+			name: "service not in map returns false",
+			state: &RestartState{
+				Timestamp:            "2024-01-01T00:00:00Z",
+				ComponentsToAnnotate: map[string]bool{"Frontend": true},
+			},
+			serviceName: "Worker",
+			want:        false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.state.ShouldAnnotateComponent(tt.serviceName); got != tt.want {
+				t.Errorf("ShouldAnnotateComponent() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateGrovePodCliqueSet_RestartAnnotations(t *testing.T) {
+	restartTimestamp := "2024-01-05T10:00:00Z"
+
+	tests := []struct {
+		name                     string
+		restartState             *RestartState
+		services                 map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec
+		wantAnnotationsPerClique map[string]bool              // clique name -> should have restart annotation
+		wantPreservedAnnotations map[string]map[string]string // clique name -> preserved annotations to verify
+	}{
+		{
+			name:         "nil restartState - no annotations",
+			restartState: nil,
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"Worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": false,
+				"worker":   false,
+			},
+		},
+		{
+			name: "nil ComponentsToAnnotate - no annotations",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: nil,
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": false,
+			},
+		},
+		{
+			name: "all services annotated - parallel restart",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Frontend": true, "Worker": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"Worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": true,
+				"worker":   true,
+			},
+		},
+		{
+			name: "only first service annotated - sequential restart start",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Frontend": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"Worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": true,
+				"worker":   false,
+			},
+		},
+		{
+			name: "completed services keep annotation - sequential restart in progress",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Frontend": true, "Worker": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"Worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"Backend": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": true,
+				"worker":   true,
+				"backend":  false,
+			},
+		},
+		{
+			name: "service not in DGD spec - annotation still applied if in ComponentsToAnnotate",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Frontend": true, "NonExistent": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": true,
+			},
+		},
+		{
+			name: "multinode service - all cliques get restart annotation",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Worker": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(2)),
+					Multinode: &v1alpha1.MultinodeSpec{
+						NodeCount: 2,
+					},
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"worker-ldr": true,
+				"worker-wkr": true,
+			},
+		},
+		{
+			name: "preserves existing annotations when adding restart annotation",
+			restartState: &RestartState{
+				Timestamp:            restartTimestamp,
+				ComponentsToAnnotate: map[string]bool{"Frontend": true},
+			},
+			services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"Frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+					Annotations: map[string]string{
+						"custom-annotation": "custom-value",
+						"another-key":       "another-value",
+					},
+				},
+			},
+			wantAnnotationsPerClique: map[string]bool{
+				"frontend": true,
+			},
+			wantPreservedAnnotations: map[string]map[string]string{
+				"frontend": {
+					"custom-annotation": "custom-value",
+					"another-key":       "another-value",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dgd := &v1alpha1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-dgd",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: tt.services,
+				},
+			}
+
+			controllerConfig := &configv1alpha1.OperatorConfiguration{
+				Infrastructure: configv1alpha1.InfrastructureConfiguration{
+					ETCDAddress: "etcd-address",
+					NATSAddress: "nats-address",
+				},
+			}
+
+			got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dgd), controllerConfig, &controller_common.RuntimeConfig{}, nil, nil, tt.restartState, nil, nil)
+			if err != nil {
+				t.Fatalf("GenerateGrovePodCliqueSet() error = %v", err)
+			}
+
+			// Build a map of clique annotations
+			cliqueAnnotations := make(map[string]map[string]string)
+			for _, clique := range got.Spec.Template.Cliques {
+				cliqueAnnotations[clique.Name] = clique.Annotations
+			}
+
+			// Verify restart annotations per clique
+			for cliqueName, shouldHaveAnnotation := range tt.wantAnnotationsPerClique {
+				annotations := cliqueAnnotations[cliqueName]
+
+				if shouldHaveAnnotation {
+					if annotations == nil {
+						t.Errorf("Clique %q: expected restart annotation, but annotations is nil", cliqueName)
+						continue
+					}
+					restartValue, exists := annotations[commonconsts.RestartAnnotation]
+					if !exists {
+						t.Errorf("Clique %q: expected restart annotation %q, but not found. Annotations: %v",
+							cliqueName, commonconsts.RestartAnnotation, annotations)
+						continue
+					}
+					if restartValue != restartTimestamp {
+						t.Errorf("Clique %q: restart annotation value = %q, want %q",
+							cliqueName, restartValue, restartTimestamp)
+					}
+				} else {
+					if annotations != nil {
+						if _, exists := annotations[commonconsts.RestartAnnotation]; exists {
+							t.Errorf("Clique %q: unexpected restart annotation found", cliqueName)
+						}
+					}
+				}
+			}
+
+			// Verify no unexpected restart annotations on cliques not in wantAnnotationsPerClique
+			for cliqueName, annotations := range cliqueAnnotations {
+				if _, specified := tt.wantAnnotationsPerClique[cliqueName]; !specified {
+					if annotations != nil {
+						if _, exists := annotations[commonconsts.RestartAnnotation]; exists {
+							t.Errorf("Clique %q: unexpected restart annotation found (clique not in wantAnnotationsPerClique)", cliqueName)
+						}
+					}
+				}
+			}
+
+			// Verify preserved annotations
+			for cliqueName, expectedAnnotations := range tt.wantPreservedAnnotations {
+				annotations := cliqueAnnotations[cliqueName]
+				if annotations == nil {
+					t.Errorf("Clique %q: expected preserved annotations, but annotations is nil", cliqueName)
+					continue
+				}
+				for key, expectedValue := range expectedAnnotations {
+					if actualValue, exists := annotations[key]; !exists {
+						t.Errorf("Clique %q: expected preserved annotation %q, but not found", cliqueName, key)
+					} else if actualValue != expectedValue {
+						t.Errorf("Clique %q: preserved annotation %q = %q, want %q",
+							cliqueName, key, actualValue, expectedValue)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateLabels_RemovesStaleRestoreLabelsWhenCheckpointNotReady(t *testing.T) {
+	labels, err := generateLabels(
+		betaComponent(t, &v1alpha1.DynamoComponentDeploymentSharedSpec{
+			ComponentType:   commonconsts.ComponentTypeWorker,
+			DynamoNamespace: ptr.To("default-test-dgd"),
+			Labels: map[string]string{
+				"user-label":                       "keep",
+				snapshotprotocol.CheckpointIDLabel: "stale-hash",
+			},
+			ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+				Labels: map[string]string{
+					"extra-label":                      "keep-too",
+					snapshotprotocol.CheckpointIDLabel: "stale-hash",
+				},
+			},
+		}),
+		betaDGD(t, &v1alpha1.DynamoGraphDeployment{
+			ObjectMeta: metav1.ObjectMeta{Name: "test-dgd", Namespace: "default"},
+		}),
+		"Worker",
+		DiscoveryContext{Backend: configv1alpha1.DiscoveryBackendKubernetes},
+	)
+	require.NoError(t, err)
+	annotations := map[string]string{}
+	checkpoint.ApplyRestorePodMetadata(labels, annotations, &checkpoint.CheckpointInfo{
+		Enabled: true,
+		Ready:   false,
+		Hash:    "resolved-hash",
+	})
+	assert.Equal(t, "keep", labels["user-label"])
+	assert.Equal(t, "keep-too", labels["extra-label"])
+	_, hasCheckpointHash := labels[snapshotprotocol.CheckpointIDLabel]
+	assert.False(t, hasCheckpointHash, "checkpoint-id label must be cleared when checkpoint is not Ready")
+	_, hasTargetAnnotation := annotations[snapshotprotocol.TargetContainersAnnotation]
+	assert.False(t, hasTargetAnnotation, "target-containers annotation must be cleared when checkpoint is not Ready")
+}
+
+func TestGenerateLabels_OverwritesStaleRestoreLabelsWhenCheckpointReady(t *testing.T) {
+	labels, err := generateLabels(
+		betaComponent(t, &v1alpha1.DynamoComponentDeploymentSharedSpec{
+			ComponentType:   commonconsts.ComponentTypeWorker,
+			DynamoNamespace: ptr.To("default-test-dgd"),
+			ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+				Labels: map[string]string{
+					snapshotprotocol.CheckpointIDLabel: "stale-hash",
+				},
+			},
+		}),
+		betaDGD(t, &v1alpha1.DynamoGraphDeployment{
+			ObjectMeta: metav1.ObjectMeta{Name: "test-dgd", Namespace: "default"},
+		}),
+		"Worker",
+		DiscoveryContext{Backend: configv1alpha1.DiscoveryBackendKubernetes},
+	)
+	require.NoError(t, err)
+	annotations := map[string]string{}
+	checkpoint.ApplyRestorePodMetadata(labels, annotations, &checkpoint.CheckpointInfo{
+		Enabled: true,
+		Ready:   true,
+		Hash:    "resolved-hash",
+	})
+	assert.Equal(t, "resolved-hash", labels[snapshotprotocol.CheckpointIDLabel],
+		"ready checkpoint must overwrite stale checkpoint-id with the resolved hash")
+	assert.Equal(t, commonconsts.MainContainerName, annotations[snapshotprotocol.TargetContainersAnnotation],
+		"ready checkpoint must stamp the default target-containers annotation")
+}
+
+func TestGenerateLabels_ReassertsRestoreIdentityLabelsAfterMetadataMerge(t *testing.T) {
+	labels, err := generateLabels(
+		betaComponent(t, &v1alpha1.DynamoComponentDeploymentSharedSpec{
+			ComponentType:   commonconsts.ComponentTypeWorker,
+			DynamoNamespace: ptr.To("default-test-dgd"),
+			Labels: map[string]string{
+				commonconsts.KubeLabelDynamoSelector:            "wrong-from-labels",
+				commonconsts.KubeLabelDynamoComponent:           "wrong-from-labels",
+				commonconsts.KubeLabelDynamoNamespace:           "wrong-from-labels",
+				commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypeFrontend,
+				commonconsts.KubeLabelDynamoGraphDeploymentName: "wrong-from-labels",
+				commonconsts.KubeLabelDynamoWorkerHash:          "workerhash",
+			},
+			ExtraPodMetadata: &v1alpha1.ExtraPodMetadata{
+				Labels: map[string]string{
+					commonconsts.KubeLabelDynamoSelector:            "wrong-from-extra-metadata",
+					commonconsts.KubeLabelDynamoComponent:           "wrong-from-extra-metadata",
+					commonconsts.KubeLabelDynamoNamespace:           "wrong-from-extra-metadata",
+					commonconsts.KubeLabelDynamoComponentType:       commonconsts.ComponentTypePlanner,
+					commonconsts.KubeLabelDynamoGraphDeploymentName: "wrong-from-extra-metadata",
+					commonconsts.KubeLabelDynamoWorkerHash:          "wrong-from-extra-metadata",
+				},
+			},
+		}),
+		betaDGD(t, &v1alpha1.DynamoGraphDeployment{
+			ObjectMeta: metav1.ObjectMeta{Name: "test-dgd", Namespace: "default"},
+		}),
+		"Worker",
+		DiscoveryContext{Backend: configv1alpha1.DiscoveryBackendKubernetes},
+	)
+	require.NoError(t, err)
+	assert.Equal(t, "test-dgd-worker", labels[commonconsts.KubeLabelDynamoSelector])
+	assert.Equal(t, "Worker", labels[commonconsts.KubeLabelDynamoComponent])
+	assert.Equal(t, "default-test-dgd", labels[commonconsts.KubeLabelDynamoNamespace])
+	assert.Equal(t, commonconsts.ComponentTypeWorker, labels[commonconsts.KubeLabelDynamoComponentType])
+	assert.Equal(t, "test-dgd", labels[commonconsts.KubeLabelDynamoGraphDeploymentName])
+	assert.Equal(t, "workerhash", labels[commonconsts.KubeLabelDynamoWorkerHash])
+}
+
+// TestGenerateGrovePodCliqueSet_GMSPodsDoNotCarryDiscoveryLabels pins the
+// contract that inter-pod GMS weight-server cliques (RoleGMS) do NOT carry
+// the kubernetes discovery labels, while engine cliques (RoleMain / RoleLeader
+// / RoleWorker) do — the latter matches the behavior introduced by
+// #8067 "per-container kube discovery for multi-engine pods". The Rust
+// discovery daemon (lib/runtime/src/discovery/kube/daemon.rs) uses these
+// labels as a reflector filter; GMS pods run gpu_memory_service.cli.server,
+// not the dynamo runtime, and never register a DynamoWorkerMetadata CR, so
+// they must be excluded to avoid reflector-store bloat and spurious wake-ups.
+func TestGenerateGrovePodCliqueSet_GMSPodsDoNotCarryDiscoveryLabels(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "test-ns",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			BackendFramework: "vllm",
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"decode": {
+					ComponentType: commonconsts.ComponentTypeDecode,
+					Replicas:      ptr.To(int32(1)),
+					Resources: &v1alpha1.Resources{
+						Limits: &v1alpha1.ResourceItem{GPU: "1"},
+					},
+					GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{
+						Enabled: true,
+						Mode:    v1alpha1.GMSModeInterPod,
+					},
+					Failover: &v1alpha1.FailoverSpec{
+						Enabled:    true,
+						Mode:       v1alpha1.GMSModeInterPod,
+						NumShadows: 1,
+					},
+				},
+			},
+		},
+	}
+
+	controllerConfig := &configv1alpha1.OperatorConfiguration{
+		Discovery: configv1alpha1.DiscoveryConfiguration{Backend: "kubernetes"},
+		Infrastructure: configv1alpha1.InfrastructureConfiguration{
+			ETCDAddress: "etcd-address",
+			NATSAddress: "nats-address",
+		},
+	}
+
+	got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dgd), controllerConfig, &controller_common.RuntimeConfig{DRAEnabled: true}, nil, nil, nil, nil, nil)
+	require.NoError(t, err)
+	require.NotNil(t, got)
+
+	var sawGMS, sawEngine bool
+	for _, clique := range got.Spec.Template.Cliques {
+		_, hasBackend := clique.Labels[commonconsts.KubeLabelDynamoDiscoveryBackend]
+		_, hasEnabled := clique.Labels[commonconsts.KubeLabelDynamoDiscoveryEnabled]
+		if strings.Contains(clique.Name, "gms") {
+			sawGMS = true
+			assert.False(t, hasBackend, "GMS clique %q must not carry KubeLabelDynamoDiscoveryBackend", clique.Name)
+			assert.False(t, hasEnabled, "GMS clique %q must not carry KubeLabelDynamoDiscoveryEnabled", clique.Name)
+		} else {
+			sawEngine = true
+			assert.True(t, hasBackend, "engine clique %q must carry KubeLabelDynamoDiscoveryBackend (#8067 contract)", clique.Name)
+			assert.True(t, hasEnabled, "engine clique %q must carry KubeLabelDynamoDiscoveryEnabled (#8067 contract)", clique.Name)
+		}
+	}
+	assert.True(t, sawGMS, "test setup should produce at least one GMS clique")
+	assert.True(t, sawEngine, "test setup should produce at least one engine clique")
+}
+
+// TestGenerateGrovePodCliqueSet_GMSPodsAreNotCheckpointTargets pins the
+// contract that inter-pod GMS weight-server cliques (RoleGMS) are never
+// shaped as snapshot restore targets, even when the service has
+// checkpoint.enabled=true with a Ready checkpoint. GMS pods run
+// gpu_memory_service.cli.server, load weights fresh from disk, and have
+// no CRIU state to capture; shaping them as restore targets would replace
+// the GMS wrapper command with `sleep infinity` and break the layout.
+//
+// Engine cliques in the same service must still be shaped: target-
+// containers annotation set to "main", restore-target label set to true,
+// and the placeholder `sleep infinity` command injected so the snapshot
+// agent can drive the restore.
+func TestGenerateGrovePodCliqueSet_GMSPodsAreNotCheckpointTargets(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "test-ns",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			BackendFramework: "vllm",
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"decode": {
+					ComponentType: commonconsts.ComponentTypeDecode,
+					Replicas:      ptr.To(int32(1)),
+					Resources: &v1alpha1.Resources{
+						Limits: &v1alpha1.ResourceItem{GPU: "1"},
+					},
+					GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{
+						Enabled: true,
+						Mode:    v1alpha1.GMSModeInterPod,
+					},
+					Checkpoint: &v1alpha1.ServiceCheckpointConfig{Enabled: true},
+				},
+			},
+		},
+	}
+
+	controllerConfig := &configv1alpha1.OperatorConfiguration{
+		Discovery: configv1alpha1.DiscoveryConfiguration{Backend: "kubernetes"},
+		Infrastructure: configv1alpha1.InfrastructureConfiguration{
+			ETCDAddress: "etcd-address",
+			NATSAddress: "nats-address",
+		},
+		Checkpoint: configv1alpha1.CheckpointConfiguration{Enabled: true},
+	}
+
+	// snapshot-agent DaemonSet fixture so InjectCheckpointIntoPodSpec can
+	// discover the checkpoint PVC storage in the target namespace.
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+	require.NoError(t, appsv1.AddToScheme(scheme))
+	kubeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "snapshot-agent",
+			Namespace: "test-ns",
+			Labels: map[string]string{
+				snapshotprotocol.SnapshotAgentLabelKey: snapshotprotocol.SnapshotAgentLabelValue,
+			},
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Name: snapshotprotocol.SnapshotAgentContainerName,
+						VolumeMounts: []corev1.VolumeMount{{
+							Name: snapshotprotocol.SnapshotAgentVolumeName, MountPath: "/checkpoints",
+						}},
+					}},
+					Volumes: []corev1.Volume{{
+						Name: snapshotprotocol.SnapshotAgentVolumeName,
+						VolumeSource: corev1.VolumeSource{
+							PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "snapshot-pvc"},
+						},
+					}},
+				},
+			},
+		},
+	}).Build()
+
+	infoByService := map[string]*checkpoint.CheckpointInfo{
+		"decode": {Enabled: true, Ready: true, Hash: "abc123def4567890"},
+	}
+
+	got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dgd), controllerConfig, &controller_common.RuntimeConfig{DRAEnabled: true}, kubeClient, nil, nil, nil, infoByService)
+	require.NoError(t, err)
+	require.NotNil(t, got)
+
+	var sawGMS, sawEngine bool
+	for _, clique := range got.Spec.Template.Cliques {
+		targetAnnotation := clique.Annotations[snapshotprotocol.TargetContainersAnnotation]
+		checkpointID := clique.Labels[snapshotprotocol.CheckpointIDLabel]
+		mainContainer := findContainerInClique(t, clique, commonconsts.MainContainerName)
+
+		if strings.Contains(clique.Name, "gms") {
+			sawGMS = true
+			assert.Empty(t, targetAnnotation, "GMS clique %q must not carry snapshot-target-containers annotation", clique.Name)
+			assert.Empty(t, checkpointID, "GMS clique %q must not carry checkpoint-id label (would make it look like a restore target)", clique.Name)
+			assert.NotEqual(t, []string{"sleep", "infinity"}, mainContainer.Command,
+				"GMS clique %q main container command must not be rewritten to sleep infinity (should remain the gms wrapper)", clique.Name)
+		} else {
+			sawEngine = true
+			assert.Equal(t, commonconsts.MainContainerName, targetAnnotation,
+				"engine clique %q must carry snapshot-target-containers=main annotation", clique.Name)
+			assert.NotEmpty(t, checkpointID,
+				"engine clique %q must carry checkpoint-id label (selected by snapshot-agent restore informer)", clique.Name)
+			assert.Equal(t, []string{"sleep", "infinity"}, mainContainer.Command,
+				"engine clique %q main container must be shaped as a snapshot restore target", clique.Name)
+		}
+	}
+	assert.True(t, sawGMS, "test setup should produce at least one GMS clique")
+	assert.True(t, sawEngine, "test setup should produce at least one engine clique")
+}
+
+func findContainerInClique(t *testing.T, clique *grovev1alpha1.PodCliqueTemplateSpec, name string) *corev1.Container {
+	t.Helper()
+	for i := range clique.Spec.PodSpec.Containers {
+		if clique.Spec.PodSpec.Containers[i].Name == name {
+			return &clique.Spec.PodSpec.Containers[i]
+		}
+	}
+	t.Fatalf("container %q not found in clique %q", name, clique.Name)
+	return nil
+}
+
+// TestGenerateGrovePodCliqueSet_IntraPodFailoverCheckpointTargets pins the
+// contract that intra-pod failover services (Failover.Mode=intraPod) stamp
+// the snapshot-target-containers annotation with "engine-0,engine-1" on
+// the restore pod and shape every engine container as a restore target.
+// Intra-pod failover clones the main container into engine-0 + engine-1 and
+// both engines must be driven by the snapshot agent from the same checkpoint.
+func TestGenerateGrovePodCliqueSet_IntraPodFailoverCheckpointTargets(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "test-ns",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			BackendFramework: "vllm",
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"decode": {
+					ComponentType: commonconsts.ComponentTypeDecode,
+					Replicas:      ptr.To(int32(1)),
+					Resources: &v1alpha1.Resources{
+						Limits: &v1alpha1.ResourceItem{GPU: "1"},
+					},
+					Failover: &v1alpha1.FailoverSpec{
+						Enabled: true,
+						Mode:    v1alpha1.GMSModeIntraPod,
+					},
+					Checkpoint: &v1alpha1.ServiceCheckpointConfig{Enabled: true},
+				},
+			},
+		},
+	}
+
+	controllerConfig := &configv1alpha1.OperatorConfiguration{
+		Discovery: configv1alpha1.DiscoveryConfiguration{Backend: "kubernetes"},
+		Infrastructure: configv1alpha1.InfrastructureConfiguration{
+			ETCDAddress: "etcd-address",
+			NATSAddress: "nats-address",
+		},
+		Checkpoint: configv1alpha1.CheckpointConfiguration{Enabled: true},
+	}
+
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+	require.NoError(t, appsv1.AddToScheme(scheme))
+	kubeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "snapshot-agent",
+			Namespace: "test-ns",
+			Labels: map[string]string{
+				snapshotprotocol.SnapshotAgentLabelKey: snapshotprotocol.SnapshotAgentLabelValue,
+			},
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Name: snapshotprotocol.SnapshotAgentContainerName,
+						VolumeMounts: []corev1.VolumeMount{{
+							Name: snapshotprotocol.SnapshotAgentVolumeName, MountPath: "/checkpoints",
+						}},
+					}},
+					Volumes: []corev1.Volume{{
+						Name: snapshotprotocol.SnapshotAgentVolumeName,
+						VolumeSource: corev1.VolumeSource{
+							PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "snapshot-pvc"},
+						},
+					}},
+				},
+			},
+		},
+	}).Build()
+
+	infoByService := map[string]*checkpoint.CheckpointInfo{
+		"decode": {
+			Enabled:                 true,
+			Ready:                   true,
+			Hash:                    "abc123def4567890",
+			RestoreTargetContainers: IntraPodFailoverEngineContainerNames(),
+		},
+	}
+
+	got, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dgd), controllerConfig, &controller_common.RuntimeConfig{DRAEnabled: true}, kubeClient, nil, nil, nil, infoByService)
+	require.NoError(t, err)
+	require.NotNil(t, got)
+
+	var sawDecode bool
+	for _, clique := range got.Spec.Template.Cliques {
+		if strings.Contains(clique.Name, "gms") {
+			t.Fatalf("intra-pod failover must not produce a GMS clique: %q", clique.Name)
+		}
+		sawDecode = true
+		assert.Equal(t, "engine-0,engine-1", clique.Annotations[snapshotprotocol.TargetContainersAnnotation],
+			"clique %q must carry snapshot-target-containers=engine-0,engine-1", clique.Name)
+		for _, engineName := range IntraPodFailoverEngineContainerNames() {
+			c := findContainerInClique(t, clique, engineName)
+			assert.Equal(t, []string{"sleep", "infinity"}, c.Command,
+				"%s in clique %q must be shaped as a snapshot restore target", engineName, clique.Name)
+			foundMount := false
+			for _, m := range c.VolumeMounts {
+				if m.Name == snapshotprotocol.SnapshotControlVolumeName {
+					foundMount = true
+					assert.Equal(t, engineName, m.SubPath,
+						"%s in clique %q must have its own subPath on the control volume", engineName, clique.Name)
+				}
+			}
+			assert.True(t, foundMount, "%s in clique %q must mount the snapshot-control volume", engineName, clique.Name)
+		}
+	}
+	assert.True(t, sawDecode, "test setup should produce the decode engine clique")
+}
+
+// TestGenerateGrovePodCliqueSet_MinAvailable_FailoverShadowsAreRedundant pins
+// the contract that per-rank engine cliques in an inter-pod failover cohort
+// use MinAvailable=1 even when multinode (numberOfNodes > 1). Replicas here
+// represent (primary + shadows) AT THAT RANK — redundant hot spares of each
+// other, NOT NCCL peers. Gang-scheduling them (MinAvailable = Replicas) would
+// require every shadow at every rank to be Ready before Grove considered the
+// clique available, which defeats failover. See the minAvailable comment in
+// renderClique for the full rationale.
+func TestGenerateGrovePodCliqueSet_MinAvailable_FailoverShadowsAreRedundant(t *testing.T) {
+	const numberOfNodes int32 = 2
+	const numShadows int32 = 1
+	const totalEnginePods = numShadows + 1 // primary + shadows per rank
+
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "test-dgd", Namespace: "test-ns"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			BackendFramework: "vllm",
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"decode": {
+					ComponentType:    commonconsts.ComponentTypeDecode,
+					Replicas:         ptr.To(int32(1)),
+					Multinode:        &v1alpha1.MultinodeSpec{NodeCount: numberOfNodes},
+					Resources:        &v1alpha1.Resources{Limits: &v1alpha1.ResourceItem{GPU: "1"}},
+					GPUMemoryService: &v1alpha1.GPUMemoryServiceSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod},
+					Failover:         &v1alpha1.FailoverSpec{Enabled: true, Mode: v1alpha1.GMSModeInterPod, NumShadows: numShadows},
+				},
+			},
+		},
+	}
+
+	got, err := GenerateGrovePodCliqueSet(
+		context.Background(),
+		betaDGD(t, dgd),
+		&configv1alpha1.OperatorConfiguration{
+			Discovery:      configv1alpha1.DiscoveryConfiguration{Backend: "kubernetes"},
+			Infrastructure: configv1alpha1.InfrastructureConfiguration{ETCDAddress: "etcd-address", NATSAddress: "nats-address"},
+		},
+		&controller_common.RuntimeConfig{DRAEnabled: true},
+		nil, nil, nil, nil, nil,
+	)
+	require.NoError(t, err)
+	require.NotNil(t, got)
+
+	var sawEngineClique bool
+	for _, clique := range got.Spec.Template.Cliques {
+		require.NotNil(t, clique.Spec.MinAvailable, "clique %q has nil MinAvailable", clique.Name)
+		if strings.Contains(clique.Name, "gms") {
+			assert.EqualValues(t, 1, *clique.Spec.MinAvailable, "GMS clique %q MinAvailable", clique.Name)
+			assert.EqualValues(t, 1, clique.Spec.Replicas, "GMS clique %q Replicas", clique.Name)
+			continue
+		}
+		sawEngineClique = true
+		assert.EqualValues(t, totalEnginePods, clique.Spec.Replicas,
+			"multinode failover engine clique %q Replicas should be primary+shadows=%d", clique.Name, totalEnginePods)
+		assert.EqualValues(t, 1, *clique.Spec.MinAvailable,
+			"multinode failover engine clique %q MinAvailable must be 1 (shadows are redundant hot spares, NOT NCCL peers)", clique.Name)
+	}
+	assert.True(t, sawEngineClique, "test setup should produce at least one engine (non-GMS) clique")
+}
+
+func TestIsWorkerComponent(t *testing.T) {
+	workers := []string{commonconsts.ComponentTypeWorker, commonconsts.ComponentTypePrefill, commonconsts.ComponentTypeDecode}
+	nonWorkers := []string{commonconsts.ComponentTypeFrontend, commonconsts.ComponentTypePlanner, commonconsts.ComponentTypeEPP, "custom", ""}
+
+	for _, ct := range workers {
+		assert.True(t, IsWorkerComponent(ct), "%s should be a worker", ct)
+	}
+	for _, ct := range nonWorkers {
+		assert.False(t, IsWorkerComponent(ct), "%s should not be a worker", ct)
+	}
+}
+
+func TestRollingUpdateContext_InProgress(t *testing.T) {
+	assert.False(t, RollingUpdateContext{}.InProgress())
+	assert.False(t, RollingUpdateContext{NewWorkerHash: "abc"}.InProgress())
+	assert.True(t, RollingUpdateContext{OldWorkerReplicas: map[string]int32{"w": 1}}.InProgress())
+}
+
+func TestGetDCDResourceName(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"prefill":  {ComponentType: commonconsts.ComponentTypePrefill},
+				"decode":   {ComponentType: commonconsts.ComponentTypeDecode},
+				"worker":   {ComponentType: commonconsts.ComponentTypeWorker},
+				"frontend": {ComponentType: commonconsts.ComponentTypeFrontend},
+			},
+		},
+	}
+
+	beta := betaDGD(t, dgd)
+
+	// Workers get hash suffix
+	assert.Equal(t, "my-dgd-prefill-abc12345", GetDCDResourceName(beta, "prefill", "abc12345"))
+	assert.Equal(t, "my-dgd-decode-abc12345", GetDCDResourceName(beta, "decode", "abc12345"))
+	assert.Equal(t, "my-dgd-worker-abc12345", GetDCDResourceName(beta, "worker", "abc12345"))
+
+	// Non-workers never get hash suffix
+	assert.Equal(t, "my-dgd-frontend", GetDCDResourceName(beta, "frontend", "abc12345"))
+
+	// Empty hash — workers don't get suffix
+	assert.Equal(t, "my-dgd-prefill", GetDCDResourceName(beta, "prefill", ""))
+}
+
+func TestGenerateComponentIngressResources_NormalizeBackendServiceName(t *testing.T) {
+	ingressSpec := IngressSpec{
+		Enabled:               true,
+		Host:                  "example",
+		UseVirtualService:     true,
+		VirtualServiceGateway: ptr.To("mesh/gateway"),
+	}
+
+	ingress := GenerateComponentIngress(context.Background(), "model.Qwen3-0.6B", "default", ingressSpec)
+	require.Len(t, ingress.Spec.Rules, 1)
+	require.NotNil(t, ingress.Spec.Rules[0].HTTP)
+	require.Len(t, ingress.Spec.Rules[0].HTTP.Paths, 1)
+	require.NotNil(t, ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service)
+	assert.Equal(t, "model-qwen3-0-6b", ingress.Name)
+	assert.Equal(t, "model-qwen3-0-6b", ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name)
+
+	virtualService := GenerateComponentVirtualService(context.Background(), "model.Qwen3-0.6B", "default", ingressSpec)
+	require.Len(t, virtualService.Spec.Http, 1)
+	require.Len(t, virtualService.Spec.Http[0].Route, 1)
+	require.NotNil(t, virtualService.Spec.Http[0].Route[0].Destination)
+	assert.Equal(t, "model-qwen3-0-6b", virtualService.Name)
+	assert.Equal(t, "model-qwen3-0-6b", virtualService.Spec.Http[0].Route[0].Destination.Host)
+}
+
+func TestApplyDynDeploymentConfig_FallsBackToFrontendConfigKeyForRenamedFrontend(t *testing.T) {
+	dcd := &v1beta1.DynamoComponentDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "router", Namespace: "default"},
+		Spec: v1beta1.DynamoComponentDeploymentSpec{
+			BackendFramework: "vllm",
+			DynamoComponentDeploymentSharedSpec: v1beta1.DynamoComponentDeploymentSharedSpec{
+				ComponentName: "router",
+				ComponentType: v1beta1.ComponentTypeFrontend,
+				PodTemplate: &corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{
+							{
+								Name: commonconsts.MainContainerName,
+								Env: []corev1.EnvVar{
+									{
+										Name:  commonconsts.DynamoDeploymentConfigEnvVar,
+										Value: `{"Frontend":{"ServiceArgs":{"Resources":{"CPU":"2","Memory":"2Gi","GPU":"1"}}}}`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	require.NoError(t, applyDynDeploymentConfig(dcd, commonconsts.DynamoServicePort))
+
+	main := GetMainContainer(&dcd.Spec.DynamoComponentDeploymentSharedSpec)
+	require.NotNil(t, main)
+	assert.Equal(t, resource.MustParse("2"), main.Resources.Requests[corev1.ResourceCPU])
+	assert.Equal(t, resource.MustParse("2Gi"), main.Resources.Requests[corev1.ResourceMemory])
+	assert.Equal(t, resource.MustParse("1"), main.Resources.Requests[corev1.ResourceName(commonconsts.KubeResourceGPUNvidia)])
+}
+
+func TestGenerateSingleDCD_RollingUpdateContext(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd", Namespace: "ns"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"prefill":  {ComponentType: commonconsts.ComponentTypePrefill, Replicas: ptr.To(int32(4))},
+				"frontend": {ComponentType: commonconsts.ComponentTypeFrontend, Replicas: ptr.To(int32(1))},
+			},
+		},
+	}
+
+	ruCtx := RollingUpdateContext{
+		NewWorkerHash:     "aabb1122",
+		OldWorkerReplicas: map[string]int32{"prefill": 2},
+		NewWorkerReplicas: map[string]int32{"prefill": 2},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), &RestartState{}, nil, ruCtx)
+	assert.NoError(t, err)
+
+	// Worker DCD: hash suffix in name, hash label, replica override
+	prefillDCD := dcds["prefill"]
+	assert.Equal(t, "my-dgd-prefill-aabb1122", prefillDCD.Name)
+	assert.Equal(t, "aabb1122", prefillDCD.Labels[commonconsts.KubeLabelDynamoWorkerHash])
+	assert.Equal(t, int32(2), *prefillDCD.Spec.Replicas)
+
+	// Non-worker DCD: no hash suffix, no hash label, original replicas
+	frontendDCD := dcds["frontend"]
+	assert.Equal(t, "my-dgd-frontend", frontendDCD.Name)
+	assert.Empty(t, frontendDCD.Labels[commonconsts.KubeLabelDynamoWorkerHash])
+	assert.Equal(t, int32(1), *frontendDCD.Spec.Replicas)
+}
+
+func TestGenerateDynamoComponentsDeploymentsDoesNotMutateParentDGD(t *testing.T) {
+	dgd := &v1beta1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "my-dgd",
+			Namespace: "ns",
+			Annotations: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "ray",
+			},
+		},
+		Spec: v1beta1.DynamoGraphDeploymentSpec{
+			Annotations: map[string]string{"dgd-annotation": "value"},
+			Labels:      map[string]string{"dgd-label": "value"},
+			Env:         []corev1.EnvVar{{Name: "GLOBAL_ENV", Value: "from-dgd"}},
+			Components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				{
+					ComponentName: "prefill",
+					ComponentType: v1beta1.ComponentTypePrefill,
+					PodTemplate: &corev1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{
+							Annotations: map[string]string{"component-annotation": "value"},
+							Labels:      map[string]string{"component-label": "value"},
+						},
+						Spec: corev1.PodSpec{
+							Containers: []corev1.Container{
+								{
+									Name: commonconsts.MainContainerName,
+									Env:  []corev1.EnvVar{{Name: "COMPONENT_ENV", Value: "from-component"}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	original := dgd.DeepCopy()
+
+	dcds, err := GenerateDynamoComponentsDeployments(
+		dgd,
+		&RestartState{},
+		map[string]string{"prefill": "2026-05-12T13:00:00Z"},
+		RollingUpdateContext{
+			NewWorkerHash:     "aabb1122",
+			OldWorkerReplicas: map[string]int32{"prefill": 1},
+			NewWorkerReplicas: map[string]int32{"prefill": 2},
+		},
+	)
+	require.NoError(t, err)
+	require.Empty(t, cmp.Diff(original, dgd))
+
+	prefillDCD := dcds["prefill"]
+	require.NotNil(t, prefillDCD)
+	assert.Equal(t, "aabb1122", GetPodTemplateLabels(&prefillDCD.Spec.DynamoComponentDeploymentSharedSpec)[commonconsts.KubeLabelDynamoWorkerHash])
+}
+
+func TestGenerateDynamoComponentsDeploymentsAddsWorkerClassForEPP(t *testing.T) {
+	dgd := &v1beta1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd", Namespace: "ns"},
+		Spec: v1beta1.DynamoGraphDeploymentSpec{
+			Components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				{ComponentName: "epp", ComponentType: v1beta1.ComponentTypeEPP},
+				{ComponentName: "prefill", ComponentType: v1beta1.ComponentTypePrefill},
+			},
+		},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(dgd, &RestartState{}, nil, RollingUpdateContext{NewWorkerHash: "aabb1122"})
+	require.NoError(t, err)
+
+	prefillDCD := dcds["prefill"]
+	require.NotNil(t, prefillDCD)
+	assert.Equal(t, commonconsts.ComponentClassWorker, prefillDCD.Labels[commonconsts.KubeLabelDynamoComponentClass])
+	assert.Equal(t, commonconsts.ComponentClassWorker, GetPodTemplateLabels(&prefillDCD.Spec.DynamoComponentDeploymentSharedSpec)[commonconsts.KubeLabelDynamoComponentClass])
+}
+
+func TestGenerateDynamoComponentsDeployments_InferBackendFrameworkForGeneratedDCDs(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd", Namespace: "ns"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+				},
+				"decode": {
+					ComponentType:    commonconsts.ComponentTypeWorker,
+					SubComponentType: commonconsts.ComponentTypeDecode,
+					Replicas:         ptr.To(int32(1)),
+					ExtraPodSpec: &v1alpha1.ExtraPodSpec{
+						MainContainer: &corev1.Container{
+							Command: []string{"python3"},
+							Args:    []string{"-m", "dynamo.vllm", "--model", "Qwen/Qwen3-0.6B"},
+							Env: []corev1.EnvVar{
+								{Name: "MY_NEW_ENV", Value: "enabled"},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), &RestartState{}, nil, RollingUpdateContext{NewWorkerHash: "2dad72b9"})
+	require.NoError(t, err)
+
+	assert.Equal(t, string(BackendFrameworkVLLM), dcds["decode"].Spec.BackendFramework)
+	assert.Equal(t, string(BackendFrameworkVLLM), dcds["frontend"].Spec.BackendFramework)
+}
+
+func TestGenerateSingleDCD_NoRollingUpdate(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd", Namespace: "ns"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"worker": {ComponentType: commonconsts.ComponentTypeWorker, Replicas: ptr.To(int32(3))},
+			},
+		},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), &RestartState{}, nil, RollingUpdateContext{})
+	assert.NoError(t, err)
+
+	dcd := dcds["worker"]
+	assert.Equal(t, "my-dgd-worker", dcd.Name)
+	assert.Empty(t, dcd.Labels[commonconsts.KubeLabelDynamoWorkerHash])
+	assert.Equal(t, int32(3), *dcd.Spec.Replicas)
+}
+
+// TestGenerateSingleDCD_RollingUpdateZeroReplicas verifies that when
+// NewWorkerReplicas is explicitly 0 (maxSurge=0, first reconcile), the new DCD
+// is created with 0 replicas instead of falling through to the desired count.
+func TestGenerateSingleDCD_RollingUpdateZeroReplicas(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-dgd", Namespace: "ns"},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"decode": {ComponentType: commonconsts.ComponentTypeDecode, Replicas: ptr.To(int32(4))},
+			},
+		},
+	}
+
+	ruCtx := RollingUpdateContext{
+		NewWorkerHash:     "aabb1122",
+		OldWorkerReplicas: map[string]int32{"decode": 3},
+		NewWorkerReplicas: map[string]int32{"decode": 0},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), &RestartState{}, nil, ruCtx)
+	assert.NoError(t, err)
+
+	decodeDCD := dcds["decode"]
+	assert.Equal(t, "my-dgd-decode-aabb1122", decodeDCD.Name)
+	assert.Equal(t, int32(0), *decodeDCD.Spec.Replicas,
+		"new DCD must respect NewWorkerReplicas=0, not fall through to desired=4")
+}
+
+func TestGenerateComponentContext_WorkerHashSuffix(t *testing.T) {
+	// Worker with hash label gets WorkerHashSuffix
+	component := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+		ComponentType: commonconsts.ComponentTypeWorker,
+		Labels:        map[string]string{commonconsts.KubeLabelDynamoWorkerHash: "abc123"},
+	}
+	compCtx := generateComponentContext(betaComponent(t, component), "dgd", "ns", 1, DiscoveryContext{Backend: "kubernetes", Mode: configv1alpha1.KubeDiscoveryModePod})
+	assert.Equal(t, "abc123", compCtx.WorkerHashSuffix)
+
+	// Worker without hash label
+	component2 := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+		ComponentType: commonconsts.ComponentTypeWorker,
+	}
+	compCtx2 := generateComponentContext(betaComponent(t, component2), "dgd", "ns", 1, DiscoveryContext{Backend: "kubernetes", Mode: configv1alpha1.KubeDiscoveryModePod})
+	assert.Empty(t, compCtx2.WorkerHashSuffix)
+
+	// Frontend never gets WorkerHashSuffix, even with the label
+	component3 := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+		ComponentType: commonconsts.ComponentTypeFrontend,
+		Labels:        map[string]string{commonconsts.KubeLabelDynamoWorkerHash: "abc123"},
+	}
+	compCtx3 := generateComponentContext(betaComponent(t, component3), "dgd", "ns", 1, DiscoveryContext{Backend: "kubernetes", Mode: configv1alpha1.KubeDiscoveryModePod})
+	assert.Empty(t, compCtx3.WorkerHashSuffix)
+}
+
+func TestWorkerDefaults_WorkerHashSuffixEnvVar(t *testing.T) {
+	w := NewWorkerDefaults()
+
+	// With suffix
+	container, err := w.GetBaseContainer(ComponentContext{
+		DynamoNamespace:  "ns-dgd",
+		ComponentType:    commonconsts.ComponentTypeWorker,
+		WorkerHashSuffix: "abc123",
+	})
+	assert.NoError(t, err)
+	found := false
+	for _, env := range container.Env {
+		if env.Name == commonconsts.DynamoNamespaceWorkerSuffixEnvVar {
+			assert.Equal(t, "abc123", env.Value)
+			found = true
+		}
+	}
+	assert.True(t, found, "DYN_NAMESPACE_WORKER_SUFFIX should be set")
+
+	// Without suffix — env var should NOT be present
+	container2, err := w.GetBaseContainer(ComponentContext{
+		DynamoNamespace: "ns-dgd",
+		ComponentType:   commonconsts.ComponentTypeWorker,
+	})
+	assert.NoError(t, err)
+	for _, env := range container2.Env {
+		assert.NotEqual(t, commonconsts.DynamoNamespaceWorkerSuffixEnvVar, env.Name,
+			"DYN_NAMESPACE_WORKER_SUFFIX should not be set when suffix is empty")
+	}
+}
+
+func TestFrontendDefaults_NamespacePrefixEnvVar(t *testing.T) {
+	f := NewFrontendDefaults()
+	container, err := f.GetBaseContainer(ComponentContext{
+		DynamoNamespace: "myns-mydgd",
+		ComponentType:   commonconsts.ComponentTypeFrontend,
+	})
+	assert.NoError(t, err)
+	found := false
+	for _, env := range container.Env {
+		if env.Name == commonconsts.DynamoNamespacePrefixEnvVar {
+			assert.Equal(t, "myns-mydgd", env.Value)
+			found = true
+		}
+	}
+	assert.True(t, found, "DYN_NAMESPACE_PREFIX should be set on frontend")
+}
+
+func TestBaseComponentDefaults_ContainerNameOnlyInContainerDiscoveryMode(t *testing.T) {
+	w := NewWorkerDefaults()
+
+	podModeContainer, err := w.GetBaseContainer(ComponentContext{
+		DynamoNamespace: "ns-dgd",
+		ComponentType:   commonconsts.ComponentTypeWorker,
+		Discovery: DiscoveryContext{
+			Backend: configv1alpha1.DiscoveryBackendKubernetes,
+			Mode:    configv1alpha1.KubeDiscoveryModePod,
+		},
+	})
+	require.NoError(t, err)
+	podModeEnv := envVarsToMap(podModeContainer.Env)
+	assert.NotContains(t, podModeEnv, "CONTAINER_NAME")
+	assert.NotContains(t, podModeEnv, "DYN_KUBE_DISCOVERY_MODE")
+
+	containerModeContainer, err := w.GetBaseContainer(ComponentContext{
+		DynamoNamespace: "ns-dgd",
+		ComponentType:   commonconsts.ComponentTypeWorker,
+		Discovery: DiscoveryContext{
+			Backend: configv1alpha1.DiscoveryBackendKubernetes,
+			Mode:    configv1alpha1.KubeDiscoveryModeContainer,
+		},
+	})
+	require.NoError(t, err)
+	containerModeEnv := envVarsToMap(containerModeContainer.Env)
+	assert.Equal(t, commonconsts.MainContainerName, containerModeEnv["CONTAINER_NAME"])
+	assert.Equal(t, string(configv1alpha1.KubeDiscoveryModeContainer), containerModeEnv["DYN_KUBE_DISCOVERY_MODE"])
+}
+
+func envVarsToMap(envs []corev1.EnvVar) map[string]string {
+	out := make(map[string]string, len(envs))
+	for _, env := range envs {
+		out[env.Name] = env.Value
+	}
+	return out
+}
+
+func TestGenerateBasePodSpec_FrontendSidecar(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	controllerConfig := &configv1alpha1.OperatorConfiguration{
+		MPI: configv1alpha1.MPIConfiguration{SSHSecretName: "mpi-ssh-secret"},
+	}
+
+	envFromSecret := "hf-token-secret"
+
+	tests := []struct {
+		name                    string
+		component               *v1alpha1.DynamoComponentDeploymentSharedSpec
+		parentDGDName           string
+		namespace               string
+		backendFramework        BackendFramework
+		numberOfNodes           int32
+		wantSidecarCount        int
+		wantSidecarName         string
+		wantSidecarImage        string
+		wantSidecarArgs         []string
+		wantSidecarEnvVars      map[string]string
+		wantSidecarEnvFrom      int
+		wantSidecarProbes       bool
+		wantSidecarPorts        bool
+		wantSidecarMounts       []corev1.VolumeMount
+		wantSidecarMountsAbsent []string
+		wantWorkerMounts        []corev1.VolumeMount
+		wantUniqueVolumes       map[string]int
+		wantErr                 bool
+	}{
+		{
+			name: "worker without frontendSidecar has no sidecar",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			wantSidecarCount: 1, // only main container
+		},
+		{
+			name: "worker with frontendSidecar gets auto-generated sidecar",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image: "my-frontend:latest",
+					Args:  []string{"-m", "dynamo.frontend", "--router-mode", "direct"},
+				},
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			wantSidecarCount: 2,
+			wantSidecarName:  commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage: "my-frontend:latest",
+			wantSidecarArgs:  []string{"-m", "dynamo.frontend", "--router-mode", "direct"},
+			wantSidecarEnvVars: map[string]string{
+				"DYN_NAMESPACE":                "test-ns-test-dgd",
+				"DYN_COMPONENT":                commonconsts.ComponentTypeFrontend,
+				"DYN_DISCOVERY_BACKEND":        "kubernetes",
+				"DYN_HTTP_PORT":                fmt.Sprintf("%d", commonconsts.DynamoServicePort),
+				"DYN_PARENT_DGD_K8S_NAME":      "test-dgd",
+				"DYN_PARENT_DGD_K8S_NAMESPACE": "test-ns",
+			},
+			wantSidecarProbes: true,
+			wantSidecarPorts:  true,
+		},
+		{
+			name: "frontendSidecar with envFromSecret",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image:         "my-frontend:latest",
+					EnvFromSecret: &envFromSecret,
+				},
+			},
+			parentDGDName:      "test-dgd",
+			namespace:          "test-ns",
+			wantSidecarCount:   2,
+			wantSidecarName:    commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage:   "my-frontend:latest",
+			wantSidecarArgs:    []string{"-m", "dynamo.frontend"},
+			wantSidecarEnvFrom: 1,
+			wantSidecarProbes:  true,
+			wantSidecarPorts:   true,
+		},
+		{
+			name: "frontendSidecar with custom env vars",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image: "my-frontend:latest",
+					Envs: []corev1.EnvVar{
+						{Name: "CUSTOM_VAR", Value: "custom_value"},
+					},
+				},
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			wantSidecarCount: 2,
+			wantSidecarName:  commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage: "my-frontend:latest",
+			wantSidecarEnvVars: map[string]string{
+				"CUSTOM_VAR": "custom_value",
+			},
+			wantSidecarProbes: true,
+			wantSidecarPorts:  true,
+		},
+		{
+			name: "frontendSidecar inherits worker PVC volume mount",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "model-cache", MountPoint: "/opt/models"},
+				},
+				SharedMemory: &v1alpha1.SharedMemorySpec{Disabled: true},
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image: "my-frontend:latest",
+				},
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			wantSidecarCount: 2,
+			wantSidecarName:  commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage: "my-frontend:latest",
+			wantSidecarMounts: []corev1.VolumeMount{
+				{Name: "model-cache", MountPath: "/opt/models"},
+			},
+			wantUniqueVolumes: map[string]int{"model-cache": 1},
+			wantSidecarProbes: true,
+			wantSidecarPorts:  true,
+		},
+		{
+			name: "frontendSidecar inherits user PVC mounts but not shared memory",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "model-cache", MountPoint: "/opt/models"},
+					{Name: "extra-data", MountPoint: "/mnt/data"},
+				},
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image: "my-frontend:latest",
+				},
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			wantSidecarCount: 2,
+			wantSidecarName:  commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage: "my-frontend:latest",
+			wantSidecarMounts: []corev1.VolumeMount{
+				{Name: "model-cache", MountPath: "/opt/models"},
+				{Name: "extra-data", MountPath: "/mnt/data"},
+			},
+			wantSidecarMountsAbsent: []string{commonconsts.KubeValueNameSharedMemory},
+			wantUniqueVolumes: map[string]int{
+				"model-cache":                          1,
+				"extra-data":                           1,
+				commonconsts.KubeValueNameSharedMemory: 1,
+			},
+			wantSidecarProbes: true,
+			wantSidecarPorts:  true,
+		},
+		{
+			// TRT-LLM multinode injects the /ssh-pk MPI secret onto the worker.
+			// The sidecar must not inherit it; only user-declared mounts propagate.
+			name: "frontendSidecar does not inherit TRT-LLM multinode SSH mount",
+			component: &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				ComponentType: commonconsts.ComponentTypeWorker,
+				VolumeMounts: []v1alpha1.VolumeMount{
+					{Name: "model-cache", MountPoint: "/opt/models"},
+				},
+				FrontendSidecar: &v1alpha1.FrontendSidecarSpec{
+					Image: "my-frontend:latest",
+				},
+			},
+			parentDGDName:    "test-dgd",
+			namespace:        "test-ns",
+			backendFramework: BackendFrameworkTRTLLM,
+			numberOfNodes:    2,
+			wantSidecarCount: 2,
+			wantSidecarName:  commonconsts.FrontendSidecarContainerName,
+			wantSidecarImage: "my-frontend:latest",
+			wantSidecarMounts: []corev1.VolumeMount{
+				{Name: "model-cache", MountPath: "/opt/models"},
+			},
+			wantSidecarMountsAbsent: []string{"mpi-ssh-secret", commonconsts.KubeValueNameSharedMemory},
+			wantWorkerMounts: []corev1.VolumeMount{
+				{Name: "model-cache", MountPath: "/opt/models"},
+				{Name: "mpi-ssh-secret", MountPath: "/ssh-pk"},
+			},
+			wantSidecarProbes: true,
+			wantSidecarPorts:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			backendFramework := tt.backendFramework
+			if backendFramework == "" {
+				backendFramework = BackendFrameworkVLLM
+			}
+			numberOfNodes := tt.numberOfNodes
+			if numberOfNodes == 0 {
+				numberOfNodes = 1
+			}
+			role := RoleMain
+			if numberOfNodes > 1 {
+				role = RoleLeader
+			}
+			podSpec, err := GenerateBasePodSpec(
+				betaComponent(t, tt.component),
+				backendFramework,
+				secretsRetriever,
+				tt.parentDGDName,
+				tt.namespace,
+				role,
+				numberOfNodes,
+				controllerConfig,
+				commonconsts.MultinodeDeploymentTypeGrove,
+				"test-service",
+				nil, // checkpointInfo
+				nil, // deployerOverride
+			)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GenerateBasePodSpec() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+
+			assert.Equal(t, tt.wantSidecarCount, len(podSpec.Containers),
+				"expected %d containers, got %d", tt.wantSidecarCount, len(podSpec.Containers))
+
+			if tt.wantSidecarCount <= 1 {
+				return
+			}
+
+			// The frontend sidecar is the last container
+			sidecar := podSpec.Containers[len(podSpec.Containers)-1]
+
+			assert.Equal(t, tt.wantSidecarName, sidecar.Name, "sidecar container name")
+			assert.Equal(t, tt.wantSidecarImage, sidecar.Image, "sidecar container image")
+
+			if tt.wantSidecarArgs != nil {
+				assert.Equal(t, tt.wantSidecarArgs, sidecar.Args, "sidecar args")
+			}
+
+			assert.Equal(t, []string{"python3"}, sidecar.Command, "sidecar command should be python3")
+
+			if tt.wantSidecarEnvVars != nil {
+				envVars := make(map[string]string)
+				for _, env := range sidecar.Env {
+					envVars[env.Name] = env.Value
+				}
+				for k, v := range tt.wantSidecarEnvVars {
+					assert.Equal(t, v, envVars[k], "sidecar env var %s", k)
+				}
+			}
+
+			if tt.wantSidecarEnvFrom > 0 {
+				assert.Equal(t, tt.wantSidecarEnvFrom, len(sidecar.EnvFrom), "sidecar envFrom count")
+				assert.Equal(t, envFromSecret, sidecar.EnvFrom[0].SecretRef.Name, "sidecar envFromSecret name")
+			}
+
+			if tt.wantSidecarProbes {
+				assert.NotNil(t, sidecar.LivenessProbe, "sidecar should have liveness probe")
+				assert.NotNil(t, sidecar.ReadinessProbe, "sidecar should have readiness probe")
+				assert.Equal(t, "/live", sidecar.LivenessProbe.HTTPGet.Path)
+				assert.Equal(t, "/health", sidecar.ReadinessProbe.HTTPGet.Path)
+			}
+
+			if tt.wantSidecarPorts {
+				assert.NotEmpty(t, sidecar.Ports, "sidecar should have ports")
+				assert.Equal(t, int32(commonconsts.DynamoServicePort), sidecar.Ports[0].ContainerPort)
+			}
+
+			// Verify POD_NAME/POD_NAMESPACE/POD_UID are set via downward API
+			hasDownwardAPI := map[string]bool{"POD_NAME": false, "POD_NAMESPACE": false, "POD_UID": false}
+			for _, env := range sidecar.Env {
+				if _, ok := hasDownwardAPI[env.Name]; ok && env.ValueFrom != nil && env.ValueFrom.FieldRef != nil {
+					hasDownwardAPI[env.Name] = true
+				}
+			}
+			for name, found := range hasDownwardAPI {
+				assert.True(t, found, "sidecar should have downward API env var %s", name)
+			}
+
+			// Verify the sidecar's volume mounts match the expected set exactly.
+			// The frontend base container ships with no mounts, so sidecar.VolumeMounts
+			// should equal wantSidecarMounts element-for-element.
+			if tt.wantSidecarMounts != nil {
+				assert.ElementsMatch(t, tt.wantSidecarMounts, sidecar.VolumeMounts, "sidecar volume mounts")
+			}
+
+			// Verify the sidecar did NOT inherit mounts that belong only to the worker
+			// (shared memory, backend-injected secrets like TRT-LLM's /ssh-pk, etc.).
+			for _, absentName := range tt.wantSidecarMountsAbsent {
+				for _, got := range sidecar.VolumeMounts {
+					assert.NotEqual(t, absentName, got.Name,
+						"sidecar must not inherit worker-only mount %s", absentName)
+				}
+			}
+
+			// Verify the worker container still has its expected mounts — propagation
+			// must not strip anything off the worker.
+			if len(tt.wantWorkerMounts) > 0 {
+				worker := podSpec.Containers[0]
+				for _, want := range tt.wantWorkerMounts {
+					found := false
+					for _, got := range worker.VolumeMounts {
+						if got.Name == want.Name && got.MountPath == want.MountPath {
+							found = true
+							break
+						}
+					}
+					assert.True(t, found, "worker should have volume mount %s at %s", want.Name, want.MountPath)
+				}
+			}
+
+			// Verify pod-level volume counts exactly match the expected set
+			// (catches duplicates as well as unexpected extra volumes).
+			if tt.wantUniqueVolumes != nil {
+				counts := make(map[string]int)
+				for _, v := range podSpec.Volumes {
+					counts[v.Name]++
+				}
+				assert.Equal(t, tt.wantUniqueVolumes, counts, "pod volume counts")
+			}
+		})
+	}
+}
+
+func TestPropagateDGDAnnotations(t *testing.T) {
+	tests := []struct {
+		name               string
+		dgdAnnotations     map[string]string
+		serviceAnnotations map[string]string
+		expectedAnnotation map[string]string
+	}{
+		{
+			name: "DGD annotation propagates to empty service annotations",
+			dgdAnnotations: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "ray",
+			},
+			serviceAnnotations: nil,
+			expectedAnnotation: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "ray",
+			},
+		},
+		{
+			name: "service-level annotation takes precedence over DGD",
+			dgdAnnotations: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "ray",
+			},
+			serviceAnnotations: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "mp",
+			},
+			expectedAnnotation: map[string]string{
+				commonconsts.KubeAnnotationVLLMDistributedExecutorBackend: "mp",
+			},
+		},
+		{
+			name:               "no DGD annotation, no service annotation",
+			dgdAnnotations:     nil,
+			serviceAnnotations: nil,
+			expectedAnnotation: nil,
+		},
+		{
+			name: "origin version also propagates",
+			dgdAnnotations: map[string]string{
+				commonconsts.KubeAnnotationDynamoOperatorOriginVersion: "1.0.0",
+			},
+			serviceAnnotations: nil,
+			expectedAnnotation: map[string]string{
+				commonconsts.KubeAnnotationDynamoOperatorOriginVersion: "1.0.0",
+			},
+		},
+		{
+			name: "unrelated DGD annotations are not propagated",
+			dgdAnnotations: map[string]string{
+				"some-other-annotation": "value",
+			},
+			serviceAnnotations: nil,
+			expectedAnnotation: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			component := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: tt.serviceAnnotations,
+			}
+			betaComponent := betaComponent(t, component)
+			propagateDGDAnnotations(tt.dgdAnnotations, betaComponent)
+			annotations := GetPodTemplateAnnotations(betaComponent)
+
+			if tt.expectedAnnotation == nil {
+				assert.True(t, len(annotations) == 0 || annotations == nil,
+					"expected no annotations, got %v", annotations)
+			} else {
+				for k, v := range tt.expectedAnnotation {
+					assert.Equal(t, v, annotations[k], "annotation %s mismatch", k)
+				}
+			}
+		})
+	}
+}
+
+func TestPropagateDGDSpecMetadata(t *testing.T) {
+	tests := []struct {
+		name                string
+		dgdAnnotations      map[string]string
+		dgdLabels           map[string]string
+		serviceAnnotations  map[string]string
+		serviceLabels       map[string]string
+		expectedAnnotations map[string]string
+		expectedLabels      map[string]string
+	}{
+		{
+			name:                "nil metadata is a no-op",
+			dgdAnnotations:      nil,
+			dgdLabels:           nil,
+			serviceAnnotations:  map[string]string{"existing": "value"},
+			expectedAnnotations: map[string]string{"existing": "value"},
+			expectedLabels:      nil,
+		},
+		{
+			name:                "annotations and labels propagate to empty component",
+			dgdAnnotations:      map[string]string{"team/cost-center": "abc"},
+			dgdLabels:           map[string]string{"env": "prod"},
+			expectedAnnotations: map[string]string{"team/cost-center": "abc"},
+			expectedLabels:      map[string]string{"env": "prod"},
+		},
+		{
+			name:                "service-level annotations take precedence",
+			dgdAnnotations:      map[string]string{"shared": "from-dgd", "dgd-only": "val"},
+			serviceAnnotations:  map[string]string{"shared": "from-service"},
+			expectedAnnotations: map[string]string{"shared": "from-service", "dgd-only": "val"},
+		},
+		{
+			name:           "service-level labels take precedence",
+			dgdLabels:      map[string]string{"shared": "from-dgd", "dgd-only": "val"},
+			serviceLabels:  map[string]string{"shared": "from-service"},
+			expectedLabels: map[string]string{"shared": "from-service", "dgd-only": "val"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			component := &v1alpha1.DynamoComponentDeploymentSharedSpec{
+				Annotations: tt.serviceAnnotations,
+				Labels:      tt.serviceLabels,
+			}
+			betaComponent := betaComponent(t, component)
+			propagateDGDSpecMetadata(tt.dgdAnnotations, tt.dgdLabels, betaComponent)
+			annotations := GetPodTemplateAnnotations(betaComponent)
+			labels := GetPodTemplateLabels(betaComponent)
+
+			if tt.expectedAnnotations == nil {
+				assert.True(t, len(annotations) == 0 || annotations == nil,
+					"expected no annotations, got %v", annotations)
+			} else {
+				assert.Equal(t, tt.expectedAnnotations, annotations)
+			}
+			if tt.expectedLabels == nil {
+				assert.True(t, len(labels) == 0 || labels == nil,
+					"expected no labels, got %v", labels)
+			} else {
+				assert.Equal(t, tt.expectedLabels, labels)
+			}
+		})
+	}
+}
+
+func TestGenerateGrovePodCliqueSet_SpecMetadataPropagation(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "ns",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Annotations: map[string]string{"team/cost-center": "abc"},
+			Labels:      map[string]string{"env": "prod"},
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"worker": {
+					ComponentType: commonconsts.ComponentTypeWorker,
+					Replicas:      ptr.To(int32(1)),
+					Annotations:   map[string]string{"team/cost-center": "svc-override"},
+				},
+			},
+		},
+	}
+
+	pcs, err := GenerateGrovePodCliqueSet(context.Background(), betaDGD(t, dgd), &configv1alpha1.OperatorConfiguration{}, &controller_common.RuntimeConfig{}, nil, nil, nil, nil, nil)
+	require.NoError(t, err)
+
+	// PCS object-level metadata
+	assert.Equal(t, "abc", pcs.Annotations["team/cost-center"])
+	assert.Equal(t, "prod", pcs.Labels["env"])
+
+	// Clique-level: service annotation takes precedence
+	require.Len(t, pcs.Spec.Template.Cliques, 1)
+	clique := pcs.Spec.Template.Cliques[0]
+	assert.Equal(t, "svc-override", clique.Annotations["team/cost-center"],
+		"service-level annotation should take precedence over spec.metadata")
+}
+
+func TestGenerateDynamoComponentsDeployments_SpecMetadataPropagation(t *testing.T) {
+	dgd := &v1alpha1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-dgd",
+			Namespace: "ns",
+		},
+		Spec: v1alpha1.DynamoGraphDeploymentSpec{
+			Annotations: map[string]string{"team/cost-center": "abc", "shared": "dgd"},
+			Labels:      map[string]string{"env": "prod", "shared-label": "dgd"},
+			Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+				"frontend": {
+					ComponentType: commonconsts.ComponentTypeFrontend,
+					Replicas:      ptr.To(int32(1)),
+					Annotations:   map[string]string{"shared": "svc"},
+					Labels:        map[string]string{"shared-label": "svc", "svc-only": "val"},
+				},
+			},
+		},
+	}
+
+	dcds, err := GenerateDynamoComponentsDeployments(betaDGD(t, dgd), nil, nil, RollingUpdateContext{})
+	require.NoError(t, err)
+
+	dcd := dcds["frontend"]
+	require.NotNil(t, dcd)
+	annotations := GetPodTemplateAnnotations(&dcd.Spec.DynamoComponentDeploymentSharedSpec)
+	labels := GetPodTemplateLabels(&dcd.Spec.DynamoComponentDeploymentSharedSpec)
+
+	// Annotations: service-level takes precedence over DGD-level
+	assert.Equal(t, "abc", annotations["team/cost-center"])
+	assert.Equal(t, "svc", annotations["shared"],
+		"service-level annotation should take precedence over DGD annotation")
+
+	// Labels: service-level survives and takes precedence over DGD-level
+	assert.Equal(t, "svc", labels["shared-label"],
+		"service-level label should take precedence over DGD label")
+	assert.Equal(t, "val", labels["svc-only"],
+		"service-only label should be preserved")
+	assert.Equal(t, "prod", labels["env"],
+		"DGD-level label should propagate when no service override")
+
+	// Controller labels must always be present
+	assert.Equal(t, "frontend", dcd.Labels[commonconsts.KubeLabelDynamoComponent])
+	assert.Equal(t, dgd.Name, dcd.Labels[commonconsts.KubeLabelDynamoGraphDeploymentName])
+}
+
+func TestGenerateGrovePodCliqueSet_TopologyConstraints(t *testing.T) {
+	secretsRetriever := &mockSecretsRetriever{}
+	operatorConfig := &configv1alpha1.OperatorConfiguration{}
+
+	tests := []struct {
+		name              string
+		deployment        *v1alpha1.DynamoGraphDeployment
+		wantPCSTemplateTC *grovev1alpha1.TopologyConstraint
+		wantCliqueTC      map[string]*grovev1alpha1.TopologyConstraint // clique name -> expected TC
+		wantPCSGTC        map[string]*grovev1alpha1.TopologyConstraint // pcsg name -> expected TC
+		wantPCSGCount     int
+	}{
+		{
+			name: "no topology constraints - PCS has no TC, cliques have no TC",
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-deploy",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Worker": {
+							ComponentType: commonconsts.ComponentTypeWorker,
+							Replicas:      ptr.To(int32(2)),
+						},
+					},
+				},
+			},
+			wantPCSTemplateTC: nil,
+			wantCliqueTC:      map[string]*grovev1alpha1.TopologyConstraint{"worker": nil},
+			wantPCSGCount:     0,
+		},
+		{
+			name: "single-node service with topology constraints - TC on PCS template and clique",
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-deploy",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					TopologyConstraint: &v1alpha1.SpecTopologyConstraint{
+						TopologyProfile: "test-topology",
+						PackDomain:      v1alpha1.TopologyDomain("zone"),
+					},
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Worker": {
+							ComponentType: commonconsts.ComponentTypeWorker,
+							Replicas:      ptr.To(int32(2)),
+							TopologyConstraint: &v1alpha1.TopologyConstraint{
+								PackDomain: v1alpha1.TopologyDomain("rack"),
+							},
+						},
+					},
+				},
+			},
+			wantPCSTemplateTC: &grovev1alpha1.TopologyConstraint{
+				PackDomain: grovev1alpha1.TopologyDomain("zone"),
+			},
+			wantCliqueTC: map[string]*grovev1alpha1.TopologyConstraint{
+				"worker": {PackDomain: grovev1alpha1.TopologyDomain("rack")},
+			},
+			wantPCSGCount: 0,
+		},
+		{
+			name: "multinode service with topology constraints - TC on PCS template and PCSG, not clique",
+			deployment: &v1alpha1.DynamoGraphDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-deploy",
+					Namespace: "default",
+				},
+				Spec: v1alpha1.DynamoGraphDeploymentSpec{
+					TopologyConstraint: &v1alpha1.SpecTopologyConstraint{
+						TopologyProfile: "test-topology",
+						PackDomain:      v1alpha1.TopologyDomain("zone"),
+					},
+					Services: map[string]*v1alpha1.DynamoComponentDeploymentSharedSpec{
+						"Worker": {
+							ComponentType: commonconsts.ComponentTypeWorker,
+							Replicas:      ptr.To(int32(2)),
+							Multinode: &v1alpha1.MultinodeSpec{
+								NodeCount: 4,
+							},
+							TopologyConstraint: &v1alpha1.TopologyConstraint{
+								PackDomain: v1alpha1.TopologyDomain("block"),
+							},
+						},
+					},
+				},
+			},
+			wantPCSTemplateTC: &grovev1alpha1.TopologyConstraint{
+				PackDomain: grovev1alpha1.TopologyDomain("zone"),
+			},
+			wantCliqueTC: map[string]*grovev1alpha1.TopologyConstraint{
+				"worker-ldr": nil,
+				"worker-wkr": nil,
+			},
+			wantPCSGTC: map[string]*grovev1alpha1.TopologyConstraint{
+				"worker": {PackDomain: grovev1alpha1.TopologyDomain("block")},
+			},
+			wantPCSGCount: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pcs, err := GenerateGrovePodCliqueSet(
+				context.Background(),
+				betaDGD(t, tt.deployment),
+				operatorConfig,
+				&controller_common.RuntimeConfig{},
+				nil,
+				secretsRetriever,
+				&RestartState{},
+				nil,
+				nil,
+			)
+			assert.NoError(t, err)
+			assert.NotNil(t, pcs)
+
+			// Verify PCS template-level TopologyConstraint
+			if tt.wantPCSTemplateTC == nil {
+				assert.Nil(t, pcs.Spec.Template.TopologyConstraint, "expected PCS template TopologyConstraint to be nil")
+			} else {
+				assert.NotNil(t, pcs.Spec.Template.TopologyConstraint, "expected PCS template TopologyConstraint to be set")
+				assert.Equal(t, tt.wantPCSTemplateTC.PackDomain, pcs.Spec.Template.TopologyConstraint.PackDomain)
+			}
+
+			// Verify clique-level TopologyConstraints (exhaustive)
+			assert.Equal(t, len(tt.wantCliqueTC), len(pcs.Spec.Template.Cliques), "clique count mismatch")
+			actualCliqueNames := make(map[string]struct{}, len(pcs.Spec.Template.Cliques))
+			for _, clique := range pcs.Spec.Template.Cliques {
+				actualCliqueNames[clique.Name] = struct{}{}
+				expectedTC, ok := tt.wantCliqueTC[clique.Name]
+				if !ok {
+					t.Errorf("unexpected clique %q in PCS", clique.Name)
+					continue
+				}
+				if expectedTC == nil {
+					assert.Nil(t, clique.TopologyConstraint, "clique %q: expected nil TopologyConstraint", clique.Name)
+				} else {
+					assert.NotNil(t, clique.TopologyConstraint, "clique %q: expected non-nil TopologyConstraint", clique.Name)
+					assert.Equal(t, expectedTC.PackDomain, clique.TopologyConstraint.PackDomain, "clique %q: packDomain mismatch", clique.Name)
+				}
+			}
+			for expectedName := range tt.wantCliqueTC {
+				if _, found := actualCliqueNames[expectedName]; !found {
+					t.Errorf("expected clique %q not found in PCS", expectedName)
+				}
+			}
+
+			// Verify PCSG-level TopologyConstraints (exhaustive)
+			assert.Equal(t, tt.wantPCSGCount, len(pcs.Spec.Template.PodCliqueScalingGroupConfigs), "PCSG count mismatch")
+			actualPCSGNames := make(map[string]struct{}, len(pcs.Spec.Template.PodCliqueScalingGroupConfigs))
+			for _, pcsg := range pcs.Spec.Template.PodCliqueScalingGroupConfigs {
+				actualPCSGNames[pcsg.Name] = struct{}{}
+				if tt.wantPCSGTC != nil {
+					expectedTC, ok := tt.wantPCSGTC[pcsg.Name]
+					if !ok {
+						t.Errorf("unexpected PCSG %q in PCS", pcsg.Name)
+						continue
+					}
+					if expectedTC == nil {
+						assert.Nil(t, pcsg.TopologyConstraint, "PCSG %q: expected nil TopologyConstraint", pcsg.Name)
+					} else {
+						assert.NotNil(t, pcsg.TopologyConstraint, "PCSG %q: expected non-nil TopologyConstraint", pcsg.Name)
+						assert.Equal(t, expectedTC.PackDomain, pcsg.TopologyConstraint.PackDomain, "PCSG %q: packDomain mismatch", pcsg.Name)
+					}
+				}
+			}
+			for expectedName := range tt.wantPCSGTC {
+				if _, found := actualPCSGNames[expectedName]; !found {
+					t.Errorf("expected PCSG %q not found in PCS", expectedName)
+				}
+			}
+		})
+	}
+}
+
+func TestPCSNameForDGD(t *testing.T) {
+	singleNodeComponent := func(name string) v1beta1.DynamoComponentDeploymentSharedSpec {
+		return v1beta1.DynamoComponentDeploymentSharedSpec{ComponentName: name}
+	}
+	multinodeComponent := func(name string) v1beta1.DynamoComponentDeploymentSharedSpec {
+		return v1beta1.DynamoComponentDeploymentSharedSpec{
+			ComponentName: name,
+			Multinode:     &v1beta1.MultinodeSpec{NodeCount: 2},
+		}
+	}
+
+	tests := []struct {
+		name       string
+		dgdName    string
+		components []v1beta1.DynamoComponentDeploymentSharedSpec
+		want       string
+		wantLen    int // 0 means check exact match via want; >0 means check length
+	}{
+		{
+			name:    "short name passes through unchanged",
+			dgdName: "trtllm-disagg",
+			components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				singleNodeComponent("prefill"),
+				singleNodeComponent("decode"),
+			},
+			want: "trtllm-disagg",
+		},
+		{
+			name:    "short name with multinode passes through unchanged",
+			dgdName: "my-dgd",
+			components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				multinodeComponent("prefill"),
+				multinodeComponent("decode"),
+			},
+			want: "my-dgd",
+		},
+		{
+			name:    "long name gets truncated with hash",
+			dgdName: "deepseek-v32-fp4-trtllm-dgd",
+			components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				multinodeComponent("prefill"),
+				multinodeComponent("decode"),
+			},
+			// prefill multinode: PCSG=7, PCLQ=7+1+3=11 → budget=18, pcsBudget=45-18=27
+			// dgdName is 28 chars → needs truncation to 27
+			wantLen: 27,
+		},
+		{
+			name:    "deterministic - same input always produces same output",
+			dgdName: "deepseek-v32-fp4-trtllm-dgd",
+			components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				multinodeComponent("prefill"),
+			},
+			// Just verify determinism by calling twice
+			wantLen: 27,
+		},
+		{
+			name:    "old long vllm service names get truncated more aggressively",
+			dgdName: "my-deployment-dgd",
+			components: []v1beta1.DynamoComponentDeploymentSharedSpec{
+				multinodeComponent("VllmPrefillWorker"),
+			},
+			// VllmPrefillWorker multinode: PCSG=17, PCLQ=17+1+3=21 → budget=38, pcsBudget=45-38=7
+			// 7 < minPCSNameLength(8), so clamped to 8
+			wantLen: 8,
+		},
+		{
+			name:       "empty components - no truncation needed",
+			dgdName:    "my-dgd",
+			components: nil,
+			want:       "my-dgd",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := PCSNameForDGD(tt.dgdName, tt.components)
+
+			if tt.want != "" {
+				if got != tt.want {
+					t.Errorf("PCSNameForDGD() = %q, want %q", got, tt.want)
+				}
+			}
+			if tt.wantLen > 0 {
+				if len(got) != tt.wantLen {
+					t.Errorf("PCSNameForDGD() = %q (len %d), want len %d", got, len(got), tt.wantLen)
+				}
+			}
+
+			// Verify determinism
+			got2 := PCSNameForDGD(tt.dgdName, tt.components)
+			if got != got2 {
+				t.Errorf("PCSNameForDGD() not deterministic: %q != %q", got, got2)
+			}
+
+			// Verify the result actually fits within the Grove limit
+			maxComponentBudget := 0
+			for i := range tt.components {
+				component := &tt.components[i]
+				lowerName := strings.ToLower(component.ComponentName)
+				var budget int
+				if component.GetNumberOfNodes() > 1 || component.IsInterPodGMSEnabled() {
+					maxCliqueNameLen := 0
+					for _, role := range expandRolesForComponent(component.ComponentName, component.Replicas, component.GetNumberOfNodes(), component) {
+						if cliqueNameLen := len(strings.ToLower(role.Name)); cliqueNameLen > maxCliqueNameLen {
+							maxCliqueNameLen = cliqueNameLen
+						}
+					}
+					budget = len(lowerName) + maxCliqueNameLen
+				} else {
+					budget = len(lowerName)
+				}
+				if budget > maxComponentBudget {
+					maxComponentBudget = budget
+				}
+			}
+			combinedLength := len(got) + maxComponentBudget
+			if combinedLength > commonconsts.MaxCombinedGroveResourceNameLength && len(got) > 8 {
+				t.Errorf("PCSNameForDGD() result %q (len %d) + max component budget %d = %d, exceeds %d",
+					got, len(got), maxComponentBudget, combinedLength, commonconsts.MaxCombinedGroveResourceNameLength)
+			}
+		})
+	}
+}
+
+// TestGenerateEPPDestinationRule_MUTUALPropagatesCerts is the regression test
+// asserting that MUTUAL TLS mode populates ClientCertificate, PrivateKey, and
+// CaCertificates on the generated DestinationRule. Otherwise Istio's validation
+// webhook rejects the DR with "client certificate required for mutual tls" /
+// "private key required for mutual tls" and the DGD never finishes reconciling.
+func TestGenerateEPPDestinationRule_MUTUALPropagatesCerts(t *testing.T) {
+	mesh := configv1alpha1.ServiceMeshConfiguration{
+		Provider: string(configv1alpha1.ServiceMeshProviderIstio),
+		Istio: &configv1alpha1.IstioMeshConfiguration{
+			TLSMode:           "MUTUAL",
+			ClientCertificate: "/etc/certs/client.pem",
+			PrivateKey:        "/etc/certs/client.key",
+			CaCertificates:    "/etc/certs/ca.pem",
+		},
+	}
+
+	dr := GenerateEPPDestinationRule("qwen-epp", "dynamo-cloud", mesh)
+
+	require.NotNil(t, dr.Spec.TrafficPolicy)
+	require.NotNil(t, dr.Spec.TrafficPolicy.Tls)
+	assert.Equal(t, istioNetworking.ClientTLSSettings_MUTUAL, dr.Spec.TrafficPolicy.Tls.Mode)
+	assert.Equal(t, "/etc/certs/client.pem", dr.Spec.TrafficPolicy.Tls.ClientCertificate)
+	assert.Equal(t, "/etc/certs/client.key", dr.Spec.TrafficPolicy.Tls.PrivateKey)
+	assert.Equal(t, "/etc/certs/ca.pem", dr.Spec.TrafficPolicy.Tls.CaCertificates)
+}

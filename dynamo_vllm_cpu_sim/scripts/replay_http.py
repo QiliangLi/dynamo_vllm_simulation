@@ -20,6 +20,7 @@ import asyncio
 import json
 import sys
 import time
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,7 @@ from sim.stack.clock import TimeScale  # noqa: E402
 async def one_request(
     client: httpx.AsyncClient, url: str, model: str, rid: str, text: str,
     max_tokens: int, record: dict, api: str, admission_metadata: dict | None = None,
-    time_scale: float = 1.,
+    time_scale: float = 1., native_ingress: bool = False, phase2_dump: bool | None = None,
 ) -> None:
     clock = TimeScale(time_scale)
     if api == "completions":
@@ -49,17 +50,24 @@ async def one_request(
         }
     if admission_metadata is not None:
         payload["_sim_admission"] = admission_metadata
+    if phase2_dump is not None:
+        payload["kv_transfer_params"] = {"enable_phase2_dump": phase2_dump}
     t_send = time.perf_counter()
     ttft = None
     finish = None
     usage = None
     try:
-        async with client.stream("POST", url, json=payload) as resp:
+        options = {}
+        if native_ingress:
+            options['headers'] = {'x-dynamo-request-id': str(uuid.UUID(rid))}
+        async with client.stream("POST", url, json=payload, **options) as resp:
             resp.raise_for_status()
             async for line in resp.aiter_lines():
                 if not line.startswith("data: ") or line.strip() == "data: [DONE]":
                     continue
                 chunk = json.loads(line[len("data: ") :])
+                if native_ingress and chunk.get("error"):
+                    raise RuntimeError(chunk["error"])
                 delta = chunk["choices"][0].get("delta", {}) if chunk.get("choices") else {}
                 if ttft is None and chunk.get("choices") and (
                     delta.get("content") or delta.get("role") or chunk["choices"][0].get("text")
@@ -69,6 +77,8 @@ async def one_request(
                     usage = chunk["usage"]
                 if chunk.get("choices") and chunk["choices"][0].get("finish_reason"):
                     finish = chunk["choices"][0]["finish_reason"]
+        if native_ingress and finish not in ('stop', 'length'):
+            raise RuntimeError(f"unconfirmed completion: {finish!r}")
         elapsed = time.perf_counter() - t_send
         record[rid] = {
             "ttft_s": clock.to_model(ttft) if ttft is not None else None,
@@ -85,7 +95,8 @@ async def one_request(
 
 async def replay(
     trace_path: Path, url: str, model: str, out_dir: Path, allow_lossy: bool, api: str,
-    *, admission: bool = False, time_scale: float = 1.,
+    *, admission: bool = False, time_scale: float = 1., admission_profile_source: str = 'trace',
+    native_ingress: bool = False, phase2_dump: bool | None = None,
 ) -> int:
     clock = TimeScale(time_scale)
     chat_url = url.rstrip("/") + (
@@ -96,6 +107,12 @@ async def replay(
     tok = AutoTokenizer.from_pretrained(str(ROOT / "configs/model"))
     from sim.trace_io import load_trace
     rows = load_trace(trace_path)
+    if native_ingress:
+        if api != 'completions' or admission:
+            raise ValueError('native ingress expects direct streaming completions')
+        for row in rows:
+            if uuid.UUID(row['id']).hex != row['id']:
+                raise ValueError('native trace must contain canonical UUID hex IDs')
     jobs = []
     records: dict[str, dict] = {}
     skipped = 0
@@ -112,6 +129,8 @@ async def replay(
             delay = row["arrival_s"]
             meta = dict(id=row["id"],estimated_remote_tokens=row.get("remote_prefix_tokens",0),
                         class_id=row.get("class_id","unclassified")) if admission else None
+            if admission and admission_profile_source == 'dynamo_tier':
+                meta = dict(id=row['id'])  # Correlation only; no hit/timing oracle.
             jobs.append((delay, row["id"], text, row["output_tokens"],meta))
         t0 = time.perf_counter()
         tasks = []
@@ -120,7 +139,7 @@ async def replay(
             kwargs = {"admission_metadata":meta} if admission else {}
             tasks.append(asyncio.create_task(
                 one_request(client, chat_url, model, rid, text, out_tokens, records, api,
-                            time_scale=clock.factor,**kwargs)))
+                            time_scale=clock.factor,native_ingress=native_ingress,phase2_dump=phase2_dump,**kwargs)))
         await asyncio.gather(*tasks)
 
     ok = [r for r in records.values() if r.get("ok")]

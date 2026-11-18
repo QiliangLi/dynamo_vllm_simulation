@@ -1,5 +1,14 @@
 # TFS与Mooncake360实验分支
 
+同事首次运行服务器 `synthetic_abc` 仿真，请按[服务器负载与仿真运行指南](docs/服务器SyntheticABC与仿真运行指南.md)执行。包含安装、原始到达回放及 α=1/dev 对照。
+
+## 2026-11-18：服务器三实例仿真与 benchmark
+
+新增 [三实例运行说明](docs/服务器三实例仿真.md)。入口为 `scripts/run_server_benchmark.py`，使用独立构建的 Dynamo 1.2、MiniMax 50k v2 估时、3 个实例、6 盘共享 25 GB/s。支持 `--alpha` 和 `--dev`。服务器请求工具位于仓库根目录的 `benchmark_tools_20261116/`，只负责构建和发送请求。
+
+原有 `benchmark/` 的 Dynamo 1.5 / GLM 负载与历史报告保留，不能把其带宽、实例数和验收结果套用到新入口。仿真不替代真机 NPU/RDMA/OD 故障验证。
+
+
 本分支提供真实Dynamo路由、vLLM调度、仿真模型/共享存储，以及固定benchmark目录。
 先读[实验分支使用说明](docs/实验分支使用说明.md)，AI先读[AGENTS.md](AGENTS.md)。
 输入及类别到达规则见[Benchmark目录](benchmark/benchmark目录.md)，通用用法见[benchmark说明](benchmark/README.md)。本分支不含模型权重或大规模原始运行数据。

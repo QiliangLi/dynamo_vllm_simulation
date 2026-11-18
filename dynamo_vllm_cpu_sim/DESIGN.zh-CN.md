@@ -1080,3 +1080,11 @@ fine_trace在首次schedule时记录native_queue_policy及waiting队列类型，
 ## 可选 C++ 独立盘后端（2026-11-03）
 
 `--storage-backend cpp` 把存储进度与逐盘带宽缓存交给 C++；默认仍为 Python。仅支持 Linux 独立盘 grouped max-min、逐层 poll/locked。原准入、路由、组批、0.5 ms 轮询及服务锁保持不变。配置、构建与验收边界见[使用说明](../docs/CPP独立盘存储后端-20261103.md)。
+
+## 2026-11-18 服务器对齐入口
+
+新增服务器 Dynamo 1.2 的独立入口，与旧 Dynamo 1.5 入口分开构建。Dynamo 接收请求、查询 KV 索引、路由并返回流；central 只处理元数据、分类、额度和反馈。完成反馈可越过缺失的首 token 反馈；重复完成不重复释放。不确定请求按请求释放额度，不将单请求失败升级为全局停机。hello 结果按 central 身份复用，失效后重新握手。
+
+vLLM 使用 CPU 环境的实际 EngineCore / AsyncScheduler / KV 分配；模型数值前向和 OD 传输由 MiniMax 拟合模型与 6 盘共享 25 GB/s 存储模拟。每实例最多一条运行请求，token 预算 50000。不是 NPU 上真实运行 vLLM-Ascend，不能验证 RDMA 或 TP 保存确认。
+
+α 默认为 0.1，只改变等待重读评分。dev 模式使重读额度无上限，保留逐请求许可记录和反馈。原生 booking、α 评分和存储额度各自保留职责。详细命令见 docs/服务器三实例仿真.md（仓库相对路径）。

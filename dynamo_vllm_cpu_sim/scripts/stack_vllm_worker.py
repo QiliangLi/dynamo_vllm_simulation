@@ -36,7 +36,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 # 本入口始终执行 CPU mock；在 spawn 子进程重导入时也选定同一平台。
 import vllm.platforms
 from vllm.platforms.cpu import CpuPlatform
-vllm.platforms._current_platform = CpuPlatform()
+if os.environ.get("SIM_STACK_SERVER_DYNAMO") == "1":
+    class ServerSimCpuPlatform(CpuPlatform):
+        @classmethod
+        def check_and_update_config(cls, config):
+            async_scheduling = config.scheduler_config.async_scheduling
+            super().check_and_update_config(config)
+            # SimExecutor supplies the mock output for the native AsyncScheduler.
+            config.scheduler_config.async_scheduling = async_scheduling
+
+    vllm.platforms._current_platform = ServerSimCpuPlatform()
+else:
+    vllm.platforms._current_platform = CpuPlatform()
 
 EXECUTOR_QUALNAME = os.environ.get(
     "SIM_STACK_EXECUTOR", "sim.stack.executor.SimExecutor"
@@ -49,9 +60,15 @@ from sim.stack.executor import SimExecutor  # noqa: F401,E402
 # SIM_STACK_STORAGE_SOCKET 时 worker 不应传 --kv-transfer-config。
 if os.environ.get("SIM_STACK_STORAGE_SOCKET"):
     from vllm.distributed.kv_transfer.kv_connector.factory import KVConnectorFactory
-
+    import json
+    from sim.stack.lmcache_bridge import enabled as lmcache_enabled
+    _stack_config = json.loads(Path(os.environ.get("SIM_STACK_CONFIG",
+        Path(__file__).resolve().parents[1]/"configs/demo.json")).read_text())
+    _connector_module, _connector_type = (
+        ("sim.stack.lmcache_bridge", "SimLMCacheConnector") if lmcache_enabled(_stack_config)
+        else ("sim.stack.connector_rpc", "SimConnectorRpc"))
     KVConnectorFactory.register_connector(
-        "SimConnector", "sim.stack.connector_rpc", "SimConnectorRpc"
+        "SimConnector", _connector_module, _connector_type
     )
 
 # ---------------------------------------------------------------- 兼容层 1：异常符号
@@ -107,7 +124,14 @@ def _patched_create_engine_config(self, *args, **kwargs):
         from sim.stack.edf_priority import enabled
         if enabled(load_stack_config()):
             self.scheduling_policy = "priority"
+        if load_stack_config().get("server_dynamo"):
+            self.distributed_executor_backend = EXECUTOR_QUALNAME
+            self.async_scheduling = True
     engine_config = _create_engine_config(self, *args, **kwargs)
+    if os.environ.get("SIM_STACK_CONFIG") and load_stack_config()["scheduler"] == "ascend_default":
+        from patched.ascend_balance_schedule import BalanceScheduler
+        engine_config.scheduler_config.scheduler_cls = BalanceScheduler
+        engine_config.additional_config["enable_balance_scheduling"] = False
     engine_config.parallel_config.distributed_executor_backend = EXECUTOR_QUALNAME
     return engine_config
 
@@ -119,10 +143,17 @@ from dynamo.vllm.main import main  # noqa: E402
 if os.environ.get("SIM_STACK_CONFIG"):
     from sim.stack.executor import load_stack_config
     if load_stack_config().get("admission", {}).get("placement") == "scheduler":
-        from sim.stack.storage_hint import install_dynamo_adapter
         from sim.stack.scheduler_admission import install_scheduler_adapter
-        install_dynamo_adapter()
-        install_scheduler_adapter()
+        if load_stack_config().get("server_dynamo"):
+            os.environ["DYN_TFS_VLLM"] = "1"
+        else:
+            from sim.stack.storage_hint import install_dynamo_adapter
+            install_dynamo_adapter()
+        scheduler_class = None
+        if load_stack_config()["scheduler"] == "ascend_default":
+            from patched.ascend_balance_schedule import BalanceScheduler
+            scheduler_class = BalanceScheduler
+        install_scheduler_adapter(scheduler_class)
 
     from sim.stack.edf_priority import enabled as edf_priority_enabled
     if edf_priority_enabled(load_stack_config()):

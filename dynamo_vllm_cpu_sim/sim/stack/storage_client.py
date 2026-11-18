@@ -19,6 +19,8 @@ import socket
 
 class StorageClient:
     def __init__(self, path: str):
+        self.path = path
+        self._notifications = None
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.settimeout(30.0)
         self.sock.connect(path)
@@ -89,7 +91,36 @@ class StorageClient:
     def layer_status(self, worker, rids, layer):
         return self._call(dict(op="layer_status",worker=worker,rids=rids,layer=layer))
 
+    def prepare_layers(self, worker, rids, layer):
+        if self._notifications is None:
+            from sim.stack.storage_notifications import LayerNotifications
+            self._notifications = LayerNotifications(self.path, worker)
+        if self._notifications.worker != worker:
+            raise ValueError("completion client cannot change worker")
+        self._notifications.prepare(rids, layer)
+        return self._notifications.token
+
+    def layer_result(self, rid, layer):
+        return self._notifications.result(rid, layer)
+
+    def fail_layers(self, error):
+        if self._notifications is not None:
+            self._notifications.fail(error)
+
+    def forget_layers(self, rid):
+        if self._notifications is not None:
+            self._notifications.forget(rid)
+
+    def layer_cancel(self, worker, rid):
+        result = self._call(dict(op="layer_cancel", worker=worker, rid=rid,
+                                 subscription=self._notifications.token))
+        self.forget_layers(rid)
+        return result
+
     def close(self) -> None:
+        notifications = getattr(self, "_notifications", None)
+        if notifications is not None:
+            notifications.close()
         self.sock.close()
 
 
@@ -117,6 +148,6 @@ def default_demand() -> float | None:
     cfg = _json.loads(Path(path).read_text())
     if cfg["compute"].get("mode") == "sa_e26f":
         return cfg["storage"]["q_max_Bps"]  # Registration only; allocation uses the real batch's V/c.
-    if cfg["compute"].get("mode") == "glm5_d950pr":
+    if cfg["compute"].get("mode") in ("glm5_d950pr", "prefill_fit"):
         return None  # 接收请求后按其公开形状计算需求，不能再用线性系数。
     return cfg["storage"]["kv_bytes_per_token"] / cfg["compute"]["prefill_token_s"]

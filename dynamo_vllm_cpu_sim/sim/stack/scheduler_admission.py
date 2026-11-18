@@ -20,7 +20,8 @@ SCHEDULE_SHA256 = "b6a0770641b37718aecf9bd94dc28b6fcca8e944e99a706bf4005b0b5a674
 
 
 class ReadGate:
-    def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False):
+    def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False,
+                 tier_kv_bytes_per_token=None):
         if client is None:
             raise RuntimeError("read admission requires a control connection")
         self.client = client
@@ -34,8 +35,10 @@ class ReadGate:
         self.seen = set()
         self.skipped = set()
         self.no_remote = set()
+        self.bypassed = set()
         self.log_path = Path(log_path) if log_path else None
         self.idle_bypass = idle_bypass
+        self.tier_kv_bytes_per_token = tier_kv_bytes_per_token
         self.force_candidate = None
         self.force_committed = False
         self.idle_proof = None
@@ -50,6 +53,15 @@ class ReadGate:
 
     def begin_step(self, scheduler=None):
         self.client.check()  # Surface a late stream failure even on all-light rounds.
+        if scheduler is not None:
+            live = {r.request_id for name in ('running', 'waiting', 'skipped_waiting')
+                    for r in getattr(scheduler, name, ())}
+            for items in (self.seen, self.skipped, self.no_remote, self.bypassed):
+                items.intersection_update(live)
+            for mapping in (self.permits, self.generations):
+                for rid in tuple(mapping):
+                    if rid not in live:
+                        del mapping[rid]
         self.round += 1
         self.pending_allocation.clear()
         self.full = time.monotonic() < self.full_until
@@ -95,7 +107,8 @@ class ReadGate:
         # Rollback applies only to a permit acquired for THIS allocation call.
         # An async read may already have submitted IO in an earlier round.
         self.pending_allocation.discard(rid)
-        if not external_tokens or not hint["is_heavy_read"] or rid in self.permits or rid in self.no_remote:
+        if (not external_tokens or not hint["is_heavy_read"] or rid in self.permits
+                or rid in self.no_remote or rid in self.bypassed):
             return True
         if rid == self.force_candidate:
             return True  # No permit RPC. Commit only after native allocate_slots.
@@ -112,6 +125,10 @@ class ReadGate:
             load_attempt_id=1, storage_hint=hint)
         self.log("read_acquire_response", request_id=rid, start_ns=start,
                  duration_ns=time.monotonic_ns()-start, **response)
+        if response.get('bypass'):
+            self.bypassed.add(rid)
+            self.log('read_admission_bypassed', request_id=rid, reason=response.get('reason'))
+            return True
         if response["granted"]:
             self.permits[rid] = response["permit_id"]
             self.pending_allocation.add(rid)
@@ -127,7 +144,10 @@ class ReadGate:
         permit = self.permits.get(rid)
         if permit is None or rid not in self.pending_allocation:
             return
-        self.client.control("rollback", rid, permit_id=permit)
+        response = self.client.control("rollback", rid, permit_id=permit)
+        if response.get('bypass'):
+            self.bypassed.add(rid)
+            self.log('read_rollback_uncertain', request_id=rid, permit_id=permit)
         del self.permits[rid]
         self.pending_allocation.discard(rid)
         self.generations[rid] = self.generations.get(rid, 0)+1
@@ -143,6 +163,12 @@ class ReadGate:
                      allocation_completed_mono=allocated_mono)
         token, decision_mono = self.client.force_admit_async(request.request_id,
                                                            self.hint(request), proof)
+        if token is None:
+            self.bypassed.add(request.request_id)
+            self.force_candidate = None
+            self.log('read_admission_bypassed', request_id=request.request_id,
+                     reason='forced_control_unavailable')
+            return
         self.permits[request.request_id] = token
         self.force_candidate = None
         self.force_committed = True
@@ -153,8 +179,23 @@ class ReadGate:
     def resolved_no_remote(self, request):
         if (os.environ.get('SIM_STACK_ROUTING_SCORE_READY') and self.hint(request)['is_heavy_read']
                 and request.request_id not in self.no_remote and request.request_id not in self.permits):
-            self.client.control('routing_ready',request.request_id)
+            reply = self.client.control('routing_ready',request.request_id)
+            if reply.get('bypass'):
+                self.log('routing_ready_degraded', request_id=request.request_id)
             self.no_remote.add(request.request_id)
+
+    def verify_tier_lookup(self, request, external_tokens):
+        """Record estimate error; admission keeps the original frozen profile."""
+        if self.tier_kv_bytes_per_token is None:
+            return
+        expected_bytes = self.hint(request)['estimated_remote_read_bytes']
+        if external_tokens * self.tier_kv_bytes_per_token != expected_bytes:
+            self.log('tier_lookup_mismatch', request_id=request.request_id,
+                     expected_read_bytes=expected_bytes,
+                     actual_read_bytes=external_tokens*self.tier_kv_bytes_per_token)
+            # A routing-time estimate can differ from the later lookup. Keep
+            # the existing classification, permit and score; the connector's
+            # actual hit count still drives KV allocation and execution.
 
 
 def patch_schedule(original):
@@ -212,6 +253,9 @@ if not self._read_gate.allow(request):
         RollbackExits().visit(node)
     query.body.insert(0, hook)
     query.body.append(ast.parse('''
+self._read_gate.verify_tier_lookup(request, num_external_computed_tokens)
+''').body[0])
+    query.body.append(ast.parse('''
 if num_external_computed_tokens == 0:
     self._read_gate.rollback(request)
     self._read_gate.resolved_no_remote(request)
@@ -220,33 +264,46 @@ if num_external_computed_tokens == 0:
 self._read_gate.after_allocation(request, num_external_computed_tokens, num_scheduled_tokens)
 ''').body[0])
     ast.fix_missing_locations(tree)
-    namespace = {}
-    exec(compile(tree, "<storage-read-admission-v1>", "exec"), original.__globals__, namespace)
-    result = namespace[original.__name__]
+    from sim.stack.scheduler_compat import compile_method
+    result = compile_method(tree, original)
     result._storage_read_admission = True
     return result
 
 
-def install_scheduler_adapter():
+def install_scheduler_adapter(scheduler_class=None):
     from vllm.v1.core.sched.scheduler import Scheduler
     from sim.stack.executor import load_stack_config
     from sim.stack.feedback import feedback_client
+    from sim.stack.scheduler_compat import prepare_schedule_patch
+    Scheduler = scheduler_class or Scheduler
     if getattr(Scheduler.schedule, "_storage_read_admission", False):
         return
     original_init = Scheduler.__init__
     original_add = Scheduler.add_request
-    patched = patch_schedule(Scheduler.schedule)
+    plan = prepare_schedule_patch(Scheduler, patch_schedule)
 
     @functools.wraps(original_init)
     def initialize(self, *args, **kwargs):
+        plan.check_config(kwargs.get("vllm_config", args[0] if args else None))
         original_init(self, *args, **kwargs)
+        plan.check_instance(self)
         cfg = load_stack_config()
         config_path = Path(os.environ["SIM_STACK_CONFIG"])
         worker = os.environ["SIM_STACK_WORKER_ID"]
-        self._read_gate = ReadGate(feedback_client(),
+        if cfg['admission'].get('native_ingress'):
+            import atexit
+            from sim.stack.best_effort import RecoveringControlClient
+            from sim.stack.feedback import new_feedback_client
+            client = RecoveringControlClient(new_feedback_client)
+            atexit.register(client.close)
+        else:
+            client = feedback_client()
+        self._read_gate = ReadGate(client,
             cfg["admission"].get("retry_interval_wall_s", 0.002),
             config_path.parent/f"worker{worker}.read_admission.jsonl",
-            idle_bypass=cfg['admission'].get('idle_bypass',False))
+            idle_bypass=cfg['admission'].get('idle_bypass',False),
+            tier_kv_bytes_per_token=(cfg['storage']['kv_bytes_per_token']
+                if cfg['admission'].get('profile_source') == 'dynamo_tier' else None))
 
     @functools.wraps(original_add)
     def add_request(self, request):
@@ -255,4 +312,6 @@ def install_scheduler_adapter():
 
     Scheduler.__init__ = initialize
     Scheduler.add_request = add_request
-    Scheduler.schedule = patched
+    Scheduler.schedule = plan.method
+    if plan.balance_wrapper:
+        print("TFS_ASCEND_DISABLED_BALANCE_PATCH_INSTALLED", flush=True)

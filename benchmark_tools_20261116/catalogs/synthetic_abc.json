@@ -1,0 +1,3609 @@
+{
+  "version": 1,
+  "case": "synthetic_abc",
+  "source_trace_id": "trace_9b737a0baa7983a48dae3674fc30c341",
+  "source_content_sha256": "9b737a0baa7983a48dae3674fc30c3414c3c6c5afdadffa50984e99a67f61d86",
+  "max_model_len": 98000,
+  "requests": [
+    {
+      "source_index": 0,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14.261231227204735
+    },
+    {
+      "source_index": 1,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 2,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 3,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 4,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 5,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 6,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 7,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 8,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 9,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 10,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 11,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 12,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 13,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 14,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 15,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 16,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16.851647793606034
+    },
+    {
+      "source_index": 17,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 40.772883113876816
+    },
+    {
+      "source_index": 18,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 78.42089895345109
+    },
+    {
+      "source_index": 19,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 123.0871178163278
+    },
+    {
+      "source_index": 20,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 129.0908326141189
+    },
+    {
+      "source_index": 21,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 139.5395140957582
+    },
+    {
+      "source_index": 22,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 143.26014502530097
+    },
+    {
+      "source_index": 23,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 202.948854267276
+    },
+    {
+      "source_index": 24,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 214.8753339782089
+    },
+    {
+      "source_index": 25,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 219.50361758277066
+    },
+    {
+      "source_index": 26,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 260.49007484892655
+    },
+    {
+      "source_index": 27,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 284.36374054722876
+    },
+    {
+      "source_index": 28,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 359.337706399625
+    },
+    {
+      "source_index": 29,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 373.5076594835007
+    },
+    {
+      "source_index": 30,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 414.65221028882644
+    },
+    {
+      "source_index": 31,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 525.7472301642028
+    },
+    {
+      "source_index": 32,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 545.8032932043532
+    },
+    {
+      "source_index": 33,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 580.773734083875
+    },
+    {
+      "source_index": 34,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 684.5542011058852
+    },
+    {
+      "source_index": 35,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 36,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 37,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 38,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 39,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 40,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 41,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 42,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 43,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 44,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 45,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 46,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 47,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 48,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 49,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 50,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 706.4562252978853
+    },
+    {
+      "source_index": 51,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 738.529386654826
+    },
+    {
+      "source_index": 52,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 746.9786220031194
+    },
+    {
+      "source_index": 53,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 810.8705367929688
+    },
+    {
+      "source_index": 54,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 903.6899877673203
+    },
+    {
+      "source_index": 55,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 953.952914619959
+    },
+    {
+      "source_index": 56,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 987.1769460469483
+    },
+    {
+      "source_index": 57,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1001.1553868761201
+    },
+    {
+      "source_index": 58,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1069.7338154908173
+    },
+    {
+      "source_index": 59,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1096.659398796234
+    },
+    {
+      "source_index": 60,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1110.4860232442886
+    },
+    {
+      "source_index": 61,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1149.1383497626032
+    },
+    {
+      "source_index": 62,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1206.2000941279764
+    },
+    {
+      "source_index": 63,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1218.6960502429165
+    },
+    {
+      "source_index": 64,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1290.555380513228
+    },
+    {
+      "source_index": 65,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1494.3157306890607
+    },
+    {
+      "source_index": 66,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1508.3930424845196
+    },
+    {
+      "source_index": 67,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1511.1899399617055
+    },
+    {
+      "source_index": 68,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1516.0985172946291
+    },
+    {
+      "source_index": 69,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1717.5033315991209
+    },
+    {
+      "source_index": 70,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1727.0220295739596
+    },
+    {
+      "source_index": 71,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 72,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 73,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 74,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 75,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 76,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 77,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 78,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 79,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 80,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 81,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 82,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 83,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 84,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 85,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 86,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1736.1243004712178
+    },
+    {
+      "source_index": 87,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1809.3883871487487
+    },
+    {
+      "source_index": 88,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1835.085236131461
+    },
+    {
+      "source_index": 89,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1885.0174683912937
+    },
+    {
+      "source_index": 90,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1891.864350838803
+    },
+    {
+      "source_index": 91,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1899.0234654296003
+    },
+    {
+      "source_index": 92,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1940.7665622141928
+    },
+    {
+      "source_index": 93,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1981.0147488445589
+    },
+    {
+      "source_index": 94,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2017.9562862063885
+    },
+    {
+      "source_index": 95,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2064.1710078119677
+    },
+    {
+      "source_index": 96,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2108.899547470529
+    },
+    {
+      "source_index": 97,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2293.850690997101
+    },
+    {
+      "source_index": 98,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2408.716134924386
+    },
+    {
+      "source_index": 99,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2423.1734928513706
+    },
+    {
+      "source_index": 100,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2460.2264143946786
+    },
+    {
+      "source_index": 101,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2473.516199008528
+    },
+    {
+      "source_index": 102,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2559.2701781092946
+    },
+    {
+      "source_index": 103,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2723.7044705056487
+    },
+    {
+      "source_index": 104,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2896.968613305178
+    },
+    {
+      "source_index": 105,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2904.251099627367
+    },
+    {
+      "source_index": 106,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2959.6048146617995
+    },
+    {
+      "source_index": 107,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 2985.615784743867
+    },
+    {
+      "source_index": 108,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3034.251214541153
+    },
+    {
+      "source_index": 109,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3323.755772615522
+    },
+    {
+      "source_index": 110,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3348.625205821161
+    },
+    {
+      "source_index": 111,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3348.6523716170855
+    },
+    {
+      "source_index": 112,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3351.4253170044717
+    },
+    {
+      "source_index": 113,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 114,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 115,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 116,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 117,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 118,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 119,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 120,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 121,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 122,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 123,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 124,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 125,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 126,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 127,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 128,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3365.875287425628
+    },
+    {
+      "source_index": 129,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3501.396109904352
+    },
+    {
+      "source_index": 130,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3508.979212752693
+    },
+    {
+      "source_index": 131,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3510.3082420206274
+    },
+    {
+      "source_index": 132,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3555.8241670056404
+    },
+    {
+      "source_index": 133,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3635.8214329951543
+    },
+    {
+      "source_index": 134,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3668.73787695361
+    },
+    {
+      "source_index": 135,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 136,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 137,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 138,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 139,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 140,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 141,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 142,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 143,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 144,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 145,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 146,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 147,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 148,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 149,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 150,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3724.7565184360496
+    },
+    {
+      "source_index": 151,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3779.4762999940403
+    },
+    {
+      "source_index": 152,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3946.126916474523
+    },
+    {
+      "source_index": 153,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3971.3473344367612
+    },
+    {
+      "source_index": 154,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4080.3307930605342
+    },
+    {
+      "source_index": 155,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4190.384540653952
+    },
+    {
+      "source_index": 156,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4273.608809627607
+    },
+    {
+      "source_index": 157,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4350.945912404326
+    },
+    {
+      "source_index": 158,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4386.25552449812
+    },
+    {
+      "source_index": 159,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4467.838163021506
+    },
+    {
+      "source_index": 160,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4633.431229736518
+    },
+    {
+      "source_index": 161,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4646.720117179583
+    },
+    {
+      "source_index": 162,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4707.697198069272
+    },
+    {
+      "source_index": 163,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4759.755544826949
+    },
+    {
+      "source_index": 164,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4845.405653842196
+    },
+    {
+      "source_index": 165,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4872.332669761531
+    },
+    {
+      "source_index": 166,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4965.299455039408
+    },
+    {
+      "source_index": 167,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4969.670019950229
+    },
+    {
+      "source_index": 168,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5115.9480739893415
+    },
+    {
+      "source_index": 169,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5132.341987009587
+    },
+    {
+      "source_index": 170,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5269.2814517156
+    },
+    {
+      "source_index": 171,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5335.875238327951
+    },
+    {
+      "source_index": 172,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5346.072267878348
+    },
+    {
+      "source_index": 173,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5458.058761544525
+    },
+    {
+      "source_index": 174,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5698.089599320193
+    },
+    {
+      "source_index": 175,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5873.3911106020705
+    },
+    {
+      "source_index": 176,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5882.946185380078
+    },
+    {
+      "source_index": 177,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5913.774100408079
+    },
+    {
+      "source_index": 178,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5925.573694895475
+    },
+    {
+      "source_index": 179,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5972.828593611754
+    },
+    {
+      "source_index": 180,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6024.652327501249
+    },
+    {
+      "source_index": 181,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6085.11582343313
+    },
+    {
+      "source_index": 182,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6103.591056341379
+    },
+    {
+      "source_index": 183,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6247.537344588286
+    },
+    {
+      "source_index": 184,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6298.081854093363
+    },
+    {
+      "source_index": 185,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6370.193271081469
+    },
+    {
+      "source_index": 186,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6463.431616754285
+    },
+    {
+      "source_index": 187,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6498.885898221442
+    },
+    {
+      "source_index": 188,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6499.0499487555835
+    },
+    {
+      "source_index": 189,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 190,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 191,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 192,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 193,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 194,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 195,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 196,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 197,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 198,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 199,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 200,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 201,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 202,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 203,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 204,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6534.462299214763
+    },
+    {
+      "source_index": 205,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6622.188540725145
+    },
+    {
+      "source_index": 206,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6633.6210664416785
+    },
+    {
+      "source_index": 207,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6713.67224435726
+    },
+    {
+      "source_index": 208,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6782.0568918028675
+    },
+    {
+      "source_index": 209,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6793.556689906899
+    },
+    {
+      "source_index": 210,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6870.669465846175
+    },
+    {
+      "source_index": 211,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6872.4455529430115
+    },
+    {
+      "source_index": 212,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6881.28613372101
+    },
+    {
+      "source_index": 213,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6887.253109083727
+    },
+    {
+      "source_index": 214,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7004.855349992091
+    },
+    {
+      "source_index": 215,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7024.692124270383
+    },
+    {
+      "source_index": 216,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7144.335048330186
+    },
+    {
+      "source_index": 217,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7201.468093143685
+    },
+    {
+      "source_index": 218,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7344.736136010691
+    },
+    {
+      "source_index": 219,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7370.358952457387
+    },
+    {
+      "source_index": 220,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7378.469325602757
+    },
+    {
+      "source_index": 221,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7422.637848740566
+    },
+    {
+      "source_index": 222,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7430.116543378165
+    },
+    {
+      "source_index": 223,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7541.714874951392
+    },
+    {
+      "source_index": 224,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7590.500997810376
+    },
+    {
+      "source_index": 225,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7613.7545544186905
+    },
+    {
+      "source_index": 226,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7701.034031203569
+    },
+    {
+      "source_index": 227,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7734.476007623194
+    },
+    {
+      "source_index": 228,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7938.8068829313015
+    },
+    {
+      "source_index": 229,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7979.428740448229
+    },
+    {
+      "source_index": 230,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8063.762463817413
+    },
+    {
+      "source_index": 231,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8085.160704352816
+    },
+    {
+      "source_index": 232,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8136.787741280825
+    },
+    {
+      "source_index": 233,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8162.4147124827705
+    },
+    {
+      "source_index": 234,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8376.384979770235
+    },
+    {
+      "source_index": 235,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8402.106840055836
+    },
+    {
+      "source_index": 236,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8418.637329963303
+    },
+    {
+      "source_index": 237,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8496.32010323788
+    },
+    {
+      "source_index": 238,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8533.59010250465
+    },
+    {
+      "source_index": 239,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8557.247307892743
+    },
+    {
+      "source_index": 240,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 241,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 242,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 243,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 244,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 245,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 246,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 247,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 248,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 249,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 250,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 251,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 252,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 253,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 254,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 255,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8613.552554964825
+    },
+    {
+      "source_index": 256,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8652.928355974775
+    },
+    {
+      "source_index": 257,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8709.908768333118
+    },
+    {
+      "source_index": 258,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8733.647710430936
+    },
+    {
+      "source_index": 259,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8789.794342116276
+    },
+    {
+      "source_index": 260,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 8874.614645234753
+    },
+    {
+      "source_index": 261,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9023.369545039792
+    },
+    {
+      "source_index": 262,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9032.11166236368
+    },
+    {
+      "source_index": 263,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9146.068606651677
+    },
+    {
+      "source_index": 264,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9227.120936145937
+    },
+    {
+      "source_index": 265,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9314.107555797033
+    },
+    {
+      "source_index": 266,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9467.306380153832
+    },
+    {
+      "source_index": 267,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9610.391814920114
+    },
+    {
+      "source_index": 268,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9821.993441286166
+    },
+    {
+      "source_index": 269,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9880.283725420159
+    },
+    {
+      "source_index": 270,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9948.373484639656
+    },
+    {
+      "source_index": 271,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10030.374753152255
+    },
+    {
+      "source_index": 272,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10111.283752598078
+    },
+    {
+      "source_index": 273,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10116.477901552962
+    },
+    {
+      "source_index": 274,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10151.071792204626
+    },
+    {
+      "source_index": 275,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10253.750239303925
+    },
+    {
+      "source_index": 276,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10371.902949741027
+    },
+    {
+      "source_index": 277,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10431.213186091405
+    },
+    {
+      "source_index": 278,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10730.91499571058
+    },
+    {
+      "source_index": 279,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10748.39297824011
+    },
+    {
+      "source_index": 280,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10762.345496767264
+    },
+    {
+      "source_index": 281,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10838.72896480802
+    },
+    {
+      "source_index": 282,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10883.412546547306
+    },
+    {
+      "source_index": 283,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10892.39164315641
+    },
+    {
+      "source_index": 284,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10916.998051792327
+    },
+    {
+      "source_index": 285,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10987.895371944322
+    },
+    {
+      "source_index": 286,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10992.562381832036
+    },
+    {
+      "source_index": 287,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11039.883487854835
+    },
+    {
+      "source_index": 288,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11210.059097678864
+    },
+    {
+      "source_index": 289,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11220.722908897049
+    },
+    {
+      "source_index": 290,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11271.810772573266
+    },
+    {
+      "source_index": 291,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11380.278477167278
+    },
+    {
+      "source_index": 292,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11440.698577216266
+    },
+    {
+      "source_index": 293,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11491.934086866357
+    },
+    {
+      "source_index": 294,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11536.445689873912
+    },
+    {
+      "source_index": 295,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11787.418503390121
+    },
+    {
+      "source_index": 296,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11857.801309393662
+    },
+    {
+      "source_index": 297,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11904.756931290869
+    },
+    {
+      "source_index": 298,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11954.586811736797
+    },
+    {
+      "source_index": 299,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 11967.04245713465
+    },
+    {
+      "source_index": 300,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12010.552831688556
+    },
+    {
+      "source_index": 301,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12022.374129196101
+    },
+    {
+      "source_index": 302,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12069.38668642629
+    },
+    {
+      "source_index": 303,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12271.822328548447
+    },
+    {
+      "source_index": 304,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12275.881360294326
+    },
+    {
+      "source_index": 305,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12275.966642165611
+    },
+    {
+      "source_index": 306,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12288.484255168254
+    },
+    {
+      "source_index": 307,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12298.839797894994
+    },
+    {
+      "source_index": 308,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12308.461498603958
+    },
+    {
+      "source_index": 309,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12440.85708453757
+    },
+    {
+      "source_index": 310,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12487.198801534734
+    },
+    {
+      "source_index": 311,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12554.381661237732
+    },
+    {
+      "source_index": 312,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12641.749910431134
+    },
+    {
+      "source_index": 313,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12788.728488733504
+    },
+    {
+      "source_index": 314,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12841.354085892226
+    },
+    {
+      "source_index": 315,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12903.779544142695
+    },
+    {
+      "source_index": 316,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12965.068506357497
+    },
+    {
+      "source_index": 317,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13230.362213557513
+    },
+    {
+      "source_index": 318,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13328.799047108549
+    },
+    {
+      "source_index": 319,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13407.902883305136
+    },
+    {
+      "source_index": 320,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13422.317952079982
+    },
+    {
+      "source_index": 321,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13577.446255534262
+    },
+    {
+      "source_index": 322,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13658.710467358158
+    },
+    {
+      "source_index": 323,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13662.54069393718
+    },
+    {
+      "source_index": 324,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13706.65625754707
+    },
+    {
+      "source_index": 325,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13741.241836045221
+    },
+    {
+      "source_index": 326,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 13901.401785147416
+    },
+    {
+      "source_index": 327,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14063.858802838724
+    },
+    {
+      "source_index": 328,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14116.182279925388
+    },
+    {
+      "source_index": 329,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14190.60066200163
+    },
+    {
+      "source_index": 330,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14220.333078721467
+    },
+    {
+      "source_index": 331,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14221.480269415422
+    },
+    {
+      "source_index": 332,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14290.422963904044
+    },
+    {
+      "source_index": 333,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14402.694108569305
+    },
+    {
+      "source_index": 334,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14417.885893511577
+    },
+    {
+      "source_index": 335,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14629.724931209354
+    },
+    {
+      "source_index": 336,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14688.103031224451
+    },
+    {
+      "source_index": 337,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14688.77791870646
+    },
+    {
+      "source_index": 338,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14694.91583872721
+    },
+    {
+      "source_index": 339,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 384,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14992.204600232562
+    },
+    {
+      "source_index": 340,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 341,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 342,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 343,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 344,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 345,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 346,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 347,
+      "request_class": "A",
+      "hit_tokens": 30720,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15075.269977417323
+    },
+    {
+      "source_index": 348,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15086.523294869972
+    },
+    {
+      "source_index": 349,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15172.029206199733
+    },
+    {
+      "source_index": 350,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15277.258043650627
+    },
+    {
+      "source_index": 351,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15493.382844700303
+    },
+    {
+      "source_index": 352,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15803.950701069936
+    },
+    {
+      "source_index": 353,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15978.453196999642
+    },
+    {
+      "source_index": 354,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15997.957009446936
+    },
+    {
+      "source_index": 355,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16614.845108568108
+    },
+    {
+      "source_index": 356,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16899.23939895735
+    },
+    {
+      "source_index": 357,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16936.92217596057
+    },
+    {
+      "source_index": 358,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16998.105841779092
+    },
+    {
+      "source_index": 359,
+      "request_class": "B",
+      "hit_tokens": 9344,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 17000.0
+    }
+  ]
+}
