@@ -1,5 +1,12 @@
 # Dynamo + vLLM / Ascend 的 CPU 调度仿真启动包
 
+## 2026-11-18：服务器三实例仿真与 benchmark
+
+新增 [三实例运行说明](../docs/服务器三实例仿真.md)。入口为 `scripts/run_server_benchmark.py`，使用独立构建的 Dynamo 1.2、MiniMax 50k v2 估时、3 个实例、6 盘共享 25 GB/s。支持 `--alpha` 和 `--dev`。服务器请求工具位于仓库根目录的 `benchmark_tools_20261116/`，只负责构建和发送请求。
+
+原有 `benchmark/` 的 Dynamo 1.5 / GLM 负载与历史报告保留，不能把其带宽、实例数和验收结果套用到新入口。仿真不替代真机 NPU/RDMA/OD 故障验证。
+
+
 ## 2026-10-30：与研究版运行代码同步
 
 当前实现已同步研究版的直接组合计时、四种加载反馈移除、强制准入释放等待移除，以及Dynamo Runtime最终答复/后台EOF收尾。

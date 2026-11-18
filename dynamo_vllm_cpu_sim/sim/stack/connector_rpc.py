@@ -50,6 +50,10 @@ class SimConnectorRpc(KVConnectorBase_V1):
         self._pending_demands: dict[str, float] = {}
 
     def get_num_new_matched_tokens(self, request, num_computed_tokens):
+        if self.cfg.get("server_dynamo"):
+            params = request.kv_transfer_params or {}
+            if params.get("enable_phase2_dump") is not False:
+                raise ValueError("server-aligned replay requires enable_phase2_dump=false at the connector")
         size = self._vllm_config.cache_config.block_size
         end = min(len(request.block_hashes), (request.num_prompt_tokens - 1) // size)
         candidates = list(request.block_hashes[num_computed_tokens // size : end])
@@ -67,7 +71,9 @@ class SimConnectorRpc(KVConnectorBase_V1):
             blocks.append(block)
         self._pending_blocks[request.request_id] = blocks
         n = len(blocks) * size
-        if n and self.cfg["compute"].get("mode") == "glm5_d950pr":
+        if n and self.cfg.get("server_dynamo"):
+            self._pending_demands[request.request_id] = len(blocks) * self.cfg["storage"]["path_Bps"]
+        elif n and self.cfg["compute"].get("mode") in ("glm5_d950pr", "prefill_fit"):
             from sim.compute_time import reference_compute_s
             budget = self.cfg.get("request_profile", {}).get(
                 "profile_token_budget", self.cfg["max_num_batched_tokens"])
@@ -85,9 +91,9 @@ class SimConnectorRpc(KVConnectorBase_V1):
                 == num_external_tokens
             )
             demand = self._pending_demands.pop(request.request_id, self.demand)
-            # GLM reference gives the whole request's V/T. Storage claimants are
+            # The fitted reference gives the whole request's V/T. Storage claimants are
             # blocks, so preserve sum(block demands) == request demand.
-            if self.cfg["compute"].get("mode") == "glm5_d950pr" and demand is not None:
+            if self.cfg["compute"].get("mode") in ("glm5_d950pr", "prefill_fit") and demand is not None:
                 demand /= len(wanted)
             if self.mode != "bulk":
                 load = self.client.layer_register(self.worker_id,request.request_id,wanted,demand)

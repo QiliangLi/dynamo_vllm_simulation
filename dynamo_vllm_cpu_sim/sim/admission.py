@@ -86,6 +86,8 @@ class AdmissionController:
         raw = xs[math.floor(self.c["quantile"] * (len(xs) - 1))]
         self.theta = (raw if raw > 0 else min(positive)) if positive else None
         self.cap = max(1, math.floor(self.c["reference_bandwidth_Bps"] / self.theta)) if self.theta else None
+        if self.c.get("dev_mode", False):
+            self.cap = None
         self.threshold_version += 1
         self._log("threshold_updated", now_s, threshold_version=self.threshold_version,
                   theta=self.theta, raw_quantile=raw, cap=self.cap, held=self.held,
@@ -100,7 +102,7 @@ class AdmissionController:
         return p.deadline_s - now_s - p.reference_service_s, p.deadline_s, rid
 
     def pick(self, now_s):
-        limited = self.c["mode"] in ("quota_fcfs", "tfs")
+        limited = self.cap is not None and self.c["mode"] in ("quota_fcfs", "tfs")
         for rid in sorted(self.pending, key=lambda rid: self._key(rid, now_s)):
             if not limited or not self.is_heavy(self.records[rid].profile) or self.held < self.cap:
                 return AdmissionDecision(rid, "normal", self.threshold_version)

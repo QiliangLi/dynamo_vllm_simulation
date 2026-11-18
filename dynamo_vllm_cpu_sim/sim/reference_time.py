@@ -14,6 +14,8 @@ class ReferenceTime:
     read_bytes: int
     pressure_Bps: float
     model: str
+    compute_time_source: str = ""
+    model_sha256: str = ""
 
 
 class ReferenceTimeEstimator(ABC):
@@ -30,7 +32,7 @@ class ReferenceTimeEstimator(ABC):
     def pressure(self, read_bytes, compute_s):
         return read_bytes/compute_s
 
-    def estimate(self, prompt_tokens, cached_tokens):
+    def estimate(self, prompt_tokens, cached_tokens, *, remote_read_tokens=None):
         if not 0 <= cached_tokens < prompt_tokens:
             raise ValueError('reference prefix must leave at least one new token')
         c=self.config
@@ -43,7 +45,11 @@ class ReferenceTimeEstimator(ABC):
             chunks.append(self.compute.estimate_step([(h,u)]))
             h+=u
         compute_s=math.fsum(t['duration_s'] for t in chunks)
-        read_bytes=cached_tokens*c['storage']['kv_bytes_per_token']
+        if remote_read_tokens is None:
+            remote_read_tokens = cached_tokens
+        if type(remote_read_tokens) is not int or not 0 <= remote_read_tokens <= cached_tokens:
+            raise ValueError('remote read tokens must be a subset of cached tokens')
+        read_bytes=remote_read_tokens*c['storage']['kv_bytes_per_token']
         bandwidth=self.effective_bandwidth()
         if not math.isfinite(bandwidth) or bandwidth<=0:
             raise ValueError('reference bandwidth must be positive and finite')
@@ -74,7 +80,11 @@ class ReferenceTimeEstimator(ABC):
         if not math.isfinite(service_s) or min(compute_s,service_s)<=0:
             raise ValueError('reference time must be positive and finite')
         return ReferenceTime(compute_s,read_s,service_s,read_bytes,
-                             self.pressure(read_bytes,compute_s),self.name)
+                             self.pressure(read_bytes,compute_s),self.name,
+                             next((t['compute_time_source'] for t in chunks
+                                   if t.get('compute_time_source', '').endswith('_extrapolated')),
+                                  chunks[0].get('compute_time_source', '')),
+                             chunks[0].get('model_sha256', ''))
 
 
 class SAReferenceTimeEstimator(ReferenceTimeEstimator):
@@ -101,10 +111,14 @@ class LinearReferenceTimeEstimator(GLM5ReferenceTimeEstimator):
     name='linear_reference_v2'
 
 
+class MiniMaxReferenceTimeEstimator(GLM5ReferenceTimeEstimator):
+    name = 'prefill_fit_reference_v1'
+
+
 def get_reference_time_estimator(config):
     mode=config['compute'].get('mode','linear')
     factory={'sa_e26f':SAReferenceTimeEstimator,'glm5_d950pr':GLM5ReferenceTimeEstimator,
-             'linear':LinearReferenceTimeEstimator}
+             'linear':LinearReferenceTimeEstimator,'prefill_fit':MiniMaxReferenceTimeEstimator}
     if mode not in factory:
         raise ValueError('unknown reference time model: '+str(mode))
     return factory[mode](config)

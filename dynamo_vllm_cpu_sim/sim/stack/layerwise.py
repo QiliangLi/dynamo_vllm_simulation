@@ -1,6 +1,7 @@
 """Layerwise contracts and execution; native SchedulerOutput remains authoritative."""
 import math
 import time
+from sim.stack.storage_progress import completion_mode
 
 MODES = ("bulk", "layer_serial", "layer_pipeline")
 
@@ -39,7 +40,10 @@ def layer_spec(config):
         raise ValueError("layerwise requires prefix cache off and grouped max_min_fair")
     options = config.get("layerwise", {})
     glm = config["compute"].get("mode") == "glm5_d950pr"
-    layers = options.get("layers", 78 if glm else 1)
+    minimax = config["compute"].get("mode") == "prefill_fit"
+    layers = options.get("layers", 78 if glm else 16 if minimax else 1)
+    if minimax and layers != 16:
+        raise ValueError("MiniMax fit represents exactly 16 layers")
     if type(layers) is not int or layers < 1 or (glm and layers != 78):
         raise ValueError("bad layer count; GLM5 has 78 layers")
     total = config["storage"]["kv_bytes_per_token"]
@@ -66,6 +70,8 @@ def layer_durations(timing, config):
             result = ([timing["dense_layer_us"]*1e-6]*dense
                       + [timing["moe_layer_us"]*1e-6]*(count-dense))
         result[0] += timing["engine_overhead_s"]
+    elif timing["mode"] == "prefill_fit":
+        result = [timing["duration_s"]/count]*count
     else:
         overhead = config["compute"]["step_overhead_s"]
         result = [(timing["duration_s"]-overhead)/count]*count
@@ -84,6 +90,7 @@ class LayerRunner:
         self.resident = set()
         self.submitted = set()
         self.ready = set()
+        self.completion_mode = completion_mode(config)
 
     def install(self, metadata):
         for rid, load in getattr(metadata, "loads", {}).items():
@@ -101,11 +108,17 @@ class LayerRunner:
                    and (rid,layer) not in self.submitted]
         if not pending:
             return
+        options = {}
+        if self.completion_mode == "notify":
+            options["subscription"] = self.storage.prepare_layers(self.worker, pending, layer)
         if self.config["compute"].get("mode") == "sa_e26f":
-            self.storage.layer_submit(self.worker,pending,layer,step=step,
-                                      compute_s=compute_s,due_mono=due_mono)
-        else:
-            self.storage.layer_submit(self.worker, pending, layer)
+            options.update(step=step, compute_s=compute_s, due_mono=due_mono)
+        try:
+            self.storage.layer_submit(self.worker, pending, layer, **options)
+        except Exception as exc:
+            if self.completion_mode == "notify":
+                self.storage.fail_layers(exc)
+            raise
         for rid in pending:
             self.submitted.add((rid,layer))
             size = self.loads[rid]["layer_bytes"]
@@ -117,7 +130,11 @@ class LayerRunner:
         waiting = [rid for rid in ids if rid in self.loads and rid not in self.resident
                    and (rid,layer) not in self.ready]
         while waiting:
-            result = self.storage.layer_status(self.worker,waiting,layer)
+            if self.completion_mode == "notify":
+                results = {rid:self.storage.layer_result(rid, layer) for rid in waiting}
+                result = dict(ready=list(results), completed_s={rid:r["completed_s"] for rid,r in results.items()})
+            else:
+                result = self.storage.layer_status(self.worker,waiting,layer)
             for rid in result["ready"]:
                 self.ready.add((rid,layer))
                 self.emit("layer_read_observed",layer=layer,rid=rid,
@@ -137,12 +154,15 @@ class LayerRunner:
             for rid in ids:
                 self.observer.starting(rid)
         self._submit(ids,0,step=step,compute_s=durations[0])
+        server_lookahead = self.config.get("server_dynamo") and self.config["kv_transfer_mode"] == "layer_pipeline"
         for layer,duration in enumerate(durations):
+            if server_lookahead and layer+1<len(durations):
+                self._submit(ids,layer+1)
             self._wait(ids,layer)
             begin = time.monotonic()
             self.emit("layer_compute_start",occurred_mono=begin,step=step,layer=layer,req_ids=ids,
                       duration_model_s=duration)
-            if self.config["kv_transfer_mode"] == "layer_pipeline" and layer+1<len(durations):
+            if not server_lookahead and self.config["kv_transfer_mode"] == "layer_pipeline" and layer+1<len(durations):
                 self._submit(ids,layer+1,step=step,compute_s=duration,
                              due_mono=begin+self.clock.to_wall(duration))
             # Prefetch RPC processing is inside the layer's elapsed interval.
@@ -154,6 +174,8 @@ class LayerRunner:
         return time.perf_counter()-started
 
     def forget(self,rid):
+        if self.completion_mode == "notify":
+            self.storage.forget_layers(rid)
         self.loads.pop(rid,None)
         self.resident.discard(rid)
         self.ready = {key for key in self.ready if key[0]!=rid}

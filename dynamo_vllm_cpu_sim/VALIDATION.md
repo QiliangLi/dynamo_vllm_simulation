@@ -2128,3 +2128,14 @@ Mooncake ABC/ABCD 90GB/s使用3×30，100GB/s使用4×25；AgentX180GB/s使用6�
 逐次检查请求、h/u/token/字节、公式、层屏障、真实队列、原生路由、许可和路由账本归零、RPC排空、进程退出及C++源码SHA。逐层完成时刻和逐盘积分通过Python参考模型重放，最大完成时刻差4.26e-14秒。48张新图逐张检查；公开归档另验图像、CSV、SHA和链接。
 
 六份完整报告和联合总览从report目录发现；每份均包含历史Python对照及单次运行限制。大型原始事件留在本机cpp-disk-matrix-20261103-r1审计目录，不随本次发布。详见[CPP_DISK_MATRIX_VALIDATION.json](CPP_DISK_MATRIX_VALIDATION.json)。
+
+
+## 2026-11-18 交付目录验证
+
+- WSL Python 环境执行 `python -m unittest discover -s tests -v`：421 项通过。
+- 服务器 benchmark 执行 `python -m unittest discover -s benchmark_tools_20261116 -p test_tools.py -v`：11 项通过。使用本地 HTTP 测试服务，不依赖 NPU。
+- `check_runtime_sync.py --source`：237 个共享文件与研究版源码一致。
+- 从本次交付目录运行 `run_server_benchmark.py`，使用已有独立 Dynamo 1.2 构建和 pilot24：default 与 TFS 各完成 24/24；3 个 worker、KV 路由、16 层计算及额度释放检查通过。
+- 本次没有在服务器运行 NPU，也没有重新编译 Rust；上述冒烟复用了本机既有构建。源码构建入口和说明一并交付。Dynamo 源码快照保留既有格式，未为此次发布清理上游空白字符。
+
+原始日志与完整事件留在本机，没有随本次代码发布。冒烟结果只验证功能，不作为 TFS 性能收益结论。

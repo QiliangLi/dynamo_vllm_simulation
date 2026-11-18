@@ -54,7 +54,7 @@ class AdmissionOutbox:
                     continue
                 try:
                     response = self.client._exchange(row)
-                    if row.get('op') == 'force_acquire':
+                    if row.get('op') == 'force_acquire' and not response.get('bypass'):
                         if not response.get('granted') or response['permit_id'] != row['permit_id']:
                             raise RuntimeError('forced admission was not acknowledged')
                     result.set_result(response)

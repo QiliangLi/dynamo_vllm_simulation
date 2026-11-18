@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "case": "pilot24",
+  "source_trace_id": "trace_111034fb1f5b8cb15cf2653fdf5a1328",
+  "source_content_sha256": "111034fb1f5b8cb15cf2653fdf5a13287b59a82f75773ad6bd14e563ef6ac0b0",
+  "max_model_len": 98000,
+  "requests": [
+    {
+      "source_index": 0,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 0.0
+    },
+    {
+      "source_index": 3,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 0.0
+    },
+    {
+      "source_index": 16,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 896,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 428.57482995896794
+    },
+    {
+      "source_index": 20,
+      "request_class": "A",
+      "hit_tokens": 32768,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 428.57482995896794
+    },
+    {
+      "source_index": 45,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 1714.2993198358718
+    },
+    {
+      "source_index": 68,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3000.023809712776
+    },
+    {
+      "source_index": 86,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 3968,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 3857.1734696307117
+    },
+    {
+      "source_index": 88,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 4285.748299589679
+    },
+    {
+      "source_index": 111,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 5571.472789466583
+    },
+    {
+      "source_index": 137,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 6857.197279343487
+    },
+    {
+      "source_index": 151,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 1536,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 7714.346939261423
+    },
+    {
+      "source_index": 169,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 9000.071429138326
+    },
+    {
+      "source_index": 193,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10285.79591901523
+    },
+    {
+      "source_index": 208,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 3968,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10714.227890697544
+    },
+    {
+      "source_index": 214,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 10714.227890697544
+    },
+    {
+      "source_index": 238,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12000.095238851103
+    },
+    {
+      "source_index": 264,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 12857.244898769039
+    },
+    {
+      "source_index": 287,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 2048,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14142.969388645943
+    },
+    {
+      "source_index": 289,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 14142.969388645943
+    },
+    {
+      "source_index": 312,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 15428.693878522847
+    },
+    {
+      "source_index": 331,
+      "request_class": "A",
+      "hit_tokens": 8192,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 16285.700680164127
+    },
+    {
+      "source_index": 345,
+      "request_class": "C",
+      "hit_tokens": 0,
+      "miss_tokens": 896,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 17142.993198358716
+    },
+    {
+      "source_index": 358,
+      "request_class": "B",
+      "hit_tokens": 3072,
+      "miss_tokens": 768,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 18000.0
+    },
+    {
+      "source_index": 359,
+      "request_class": "A",
+      "hit_tokens": 16384,
+      "miss_tokens": 256,
+      "block_size": 128,
+      "add_special_tokens": true,
+      "max_tokens": 1,
+      "arrival_offset_ms": 18000.0
+    }
+  ],
+  "pilot_only": true,
+  "selection": "Within each class, evenly spaced indices: A16 B6 C2. Original arrival offsets retained; not full-load performance trace."
+}

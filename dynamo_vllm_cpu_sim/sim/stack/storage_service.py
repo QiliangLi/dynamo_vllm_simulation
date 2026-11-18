@@ -3,9 +3,10 @@
 复用 sim/storage.py 的盘放置、两带宽策略和共享链路约束。max_min_fair 默认使用
 带块数权重的 GroupedStorage；可用 max_min_read_representation=per_block 回退。
 active_split 保持逐块 FIFO。时间推进：壁钟模式（设计文档模式 1）——虚拟 now 取服务启动后的
-单调流逝秒，惰性推进（每次 RPC 到来时把内部事件队列推进到当前单调时刻，
+单调流逝秒。默认 poll 模式惰性推进（每次 RPC 到来时把内部事件队列推进到当前单调时刻，
 逐步停在 Storage.next_time() 的事件边界上，与 DES run.py 的事件循环同构，
-只是触发点从"全局事件循环"换成"RPC 到达"）。
+只是触发点从"全局事件循环"换成"RPC 到达"）。可选 notify 模式由后台线程按最近事件
+推进，提交前仍结算已有进度；查询只读完成账本，完成通知在独立连接上发送。
 
 共享池预置：与 DES run.py:52-58 相同——用真实 Request 的 block_hashes 按
 trace 的 remote_prefix_tokens 装载（读侧池，t=0 快照语义）。
@@ -20,6 +21,7 @@ trace 的 remote_prefix_tokens 装载（读侧池，t=0 快照语义）。
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import json
 import os
 import socket
@@ -39,6 +41,7 @@ from sim.storage import Storage  # noqa: E402
 from sim.grouped_storage import GroupedStorage  # noqa: E402
 from sim.stack.clock import TimeScale  # noqa: E402
 from sim.mooncake import engine_key, validate_hit_row  # noqa: E402
+from sim.stack.storage_progress import StorageProgress, completion_mode  # noqa: E402
 
 
 class Service:
@@ -109,6 +112,33 @@ class Service:
             else:
                 from sim.stack.layer_storage import LayerStorageState
                 self.layer_state = LayerStorageState(self,config)
+        self.progress = None
+        self.service_mode = storage_config.get("service_mode", "locked")
+        if self.service_mode not in ("locked", "single_writer"):
+            raise ValueError("storage.service_mode must be locked or single_writer")
+        if self.service_mode == "single_writer" and completion_mode(config) != "notify":
+            raise ValueError("single_writer requires completion_mode=notify")
+        if completion_mode(config) == "notify":
+            if self.layer_state is None or self.sa_mode or not grouped:
+                raise ValueError("notify requires grouped max_min_fair layerwise storage")
+            if self.service_mode == "single_writer":
+                from sim.stack.storage_owner import SingleWriterProgress
+                self.progress = SingleWriterProgress(self)
+            else:
+                self.progress = StorageProgress(self)
+
+    def start(self):
+        if self.progress is not None:
+            self.progress.start()
+
+    def close(self):
+        if self.progress is not None:
+            self.progress.close()
+        self.gc_window.end(collect=False)
+
+    def _refresh_query(self):
+        if self.progress is None:
+            self._advance_to_wall()
 
     # ------------------------------------------------------------------
     def _drain_done(self, done: list[tuple[int, str]]) -> None:
@@ -116,6 +146,8 @@ class Service:
             if self.layer_state is not None:
                 self.last_completion_s = self.store.now
                 self.layer_state.complete(key)
+                if self.progress is not None:
+                    self.progress.publish(key, self.store.now)
                 continue
             worker, rid = key
             self.last_completion_s = self.store.now
@@ -125,6 +157,8 @@ class Service:
             self._finished.setdefault(worker, []).append(rid)
 
     def _advance_to_wall(self) -> None:
+        if self.service_mode == "single_writer" and threading.current_thread() is not self.progress.thread:
+            raise RuntimeError("only the storage owner may advance the model")
         now = self.clock.to_model(time.monotonic() - self.t0)
         if self.sa_mode:
             self.layer_state.advance_to(now)
@@ -217,7 +251,7 @@ class Service:
         return {"ok": True, "rids": rids}
 
     def op_stats(self) -> dict:
-        self._advance_to_wall()
+        self._refresh_query()
         snap = self.store.snapshot()
         snap["ok"] = True
         snap["gc_window"] = self.gc_window.snapshot()
@@ -236,6 +270,8 @@ class Service:
             snap["read_history"] = self.read_history
         if self.layer_state is not None:
             snap.update(self.layer_state.snapshot())
+        if self.progress is not None:
+            snap["storage_completion"] = self.progress.snapshot()
         return snap
 
     def op_gc_control(self, action, collect=True):
@@ -256,6 +292,91 @@ class Service:
         raise ValueError('unknown GC window action')
 
 
+    def serialized(self, operation, name):
+        if self.service_mode == "single_writer":
+            return self.progress.call(operation, name)
+        with self._lock:
+            return operation()
+
+    def dispatch(self, req):
+        try:
+            op = req.get("op")
+            if self.progress is not None and op != "stats":
+                self.progress.check()
+            if op not in ('gc_control', 'stats'):
+                self.gc_window.check()
+            if op == 'gc_control':
+                resp = self.op_gc_control(req['action'], req.get('collect', True))
+            elif op == "present":
+                resp = self.op_present(req.get("blocks_hex", []))
+            elif op == "bind":
+                resp = self.op_bind(req["engine_id"],req["source_id"],req["prompt_token_ids"],req["hit_tokens"])
+            elif op == "present_for_request":
+                resp = self.op_present_for_request(req["rid"],req["start_block"],req["blocks_hex"])
+            elif op == "submit":
+                resp = self.op_submit(
+                    req.get("worker"),
+                    req.get("rid"),
+                    req.get("blocks_hex", []),
+                    req.get("demand"),
+                )
+            elif op == "finished":
+                resp = self.op_finished(req.get("worker"))
+            elif op == "layer_register" and self.layer_state is not None:
+                resp = self.layer_state.register(req["worker"],req["rid"],req["blocks_hex"],req["demand"])
+            elif op == "layer_submit" and self.layer_state is not None:
+                if self.progress is not None:
+                    self.progress.require(req["worker"], req.get("subscription"))
+                options={k:req[k] for k in ("step","compute_s","due_mono") if k in req}
+                resp = self.layer_state.submit(req["worker"],req["rids"],req["layer"],**options)
+                if self.progress is not None:
+                    self.progress.wake()
+            elif op == "layer_cancel" and self.layer_state is not None:
+                if self.progress is None:
+                    raise ValueError("layer cancel requires notify mode")
+                self.progress.require(req["worker"], req.get("subscription"))
+                resp = self.layer_state.cancel(req["worker"], req["rid"])
+                self.progress.wake()
+            elif op == "layer_status" and self.layer_state is not None:
+                resp = self.layer_state.status(req["worker"],req["rids"],req["layer"])
+            elif op == "stats":
+                # Model/history lists are mutable. Freeze the snapshot
+                # in the model context before JSON encoding on this connection.
+                resp = deepcopy(self.op_stats())
+            else:
+                resp = {"ok": False, "error": f"unknown op {op!r}"}
+        except Exception as exc:  # noqa: BLE001
+            resp = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+        return resp
+
+
+def serve_notifications(conn, service, worker):
+    token = None
+    try:
+        if service.progress is None:
+            raise ValueError("completion notifications are disabled")
+        token, mailbox = service.serialized(lambda: service.progress.subscribe(worker), "subscribe")
+        # This handler is the only writer for this socket. No socket IO under
+        # the storage lock; a stalled peer has a bounded send timeout.
+        conn.settimeout(5.)
+        conn.sendall((json.dumps(dict(ok=True, subscription=token)) + "\n").encode())
+        while True:
+            event = mailbox.get()
+            conn.sendall((json.dumps(event) + "\n").encode())
+            if "rid" not in event:
+                return
+    except Exception as exc:
+        if token is None:
+            conn.sendall((json.dumps(dict(ok=False, error=str(exc))) + "\n").encode())
+    finally:
+        if token is not None:
+            try:
+                service.serialized(lambda: service.progress.unsubscribe(worker, token), "unsubscribe")
+            except RuntimeError:
+                pass  # The owner already ended every subscriber on stop/failure.
+        conn.close()
+
+
 def handle(conn: socket.socket, service: Service) -> None:
     buf = b""
     while True:
@@ -266,41 +387,13 @@ def handle(conn: socket.socket, service: Service) -> None:
             buf += chunk
         line, buf = buf.split(b"\n", 1)
         req = json.loads(line)
-        with service._lock:
-            try:
-                op = req.get("op")
-                if op not in ('gc_control', 'stats'):
-                    service.gc_window.check()
-                if op == 'gc_control':
-                    resp = service.op_gc_control(req['action'], req.get('collect', True))
-                elif op == "present":
-                    resp = service.op_present(req.get("blocks_hex", []))
-                elif op == "bind":
-                    resp = service.op_bind(req["engine_id"],req["source_id"],req["prompt_token_ids"],req["hit_tokens"])
-                elif op == "present_for_request":
-                    resp = service.op_present_for_request(req["rid"],req["start_block"],req["blocks_hex"])
-                elif op == "submit":
-                    resp = service.op_submit(
-                        req.get("worker"),
-                        req.get("rid"),
-                        req.get("blocks_hex", []),
-                        req.get("demand"),
-                    )
-                elif op == "finished":
-                    resp = service.op_finished(req.get("worker"))
-                elif op == "layer_register" and service.layer_state is not None:
-                    resp = service.layer_state.register(req["worker"],req["rid"],req["blocks_hex"],req["demand"])
-                elif op == "layer_submit" and service.layer_state is not None:
-                    options={k:req[k] for k in ("step","compute_s","due_mono") if k in req}
-                    resp = service.layer_state.submit(req["worker"],req["rids"],req["layer"],**options)
-                elif op == "layer_status" and service.layer_state is not None:
-                    resp = service.layer_state.status(req["worker"],req["rids"],req["layer"])
-                elif op == "stats":
-                    resp = service.op_stats()
-                else:
-                    resp = {"ok": False, "error": f"unknown op {op!r}"}
-            except Exception as exc:  # noqa: BLE001
-                resp = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+        if req.get("op") == "layer_subscribe":
+            serve_notifications(conn, service, req.get("worker"))
+            return
+        try:
+            resp = service.serialized(lambda: service.dispatch(req), req.get("op", "unknown"))
+        except Exception as exc:
+            resp = dict(ok=False, error=f"{type(exc).__name__}: {exc}")
         conn.sendall((json.dumps(resp) + "\n").encode())
 
 
@@ -317,6 +410,7 @@ def main() -> int:
     from sim.trace_io import load_trace
     rows = load_trace(ROOT / a.trace)
     service = Service(cfg, rows)
+    service.start()
     path = Path(a.socket)
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
@@ -342,9 +436,16 @@ def main() -> int:
         ),
         flush=True,
     )
-    while True:
-        conn, _ = srv.accept()
-        threading.Thread(target=handle, args=(conn, service), daemon=True).start()
+    try:
+        while True:
+            conn, _ = srv.accept()
+            def connection_task(peer):
+                with peer:
+                    handle(peer, service)
+            threading.Thread(target=connection_task, args=(conn,), daemon=True).start()
+    finally:
+        service.close()
+        srv.close()
     return 0
 
 

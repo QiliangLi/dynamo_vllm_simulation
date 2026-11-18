@@ -43,3 +43,7 @@
 
 只在用户指定的实验分支提交。推送需要用户授权和目标仓库写权限。
 不自动向原仓库main推送，不强推，不自动合并其他分支。
+
+## 2026-11-18 服务器入口
+
+当前三实例服务器仿真先读 `docs/服务器三实例仿真.md`。使用 `run_server_benchmark.py`、`configs/minimax_server_3w.json` 与仓库内 `source_dev/dynamo`，不能套用上文旧 Mooncake 12 实例合同。服务器 benchmark 在 `benchmark_tools_20261116`；它只构建和发送请求。发布范围不包含原始 profile、运行日志或已编译二进制。

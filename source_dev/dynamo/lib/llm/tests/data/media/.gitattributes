@@ -1,0 +1,7 @@
+# This delivery stores the six small, hash-verified upstream fixtures directly in Git.
+llm-optimize-deploy-graphic.png -filter -diff -merge -text
+240p_1.mp4 -filter -diff -merge -text
+2p_10.mp4 -filter -diff -merge -text
+2160p_10.mp4 -filter -diff -merge -text
+240p_100.mp4 -filter -diff -merge -text
+240p_10.mp4 -filter -diff -merge -text

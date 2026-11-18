@@ -111,6 +111,16 @@ class FeedbackClient:
             self.sock.close()
 
 
+def new_feedback_client():
+    return FeedbackClient(os.environ["SIM_STACK_ADMISSION_ENDPOINT"],
+        int(os.environ["SIM_STACK_WORKER_ID"]),
+        timeout_s=float(os.environ.get('TFS_WORKER_CONTROL_TIMEOUT_S',
+                                       os.environ.get('SIM_STACK_ADMISSION_TIMEOUT_S', '5'))),
+        instance_id=int(os.environ['SIM_STACK_ADMISSION_INSTANCE_ID'])
+            if os.environ.get('SIM_STACK_ADMISSION_INSTANCE_ID') else None,
+        ledger_epoch=os.environ.get('SIM_STACK_ADMISSION_LEDGER_EPOCH'))
+
+
 _clients = {}
 
 

@@ -25,10 +25,11 @@ def normalize(config):
     timeout = value['rpc_timeout_wall_s']
     if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0:
         raise ValueError('routing score RPC timeout must be finite and positive')
+    block_sizes = (1, 16, 128) if config['admission'].get('native_ingress') else (1, 16)
     if value['enabled'] and (config.get('router_mode') != 'kv'
             or config['admission']['placement'] != 'scheduler'
-            or config.get('block_size') not in (1, 16) or config.get('enable_prefix_caching', False)):
-        raise ValueError('weighted accounting requires kv router, scheduler admission, block=1/16 and prefix caching off')
+            or config.get('block_size') not in block_sizes or config.get('enable_prefix_caching', False)):
+        raise ValueError('weighted accounting requires kv router, scheduler admission, a supported block size and prefix caching off')
     config['routing_accounting'] = value
 
 
