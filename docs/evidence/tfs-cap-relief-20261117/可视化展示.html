@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TFS 重读额度塌缩：诊断与修复 — 可视化</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#1c2430; --ink-2:#5a6572; --line:#e3e0d8;
+  --accent:#0e7c66; --accent-soft:#e3f2ee; --bad:#c2402a; --bad-soft:#f9e9e5;
+  --base:#5a7a9a; --base-soft:#edf1f5; --warn:#b07a1e; --warn-soft:#f7efdd;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Courier New",monospace;
+  --sans:"Source Han Sans SC","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px 80px}
+header{padding:54px 0 30px;border-bottom:2px solid var(--ink)}
+.kicker{font-size:13px;letter-spacing:.12em;color:var(--ink-2);text-transform:uppercase;margin:0 0 10px}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.25;margin:0 0 14px;font-weight:700}
+.lede{font-size:17px;color:var(--ink-2);margin:0 0 18px;max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13.5px;color:#3d4753}
+.meta b{color:var(--ink);font-weight:600}
+section{padding:44px 0 8px;border-bottom:1px solid var(--line)}
+h2{font-size:22px;margin:0 0 6px;display:flex;align-items:baseline;gap:12px}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:1px 9px;flex:none}
+.sub{color:var(--ink-2);font-size:14.5px;margin:0 0 22px;max-width:75ch}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card h3{margin:0 0 8px;font-size:15.5px}
+.card p{margin:0;font-size:14px;color:var(--ink-2)}
+.formula{font-family:var(--mono);background:var(--ink);color:#f4f2ec;border-radius:8px;padding:16px 20px;font-size:15px;text-align:center;margin:18px 0;overflow-x:auto;white-space:nowrap}
+.formula b{color:#7fd6c2;font-weight:600}
+.formula .dim{color:#8b97a5}
+.figures{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.slab{display:flex;align-items:center;justify-content:center;width:44px;height:56px;border-radius:7px;font-family:var(--mono);font-size:14px;border:1.5px solid #cfccc3;background:#fff;color:#414b58}
+.slab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.slab.off{background:repeating-linear-gradient(45deg,#f2f0ea,#f2f0ea 5px,#e9e6de 5px,#e9e6de 10px)}
+.num{font-family:var(--mono);font-weight:700}
+.cap-num{font-size:34px;line-height:1.1;color:var(--bad)}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px 14px;margin:6px 0 18px}
+.chart h3{margin:0 0 2px;font-size:15.5px}
+.chart .src{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.brow{display:grid;grid-template-columns:168px 1fr 112px;align-items:center;gap:12px;font-size:13.5px}
+.brow .lbl{text-align:right;color:var(--ink);line-height:1.3}
+.brow .lbl small{display:block;color:var(--ink-2);font-size:11.5px}
+.track{background:#efede7;border-radius:5px;height:22px;position:relative;overflow:hidden}
+.fill{height:100%;border-radius:5px;position:relative;min-width:2px}
+.fill.c-bad{background:var(--bad)} .fill.c-fix{background:var(--accent)}
+.fill.c-base{background:var(--base)} .fill.c-warn{background:var(--warn)} .fill.c-dim{background:#b9b5aa}
+.brow .val{font-family:var(--mono);font-size:13px;line-height:1.35}
+.delta{font-size:11.5px;color:var(--ink-2);display:block}
+.badge{display:inline-block;font-size:11px;padding:0 7px;border-radius:4px;line-height:18px;vertical-align:1px;margin-left:6px}
+.badge.win{background:var(--accent-soft);color:var(--accent)} .badge.lose{background:var(--bad-soft);color:var(--bad)}
+.baseline-note{font-size:12.5px;color:var(--ink-2);margin:10px 0 0}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel)}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--mono)}
+th:first-child,td:first-child{text-align:left;font-family:var(--sans)}
+th{background:#f1efe9;font-weight:600;font-size:12.5px;color:var(--ink-2)}
+tr:last-child td{border-bottom:none}
+td.hl-bad{background:var(--bad-soft);color:var(--bad);font-weight:700}
+td.hl-fix{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.loop{display:flex;align-items:center;gap:0;margin:14px 0 6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.node{flex:none;background:var(--panel);border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;font-size:13px;text-align:center;min-width:130px}
+.node b{display:block;font-family:var(--mono);font-size:15px;margin-bottom:2px}
+.node.hot{border-color:var(--bad);background:var(--bad-soft)}
+.node.hot b{color:var(--bad)}
+.arrow{flex:none;color:var(--bad);font-size:18px;padding:0 8px;font-weight:700}
+.decision{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:12px;font-size:14.5px}
+.decision b{font-family:var(--mono)}
+.decision .tag{display:inline-block;font-family:var(--mono);font-size:12px;border:1px solid;border-radius:4px;padding:0 7px;margin-right:9px}
+.tag.t-fix{color:var(--accent);border-color:var(--accent)} .tag.t-keep{color:var(--base);border-color:var(--base)} .tag.t-no{color:var(--bad);border-color:var(--bad)} .tag.t-mid{color:var(--warn);border-color:var(--warn)}
+footer{padding:30px 0 0;font-size:13px;color:var(--ink-2)}
+footer a{color:var(--accent)}
+.notice{background:var(--warn-soft);border:1px solid #e5d5b0;border-radius:8px;padding:12px 16px;font-size:13.5px;color:#6e551a;margin:16px 0}
+svg text{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media (max-width:640px){
+  .brow{grid-template-columns:112px 1fr 74px;gap:8px}
+  .brow .lbl small{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">TFS 准入调度 · 探索报告 2026-11-17 → 11-18</p>
+  <h1>重读额度被限到个位数：问题何时成立，怎么修，效果多少</h1>
+  <p class="lede">三臂 TFS 用 <span class="num">cap = floor(带宽 ÷ θ)</span> 限制重读并发。θ 被重读压力顶高时 cap 塌缩到个位数甚至 1，
+  重读排队时间抵消降竞争收益。本次探索在两类场景复现出<b>相反的结论</b>，并给出各自的正确处置。</p>
+  <div class="meta">
+    <span>分支 <b>lql_dev</b>（4c18450 / 8726298）</span>
+    <span>运行 <b>WSL 完整 Dynamo+vLLM 仿真栈</b></span>
+    <span>数据源 <b>docs/evidence/tfs-cap-relief-20261117/</b></span>
+    <span>负载 <b>Mooncake abc/abcd/random · 服务器 synthetic_abc</b></span>
+  </div>
+</header>
+
+<!-- ============ 1 机制 ============ -->
+<section id="s1">
+  <h2><span class="no">1</span>问题机制：一个公式，两种命运</h2>
+  <p class="sub">分类线 θ 同时兼任 cap 的分母——分类希望它高（只切最重的请求），cap 希望它低（别高估占用）。
+  当历史画像里 P75 分位落在巨读请求带上，θ 超过可用带宽时，公式直接给出 1。</p>
+  <div class="formula">
+    θ = P<sub>75</sub>( 历史全体 pressure = <span class="dim">读字节 ÷ 计算时间</span> )
+    &nbsp;→&nbsp; cap = max(1, floor( <b>参考带宽</b> ÷ θ ))
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Mooncake 12 实例 · 90–100 GB/s</h3>
+      <p>θ ≈ 25 GB/s → <b class="num">cap = 3~4</b>（带宽 / 实例比较充裕）</p>
+      <div class="figures" style="margin-top:12px">
+        <div class="slab on">1</div><div class="slab on">2</div><div class="slab on">3</div>
+        <div class="slab off">4</div><div class="slab off">5</div><div class="slab off">…12</div>
+      </div>
+      <p style="margin-top:12px">排队存在（p90 3.5s），但它是<b>错峰保护的代价</b>：放宽 cap 反而全面恶化。</p>
+    </div>
+    <div class="card">
+      <h3>服务器 3 实例 · 25 GB/s<span class="badge lose">问题场景</span></h3>
+      <p>A 类读 2.013 GB / 计算 53.7ms → θ = <b class="num">37.5 GB/s &gt; 带宽</b></p>
+      <p style="margin-top:8px">cap = floor(25 ÷ 37.5) = <span class="num cap-num">1</span></p>
+      <div class="figures" style="margin-top:12px">
+        <div class="slab on">1</div><div class="slab off">2</div><div class="slab off">3</div>
+      </div>
+      <p style="margin-top:12px">全局只放行 1 个重读，<b>2/3 实例空转等额度</b>；A 类即使独占带宽也读不完（80.5ms 读 &gt; 53.7ms 算）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 服务器复现 ============ -->
+<section id="s2">
+  <h2><span class="no">2</span>复现：cap=1 时重读确实不如 baseline</h2>
+  <p class="sub">服务器 synthetic_abc，360 条全命中（读 315.076 GB 与指南预期逐字节一致），同晚连续运行。
+  A 类（H=30720 的重读类）TTFT 按臂对比，灰色竖线为 direct 基线 3232ms。</p>
+
+  <div class="chart">
+    <h3>A 类平均 TTFT（ms，越低越好）</h3>
+    <p class="src">来源 07-服务器synthetic-abc场景.md · E-S1/E-S2 · direct 基线 3232ms</p>
+    <div class="bars">
+      <div class="brow"><div class="lbl">direct（不限额）<small>baseline</small></div>
+        <div class="track"><div class="fill c-base" style="width:64.6%"></div></div><div class="val">3232</div></div>
+      <div class="brow"><div class="lbl">tfs legacy<span class="badge lose">cap=1 排队</span><small>等额度中位 4.66s</small></div>
+        <div class="track"><div class="fill c-bad" style="width:100%"></div></div><div class="val">5010<span class="delta">+55% vs direct</span></div></div>
+      <div class="brow"><div class="lbl"><b>tfs + overdraft</b><span class="badge win">修复</span><small>等待&gt;1s 超发，上限+2</small></div>
+        <div class="track"><div class="fill c-fix" style="width:65.4%"></div></div><div class="val"><b>3276</b><span class="delta">−35%，追平 direct</span></div></div>
+      <div class="brow"><div class="lbl">tfs + fixed3<small>人工定标 cap=3</small></div>
+        <div class="track"><div class="fill c-fix" style="width:62.9%"></div></div><div class="val">3153</div></div>
+      <div class="brow"><div class="lbl">tfs + measured<span class="badge lose">锁死</span><small>实测占用作分母</small></div>
+        <div class="track"><div class="fill c-dim" style="width:95.3%"></div></div><div class="val">4779<span class="delta">仍 +48%</span></div></div>
+      <div class="brow"><div class="lbl">tfs + dev<small>无限额度（上界参照）</small></div>
+        <div class="track"><div class="fill c-warn" style="width:64.9%"></div></div><div class="val">3251</div></div>
+    </div>
+    <p class="baseline-note">机制数据：legacy 拒绝/授予 = 2840/126（22.5:1），等额度 p90 7.25s；overdraft 超发 106 次后拒绝降至 160，等待 p90 降到 4.50s。</p>
+  </div>
+
+  <div class="tscroll"><table>
+    <thead><tr><th>臂</th><th>mean TTFT</th><th>p95</th><th>A 类</th><th>B 类</th><th>C 类</th><th>等额度 中位/p90 (ms)</th></tr></thead>
+    <tbody>
+      <tr><td>direct</td><td>3042</td><td>4803</td><td>3232</td><td>3009</td><td>2886</td><td>—</td></tr>
+      <tr><td>tfs legacy (cap=1)</td><td>2204</td><td class="hl-bad">7253</td><td class="hl-bad">5010</td><td>913</td><td>690</td><td>4661 / 7245</td></tr>
+      <tr><td>tfs + overdraft(1s,+2)</td><td>2573</td><td>5134</td><td class="hl-fix">3276</td><td>2454</td><td>1988</td><td>2669 / 4504</td></tr>
+      <tr><td>tfs + fixed3</td><td>2556</td><td>5124</td><td>3153</td><td>2471</td><td>2043</td><td>2581 / 4332</td></tr>
+      <tr><td>tfs + measured</td><td>1946</td><td>7339</td><td>4779</td><td>645</td><td>416</td><td>4049 / 6923</td></tr>
+      <tr><td>tfs + dev（无限）</td><td>2721</td><td>5218</td><td>3251</td><td>2540</td><td>2372</td><td>2644 / 4541</td></tr>
+    </tbody>
+  </table></div>
+  <p class="baseline-note">注意：legacy 的低 mean（2204）是把 A 类牺牲到 5s 换来的——mean 掩盖了尾部不公平，评估须看分类均值与 p95。
+  overdraft 修复后三类公平化（B/C 让出部分被保护利益），mean 仍优于 direct 15%。</p>
+</section>
+
+<!-- ============ 3 方案对比 ============ -->
+<section id="s3">
+  <h2><span class="no">3</span>三个候选手段，只有一个同时安全有效</h2>
+  <p class="sub">三个手段都以配置实现、默认关闭（legacy 行为逐值不变）。在 cap=1 场景的判定：</p>
+  <div class="grid g3">
+    <div class="card" style="border-left:4px solid var(--accent)">
+      <h3>overdraft 弹性超发 <span class="badge win">推荐</span></h3>
+      <p>等待超过 <span class="num">1s</span> 的重读允许超过 cap 至多 <span class="num">2</span> 条，稳态 cap 不动。
+      A 类 <b>−35% 追平 direct</b>、p95 −29%；不抬稳态额度，保留 B/C 保护语义，无需知道"正确 cap"。
+      超发量有日志与验收（read_permit_overdraft）。</p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--base)">
+      <h3>fixed3 固定额度</h3>
+      <p>效果与 overdraft 相当（A 类 3153ms），但 cap 值依赖负载与实例数<b>人工定标</b>——
+      负载换了就要重调；overdraft 只依赖"实例有没有空转"这个信号。</p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--bad)">
+      <h3>measured 实测分母 <span class="badge lose">锁死</span></h3>
+      <p>用实测占用中位数作 cap 分母。在 cap=1 场景<b>自我锁定</b>（下图），A 类仍 +48%。
+      仅在带宽相对宽裕（cap 天然 ≥4）的 Mooncake random 类可用。</p>
+    </div>
+  </div>
+
+  <div class="chart">
+    <h3>measured 为什么在 cap=1 锁死：负反馈的安全阀在极端点失效</h3>
+    <p class="src">机制推导，已被 E-S2 实测证实：measured 生效 291 次更新，cap 全程 = 1</p>
+    <div class="loop">
+      <div class="node hot"><b>cap = 1</b>额度分母 = 15.6 GB/s</div><div class="arrow">→</div>
+      <div class="node">重读全局<b>串行</b><br>每次几乎独占带宽</div><div class="arrow">→</div>
+      <div class="node">实测占用 ≈ 独占速率<br><b>15.63 GB/s</b>（E-S2 实测中位）</div><div class="arrow">→</div>
+      <div class="node hot"><b>cap = floor(25÷15.6)</b>= 1，回到起点</div>
+    </div>
+    <p class="baseline-note">串行意味着并发竞争从未发生、速率从未被摊薄——measured 永远测不到"放宽后的世界"。
+    overdraft 不依赖测量历史，直接以等待时长为触发信号，因此不受此锁死约束。</p>
+  </div>
+</section>
+
+<!-- ============ 4 Mooncake 反例 ============ -->
+<section id="s4">
+  <h2><span class="no">4</span>反例：带宽充裕时，放宽 cap 是净伤害</h2>
+  <p class="sub">Mooncake abc_90（12 实例，90 GB/s，存储饱和度 86%），固定 cap 扫描 + measured。
+  同批 legacy 对照 mean 1063ms。</p>
+  <div class="chart">
+    <h3>mean TTFT 随 cap 放宽单调恶化（ms）</h3>
+    <p class="src">来源 04-验证-abc90.md · E1/E2 探索轮（单臂，方向性结论；E5 同轮复核一致）</p>
+    <svg viewBox="0 0 720 240" role="img" aria-label="cap 扫描下 mean TTFT 单调上升折线图" style="width:100%;height:auto">
+      <line x1="60" y1="20" x2="60" y2="200" stroke="#d8d4ca"/>
+      <line x1="60" y1="200" x2="700" y2="200" stroke="#d8d4ca"/>
+      <g font-size="12" fill="#5a6572" text-anchor="end">
+        <text x="52" y="192">900</text><text x="52" y="142">1200</text><text x="52" y="92">1500</text><text x="52" y="42">1800</text>
+      </g>
+      <line x1="60" y1="162.7" x2="700" y2="162.7" stroke="#5a7a9a" stroke-dasharray="5 4"/>
+      <text x="695" y="155" font-size="12" fill="#5a7a9a" text-anchor="end">legacy 同批对照 1063ms</text>
+      <g font-size="12" fill="#5a6572" text-anchor="middle">
+        <text x="90" y="218">cap 3</text><text x="215" y="218">6</text><text x="340" y="218">9</text><text x="465" y="218">12</text><text x="590" y="218">18</text><text x="685" y="218">measured≈16</text>
+      </g>
+      <polyline points="90,162.2 215,150.3 340,140.9 465,105.4 590,103.7 685,103.1" fill="none" stroke="#c2402a" stroke-width="2.5"/>
+      <g fill="#c2402a">
+        <circle cx="90" cy="162.2" r="4.5"/><circle cx="215" cy="150.3" r="4.5"/><circle cx="340" cy="140.9" r="4.5"/>
+        <circle cx="465" cy="105.4" r="4.5"/><circle cx="590" cy="103.7" r="4.5"/><circle cx="685" cy="103.1" r="4.5"/>
+      </g>
+      <g font-size="12.5" fill="#1c2430" text-anchor="middle" font-weight="600">
+        <text x="90" y="148">1063</text><text x="215" y="136">1180</text><text x="340" y="126">1267</text>
+        <text x="465" y="91">1594</text><text x="590" y="89">1651</text><text x="685" y="88">1682</text>
+      </g>
+    </svg>
+    <p class="baseline-note">直接证据：measured 把等待 p90 从 3.49s 砍到 1.57s（拒绝 3289→5），
+    <b>mean TTFT 反而 +58%</b>——排队被换成并发读竞争，执行时间拉长得更多。
+    带宽饱和时 θ 分位公式自动逼近最优并发，旧公式比直觉聪明。</p>
+  </div>
+
+  <div class="tscroll"><table>
+    <thead><tr><th>场景（同轮三/四臂）</th><th>direct mean</th><th>legacy mean</th><th>最优变体</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td>Mooncake abc_90</td><td>1581</td><td class="hl-fix">1054</td><td>od 完成时间 −3.7%（mean +10%）</td><td>维持 legacy</td></tr>
+      <tr><td>Mooncake abcd_90</td><td>1541</td><td class="hl-fix">1140</td><td>od 完成时间 −5.4%（mean +13%）</td><td>维持 legacy / 吞吐导向用 od</td></tr>
+      <tr><td>Mooncake random_90</td><td>1228</td><td class="hl-fix">911</td><td>measured 完成 −2%（mean +17%）</td><td>维持 legacy</td></tr>
+      <tr><td>服务器 synthetic_abc</td><td>3042</td><td>2204（A 类 5010）</td><td class="hl-fix">od：A 类 3276 / −35%</td><td><b>必须 overdraft</b></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 5 统一规律 ============ -->
+<section id="s5">
+  <h2><span class="no">5</span>统一处置规律</h2>
+  <p class="sub">四个场景、20+ 仿真轮次的结论收敛为一个判据：cap 与实例数之比决定排队代价与竞争代价的相对大小。</p>
+  <div class="decision"><span class="tag t-no">cap ≤ 实例数 ÷ 3</span>
+    <b>实例空转区</b> —— 服务器 synthetic_abc（3 实例 cap=1）。排队代价绝对主导，
+    <b>开 overdraft(1s, +2)</b>：等待超龄重读限量超发，A 类 −35% 追平 baseline，p95 −29%，mean 仍赢 baseline 15%。</div>
+  <div class="decision"><span class="tag t-mid">实例数 ÷ 3 &lt; cap &lt; 实例数</span>
+    <b>权衡区</b> —— Mooncake random（12 实例 cap=8）。看目标函数：时延/SLO 导向维持 legacy；
+    吞吐/完成时间导向可试 measured（−2~4% 完成）或 overdraft，代价 mean +13~17%。</div>
+  <div class="decision"><span class="tag t-keep">cap ≥ 实例数（带宽充裕/饱和巨需求）</span>
+    <b>错峰保护区</b> —— Mooncake abc/abcd（cap 3~4 但 12 实例的计算被保护）。排队是净收益，
+    <b>维持 legacy</b>；任何放宽（fixed/measured/od）都恶化 mean/SLO，仅 od 换到 4~5% 完成时间。</div>
+
+  <div class="notice">边界：服务器场景为同晚单轮（轮间噪声未采样）；od 参数空间仅扫 {1s,+2} 与 {0.5s,+2} 两点；
+  真机 SLO 基线缺失，仿真结论用于机制筛选，绝对 TTFT 需真机校准。完整边界声明见 06-最终结论.md 第 7 节。</div>
+</section>
+
+<!-- ============ 6 落地 ============ -->
+<section id="s6" style="border-bottom:none">
+  <h2><span class="no">6</span>怎么用</h2>
+  <p class="sub">全部默认关闭，legacy 行为与旧版逐值一致（单测保证）；12 项新单测 + 80 项回归 + 冒烟通过。</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Mooncake benchmark（12 实例）</h3>
+      <p style="font-family:var(--mono);font-size:12.5px;background:#f1efe9;border-radius:6px;padding:10px 12px;margin-top:8px;overflow-x:auto;white-space:nowrap">
+        BENCH_TFS_JSON='{"overdraft_wait_s":1.0,"overdraft_max_extra":2}' \<br>
+        &nbsp;&nbsp;.venv/bin/python scripts/run_benchmark.py --case mooncake_abc_360_4s_12_90GBps --arm tfs-a01 …
+      </p>
+    </div>
+    <div class="card">
+      <h3>服务器三实例栈</h3>
+      <p style="font-family:var(--mono);font-size:12.5px;background:#f1efe9;border-radius:6px;padding:10px 12px;margin-top:8px;overflow-x:auto;white-space:nowrap">
+        .venv/bin/python scripts/run_server_benchmark.py \<br>
+        &nbsp;&nbsp;--catalog …/synthetic_abc.json --mode both --alpha 0.1 \<br>
+        &nbsp;&nbsp;--tfs-json '{"overdraft_wait_s":1.0,"overdraft_max_extra":2}' …
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  溯源：00-总览 · 01-问题定位 · 02-想法定稿 · 03-实现记录 · 04/05-验证（Mooncake） · 06-最终结论 · 07-服务器场景 ——
+  见 <b>docs/evidence/tfs-cap-relief-20261117/</b>。原始运行留存于 WSL results/benchmark_runs/e-* 与 ~/.cache/dynamo-server-sim/results/s0–s3。
+</footer>
+
+</div>
+</body>
+</html>
