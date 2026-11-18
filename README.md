@@ -1,5 +1,7 @@
 # TFS与Mooncake360实验分支
 
+同事首次运行服务器 `synthetic_abc` 仿真，请按[服务器负载与仿真运行指南](docs/服务器SyntheticABC与仿真运行指南.md)执行。包含安装、原始到达回放及 α=1/dev 对照。
+
 ## 2026-11-18：服务器三实例仿真与 benchmark
 
 新增 [三实例运行说明](docs/服务器三实例仿真.md)。入口为 `scripts/run_server_benchmark.py`，使用独立构建的 Dynamo 1.2、MiniMax 50k v2 估时、3 个实例、6 盘共享 25 GB/s。支持 `--alpha` 和 `--dev`。服务器请求工具位于仓库根目录的 `benchmark_tools_20261116/`，只负责构建和发送请求。
