@@ -90,9 +90,11 @@ def main():
     parser.add_argument('--limit', type=int, help='Limit the run to the first N requests for startup checks')
     parser.add_argument("--alpha", type=float, default=0.1)
     parser.add_argument("--dev", action="store_true", help="Unlimited TFS heavy-read permits")
+    parser.add_argument("--tfs-json", help="JSON overriding admission keys for the tfs mode "
+        "(cap_policy/overdraft_* explorations); the default mode is not affected")
     args = parser.parse_args()
     if not math.isfinite(args.alpha) or not 0 <= args.alpha <= 1:
-        parser.error("--alpha must be finite and in [0,1]")
+        parser.error("--alpha must be finite in [0,1]")
     if args.limit is not None and args.limit < 1:
         parser.error('--limit must be positive')
     from transformers import AutoTokenizer
@@ -102,6 +104,11 @@ def main():
     cfg['wall_time_scale'] = args.wall_time_scale
     cfg['routing_accounting']['waiting_factor'] = args.alpha
     cfg['admission']['dev_mode'] = args.dev
+    tfs_override = {}
+    if args.tfs_json:
+        tfs_override = json.loads(args.tfs_json)
+        if not isinstance(tfs_override, dict) or 'dev_mode' in tfs_override:
+            parser.error('--tfs-json must be a JSON object without dev_mode')
     catalog = json.loads(args.catalog.read_text())
     if args.arrival_pattern == 'periodic-abc':
         catalog = periodic_abc(catalog)
@@ -122,9 +129,12 @@ def main():
     modes = ('default', 'tfs') if args.mode == 'both' else (args.mode,)
     summaries = {}
     for mode in modes:
-        run_one(cfg, trace, out/mode, Path(sys.executable),
+        mode_cfg = json.loads(json.dumps(cfg))
+        if mode == 'tfs' and tfs_override:
+            mode_cfg['admission'].update(tfs_override)
+        run_one(mode_cfg, trace, out/mode, Path(sys.executable),
                 'immediate' if mode == 'default' else 'tfs', 'first_token',
-                workers=cfg['workers'], server_dynamo=args.server_dynamo)
+                workers=mode_cfg['workers'], server_dynamo=args.server_dynamo)
         summaries[mode] = summarize_run(out/mode, rows, args.arrival_pattern, args.arrival_scale)
         write(out/'comparison.json', summaries)
 

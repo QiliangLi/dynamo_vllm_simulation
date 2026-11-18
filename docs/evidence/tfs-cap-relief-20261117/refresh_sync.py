@@ -22,6 +22,7 @@ def digest(p):
 
 
 changed = [
+    'scripts/run_server_benchmark.py',
     'patched/weighted_routing/pending_score.rs',
     'scripts/check_routing_accounting.py',
     'scripts/run_tfs_stack.py',

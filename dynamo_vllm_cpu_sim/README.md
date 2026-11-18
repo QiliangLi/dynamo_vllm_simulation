@@ -278,7 +278,12 @@ macOS 可使用本地 `.venv/run-sim` 运行入口。没有该本地便利脚本
 - `admission.overdraft_wait_s`（缺省 0 关闭）与 `admission.overdraft_max_extra`（缺省 2）：
   调度器申请判满时，等待超龄的重读允许超过 cap 至多 extra 条，日志记
   `read_permit_overdraft`，permit 标记 `overdraft`。benchmark 入口 `BENCH_TFS_JSON`
-  可在 tfs-a01/tfs-a1 臂上覆盖这些键（仿 `BENCH_LEASE_JSON`）。
+  可在 tfs-a01/tfs-a1 臂上覆盖这些键（仿 `BENCH_LEASE_JSON`）；服务器入口
+  `run_server_benchmark.py --tfs-json` 同等覆盖（仅 tfs 模式生效）。
+  2026-11-18 服务器 synthetic_abc（3 实例 25GB/s，cap 收敛 1）验证：
+  overdraft(1s,+2) 将重读类 TTFT -35% 拉回 direct 水平、p95 -29%，整体
+  mean 仍优于 direct；measured 在该场景自我锁死。数据见
+  docs/evidence/tfs-cap-relief-20261117/07-服务器synthetic-abc场景.md。
 - 所有获准请求都开启租约；门槛改变时重算仍开放租约的重分类，不重开已释放租约。
   受限重请求不会阻塞后面的轻请求。老化每次最多豁免一个，并受固定冷却时间限制。
 - 反馈分 `occurred_s` 和 `visible_s`。观测延迟不延迟 vLLM 实际 KV 完成；反馈排空不延长业务 makespan 或 Worker 积分。

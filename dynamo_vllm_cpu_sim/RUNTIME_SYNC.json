@@ -221,7 +221,7 @@
     "patched/tier_admission/tier_admission.rs": "48457f02a648d3f96379a81646841d608a12f24ecae03d28f1b80f0fd4b240d0",
     "scripts/benchmark_storage_notifications.py": "988e582c43b7167c65c077912365a2366735fea1ed46ea70c7eff1efa7139864",
     "scripts/build_server_dynamo.sh": "8d64158553e77ca927fcacd71ea717cfd8c26e61471d6202080dd937b327909d",
-    "scripts/run_server_benchmark.py": "b742cc89f4885069f261f02c1920d8f9c69221df09cc01c08299e5d1fee85a16",
+    "scripts/run_server_benchmark.py": "39e3a46b25d4b95738ab3d40d627ea0955230697c0cbbf738192498f35eba6d9",
     "scripts/setup_lmcache_sim.py": "4c033f633898d55260be88a6ef8daabea813f40279ad52d9641a0241a6ab6c82",
     "scripts/tier_fixture_worker.py": "f61440f4c408726954d6dfdd141b8a3e6c0488704dcfa22d61a28df958b97f5d",
     "scripts/validate_dynamo_tier_admission.py": "243fea9a9dd3660728b79be980e10c5135843001c6c6aa6df345053bd1e65001",
@@ -308,6 +308,10 @@
     },
     "sim/stack/storage_service.py": {
       "sha256": "f9dd3064762dfc1508de83d8fe9e33d2380ba3f24814e840909e2f91cffab5bf",
+      "reason": "lql_dev 侧改动（tfs-lease 臂与/或 cap_policy/overdraft 探索，及与 2026-11-18 服务器对齐 842b925 的合并融合）；研究版未含"
+    },
+    "scripts/run_server_benchmark.py": {
+      "sha256": "b742cc89f4885069f261f02c1920d8f9c69221df09cc01c08299e5d1fee85a16",
       "reason": "lql_dev 侧改动（tfs-lease 臂与/或 cap_policy/overdraft 探索，及与 2026-11-18 服务器对齐 842b925 的合并融合）；研究版未含"
     }
   }
