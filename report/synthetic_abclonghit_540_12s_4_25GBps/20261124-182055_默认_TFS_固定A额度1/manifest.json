@@ -1,0 +1,68 @@
+{
+  "report_id": "synthetic_abclonghit_540_12s_4_25GBps/20261124-182055_默认_TFS_固定A额度1",
+  "benchmark_id": "synthetic_abclonghit_540_12s_4_25GBps",
+  "benchmark_input_sha256": "678ec1850c2a6cb1076ff439cf877b50e02bdf4eadb394cd14a6aa3e2e850eed",
+  "created_at": "2026-11-24T18:20:55+08:00",
+  "experiment_dates": [
+    "2026-11-24"
+  ],
+  "schemes": [
+    {
+      "label": "默认 FCFS"
+    },
+    {
+      "label": "普通 TFS"
+    },
+    {
+      "label": "仅 A 重读，原额度"
+    },
+    {
+      "label": "仅 A 重读，按 A 定额度"
+    }
+  ],
+  "study_id": "abc540_12s_onlyA_20261124",
+  "compatibility": "research_runtime_export_only",
+  "simulations_run": 0,
+  "performance_recomputed": false,
+  "source_files": {
+    "results.csv": {
+      "bytes": 846,
+      "sha256": "23b19ea6d48eb811095087324e3a7739824de44d0b2dacf97e9bf1846bdda9b8"
+    }
+  },
+  "figures": [
+    {
+      "path": "timeline.png",
+      "source_sha256": "d79508ef411d5826c1a09af8e2b5e54b312937f1cd99572ce700f0eb88a1a76c",
+      "width": 1740,
+      "height": 1058
+    }
+  ],
+  "source_visual_reviewed": null,
+  "files": {
+    "report.html": {
+      "bytes": 134013,
+      "sha256": "63b3f506359918fceaa8a030f7a2822afd47414a519029a8193dabd587de3860"
+    },
+    "report.md": {
+      "bytes": 1389,
+      "sha256": "f2c09dfd28b2553534994b0cffc70c19c86efa6d3ecd3e9a80abeb31229b822a"
+    },
+    "results.csv": {
+      "bytes": 846,
+      "sha256": "23b19ea6d48eb811095087324e3a7739824de44d0b2dacf97e9bf1846bdda9b8"
+    },
+    "timeline.png": {
+      "bytes": 97561,
+      "sha256": "d79508ef411d5826c1a09af8e2b5e54b312937f1cd99572ce700f0eb88a1a76c"
+    },
+    "reproduce/ARCHIVE.md": {
+      "bytes": 295,
+      "sha256": "5887dabbc0f6e4056751e35b06c6e6c252dd674368efbd88a117ddf0dca423d7"
+    },
+    ".gitattributes": {
+      "bytes": 91,
+      "sha256": "c8e14109cc9005eace4f3174ce49015f8df2f54ad4ca594d93048cc0abe3441c"
+    }
+  }
+}
