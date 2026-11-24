@@ -1,0 +1,284 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1080,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1248
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "默认（全轻读）": "#888888",
+    "TFS": "#55A868",
+    "TFS＋强制准入": "#4C72B0"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 2.612072490999992,
+  "bin_ms": 50.0,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "light": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/admission.final.json": {
+        "sha256": "68476a204090863632f816dd1f2abf59d610a81e55d53f270429dac1af1fbcb4",
+        "bytes": 2005233
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/storage.projection.json": {
+        "sha256": "b7f8207dfcff0045e7729877a221709a42a09491ab6b073535b3034f3a1a2b08",
+        "bytes": 3871916
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/client_report.json": {
+        "sha256": "dfb2b5a681d5b646960563bac6bdda5d7d1b47364199e789b71b1df5140e4b6a",
+        "bytes": 140424
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/worker0.steps.jsonl": {
+        "sha256": "02ff0fe4aad46d36543bc57a45687261563dbf7e10e0e92db6c32046fa6e502d",
+        "bytes": 1185331
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/worker1.steps.jsonl": {
+        "sha256": "b7ed910c0984b1054af9d861180f1a0e08f966266497fadc1373ac9d3aa55a31",
+        "bytes": 1230693
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/worker2.steps.jsonl": {
+        "sha256": "c3a473cd622fe9be698083c7cb00c1abdf20dec835935894d2e6edc2d7d6c8f2",
+        "bytes": 1060808
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-light/worker3.steps.jsonl": {
+        "sha256": "beefc53e36059fa5d8908aa0e0839d27a5a34121414e4642f05738de08c9a389",
+        "bytes": 1235425
+      }
+    },
+    "tfs": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/admission.final.json": {
+        "sha256": "443804243bcb9713655ba4f95da6ab683f65c87884db321f186d023d0a4a9b79",
+        "bytes": 2360976
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/storage.projection.json": {
+        "sha256": "aaf6f90a10023ece02270b4fa3e75d0e22598f781dd7cc708101c179c672fc6a",
+        "bytes": 3883577
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/client_report.json": {
+        "sha256": "b198252e1475b5536312f76eb9e1bcaf13b36aa02b769d09df587caf1951bf2f",
+        "bytes": 140560
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/worker0.steps.jsonl": {
+        "sha256": "35fd26b573c42aad383a7528bf5055c9669983476d66c49fb83b3cdafd1c9fb0",
+        "bytes": 1199108
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/worker1.steps.jsonl": {
+        "sha256": "ad51b35e64317fe6eaebfbae2c08f8e62c4c8cccdd15b1605dae431152df2f59",
+        "bytes": 1121461
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/worker2.steps.jsonl": {
+        "sha256": "318f9460fabdbd887d2be9501916b388c45870b66504eb6628d294be66e7141b",
+        "bytes": 1309833
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-tfs/worker3.steps.jsonl": {
+        "sha256": "4aa1913937846e0415640ee7c0f51995c2e9788adeb0d4a6f793d37377d24a1e",
+        "bytes": 1095690
+      }
+    },
+    "forced": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/config.json": {
+        "sha256": "bdbaaf3c49a9d1d70a4238c83854c3d9b26dab3b3d1e08e02b259a45fa3176c1",
+        "bytes": 1563
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/admission.final.json": {
+        "sha256": "262360582df4ec98263cc5c4e8e73e7dbe70306acc8780a69a8654774067c928",
+        "bytes": 2358570
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/storage.projection.json": {
+        "sha256": "1d76dd14afe0d58957bc89275f18064707b151df0ab06150295317f04a4ba585",
+        "bytes": 3890076
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/client_report.json": {
+        "sha256": "f98536222ceb4b6332dff6a84a4f49e45f0e4ae6510fcc8a6856a5b56b89ed24",
+        "bytes": 140930
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/worker0.steps.jsonl": {
+        "sha256": "71f38ffa437344e30f14dc73a5fc06ddca31c04d5f3680ffc6203c04db146782",
+        "bytes": 1414687
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/worker1.steps.jsonl": {
+        "sha256": "7fb13d6a39858531f187110cdbed8796f3b7b9b3c1fd2d5c4a7add3a61d4da06",
+        "bytes": 1165777
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/worker2.steps.jsonl": {
+        "sha256": "3bbce5225dfdb1595add9b5083ec5397e3d14775c48b43f1fc064c46214c5b51",
+        "bytes": 1097389
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/view-forced/worker3.steps.jsonl": {
+        "sha256": "629e0e4db6e66ff0b308861a12b3edd3b2e95e5fcb92678098ec5d674dabe820",
+        "bytes": 1057522
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/mooncake_head875_v80p7sor/report-three/report_dataset.json",
+    "sha256": "cfa8ac78dbf543c194e955b1aed3e7028b020eb3f9f8945059b528869935dfd0"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "3404b59f1993f13ca85279df3595967583a82c8b74a82bf76f60738ad9510463",
+      "bytes": 51986
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "5e8ac8a5ba2714f2c1ade944caf5a737151e9b786f3054ba2f95672fd5a511d2",
+      "bytes": 172350
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "2eca1fdde4c3a3457dd555d901036d9209539d86396efcd8f77fd56322d40467",
+      "bytes": 98755
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "f52cc34d15e5ef00a023ee782ac1b046d66bd039820e60b1f1e2f2c45dfe4b34",
+      "bytes": 228441
+    },
+    "figure/05_cdf.png": {
+      "sha256": "762bdb4816e912d0457932a5dae711382681861019d43d812b491fc72014417d",
+      "bytes": 98155
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "f1ef100e8c5dab72d120cb1ed28dd273291bbfb48c22de56dbb3c769b578eace",
+      "bytes": 136144
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "a879ed8f8c610ef54ed2896ea1dad551065fba59ae6e97106b12ef67034203ba",
+      "bytes": 74452
+    },
+    "report.md": {
+      "sha256": "3cc31aa62e0f0a389cdc88fec4aa6581c394e62b758059ad3218e4f9aedef84b",
+      "bytes": 8250
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "3ddbb520a0fbe751a732b670da4ffaefc2a541b9e21cb798fe1ae630414a2684",
+      "bytes": 61516
+    },
+    "report_data/cdf.csv": {
+      "sha256": "449f5de490b558164a5e2174513a1e3ebeab507c8a12d6544d839336bc8a85a4",
+      "bytes": 112361
+    },
+    "report_data/client_requests.csv": {
+      "sha256": "4f036b11b2fdb92702d3fa8e65a5758987f2073be0462cc34b8646f2a2b6191e",
+      "bytes": 114905
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "d6fd711e5ed447b35a39fcf4bba17384ffb69750f4e5b71f5d0644278369a0c0",
+      "bytes": 1050
+    },
+    "report_data/configuration.json": {
+      "sha256": "aac4c03ef74d0cbd4f8084a6e9a7673b9c8f3baad52bd1e74ef9222befd06a24",
+      "bytes": 5800
+    },
+    "report_data/dataset.json": {
+      "sha256": "198580452c578d089b2e489bae5ba1259c71b501038780bca23c954b1bfcb2d0",
+      "bytes": 11944599
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "f539aa1ef4d58c8b95219e0579085adc6a87bd2beae2993a76b975f69aecebd5",
+      "bytes": 1240
+    },
+    "report_data/layer_wait.csv": {
+      "sha256": "6378441eca7bfa84cd15f6ad654da4b7fb917c0826d177f9bc989ae253398bc0",
+      "bytes": 661
+    },
+    "report_data/layers.csv": {
+      "sha256": "c525e4aca9492bfd5b4b77d23074d194889f03a1b2182df32f525b0a7d397a44",
+      "bytes": 1798309
+    },
+    "report_data/requests.csv": {
+      "sha256": "dc2101a4329e79f830e60523750fa01b74feec38b77dde289dbdaa4ead4c4a64",
+      "bytes": 204146
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "678bb9a21312c73865dd4766ff9d918032930ee9957b4bdd61057ea93cee7b28",
+      "bytes": 947
+    },
+    "report_data/summary_by_class.csv": {
+      "sha256": "ffecff2672b93ddf2c2abaa46d2014eb96852343211aba024362f1a78cc6be3c",
+      "bytes": 1289
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "e6b69e6989ff22653281317f5eb16cef0fc1380f84b463bb29426af274815e29",
+      "bytes": 9232
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "0bfbe6b274695bdf310025d7836ffafbd458b75da794362a9f0169182df71f3d",
+      "bytes": 10764
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "c4cf77ea67805bfcfb24f6d7de1328fcb1f96d0b5d8ff6103898a20273ee2e0e",
+      "bytes": 23842
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "d59bd3b46f56f185c72eae6f45a2945eeaf1844df28b37c5cf9bf69972d28137",
+      "bytes": 3436
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "17e89b2773db830c515eff1e69755f09048df2cb032d5b948a7d932af46f16fe",
+      "bytes": 18365
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+      "bytes": 7167
+    }
+  }
+}

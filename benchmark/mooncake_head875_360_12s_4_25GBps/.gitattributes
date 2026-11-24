@@ -1,0 +1,2 @@
+# Frozen source bytes may retain CRLF; keep original bytes and hashes.
+* -text -whitespace

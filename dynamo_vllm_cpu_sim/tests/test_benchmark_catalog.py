@@ -64,6 +64,32 @@ class BenchmarkCatalogTests(unittest.TestCase):
         with (self.folder/'trace.jsonl.gz').open('ab') as f:f.write(b'corrupt')
         with self.assertRaises(AssertionError):manager.verify()
 
+    def test_native_server_export_preserves_tokens_and_unscaled_arrivals(self):
+        with gzip.open(self.folder/'trace.jsonl.gz','rt') as f:rows=[json.loads(line) for line in f]
+        for r,t in zip(rows,(.1,.9)):
+            r.pop('hit_tokens');r.pop('u_tokens');r['arrival_s']=t
+        raw=''.join(json.dumps(r)+'\n' for r in rows).encode()
+        (self.folder/'trace.jsonl.gz').write_bytes(gzip.compress(raw))
+        path=self.folder/'requests.csv'
+        with path.open() as f:table=list(csv.DictReader(f))
+        for r,t in zip(table,(.1,.9)):r['arrival_s']=t
+        with path.open('w',newline='') as f:
+            w=csv.DictWriter(f,fieldnames=list(table[0]));w.writeheader();w.writerows(table)
+        (self.folder/'experiment.json').write_text('{"layers":16}')
+        self.m.update(trace_format='server_stack_v1',first_planned_arrival_s=.1,last_planned_arrival_s=.9,
+                      original_trace_sha256=hashlib.sha256(raw).hexdigest())
+        self.save_manifest()
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)/'export'
+            manager.export(self.name,output,quiet=True)
+            self.assertEqual((output/'trace.jsonl').read_bytes(),raw)
+            self.assertEqual(manager.read(output/'experiment.json'),{'layers':16})
+        table[1]['hit_tokens']=0
+        with path.open('w',newline='') as f:
+            w=csv.DictWriter(f,fieldnames=list(table[0]));w.writeheader();w.writerows(table)
+        self.save_manifest()
+        with self.assertRaises(AssertionError):manager.verify_case(self.name)
+
     def test_export_preserves_input_and_refuses_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
             output=Path(temp)/'export'
