@@ -168,7 +168,7 @@ PYEOF
 rc=$?
 [ $rc -eq 0 ] || { echo "HARNESS_FAILED"; exit 0; }
 mkdir -p %(work)s/harness/tuning_tests && cp -r %(src)s/tests/. %(work)s/harness/tuning_tests/
-cd %(work)s/harness && timeout %(timeout)d %(py)s -m unittest discover -s tuning_tests -t . 2>&1 | tail -n 80
+cd %(work)s/harness && timeout %(timeout)d %(py)s -m unittest discover -s tuning_tests -p "test_*.py" 2>&1 | tail -n 80
 echo "UNITTEST_RC=${PIPESTATUS[0]}"
 """ % dict(work=work, src=source, repo=REPO, py=PY, wsl=str(Path(RUNNER).parent).replace("\\", "/"),
            manifest=BASE_MANIFEST, tier=int(max_tier), timeout=int(timeout))
