@@ -424,6 +424,7 @@ def write_context(daemon, generation, lab):
             pass
     lens = roles_lens(state, lab)
     lines += ["## 本代的视角", "", "提案组 %s 本代优先从「%s」出发思考。这只是起点，不限制你。" % (lab, lens), ""]
+    lines += operator_notes(state)
     (daemon.ws / "digest" / ("gen_%d" % generation)).mkdir(parents=True, exist_ok=True)
     (daemon.ws / "digest" / ("gen_%d" % generation) / ("context_%s.md" % lab)).write_text("\n".join(lines), encoding="utf-8")
     return "digest/gen_%d/context_%s.md" % (generation, lab)
@@ -431,6 +432,17 @@ def write_context(daemon, generation, lab):
 
 def _mean(results, key):
     return statistics.mean(r[key] for r in results.values())
+
+
+def operator_notes(state):
+    """What the operator changed about the measuring conditions, for every role that reads results.
+
+    ``state['operator_notes']`` is a list of {at, text}; the daemon never writes it.
+    """
+    notes = (state.get("operator_notes") or [])[-5:]
+    if not notes:
+        return []
+    return ["## 运维备注（测量条件的变化）", ""] + ["- %s：%s" % (note.get("at", ""), note.get("text", "")) for note in notes] + [""]
 
 
 def open_tier_of(state):
@@ -473,6 +485,20 @@ def write_generation_report(daemon):
         rows.append([cand_id, cand["kind"], (cand.get("card") or {}).get("name", "")[:40], cand.get("status"),
                      pct(cand.get("score")), (cand.get("reason") or "")[:160]])
     lines += [table(["候选", "类型", "机制", "状态", "排序分", "原因"], rows) or "（本代没有候选）", ""]
+    # Where each candidate helped and where it hurt. The reason above is one sentence; the lessons
+    # of the search are read off these numbers, so they must be in the report and not only on the dashboard.
+    per_workload = [row for row in scored(state) if row["cand"].get("gen") == generation]
+    lines += ["## 本代候选的逐负载结果", "",
+              "相对默认策略，正数是改进。取该候选轮次最多的一组回放（确认优先于筛选）；「回退」表示超出噪声。", ""]
+    for row in per_workload:
+        cand = row["cand"]
+        lines += ["### %s（%s）" % (row["id"], (cand.get("card") or {}).get("name", "")[:40]), ""]
+        lines += [table(["负载", "平均TTFT 改进", "完成时间 改进", "每个负载的轮次", "回退"],
+                        [[w, pct(r["ttft"]), pct(r["makespan"]), r["cand_n"], "是" if r["regresses"] else ""]
+                         for w, r in row["results"].items()]), ""]
+    if not per_workload:
+        lines += ["本代没有跑完五个负载的候选。", ""]
+    lines += operator_notes(state)
     lines += ["冠军：%s。停滞阶梯：%d。已放开到第二梯队第 %d 档。" % (
         state.get("champion") or "无", state.get("ladder", 0), open_tier_of(state)), ""]
     kinds = state.get("runs_by_kind", {})

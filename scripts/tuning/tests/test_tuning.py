@@ -289,6 +289,38 @@ class ReportTests(unittest.TestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
+    def test_generation_report_shows_where_each_candidate_helped_and_hurt(self):
+        """The meta-strategist writes lessons from this report; one sentence per candidate is not enough."""
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            daemon.state["gen"] = dict(n=1, step="meta")
+            daemon.state["meta"] = {}
+            for workload in config.WORKLOADS:
+                daemon.state["baseline"][workload] = dict(light=dict(ttft=[2.0] * 4, makespan=[10.0] * 4, runs=[]))
+            daemon.state["operator_notes"] = [dict(at="2026-11-26 04:06:10", text="回放改为一次一轮")]
+            runs = {workload: dict(screen=[dict(run="r_%s" % workload, ttft=2.0 * (1 - shift), makespan=10.0 * (1 + shift), stress=None)])
+                    for workload, shift in (("408", 0.10), ("540", 0.10), ("mooncake", -0.20), ("agentx-narrow", 0.10), ("agentx-flex", 0.10))}
+            daemon.state["candidates"]["c0001"] = dict(
+                id="c0001", kind="llm", gen=1, status="rejected", card=dict(name="需求预算闸门"), runs=runs, score=-0.05,
+                reason="筛选未通过")
+            daemon.state["candidates"]["c0002"] = dict(id="c0002", kind="llm", gen=1, status="rejected", card=dict(name="x"), runs={}, reason="门禁未过")
+            path = report.write_generation_report(daemon)
+            text = (root / path).read_text(encoding="utf-8")
+            self.assertIn("## 本代候选的逐负载结果", text)
+            self.assertIn("### c0001（需求预算闸门）", text)
+            self.assertNotIn("### c0002", text)
+            self.assertIn("| mooncake | -20.0% | +20.0% | 1 | 是 |", text)
+            self.assertIn("| 408 | +10.0% | -10.0% | 1 | 是 |", text)
+            self.assertIn("- 2026-11-26 04:06:10：回放改为一次一轮", text)
+            self.assertNotIn("### c0002", text)
+            # The proposers' context carries the same note.
+            report.write_context(daemon, 1, "A")
+            self.assertIn("回放改为一次一轮", (root / "digest" / "gen_1" / "context_A.md").read_text(encoding="utf-8"))
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
     def test_dashboard_renders_from_an_empty_state(self):
         root = Path(tempfile.mkdtemp())
         try:
