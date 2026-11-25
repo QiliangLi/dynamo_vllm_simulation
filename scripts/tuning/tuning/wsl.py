@@ -16,7 +16,7 @@ from pathlib import Path
 
 DISTRO = "Ubuntu-24.04"
 WSL_ROOT = "/root/tuning"
-REPO = WSL_ROOT + "/root/tuning/repo"
+REPO = WSL_ROOT + "/repo"
 PY = "/root/tuning/repo/dynamo_vllm_cpu_sim/.venv/bin/python"
 RUNNER = "/root/tuning/repo/scripts/tuning/wsl/run_tuning.py"
 BASE_MANIFEST = "/root/tuning/base_manifest.json"
