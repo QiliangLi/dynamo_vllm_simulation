@@ -3,6 +3,7 @@
 Run from scripts/tuning:  python -m unittest discover -s tests
 """
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -264,6 +265,32 @@ class ReportTests(unittest.TestCase):
             self.assertIn("机制地图", page)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+
+class SignatureVocabulary(unittest.TestCase):
+    def test_card_vocabulary_matches_the_digest_paths(self):
+        # A metric the card may promise must be something the gate can look up, and vice versa.
+        self.assertEqual(set(config.SIGNATURE_METRICS), set(gates.METRIC_PATHS))
+
+    def test_every_promisable_metric_exists_in_the_digest_code(self):
+        """``wsl/digest.py`` returns these keys; a renamed key would silently fail every promise."""
+        source = (HERE / "wsl" / "digest.py").read_text(encoding="utf-8")
+        for metric, (section, key) in gates.METRIC_PATHS.items():
+            if metric in ("mean_ttft_s", "makespan_s"):
+                continue  # client-side metrics, read from the summary
+            self.assertRegex(source, r"%s=dict\(" % re.escape(section), metric)
+            if key is not None:
+                self.assertRegex(source, r"\b%s=" % re.escape(key), metric)
+
+    def test_a_wrongly_named_promise_is_refused_by_the_card_check(self):
+        card = dict(name="x", tier=0, mechanism=dict(signal=["demand_sum"], action=["admit"], timing=["schedule"], feedback=["closed_loop"]),
+                   params={}, causal="因果链说明文字需要足够长才能通过检查，这里是凑长度的说明文字。",
+                   signature=[dict(workload="408", metric="overload.read_stretch_p95", direction="down")],
+                   failure="失效模式的说明文字也需要足够长才能通过检查，这里是凑长度的说明文字。",
+                   protection="保护机制的说明文字也需要足够长才能通过检查，这里是凑长度的说明文字。")
+        self.assertTrue(any("signature" in issue for issue in gates.check_card(card, 0).issues))
+        card["signature"] = [dict(workload="408", metric="read_stretch_p95", direction="down")]
+        self.assertEqual(gates.check_card(card, 0).issues, [])
 
 
 if __name__ == "__main__":

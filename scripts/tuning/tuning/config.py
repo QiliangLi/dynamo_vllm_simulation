@@ -66,8 +66,11 @@ FEEDBACKS = ("open_loop", "closed_loop")
 MECHANISM_CELLS = ["/".join(cell) for cell in product(SIGNALS, ACTIONS, TIMINGS, FEEDBACKS)]
 
 # Metrics a candidate may promise to move (G5). ``down`` means smaller is better unless stated.
-SIGNATURE_METRICS = ("overload_s", "near_overload_s", "peak_demand_GBs", "idle_s", "read_wait_s",
-                     "mean_ttft_s", "makespan_s", "blocked_total_s", "heavy_hints", "link_utilization")
+# Must stay in step with gates.METRIC_PATHS (a unit test checks).
+SIGNATURE_METRICS = ("overload_s", "near_overload_s", "layer_overload_s", "saturated_s", "peak_demand_GBs", "idle_s",
+                     "starved_idle_s", "longest_idle_s", "busy_s", "read_wait_s", "read_stretch_median", "read_stretch_p95",
+                     "mean_ttft_s", "makespan_s", "blocked_total_s", "blocked_requests", "denied", "peak_held",
+                     "heavy_hints", "admission_wait_mean_s", "link_utilization")
 DIGEST_METRIC_PATHS = {
     "overload_s": ("overload", "overload_s"), "near_overload_s": ("overload", "near_overload_s"),
     "peak_demand_GBs": ("overload", "peak_demand_GBs"), "link_utilization": ("overload", "link_utilization"),

@@ -13,9 +13,15 @@ from . import scope
 from .config import ACTIONS, FEEDBACKS, SIGNATURE_METRICS, SIGNALS, TIMINGS, WORKLOADS
 
 METRIC_PATHS = {"overload_s": ("overload", "overload_s"), "near_overload_s": ("overload", "near_overload_s"),
+                "layer_overload_s": ("overload", "layer_overload_s"), "saturated_s": ("overload", "saturated_s"),
                 "peak_demand_GBs": ("overload", "peak_demand_GBs"), "link_utilization": ("overload", "link_utilization"),
-                "idle_s": ("workers", "idle_s"), "read_wait_s": ("read_wait_s", None),
-                "blocked_total_s": ("permits", "blocked_total_s"), "heavy_hints": ("permits", "heavy_hints")}
+                "read_stretch_median": ("overload", "read_stretch_median"), "read_stretch_p95": ("overload", "read_stretch_p95"),
+                "idle_s": ("workers", "idle_s"), "starved_idle_s": ("workers", "starved_idle_s"),
+                "longest_idle_s": ("workers", "longest_idle_s"), "busy_s": ("workers", "busy_s"),
+                "read_wait_s": ("read_wait_s", None),
+                "blocked_total_s": ("permits", "blocked_total_s"), "blocked_requests": ("permits", "blocked_requests"),
+                "denied": ("permits", "denied"), "peak_held": ("permits", "peak_held"), "heavy_hints": ("permits", "heavy_hints"),
+                "admission_wait_mean_s": ("waits", "admission_mean_s")}
 CARD_KEYS = ("name", "tier", "mechanism", "params", "causal", "signature", "failure", "protection")
 
 
