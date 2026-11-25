@@ -654,8 +654,8 @@ def ladder_html(state, daemon):
     dossier = (daemon.ws / "meta" / "exhaustion.md")
     counts = map_counts(state)
     untested = sum(1 for c in config.MECHANISM_CELLS if not counts.get(c))
-    return "<p>连续未更替冠军：%d 代（满 %d 代升一级）。已放开第二梯队：%s。连续未更替的纪录：%s。</p><pre>%s</pre><p>机制地图未试格：%d。假设库：%d 条。%s</p>" % (
-        state.get("stagnation", 0), config.STAGNATION_GENERATIONS, tiers, state.get("stagnation", 0), items, untested,
+    return "<p>连续未更替冠军：%d 代（满 %d 代升一级）。已放开第二梯队：%s。停滞阶梯：第 %d 级。</p><pre>%s</pre><p>机制地图未试格：%d。假设库：%d 条。%s</p>" % (
+        state.get("stagnation", 0), config.STAGNATION_GENERATIONS, tiers, state.get("ladder", 0), items, untested,
         len(state["meta"].get("hypotheses") or []), "枯竭档案已生成，见 meta/exhaustion.md。" if dossier.exists() else "尚未生成枯竭档案。")
 
 

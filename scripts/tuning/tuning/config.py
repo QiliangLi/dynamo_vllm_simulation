@@ -22,7 +22,7 @@ MODELS = dict(
     crossval="kimi/moonshot/kimi-k3.1-pro")
 NON_GLM_ROLES = frozenset({"crossval"})
 CROSSVAL_PER_GENERATION = 5
-TIMEOUT_MIN = dict(analyst=25, proposer=80, redteam=30, judge=20, auditor=20, prover=25, meta=25,
+TIMEOUT_MIN = dict(analyst=35, proposer=80, redteam=30, judge=20, auditor=20, prover=25, meta=25,
                    crossval=15, revise=40, toolmaker=30)
 
 # Section 10, frozen.
@@ -46,7 +46,7 @@ LADDER = [
     "在核心范围内换环节：分类、路由、释放、排队、反馈",
     "第二梯队 1：逐层预取深度",
     "第二梯队 2：等待队列的基础排序",
-    "第二梯队 3：路由评分的 Rust 侧",
+    "第二梯队 3：路由评分的 Rust 侧（运行器暂不支持重新编译，暂不搜索）",
     "引入外部思路：检索文献",
     "复活曾被淘汰、失败原因可修的候选",
     "提高测量精度",
