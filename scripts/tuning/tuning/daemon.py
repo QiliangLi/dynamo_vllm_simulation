@@ -547,13 +547,17 @@ class Daemon:
     def stage0(self):
         from .report import write_baseline_digest, write_bounds
         state, step = self.state, self.state["stage0"]
+        # Each phase owns one flag. An earlier version reused ``armed`` for the baseline and the
+        # probes, so a state written by it arrives here flagged as armed without a level.
+        if step["step"] == "parallel" and "level" not in step:
+            step["armed"] = False
         if step["step"] == "baseline":
-            if not step.get("armed"):
+            if not step.get("queued"):
                 for arm, count in (("light", config.BASELINE_LIGHT_RUNS), ("tfs", config.BASELINE_TFS_RUNS)):
                     for index in range(count):
                         for workload in config.WORKLOADS:
                             self.new_run(workload, arm, "baseline")
-                step["armed"] = True
+                step["queued"] = True
                 self.log("stage0_baseline_queued", light=config.BASELINE_LIGHT_RUNS, tfs=config.BASELINE_TFS_RUNS)
             enough = all(len(state["baseline"].get(w, {}).get("light", {}).get("ttft", [])) >= 5 for w in config.WORKLOADS)
             if enough and not self.busy():
@@ -576,7 +580,7 @@ class Daemon:
             step.update(armed=False, level_tested=step["level"])
             return
         if step["step"] == "stress":
-            if not step.get("armed"):
+            if not step.get("built"):
                 ok, detail = self.build_stress()
                 if not ok:
                     self.alert("压力负载没有生成：%s" % str(detail)[-200:], level="error")
@@ -584,7 +588,7 @@ class Daemon:
                     if ok:
                         for _ in range(3):
                             self.new_run(name, "light", "stress_baseline", stress=name, workers=spec.get("workers", 4))
-                step["armed"] = True
+                step["built"] = True
                 return
             if self.busy():
                 return
