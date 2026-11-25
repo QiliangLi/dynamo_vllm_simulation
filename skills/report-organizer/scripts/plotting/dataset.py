@@ -17,10 +17,14 @@ def native_dataset(report=None, manifest=None):
         root = Path(item['path'])
         cfg = read_json(root/'config.json')
         status = read_json(root/'admission.final.json')
-        client_path = next((p for p in (root/'client_report.json', root/'measured/report.json') if p.is_file()), None)
+        client_path = next((p for p in (root/'client_report.json', root/'measured/report.json', root/'report.json') if p.is_file()), None)
         client = read_json(client_path)['requests'] if client_path else {}
         records = status['records']
         formal = {r['id'] for r in case['requests']}
+        scale = cfg.get('wall_time_scale', 1)
+        client_origin = None
+        if all(client.get(r, {}).get('sent_perf_s') is not None for r in formal):
+            client_origin = min(client[r]['sent_perf_s'] for r in formal)
         first = min(records[r]['profile']['arrival_s'] for r in formal)
         requests = []
         for row in case['requests']:
@@ -29,6 +33,8 @@ def native_dataset(report=None, manifest=None):
             request = dict(id=rid, worker=row['worker'], cohort=row['historical_class'] or '未分类',
                 arrival_s=profile['arrival_s']-first, completion_s=record['first_token_s']-first,
                 deadline_s=profile['deadline_s']-first, compute_classes=row['compute_classes'])
+            if client_origin is not None and c.get('e2e_s') is not None and c.get('ok', True):
+                request['client_finish_s'] = (c['sent_perf_s']-client_origin)/scale + c['e2e_s']
             for field, value in (
                 ('gateway_wait_ms', None if record.get('submitted_s') is None else (record['submitted_s']-profile['arrival_s'])*1000),
                 ('arrival_lateness_ms', None if not {'actual_arrival_s','planned_arrival_s'} <= c.keys() else (c['actual_arrival_s']-c['planned_arrival_s'])*1000),
@@ -55,9 +61,10 @@ def reconstruct_pool(storage, cfg, formal, first, origin):
     cap = min(sc['disk_Bps'], sc.get('shared_link_Bps') or sc['disk_Bps'])
     scale = cfg.get('wall_time_scale', 1)
     shift = (storage['t0_monotonic_s']-origin)*scale-first
-    bindings = storage['hit_bindings']
+    bindings = storage.get('hit_bindings', {})
     def sid(native):
-        return native if native in formal else bindings.get(native.replace('-', '').lower()[:32])
+        key = native.replace('-', '').lower()[:32]
+        return native if native in formal else bindings.get(key, key)
     changes = defaultdict(list)
     demands = {rid: load['demand']*sum(load['counts'].values()) for rid, load in storage.get('layer_loads', {}).items()}
     total = 0
@@ -105,6 +112,9 @@ def validate_dataset(data):
             for name in ('gateway_wait_ms','arrival_lateness_ms','read_bytes'):
                 if name in r: finite(r[name])
             if 'read_bytes' in r: require(r['read_bytes'] >= 0, '读取字节不能为负。')
+            if 'client_finish_s' in r:
+                finite(r['client_finish_s'])
+                require(r['client_finish_s'] >= 0, '客户端响应完成时刻不能为负。')
         require(abs(min(r['arrival_s'] for r in rows)) < 1e-6 and abs(max(r['completion_s'] for r in rows)-span) < 1e-6, '窗口必须从首条正式请求到达到末条首token。')
         require((case.get('comp') is None) == (case.get('io') is None), '时间线需要同时提供计算和IO区间；无IO用空列表。')
         accounts = []

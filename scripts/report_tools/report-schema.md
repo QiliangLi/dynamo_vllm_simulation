@@ -28,6 +28,8 @@ requests每行必须有：
 - `arrival_s`、`completion_s`、`deadline_s`。三者以本方案首条正式网关到达为0。completion指首token，不是整个decode结束。arrival最小为0，completion最大等于span_s。
 - 可选 `compute_classes`（逐请求观察到的在线分类）、`gateway_wait_ms`（中央提交−网关到达）、`arrival_lateness_ms`（客户端实际发送−计划发送）、`read_bytes`。
 
+四实例报告还使用可选的逐请求字段 `client_finish_s`。它表示以本轮首条正式请求实际发送为零点的客户端响应结束时刻，单位为模型秒。原生客户端日志用 `(sent_perf_s - 首次 sent_perf_s) / wall_time_scale + e2e_s` 换算。按实际执行 worker 分别取最大值，写入 `run_summary.csv` 的 `worker0_finish_s` 至 `worker3_finish_s`。四项齐全时，将等权算术平均写入 `mean_worker_finish_s`。缺少响应结束时间或某个 worker 未执行请求时，保留已有分项，均值留空。
+
 `cohort`是显式业务或历史分组。保留名称`all`只用于总体，不能作为cohort名称。在线轻重不能从cohort推断。可选数值缺少时省略字段，不能用0补值。
 
 comp/io每行有`worker`、`start`、`end`、`state`。时间单位秒，原点同requests。comp.state只允许heavy/light/mixed；io.state为io。各实例计算不能重叠。IO允许重叠，时间账本先取并集再扣除名义计算。不要把一个批次的计算时长复制给每条请求。
