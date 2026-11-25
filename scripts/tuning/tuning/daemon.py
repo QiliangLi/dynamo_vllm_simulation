@@ -593,7 +593,8 @@ class Daemon:
                 # time simply ends without a baseline and is left out of the attack suite.
                 asked = state.setdefault("stress_asked", {})
                 for name, spec in config.STRESS_SPECS.items():
-                    for _ in range(max(0, STRESS_BASELINE_RUNS - asked.get(name, 0))):
+                    have = len(state["stress_baseline"].get(name, {}).get("light", {}).get("ttft") or [])
+                    for _ in range(max(0, STRESS_BASELINE_RUNS - max(asked.get(name, 0), have))):
                         self.new_run(name, "light", "stress_baseline", stress=name, workers=spec.get("workers", 4))
                     asked[name] = max(STRESS_BASELINE_RUNS, asked.get(name, 0))
             if self.busy():

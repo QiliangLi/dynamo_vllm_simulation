@@ -27,7 +27,16 @@ def write_json(path, value):
             os.replace(path, path.with_name(path.name + ".bak"))
         except OSError:
             pass
-    os.replace(tmp, path)
+    # On Windows the replace is refused while another process has the file open (a reader, a
+    # virus scanner); such locks last moments, so wait for them instead of dropping the write.
+    for attempt in range(20):
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if attempt == 19:
+                raise
+            time.sleep(0.1 * (attempt + 1))
 
 
 class Lock:
