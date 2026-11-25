@@ -68,6 +68,32 @@ def record_champion(daemon, cand_id):
         raise RuntimeError(problem)
 
 
+def record_generation(daemon, generation):
+    """Commit one generation's summary and dashboard snapshot (section 13)."""
+    repo = worktree(daemon)
+    if not _ready(repo):
+        raise RuntimeError("仓库工作树不可用（%s）" % repo)
+    source = daemon.ws / "generations" / ("gen_%d" % generation)
+    dest = repo / ROOT / "generations" / ("gen_%d" % generation)
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in ("report.md", "dashboard.html"):
+        if (source / name).exists():
+            shutil.copy2(source / name, dest / name)
+    state = daemon.state
+    (dest / "summary.json").write_text(json.dumps(dict(
+        generation=generation, at=time.time(), champion=state.get("champion"), ladder=state.get("ladder"),
+        parallel=state.get("parallel"), runs=dict(total=state["runs_total"], ok=state["runs_ok"], failed=state["runs_failed"]),
+        tokens=state.get("tokens"), history=(state.get("history") or [])[-1:],
+        meta=dict(allocation=state["meta"].get("allocation"), hypotheses=state["meta"].get("hypotheses"))),
+        ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (dest / "lessons.md").write_text(daemon.state["meta"].get("lessons_md") or "", encoding="utf-8")
+    _git(repo, "add", "--", str(dest.relative_to(repo)).replace("\\", "/"))
+    _git(repo, "commit", "-q", "-m", "TFS自动调优第 %d 代小结" % generation)
+    problem = _sync(repo)
+    if problem:
+        raise RuntimeError(problem)
+
+
 def champion_patch(daemon, cand_id):
     """A ``patch -p1`` diff from the frozen base to the champion's overlay, plus its policy."""
     cand = daemon.state["candidates"][cand_id]
@@ -141,6 +167,14 @@ def merge_champion(daemon, cand_id):
     (dest / "champion.patch").write_text(patch, encoding="utf-8", newline="\n")
     (dest / "policy.json").write_text(policy, encoding="utf-8", newline="\n")
     (dest / "run_4w25_tuned.sh").write_text(RUNNER, encoding="utf-8", newline="\n")
+    record = dest / "run-record"
+    record.mkdir(parents=True, exist_ok=True)
+    for name in ("ledger.jsonl", "FINAL_REPORT.md"):
+        if (daemon.ws / name).exists():
+            shutil.copy2(daemon.ws / name, record / name)
+    for name in ("lessons.md", "hypotheses.json", "exhaustion.md"):
+        if (daemon.ws / "meta" / name).exists():
+            shutil.copy2(daemon.ws / "meta" / name, record / name)
     card = json.loads((daemon.ws / "candidates" / cand_id / "card.json").read_text(encoding="utf-8"))
     (dest / "README.md").write_text(
         "# 自动调优产出的 TFS 冠军\n\n候选 `%s`，第 %d 代。机制：%s。\n\n- `champion.patch`：相对冻结基线的 `patch -p1` 补丁。\n"
@@ -148,7 +182,7 @@ def merge_champion(daemon, cand_id):
         "因果链：%s\n\n证据见 `../champions/%s/evidence.json`。\n" % (cand_id, daemon.state["candidates"][cand_id]["gen"], card.get("name"), card.get("causal"), cand_id),
         encoding="utf-8")
     _git(repo, "add", "--", ROOT + "/champion")
-    _git(repo, "commit", "-q", "-m", "TFS自动调优收尾：冠军 %s 合入为 run_4w25_tuned.sh 入口" % cand_id)
+    _git(repo, "commit", "-q", "-m", "TFS自动调优收尾：冠军 %s 合入为 run_4w25_tuned.sh 入口，附运行记录" % cand_id)
     _git(repo, "tag", "-f", "tfs-tuning/final")
     problem = _sync(repo)
     if problem:

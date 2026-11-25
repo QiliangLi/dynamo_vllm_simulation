@@ -49,3 +49,11 @@
 ## 2026-11-18 服务器入口
 
 当前三实例服务器仿真先读 `docs/服务器三实例仿真.md`。使用 `run_server_benchmark.py`、`configs/minimax_server_3w.json` 与仓库内 `source_dev/dynamo`，不能套用上文旧 Mooncake 12 实例合同。服务器 benchmark 在 `benchmark_tools_20261116`；它只构建和发送请求。发布范围不包含原始 profile、运行日志或已编译二进制。
+
+## 2026-11-25 TFS 自动调优（无人值守）
+
+自动调优工作流在 `scripts/tuning/`，设计见 `docs/TFS自动调优工作流设计-20261125.md`。
+
+- 守护进程在本分支的独立工作树 `D:\Coding\tfs-tuning\repo` 里提交和推送，工作区是 `D:\Coding\tfs-tuning`。它运行期间，不要在主检出里检出 `lql_1125_tuning`（分支被工作树占用），也不要改动工作区里的 `tuning/`、`base/`、`.opencode/`：冻结区校验和工作区还原会把改动当作篡改。
+- 改 `scripts/tuning/` 后要重新部署（`python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init --skip-wsl`）并重启守护进程才生效。动了 `evaluator.py`、`config.py`、`scope.py`、`gates.py`，还要先 `python tune.py control unfreeze` 登记新哈希，并在账本里留下原因。
+- 看进度看工作区的 `dashboard\index.html`；停它用「停止并收尾.cmd」。不要直接杀 WSL 里的回放进程。

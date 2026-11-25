@@ -86,9 +86,17 @@ class Search:
         """The reason a replay of this candidate failed twice, if any."""
         return self.cand(cand_id).get("run_failed")
 
-    def enqueue(self, cand_id, tag, rounds, workloads=None, stress=False, exclusive=False):
-        """Queue replays so that every workload ends with ``rounds`` finished runs under ``tag``."""
+    MEASURED_TAGS = ("confirm", "attack")
+
+    def enqueue(self, cand_id, tag, rounds, workloads=None, stress=False, exclusive=None):
+        """Queue replays so that every workload ends with ``rounds`` finished runs under ``tag``.
+
+        Section 10: confirmations, attacks and the final runs are measured alone (no other replay
+        in flight, zero port offset); screening may share the machine.
+        """
         cand = self.cand(cand_id)
+        if exclusive is None:
+            exclusive = tag in Search.MEASURED_TAGS
         folder = self.cand_dir(cand_id)
         overlay = folder / "overlay"
         policy_path = folder / "policy.json"
@@ -683,6 +691,14 @@ class Search:
             shutil.copyfile(self.ws / "dashboard" / "index.html", self.ws / "generations" / ("gen_%d" % generation) / "dashboard.html")
         except OSError:
             pass
+        try:
+            from .report import Dashboard
+            Dashboard(self.d).render()
+            shutil.copyfile(self.ws / "dashboard" / "index.html", self.ws / "generations" / ("gen_%d" % generation) / "dashboard.html")
+            from .gitops import record_generation
+            record_generation(self.d, generation)
+        except Exception as error:  # noqa: BLE001
+            self.d.alert("第 %d 代小结没有提交到分支，下次一并推送：%r" % (generation, error), level="warn")
         self.cleanup()
         self.state["gen"] = dict(n=generation, step="open", opened=False)
 
@@ -849,9 +865,10 @@ class Finalizer:
                 cand = self.state["candidates"][champion]
                 for index in range(config.FINAL_RUNS):
                     for workload in config.WORKLOADS:
-                        self.d.new_run(workload, "light", "final")
+                        self.d.new_run(workload, "light", "final", exclusive=True)
                         self.d.new_run(workload, "candidate", "final", cand=champion, overlay=folder / "overlay",
-                                       policy=read_json(folder / "policy.json"), max_tier=cand.get("tier", 0))
+                                       policy=read_json(folder / "policy.json"), max_tier=cand.get("tier", 0),
+                                       exclusive=True)
                 final["queued"] = True
             if self.d.busy():
                 return

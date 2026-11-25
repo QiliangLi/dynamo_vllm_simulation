@@ -45,3 +45,7 @@ python dynamo_vllm_cpu_sim/scripts/wsl.py stack --name windows_remote
 ```
 
 每次启动都会把 Windows 中编辑的工程代码同步到独立的 Linux 工作目录。Python 环境、固定上游源码和结果保留在 Linux 文件系统。不同克隆的环境与结果互相隔离。
+
+## TFS 自动调优
+
+四实例 25 GB/s 的 TFS 无人值守调优在 [scripts/tuning](scripts/tuning/README.md)，设计见 [TFS自动调优工作流设计](docs/TFS自动调优工作流设计-20261125.md)。分支 `lql_1125_tuning` 由调优守护进程自动提交。
