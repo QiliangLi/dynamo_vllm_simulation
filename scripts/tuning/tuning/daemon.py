@@ -257,6 +257,9 @@ class Daemon:
             return
         if self._keep is not None:
             self.log("wsl_keepalive_restarted", code=self._keep.returncode)
+        elif self._keep is None and not getattr(self, "_keep_cleaned", False):
+            self._keep_cleaned = True
+            self.drop_orphan_sessions()
         try:
             self._keep = subprocess.Popen(wsl.KEEPALIVE, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                           stderr=subprocess.DEVNULL,
@@ -264,6 +267,16 @@ class Daemon:
         except OSError as error:  # noqa: BLE001
             self._keep = None
             self.log("wsl_keepalive_failed", error=repr(error))
+
+    def drop_orphan_sessions(self):
+        """Keep-alive sessions left by a previous daemon instance would pile up after restarts."""
+        command = ("Get-CimInstance Win32_Process -Filter \"Name='wsl.exe'\" | Where-Object { "
+                   "$_.CommandLine -like '*sleep*infinity*' -and -not (Get-Process -Id $_.ParentProcessId -ErrorAction SilentlyContinue) } | "
+                   "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }")
+        try:
+            subprocess.run(["powershell.exe", "-NoProfile", "-Command", command], capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
 
     def check_liveness(self):
         """A replay whose runner vanished (WSL restarted, process killed) must not wait for its timeout."""
