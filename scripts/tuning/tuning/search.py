@@ -282,7 +282,10 @@ class Search:
                  "值含 value/min/max）、causal、signature（列表，每项 workload/metric/direction）、failure、protection。",
                  "参数统一放在 policy.json 的 admission.params 或 routing_accounting.params 下，代码从配置读取，不要写死常数。",
                  "新增代码里不要出现 class_id、负载名、os.environ、open() 等被禁内容；确实需要的行在行尾写 `# tuning-allow: 理由`。",
-                 "最多申请一次 `python tune.py smoke %s 408`，结果在 candidates/%s/smoke.json。" % (cand_id, cand_id),
+                 "最多申请一次 `python tune.py smoke %s 408`，结果在 candidates/%s/smoke_agent.json。" % (cand_id, cand_id),
+                 "时间预算：你有大约两个小时。先用 40 分钟交出一个完整、能通过单测的最小版本（card.json、policy.json、overlay、tests 齐全），"
+                 "再逐步完善。宁可简单而完整，不要复杂而残缺。",
+                 "overlay 里的文件从 base/dynamo_vllm_cpu_sim/ 复制对应的原文件再改，其余内容保持不变；受保护的函数（代码地图第 2 节）一个字都不要动。",
                  "如果现任冠军已经不错，优先考虑在它之上叠加一个针对瓶颈卡里最大损失的机制。"]
         return roles.task_book(self.ws / "tasks" / task, "提案（第 %d 代，提案组 %s，候选 %s）" % (generation, lab, cand_id),
                                "提出并实现一个候选策略，写入 candidates/%s/。" % cand_id, inputs, outputs, notes)

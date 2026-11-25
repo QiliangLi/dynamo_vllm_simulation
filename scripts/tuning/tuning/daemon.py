@@ -325,6 +325,12 @@ class Daemon:
                                   policy=request.get("policy"))
             write_json(path.with_name(path.stem + ".started.json"), dict(run=run_id))
             path.unlink()
+            # An agent is waiting on this one: in the search phase it goes ahead of the queue.
+            # Stage 0 keeps its own order so its measurements stay untouched.
+            queue = self.state["queue"]
+            if self.state["phase"] == "run" and run_id in queue:
+                queue.remove(run_id)
+                queue.insert(0, run_id)
 
     # ------------------------------------------------------------ run queue
 
