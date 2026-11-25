@@ -251,14 +251,18 @@ class Search:
             status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + self.read_shell,
                                  lambda task=task, lab=lab, cand_id=cand_id, folder=folder: self.proposer_book(task, lab, cand_id, folder),
                                  max_attempts=2, timeout_min=config.TIMEOUT_MIN["proposer"])
+            waiting = False
             if status == "wait":
-                return
+                # Both proposal groups work at the same time; come back when each has finished.
+                waiting = True
+                continue
             card, errors = gates.load_card(self.cand_dir(cand_id))
             if status == "ok" and card is not None:
                 cand.update(status="drafted", card=card)
             else:
                 self.reject(cand_id, "提案未完成：%s" % ("；".join(errors) or self.state["tasks"][task].get("error", "")))
-        self.state["gen"]["step"] = "pipeline"
+        if not waiting:
+            self.state["gen"]["step"] = "pipeline"
 
     def proposer_book(self, task, lab, cand_id, folder):
         generation = self.state["gen"]["n"]
@@ -418,6 +422,9 @@ class Search:
             cand["status"] = "screen"
             self.enqueue(cand_id, "screen", config.SCREEN_RUNS)
         else:
+            # The official smoke replays exactly what passed the gate. A smoke the proposer asked
+            # for earlier may predate its last edits, so it does not count.
+            cand["runs"].get(config.SMOKE_WORKLOAD, {}).pop("smoke", None)
             cand["status"] = "smoke"
             self.enqueue(cand_id, "smoke", 1, workloads=[config.SMOKE_WORKLOAD])
         return True

@@ -269,14 +269,23 @@ class Daemon:
             self.log("wsl_keepalive_failed", error=repr(error))
 
     def drop_orphan_sessions(self):
-        """Keep-alive sessions left by a previous daemon instance would pile up after restarts."""
-        command = ("Get-CimInstance Win32_Process -Filter \"Name='wsl.exe'\" | Where-Object { "
-                   "$_.CommandLine -like '*sleep*infinity*' -and -not (Get-Process -Id $_.ParentProcessId -ErrorAction SilentlyContinue) } | "
-                   "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }")
-        try:
-            subprocess.run(["powershell.exe", "-NoProfile", "-Command", command], capture_output=True, timeout=60)
-        except (OSError, subprocess.TimeoutExpired):
-            pass
+        """Clean up after a previous daemon instance.
+
+        Keep-alive WSL sessions it left would pile up after restarts. An opencode agent it started
+        would keep writing into a candidate directory that a relaunched task is writing too.
+        """
+        orphans = (
+            ("Name='wsl.exe'", "*sleep*infinity*"),
+            ("Name='opencode.exe'", "*--title tuning-*"),
+        )
+        for selector, pattern in orphans:
+            command = ("Get-CimInstance Win32_Process -Filter \"%s\" | Where-Object { "
+                       "$_.CommandLine -like '%s' -and -not (Get-Process -Id $_.ParentProcessId -ErrorAction SilentlyContinue) } | "
+                       "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }" % (selector, pattern))
+            try:
+                subprocess.run(["powershell.exe", "-NoProfile", "-Command", command], capture_output=True, timeout=60)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
 
     def check_liveness(self):
         """A replay whose runner vanished (WSL restarted, process killed) must not wait for its timeout."""
