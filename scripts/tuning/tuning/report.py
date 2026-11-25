@@ -267,10 +267,25 @@ def workload_block(daemon, name, label, cand=None):
                          w.get("idle_s", 0), w.get("starved_idle_s", 0), agg.get("read_wait_s", 0)))
         lines.append("参考：无争用 FCFS 的平均 TTFT %.3f s、完成时间 %.3f s；计算下界 %.3f s，链路下界 %.3f s。" % (
             ref.get("mean_ttft_s", 0), ref.get("makespan_s", 0), ref.get("compute_floor_s", 0), ref.get("link_floor_s", 0)))
+        # What the analyst could not see before: the classification line of ordinary TFS here,
+        # and how the requests were spread over the four workers.
+        tfs_runs = state["baseline"][name].get("tfs", {}).get("runs") or []
+        tfs_permits = _mean_digest(digests_of(daemon, tfs_runs)).get("permits", {})
+        if tfs_permits.get("theta_final_Bps"):
+            lines.append("普通 TFS 在本负载的口径（参照轮次）：θ = %.2f GB/s，额度 %s，重读提示 %d 条。θ 是分类线，也是额度的分母；"
+                         "它在每次请求到达时按已到达请求的 P75 重算，这里是结束时的值。" % (
+                             tfs_permits["theta_final_Bps"] / 1e9, tfs_permits.get("cap_final"), tfs_permits.get("heavy_hints", 0)))
+        first_digest = digests[0] if digests else {}
+        loads = (first_digest.get("workers") or {}).get("per_worker") or []
+        if loads:
+            lines.append("四个实例各执行 %s 条请求，忙碌 %s 秒。" % (
+                "、".join(str(int(x["requests"])) for x in loads), "、".join(num(x["busy_s"], 1) for x in loads)))
     first = digests[0] if digests else {}
     if first.get("classes"):
-        lines += ["", table(["类（只用于诊断）", "条数", "平均 TTFT s", "P95 TTFT s", "平均需求 GB/s", "读取 GB"],
-                            [[cls, v["n"], num(v["mean_ttft_s"]), num(v["p95_ttft_s"]), num(v["mean_pressure_GBs"], 2), num(v["read_GB"], 3)]
+        lines += ["", table(["类（只用于诊断）", "条数", "平均到达 s", "重读占比", "平均 TTFT s", "P95 TTFT s", "平均需求 GB/s", "读取 GB"],
+                            [[cls, v["n"], num(v.get("mean_arrival_s"), 2) if v.get("mean_arrival_s") is not None else "-",
+                              ("%.0f%%" % (100 * v["heavy_share"])) if "heavy_share" in v else "-", num(v["mean_ttft_s"]),
+                              num(v["p95_ttft_s"]), num(v["mean_pressure_GBs"], 2), num(v["read_GB"], 3)]
                              for cls, v in first["classes"].items()]), ""]
         lines += [_timeline_md(first), ""]
     if cand:

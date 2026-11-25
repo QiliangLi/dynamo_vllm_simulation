@@ -88,6 +88,7 @@ def digest(run, bench_dir, summary):
     with (bench_dir / "requests.csv").open(encoding="utf-8-sig") as stream:
         rows = {row["id"]: row for row in csv.DictReader(stream)}
     source_of = {value: key for key, value in _read(run / "request_ids.json").items()}
+    hints = final.get("storage_hints") or {}
     requests = client["requests"]
     first_send = min(r["sent_perf_s"] for r in requests.values())
 
@@ -106,12 +107,14 @@ def digest(run, bench_dir, summary):
         rate = profile.get("pressure_Bps", 0.0)
         rate_of[rid] = rate
         src = source_of[rid]
+        hint = hints.get(rid) or hints.get(short(rid)) or {}
         items.append(dict(rid=rid, cls=rows[src]["class_id"] if src in rows else "?",
                           ttft=r["ttft_s"], arrival=r["planned_arrival_s"],
                           actual_arrival=r["sent_perf_s"] - first_send,
                           worker=summary["worker_of"][rid], pressure_GBs=rate / 1e9,
                           read_bytes=int(profile.get("estimated_read_bytes", 0)),
-                          service=profile.get("reference_service_s", r["e2e_s"])))
+                          service=profile.get("reference_service_s", r["e2e_s"]),
+                          heavy=bool(hint.get("is_heavy_read"))))
     arrival_of = {item["rid"]: item["actual_arrival"] for item in items}
 
     link = storage["shared_link_Bps"]
@@ -124,13 +127,13 @@ def digest(run, bench_dir, summary):
             if hi > lo:
                 series[i] += weight * (hi - lo) / BIN_S
 
-    read_intervals = []
     span = {}
     for row in storage["layer_read_history"]:
         rate = rate_of.get(short(row["rid"]), 0.0)
         if rate <= 0:
             continue
-        start, end = row["submitted_s"] + store_shift - axis, row["completed_s"] + store_shift - axis
+        start = row["submitted_s"] + store_shift - axis
+        end = row["completed_s"] + store_shift - axis
         add(demand_bins, start, end, rate / 1e9)
         first, last = span.get(row["rid"], (start, end))
         span[row["rid"]] = (min(first, start), max(last, end))
@@ -160,17 +163,18 @@ def digest(run, bench_dir, summary):
                     read_wait += max(0.0, event.get("sleep_elapsed_model_s", 0.0) - event["timing"]["duration_s"])
         per_worker[index] = [(start - origin - axis, end - origin - axis, rid) for rid, (start, end) in spans.items()]
 
-    busy_total, starved, longest, all_busy, gap_count = 0.0, 0.0, 0.0, [], 0
-    for intervals in per_worker.values():
-        merged = merge_spans(intervals)
-        for start, end, _ in merged:
-            add(active_bins, start, end, 1.0)
-        busy_total += sum(end - start for start, end, _ in merged)
+    busy_total, starved, longest, all_busy, per_worker_load = 0.0, 0.0, 0.0, [], []
+    for index in sorted(per_worker):
+        merged = merge_spans(per_worker[index])
+        busy = sum(end - start for start, end, _ in merged)
+        per_worker_load.append(dict(worker=index, requests=len(per_worker[index]), busy_s=busy))
+        busy_total += busy
         all_busy.extend(merged)
+        for start, end in ((s, e) for s, e, _ in merged):
+            add(active_bins, start, end, 1.0)
         for i in range(len(merged) - 1):
             gap = merged[i + 1][0] - merged[i][1]
             longest = max(longest, gap)
-            gap_count += 1
             # Starved: idle while the next request of this worker had already arrived.
             if arrival_of.get(short(merged[i + 1][2]), 1e18) <= merged[i][1] + 0.05:
                 starved += gap
@@ -180,32 +184,34 @@ def digest(run, bench_dir, summary):
 
     classes = {}
     for item in items:
-        bucket = classes.setdefault(item["cls"], dict(ttft=[], pressure=[], read_bytes=0))
+        bucket = classes.setdefault(item["cls"], dict(ttft=[], pressure=[], read_bytes=0, heavy=0, arrival=[]))
         bucket["ttft"].append(item["ttft"])
         bucket["pressure"].append(item["pressure_GBs"])
         bucket["read_bytes"] += item["read_bytes"]
+        bucket["heavy"] += item["heavy"]
+        bucket["arrival"].append(item["actual_arrival"])
     class_stats = {}
     for name, bucket in sorted(classes.items()):
         ordered = sorted(bucket["ttft"])
-        class_stats[name] = dict(n=len(ordered), mean_ttft_s=statistics.mean(ordered),
+        class_stats[name] = dict(n=len(ordered), heavy_share=bucket["heavy"] / len(ordered),
+                                 mean_arrival_s=statistics.mean(bucket["arrival"]), mean_ttft_s=statistics.mean(ordered),
                                  p95_ttft_s=ordered[int(.95 * (len(ordered) - 1) + 1e-9)],
                                  max_ttft_s=ordered[-1],
                                  mean_pressure_GBs=statistics.mean(bucket["pressure"]),
                                  read_GB=bucket["read_bytes"] / 1e9)
 
     denied, granted = {}, {}
+    theta_final = cap_final = None
     for event in final["events"]:
         if event["event"] == "read_permit_denied":
             denied.setdefault(event["id"], event["t"])
         elif event["event"] == "admission_reserved":
             granted.setdefault(event["id"], event["t"])
+        elif event["event"] == "threshold_updated":
+            theta_final, cap_final = event.get("theta"), event.get("cap")
     waits = [granted[rid] - start for rid, start in denied.items() if rid in granted]
 
     positive = sorted(item["pressure_GBs"] for item in items if item["pressure_GBs"] > 0)
-    # Three views of link pressure, all on the store clock:
-    #  - request span x peak demand: a request counts from its first layer read to its last;
-    #  - layer read x peak demand: only while one of its layer reads is outstanding;
-    #  - delivered throughput: bytes actually completed, over 10 ms bins.
     profile = demand_profile(read_intervals, link)
     layer_profile = demand_profile(
         [(row["submitted_s"], row["completed_s"], rate_of.get(short(row["rid"]), 0.0))
@@ -214,8 +220,7 @@ def digest(run, bench_dir, summary):
     delivered = {}
     for row in storage["layer_read_history"]:
         width = max(row["completed_s"] - row["submitted_s"], 1e-9)
-        first, last = int(row["submitted_s"] / fine), int(row["completed_s"] / fine)
-        for i in range(first, last + 1):
+        for i in range(int(row["submitted_s"] / fine), int(row["completed_s"] / fine) + 1):
             lo, hi = max(row["submitted_s"], i * fine), min(row["completed_s"], (i + 1) * fine)
             if hi > lo:
                 delivered[i] = delivered.get(i, 0.0) + row["bytes"] * (hi - lo) / width
@@ -232,12 +237,14 @@ def digest(run, bench_dir, summary):
         overload=dict(profile, link_time_s=link_time, transfer_span_s=check["transfer_span_s"],
                       link_utilization=link_time / check["transfer_span_s"] if check["transfer_span_s"] else 0.0),
         workers=dict(count=workers, busy_s=busy_total, window_s=window[1] - window[0], idle_s=idle,
-                     idle_mean_s=idle / workers, starved_idle_s=starved, longest_idle_s=longest),
+                     idle_mean_s=idle / workers, starved_idle_s=starved, longest_idle_s=longest,
+                     per_worker=per_worker_load),
         read_wait_s=read_wait, compute_model_s=layer_check.get("compute_model_s"),
         model_sum_s=check["model_sum_s"],
         reference=dict(mean_ttft_s=reference["mean_ttft_s"], makespan_s=reference["makespan_s"],
                        compute_floor_s=check["model_sum_s"] / workers, link_floor_s=link_time),
         permits=dict(heavy_hints=gate["heavy_hints"], grants=gate["grants"], denied=gate["denied"],
+                     theta_final_Bps=theta_final, cap_final=cap_final,
                      peak_held=check["held_heavy_peak"], blocked_requests=len(denied),
                      blocked_total_s=sum(waits), blocked_max_s=max(waits, default=0.0)),
         waits=dict(admission_mean_s=check["central_wait_mean_s"], admission_max_s=check["central_wait_max_s"]),
