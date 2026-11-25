@@ -34,17 +34,20 @@ def to_wsl(path):
 
 
 def call(script, timeout=180):
-    """Run a bash script in WSL. Returns (rc, stdout, stderr, reason)."""
-    env = dict(os.environ, WSL_UTF8=WSL_UTF8, MSYS_NO_PATHCONV="1")
+    """Run a bash script in WSL. Returns (rc, stdout, stderr, reason).
+
+    The script goes in as UTF-8 bytes: text mode on Windows would turn every
+    newline into CRLF, which bash does not accept.
+    """
+    env = dict(os.environ, WSL_UTF8=WSL_UTF8)
     with _lock:
         try:
-            proc = subprocess.run(["wsl.exe", "-d", DISTRO, "--", "bash", "-s"], input=script,
-                                  capture_output=True, text=True, encoding="utf-8", errors="replace",
-                                  timeout=timeout, env=env)
+            proc = subprocess.run(["wsl.exe", "-d", DISTRO, "--", "bash", "-s"], input=script.encode("utf-8"),
+                                  capture_output=True, timeout=timeout, env=env)
         except subprocess.TimeoutExpired:
             return 124, "", "", "timeout"
-    out = proc.stdout or ""
-    err = proc.stderr or ""
+    out = (proc.stdout or b"").decode("utf-8", "replace")
+    err = (proc.stderr or b"").decode("utf-8", "replace")
     reason = ""
     if proc.returncode != 0:
         if "ERROR_NO_SYSTEM_RESOURCES" in err or "OUTOFMEMORY" in err:
