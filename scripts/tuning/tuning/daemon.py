@@ -69,6 +69,7 @@ class Daemon:
                      "judgements", "audits", "crossval", "generations"):
             (self.ws / name).mkdir(parents=True, exist_ok=True)
         self.threads = {}
+        self._errors = 0
         self._health = (0.0, None)
         self._wsl_lock = threading.Lock()
         self.base_dir = self.ws / "base"
@@ -150,8 +151,13 @@ class Daemon:
             except SystemExit:
                 raise
             except Exception as error:  # noqa: BLE001 - the loop must survive any single failure
-                self.log("daemon_error", error=repr(error), trace=traceback.format_exc()[-3000:])
-                time.sleep(20)
+                self._errors += 1
+                self.log("daemon_error", error=repr(error), trace=traceback.format_exc()[-3000:], streak=self._errors)
+                if self._errors >= 40:
+                    self.needs_human("连续 %d 次内部错误：%s" % (self._errors, repr(error)[:300]))
+                time.sleep(min(300, 10 * self._errors))
+            else:
+                self._errors = 0
             self.reap_threads()
             try:
                 self.take_requests()
