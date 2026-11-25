@@ -138,6 +138,10 @@ ROLE_PROMPTS = {
 """,
 }
 
+# The proposal groups. How many open in a generation is the meta-strategist's call (1–3, two by
+# default); they work at the same time, each from its own lens, and do not see each other's work.
+LABS = ("A", "B", "C")
+
 LENSES = ["排队论", "控制论（反馈、滞回、自适应）", "调度理论（回填、最短任务优先、截止期）", "网络流控（令牌桶、窗口、信用）",
           "运筹学（装箱、整数规划直觉）", "经济学（定价、拍卖、预算分配）", "在线学习与多臂老虎机",
           "排队论", "控制论（反馈、滞回、自适应）", "调度理论（回填、最短任务优先、截止期）", "网络流控（令牌桶、窗口、信用）"]

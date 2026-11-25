@@ -172,7 +172,9 @@ class Search:
                 if child:
                     gen["param"].append(child)
                     self.enqueue(child, "screen", config.SCREEN_RUNS)
-        for lab in ("A", "B"):
+        # One new-mechanism candidate per proposal group; the meta-strategist's allocation says how many
+        # groups (it asked for three in generation 1 and got two, before this was wired up).
+        for lab in roles.LABS[:allocation["llm"]]:
             gen["llm"].append(self.new_candidate(kind="llm", lab=lab, gen=generation, tier=open_tier_of(self.state),
                                                  status="drafting"))
         gen["step"] = "analyst"
@@ -240,7 +242,7 @@ class Search:
 
     def step_propose(self):
         gen = self.state["gen"]
-        for lab, cand_id in zip(("A", "B"), gen["llm"]):
+        for lab, cand_id in zip(roles.LABS, gen["llm"]):
             cand = self.cand(cand_id)
             if cand["status"] != "drafting":
                 continue

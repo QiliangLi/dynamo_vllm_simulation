@@ -211,6 +211,40 @@ class GenerationFlow(unittest.TestCase):
         report.Dashboard(self.d).render()
         self.assertIn("带宽预算账本", (self.tmp / "dashboard" / "index.html").read_text(encoding="utf-8"))
 
+    def test_the_meta_strategist_decides_how_many_proposal_groups_open(self):
+        """Its task book offers allocation llm 1–3; generation 1 asked for three and still got two."""
+        original = self.fake_task
+
+        def asking_for(task_id, role, task_md, write_paths, shell, **options):
+            original(task_id, role, task_md, write_paths, shell, **options)
+            if task_id.startswith("meta_g"):
+                path = self.tmp / "meta" / "amendments" / "gen_1.json"
+                amendment = read_json(path)
+                amendment["allocation"] = dict(llm=3, param=0)
+                write_json(path, amendment)
+        self.d.start_task = asking_for
+        self.drive()
+        state = self.d.state
+        self.assertEqual(state["meta"]["allocation"], dict(llm=3, param=0))
+        search = Search(self.d)
+        search.step_open()
+        search.step_analyst()
+        search.step_analyst()
+        search.step_propose()
+        search.step_propose()
+        self.assertEqual(state["gen"]["llm"], ["c0003", "c0004", "c0005"])
+        self.assertEqual([state["candidates"][c]["lab"] for c in state["gen"]["llm"]], ["A", "B", "C"])
+        self.assertEqual([state["candidates"][c]["status"] for c in state["gen"]["llm"]], ["drafted"] * 3)
+        lenses = [report.roles_lens(state, lab) for lab in ("A", "B", "C")]
+        self.assertEqual(len(set(lenses)), 3)
+        for lab, lens in zip(("A", "B", "C"), lenses):
+            self.assertIn(lens, (self.tmp / "digest" / "gen_2" / ("context_%s.md" % lab)).read_text(encoding="utf-8"))
+        # One group only when that is what was asked for.
+        state["meta"]["allocation"] = dict(llm=1, param=0)
+        state["gen"] = dict(n=2, step="open", opened=False)
+        search.step_open()
+        self.assertEqual(state["gen"]["llm"], ["c0006"])
+
     def test_generation_survives_when_every_proposal_fails(self):
         self.bad_lab = "A"
         other = "B"

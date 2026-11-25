@@ -456,7 +456,9 @@ def open_tier_of(state):
 
 
 def roles_lens(state, lab):
-    index = (state["gen"]["n"] * 2 + (0 if lab == "A" else 1)) % len(roles.LENSES)
+    """The lens one proposal group starts from in a generation. Groups of one generation never share a lens."""
+    labs = roles.LABS
+    index = (state["gen"]["n"] * len(labs) + labs.index(lab)) % len(roles.LENSES)
     return roles.LENSES[index]
 
 
@@ -594,8 +596,11 @@ def write_generation_report(daemon):
         state.get("champion") or "无", state.get("ladder", 0), open_tier_of(state)), ""]
     kinds = state.get("runs_by_kind", {})
     total = kinds.get("llm", 0) + kinds.get("param", 0) or 1
-    lines += ["运行预算：新机制候选占 %.0f%%，调参候选占 %.0f%%（保底线 %.0f%%）。" % (
-        100 * kinds.get("llm", 0) / total, 100 * kinds.get("param", 0) / total, 100 * config.EXPLORE_MIN), ""]
+    lines += ["运行预算：新机制候选占 %.0f%%，调参候选占 %.0f%%（保底线 %.0f%%）。下一代的新机制候选数就是你修改单里的 "
+              "allocation.llm（1–%d，默认 2）：每个提案组出一个，各组同时工作、视角不同、互不知晓。调参候选（allocation.param，0–4）"
+              "是有冠军之后，冠军改一两个参数得到的子候选。" % (
+                  100 * kinds.get("llm", 0) / total, 100 * kinds.get("param", 0) / total, 100 * config.EXPLORE_MIN,
+                  len(roles.LABS)), ""]
     tasks = [(t, r) for t, r in state["tasks"].items() if "gen%d" % generation in t or ("_%d_" % generation) in t]
     if tasks:
         lines += [table(["任务", "角色", "状态", "用时 min", "步数"], [["`%s`" % t, r.get("role"), r.get("status"), num((r.get("duration_s") or 0) / 60, 1), r.get("steps")] for t, r in tasks]), ""]
