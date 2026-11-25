@@ -17,13 +17,13 @@ WORKLOADS = OrderedDict([
 # Section 5. GLM does the work; kimi-k3.1-pro only cross-checks, a few times per generation.
 MODELS = dict(
     proposer="kimi/zhipu/glm-5.4", redteam="kimi/zhipu/glm-5.4", judge="kimi/zhipu/glm-5.4",
-    prover="kimi/zhipu/glm-5.4", meta="kimi/zhipu/glm-5.4",
+    prover="kimi/zhipu/glm-5.4", meta="kimi/zhipu/glm-5.4", toolmaker="kimi/zhipu/glm-5.4",
     analyst="kimi/zhipu/glm-5.3", auditor="kimi/zhipu/glm-5.3",
     crossval="kimi/moonshot/kimi-k3.1-pro")
 NON_GLM_ROLES = frozenset({"crossval"})
 CROSSVAL_PER_GENERATION = 5
 TIMEOUT_MIN = dict(analyst=25, proposer=80, redteam=30, judge=20, auditor=20, prover=25, meta=25,
-                   crossval=15, revise=40)
+                   crossval=15, revise=40, toolmaker=30)
 
 # Section 10, frozen.
 SCREEN_RUNS = 2

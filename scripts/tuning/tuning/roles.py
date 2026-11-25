@@ -50,7 +50,11 @@ OPENCODE_CONFIG = {
     ],
 }
 
-READ_SHELL = ["ls *", "cat *", "grep *", "rg *", "wc *", "head *", "tail *", "sort *", "find *", "python -c *"]
+# Read-only roles may only list and read. `python -c` would be arbitrary code, so it is not here;
+# computed numbers come from tools the orchestrator validated, or from a script inside the task's own folder.
+READ_SHELL = ["ls *", "cat *", "grep *", "rg *", "wc *", "head *", "tail *", "sort *", "find *"]
+TOOL_SHELL = READ_SHELL + ["python tools/*"]
+AUDITOR_SHELL = READ_SHELL + ["python audits/*"]
 PROPOSER_SHELL = ["python tune.py *"]
 
 ROLE_PROMPTS = {
@@ -119,6 +123,14 @@ ROLE_PROMPTS = {
 - tool_requests：如果你需要新的分析工具或数据，写在这里；它们会显示在看板上。
 
 你不能改评价规则、范围清单、基线定义。不要为了让报告好看而夸大进展。
+""",
+    "toolmaker": """你是工具匠。元策略师提出了一个工具请求：一个只读的分析脚本，帮后来的 Agent 更快看清运行数据。
+
+要求：
+- 只读工作区里已有的数据（runs/*/result.json、digest/ 下的文件、state 里引用的候选目录），不联网，不改任何文件。
+- 写成 `tools/<名字>/run.py`，不需要参数就能运行，60 秒内结束，输出人能读的表格；再写 `tools/<名字>/README.md` 说明它回答什么问题、怎么用。
+- 自己运行一遍确认能跑通，并把输出样例贴进 README。
+- 如果请求做不到，或者需要的數据不存在，照实写进 README 的「未完成」一节，不要交一个跑不通的脚本。
 """,
     "crossval": """你是交叉验证员，来自另一个模型家族。你对某个具体判断给独立意见。
 

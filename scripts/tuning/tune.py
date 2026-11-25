@@ -42,6 +42,7 @@ audits/
 crossval/
 generations/
 requests/
+tools/
 control/
 repo/
 dashboard/

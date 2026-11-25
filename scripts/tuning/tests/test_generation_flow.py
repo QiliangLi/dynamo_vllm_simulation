@@ -71,6 +71,8 @@ class GenerationFlow(unittest.TestCase):
         (package / "read_admission.py").write_text('"""Frozen arrival classification."""\nimport uuid\n', encoding="utf-8")
         self.enqueued = []
         self.bad_lab = None
+        self.tool_request = "一个按负载汇总候选成绩的脚本"
+        self.tool_script = "print('load ttft makespan')\n"
         # fakes
         self.d.start_task = self.fake_task
         Search.enqueue = self.fake_enqueue
@@ -128,7 +130,12 @@ class GenerationFlow(unittest.TestCase):
         elif task_id.startswith("meta_g"):
             write_json(ws / "meta" / "amendments" / ("gen_%d.json" % gen["n"]),
                        dict(lessons_md="第一代：带宽预算账本有效。", hypotheses=[dict(family="bandwidth_budget", status="tested", priority=5, note="")],
-                            proposer_hints="继续沿带宽账本深挖。", redteam_hints="", allocation=dict(llm=2, param=2), tool_requests=[]))
+                            proposer_hints="继续沿带宽账本深挖。", redteam_hints="", allocation=dict(llm=2, param=2),
+                            tool_requests=[self.tool_request]))
+        elif task_id.startswith("toolmaker_"):
+            name = "tool_g%d" % gen["n"]
+            write_text(ws / "tools" / name / "run.py", self.tool_script)
+            write_text(ws / "tools" / name / "README.md", "# 工具\n\n样例。\n")
         elif task_id.startswith("prover_g"):
             write_json(ws / "digest" / ("gen_%d" % gen["n"]) / "untested.json", dict(directions=[dict(cell="bytes/route/schedule/open_loop", idea="", why="")]))
         else:
@@ -191,6 +198,8 @@ class GenerationFlow(unittest.TestCase):
         self.assertTrue(state["map"])
         self.assertEqual(state["meta"]["lessons_md"], "第一代：带宽预算账本有效。")
         self.assertEqual(state["gen"], dict(n=1, step="open", opened=False))
+        self.assertTrue(state["tools"]["tool_g1"]["ok"], state["tools"])
+        self.assertIn("python tools/*", Search(self.d).read_shell)
         # the next generation opens: two new proposals, and parameter children of the champion
         Search(self.d).step_open()
         self.assertEqual(len(state["gen"]["llm"]), 2)
@@ -232,3 +241,14 @@ def write_text(path, text):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ToolmakerFlow(GenerationFlow):
+    def test_a_tool_that_does_not_run_is_not_enabled(self):
+        self.tool_script = "raise SystemExit(3)\n"
+        self.drive()
+        self.assertFalse(self.d.state["tools"]["tool_g1"]["ok"])
+        self.assertNotIn("python tools/*", Search(self.d).read_shell)
+        self.assertTrue(any("没有跑通" in a["text"] for a in self.d.state["alerts"]))
+
+

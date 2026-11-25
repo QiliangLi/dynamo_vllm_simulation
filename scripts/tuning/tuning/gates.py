@@ -168,6 +168,9 @@ def static_gate(cand_dir, base_dir, max_tier):
     policy = load_policy(cand_dir)
     if not overlay and not policy:
         add.append("覆盖层和 policy.json 都是空的：这个候选什么都没改")
+    for rel in overlay:
+        if rel.endswith(".rs"):
+            add.append("%s 改到了路由评分的 Rust 侧：运行器目前不会重新编译 Dynamo，这样的改动不会生效，暂不接受" % rel)
     bad = scope.check_overlay_paths(overlay, tier)
     if bad:
         add.append("overlay 里有范围之外的文件：%s" % bad)

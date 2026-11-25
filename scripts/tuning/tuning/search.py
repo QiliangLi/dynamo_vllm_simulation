@@ -16,6 +16,8 @@ import json
 import random
 import shutil
 import statistics
+import subprocess
+import sys
 import time
 
 from . import config, evaluator, gates, roles, wsl
@@ -43,6 +45,13 @@ class Search:
 
     def log(self, event, **fields):
         self.d.log(event, gen=self.state["gen"]["n"], **fields)
+
+    @property
+    def read_shell(self):
+        """Read-only commands, plus the analysis tools the orchestrator has validated."""
+        if any(tool.get("ok") for tool in (self.state.get("tools") or {}).values()):
+            return roles.TOOL_SHELL
+        return roles.READ_SHELL
 
     def cand(self, cand_id):
         return self.state["candidates"][cand_id]
@@ -207,7 +216,7 @@ class Search:
     def step_analyst(self):
         generation = self.state["gen"]["n"]
         output = "digest/gen_%d/bottlenecks.md" % generation
-        status = self.ensure("analyst_g%d" % generation, "analyst", [output], roles.READ_SHELL, lambda: roles.task_book(
+        status = self.ensure("analyst_g%d" % generation, "analyst", [output], self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / ("analyst_g%d" % generation), "诊断（第 %d 代）" % generation,
             "逐个负载回答：时间花在哪里，哪一部分是读调度能改变的。只诊断，不开药方。",
             [("digest/gen_%d/run_digests.md" % generation, "程序算出的数字与时间线"), ("digest/baseline.md", "基线与已知反例"),
@@ -231,7 +240,7 @@ class Search:
                 continue
             task = "proposer_g%d_%s" % (gen["n"], lab)
             folder = "candidates/%s" % cand_id
-            status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + roles.READ_SHELL,
+            status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + self.read_shell,
                                  lambda task=task, lab=lab, cand_id=cand_id, folder=folder: self.proposer_book(task, lab, cand_id, folder),
                                  max_attempts=2, timeout_min=config.TIMEOUT_MIN["proposer"])
             if status == "wait":
@@ -292,7 +301,7 @@ class Search:
         task = "redteam_%s_%d" % (cand_id, cand.get("review_round", 0))
         review = "reviews/%s/review.json" % cand_id
         folder = "candidates/%s" % cand_id
-        status = self.ensure(task, "redteam", ["reviews/%s/**" % cand_id], roles.READ_SHELL, lambda: roles.task_book(
+        status = self.ensure(task, "redteam", ["reviews/%s/**" % cand_id], self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / task, "红队审查（候选 %s）" % cand_id,
             "先盲审代码，再核对说法。找出它不通用的地方和作弊路径，设计一个攻击负载，给出判定。",
             [(folder + "/overlay", "覆盖层（先看这个）"), (folder + "/policy.json", "配置"), (folder + "/tests", "单测"),
@@ -355,7 +364,7 @@ class Search:
         folder = "candidates/%s" % cand_id
         notes = ["%s。必须解决：" % cand.get("fix_why", "") + json.dumps(cand.get("fix_issues") or [], ensure_ascii=False)[:3000],
                  "静态门与单测的输出在 candidates/%s/gate.json 与 candidates/%s/unittest.txt。" % (cand_id, cand_id)]
-        status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + roles.READ_SHELL, lambda: roles.task_book(
+        status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / task, "修改候选 %s" % cand_id, "按意见修改候选，保持因果链成立。改完重新运行单测。",
             [("digest/code_map.md", "硬约束"), ("digest/gen_%d/context_%s.md" % (self.state["gen"]["n"], cand.get("lab") or "A"), "本代上下文"),
              ("candidates/%s/gate.json" % cand_id, "静态门结果（如果已有）"), ("candidates/%s/unittest.txt" % cand_id, "单测输出（如果已有）"),
@@ -506,8 +515,9 @@ class Search:
         output = "audits/%s/audit.json" % cand_id
         self.d.start_task(task, "auditor", roles.task_book(
             self.ws / "tasks" / task, "复核审计（候选 %s）" % cand_id, "自己写代码从原始记录重算两个指标，再与编排器的数字对比。",
-            inputs, [(output, "JSON：recomputed（每个负载的 mean_ttft_s、makespan_s）、method、agrees、notes")]),
-            ["audits/%s/**" % cand_id], roles.READ_SHELL)
+            inputs, [(output, "JSON：recomputed（每个负载的 mean_ttft_s、makespan_s）、method、agrees、notes"),
+                     ("audits/%s/*.py" % cand_id, "你的计算脚本。写在这个目录下，用 `python audits/%s/脚本名.py` 运行" % cand_id)]),
+            ["audits/%s/**" % cand_id], roles.AUDITOR_SHELL)
 
     def finish_audit(self, cand_id, task_status):
         cand = self.cand(cand_id)
@@ -571,7 +581,7 @@ class Search:
         write_json(self.ws / "judgements" / cand_id / "results.json", dict(
             versus=champion_id or "baseline", workloads=results, signature=cand.get("signature"), stress=cand.get("stress")))
         folder = "candidates/%s" % cand_id
-        status = self.ensure(task, "judge", ["judgements/%s/**" % cand_id], roles.READ_SHELL, lambda: roles.task_book(
+        status = self.ensure(task, "judge", ["judgements/%s/**" % cand_id], self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / task, "理论评审（候选 %s）" % cand_id, "盲评这个候选是否通用、因果链是否成立、证据是否充分。",
             [(folder + "/card.json", "候选卡"), (folder + "/CARD.md", "说明"), (folder + "/overlay", "代码"),
              ("judgements/%s/results.json" % cand_id, "运行结果"), ("reviews/%s/review.json" % cand_id, "红队审查（如果已有）"),
@@ -642,7 +652,7 @@ class Search:
         meta = self.state["meta"]
         output = "meta/amendments/gen_%d.json" % generation
         untested = "digest/gen_%d/untested.json" % generation
-        meta_status = self.ensure("meta_g%d" % generation, "meta", ["meta/amendments/**"], [], lambda: roles.task_book(
+        meta_status = self.ensure("meta_g%d" % generation, "meta", ["meta/amendments/**"], self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / ("meta_g%d" % generation), "元策略复盘（第 %d 代）" % generation,
             "更新经验教训、假设库、下一代的重点提示和预算分配，让搜索本身变得更好。",
             [(report, "本代报告"), ("digest/gen_%d/context_A.md" % generation, "本代开始时的上下文与机制地图"),
@@ -650,7 +660,7 @@ class Search:
             [(output, "JSON：lessons_md、hypotheses（列表：family/status/priority/note）、proposer_hints、redteam_hints、"
                        "allocation（llm 1–3，param 0–4）、tool_requests（列表）")],
             ["不能改评价规则、范围清单、基线定义。", "每条经验都要引用本代的证据。"]), session=meta.get("session"))
-        prover_status = self.ensure("prover_g%d" % generation, "prover", [untested], [], lambda: roles.task_book(
+        prover_status = self.ensure("prover_g%d" % generation, "prover", [untested], self.read_shell, lambda: roles.task_book(
             self.ws / "tasks" / ("prover_g%d" % generation), "举证（第 %d 代）" % generation,
             "找出还没试过的方向，证明「优化不动了」还不成立。",
             [(report, "本代报告"), ("digest/gen_%d/context_A.md" % generation, "机制地图与排行榜"),
@@ -659,7 +669,11 @@ class Search:
             ["宁可多列，也不要说「没有了」。"]))
         if meta_status == "wait" or prover_status == "wait":
             return
-        self.apply_amendment(generation, meta_status)
+        if gen.get("amended") != generation:
+            gen["amended"] = generation
+            self.apply_amendment(generation, meta_status)
+        if self.build_tools(generation):
+            return
         self.update_map()
         self.update_ladder()
         best = max([row["score"] for row in scored(self.state) if row["score"] is not None] or [0])
@@ -671,6 +685,43 @@ class Search:
             pass
         self.cleanup()
         self.state["gen"] = dict(n=generation, step="open", opened=False)
+
+    def build_tools(self, generation):
+        """Section 5, the toolmaker: at most one read-only analysis tool per generation, validated before use.
+
+        Returns True while the toolmaker is still working.
+        """
+        requests = [r for r in (self.state["meta"].get("tool_requests") or [])
+                    if r.get("gen") == generation and not r.get("built")]
+        if not requests or self.state["gen"].get("tool_built") == generation:
+            return False
+        name, task = "tool_g%d" % generation, "toolmaker_g%d" % generation
+        status = self.ensure(task, "toolmaker", ["tools/%s/**" % name], [], lambda: roles.task_book(
+            self.ws / "tasks" / task, "造一个分析工具（第 %d 代）" % generation,
+            "按元策略师的请求写一个只读的分析脚本，放在 tools/%s/ 下，并确认它能跑通。" % name,
+            [("digest/code_map.md", "诊断量的定义"), ("generations/gen_%d/report.md" % generation, "本代报告"),
+             ("runs", "每轮回放的结果：runs/<编号>/result.json 里有 summary 和 digest")],
+            [("tools/%s/run.py" % name, "不需要参数就能运行的分析脚本，60 秒内结束"),
+             ("tools/%s/README.md" % name, "它回答什么问题、怎么用、输出样例、未完成的事")],
+            ["请求：" + requests[0]["text"], "只读。不要修改 tools/ 之外的任何文件。"]), max_attempts=2)
+        if status == "wait":
+            return True
+        requests[0]["built"] = True
+        ok, detail = False, "没有交出 run.py"
+        if (self.ws / "tools" / name / "run.py").exists():
+            try:
+                proc = subprocess.run([sys.executable, "tools/%s/run.py" % name], cwd=str(self.ws), capture_output=True,
+                                      text=True, encoding="utf-8", errors="replace", timeout=120)
+                ok, detail = proc.returncode == 0, (proc.stdout + proc.stderr)[-800:]
+            except (OSError, subprocess.TimeoutExpired) as error:
+                detail = repr(error)
+        self.state.setdefault("tools", {})[name] = dict(
+            ok=ok, gen=generation, request=requests[0]["text"][:300], detail="" if ok else detail[-600:])
+        self.state["gen"]["tool_built"] = generation
+        self.log("tool_built", tool=name, ok=ok)
+        if not ok:
+            self.d.alert("工具匠交出的 %s 没有跑通，未启用" % name, level="warn")
+        return False
 
     def write_meta_files(self):
         meta = self.state["meta"]
