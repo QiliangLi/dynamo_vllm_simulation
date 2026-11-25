@@ -31,6 +31,21 @@ def queued_key(tag, workload):
     """Key of a candidate's outstanding-replay counter. The state is JSON: a tuple key
     here crashed the daemon the first time a candidate's replay was collected."""
     return "%s|%s" % (tag, workload)
+
+
+def failure_reason(result):
+    """Why a replay failed, down to the exception that stopped it.
+
+    The runner reports ``replay exited with 1``; the last line of its log tail names the error
+    (a candidate's first real failure read ``KeyError`` in the checker's load-observation join).
+    The next generation reads these reasons, so they have to say what broke.
+    """
+    error = str(result.get("error", "")).strip()
+    lines = [line.strip() for line in str(result.get("log_tail", "")).splitlines() if line.strip()]
+    tail = next((line for line in reversed(lines) if line not in error), "")
+    return ("%s | %s" % (error, tail[-240:])) if tail else error
+
+
 STRESS_BASELINE_RUNS = 3
 
 
@@ -466,7 +481,7 @@ class Daemon:
         summary = result.get("summary") or {}
         self.log("run_finished", run=run_id, status=result.get("status"), workload=spec["workload"], tag=spec["tag"],
                  cand=spec.get("cand"), ttft=summary.get("mean_ttft_s"), makespan=summary.get("makespan_s"),
-                 error=result.get("error", ""))
+                 error=result.get("error", ""), detail="" if done else failure_reason(result)[-240:])
         state["dashboard"]["last_run"] = dict(run=run_id, workload=spec["workload"], tag=spec["tag"], cand=spec.get("cand"),
                                               status=result.get("status"), at=iso(now()), error=result.get("error", ""))
         cand = state["candidates"].get(spec.get("cand")) if spec.get("cand") else None
@@ -486,12 +501,12 @@ class Daemon:
                                  workers=spec["remote"].get("workers", 4), exclusive=spec.get("exclusive", False),
                                  group=spec.get("group"))
                 if state["light_failed_streak"] >= 10:
-                    self.needs_human("连续 10 轮默认策略运行失败：%s" % result.get("error", "")[:300])
+                    self.needs_human("连续 10 轮默认策略运行失败：%s" % failure_reason(result)[:400])
             elif cand is not None:
                 name = "%s|%s" % (spec["tag"], spec["workload"])
                 cand["fail"][name] = cand.get("fail", {}).get(name, 0) + 1
                 if cand["fail"][name] >= 2:
-                    cand["run_failed"] = "%s %s：%s" % (spec["workload"], spec["tag"], result.get("error", ""))
+                    cand["run_failed"] = "%s %s：%s" % (spec["workload"], spec["tag"], failure_reason(result))
                 else:
                     self.requeue(spec, cand["id"])
             return

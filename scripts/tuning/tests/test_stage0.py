@@ -123,5 +123,28 @@ class CandidateCollection(unittest.TestCase):
             shutil.rmtree(root, ignore_errors=True)
 
 
+    def test_a_stopped_candidate_says_what_broke(self):
+        """The runner only says ``replay exited with 1``; the exception is the last line of its log."""
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            daemon.state["phase"] = "run"
+            daemon.state["candidates"]["c0002"] = dict(id="c0002", kind="llm", gen=1, status="screen", runs={}, queued={}, fail={})
+            failed = dict(status="failed", error="RunError: replay exited with 1", summary=None,
+                          log_tail="replayed 540: ok=540\nTraceback (most recent call last):\n  File x.py, line 85\n    rid = aliases[uuid.UUID(match.group()).hex]\nKeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'\n")
+            for _ in range(2):
+                run_id = daemon.new_run("540", "candidate", "screen", cand="c0002", gen=1)
+                daemon.state["queue"].remove(run_id)
+                daemon.collect(run_id, failed)
+            # The replacement asked for by the first failure is still queued.
+            self.assertEqual(len(daemon.state["queue"]), 1)
+            cand = daemon.state["candidates"]["c0002"]
+            self.assertIn("540 screen：RunError: replay exited with 1 | KeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'", cand["run_failed"])
+            json.dumps(daemon.state)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()
