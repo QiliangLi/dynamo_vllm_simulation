@@ -61,9 +61,21 @@ SUPERVISOR = '''Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 base = fso.GetParentFolderName(WScript.ScriptFullName)
 shell.CurrentDirectory = base
+fast = 0
 Do While Not fso.FileExists(base & "\\control\\STOP")
+    started = Timer
     code = shell.Run("""%s"" ""tune.py"" daemon", 0, True)
     If code = 0 Then Exit Do
+    elapsed = Timer - started
+    If elapsed < 0 Then elapsed = elapsed + 86400
+    If elapsed < 120 Then fast = fast + 1 Else fast = 0
+    If fast >= 5 Then
+        Set note = fso.CreateTextFile(base & "\\SUPERVISOR_STOPPED.txt", True)
+        note.WriteLine "The daemon exited within two minutes of starting five times in a row."
+        note.WriteLine "The supervisor stopped restarting it. See daemon.log and ledger.jsonl."
+        note.Close
+        Exit Do
+    End If
     WScript.Sleep 60000
 Loop
 '''

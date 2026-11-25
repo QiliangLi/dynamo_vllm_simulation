@@ -25,6 +25,12 @@ STRESS_ROOT = wsl.WSL_ROOT + "/stress"
 INFRA_TAGS = ("baseline", "control", "probe", "stress_baseline", "final")
 WSL_REASONS = ("host_out_of_memory", "wsl_unavailable", "not_launched", "timed out", "wsl_low")
 CANDIDATE_TAGS = ("smoke", "screen", "confirm", "attack", "final")
+
+
+def queued_key(tag, workload):
+    """Key of a candidate's outstanding-replay counter. The state is JSON: a tuple key
+    here crashed the daemon the first time a candidate's replay was collected."""
+    return "%s|%s" % (tag, workload)
 STRESS_BASELINE_RUNS = 3
 
 
@@ -177,7 +183,11 @@ class Daemon:
                 Dashboard(self).render()
             except Exception as error:  # noqa: BLE001
                 self.log("dashboard_error", error=repr(error), trace=traceback.format_exc()[-1500:])
-            self.save()
+            try:
+                self.save()
+            except Exception as error:  # noqa: BLE001 - keep the in-memory state and try again next turn
+                self.log("state_save_error", error=repr(error))
+                time.sleep(20)
             time.sleep(POLL_S)
         self.log("daemon_stop")
 
@@ -458,8 +468,9 @@ class Daemon:
                                               status=result.get("status"), at=iso(now()), error=result.get("error", ""))
         cand = state["candidates"].get(spec.get("cand")) if spec.get("cand") else None
         if cand is not None and spec["tag"] in CANDIDATE_TAGS:
-            key = (spec["tag"], spec["workload"])
-            cand["queued"][key] = max(0, cand.get("queued", {}).get(key, 0) - 1)
+            # State is JSON on disk: keys must be strings.
+            key = queued_key(spec["tag"], spec["workload"])
+            cand.setdefault("queued", {})[key] = max(0, cand["queued"].get(key, 0) - 1)
         if not done:
             if spec["arm"] == "light" and spec["tag"] in INFRA_TAGS:
                 state["light_failed_streak"] += 1
@@ -515,7 +526,8 @@ class Daemon:
         """One replacement for a failed candidate replay; a second failure stops the candidate."""
         folder = self.ws / "candidates" / cand_id
         cand = self.state["candidates"][cand_id]
-        cand["queued"][(spec["tag"], spec["workload"])] = cand.get("queued", {}).get((spec["tag"], spec["workload"]), 0) + 1
+        key = queued_key(spec["tag"], spec["workload"])
+        cand.setdefault("queued", {})[key] = cand["queued"].get(key, 0) + 1
         self.new_run(spec["workload"], spec["arm"], spec["tag"], cand=cand_id, gen=spec.get("gen", cand.get("gen", 0)),
                      stress=spec.get("stress"), workers=spec["remote"].get("workers", 4),
                      overlay=folder / "overlay" if (folder / "overlay").exists() else None,

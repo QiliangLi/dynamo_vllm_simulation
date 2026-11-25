@@ -24,6 +24,7 @@ from . import config, evaluator, gates, roles, wsl
 from .report import (_mean_digest, baseline_series, digests_of, leave_one_out, open_tier_of,
                      reference_series, series, stress_results, write_baseline_digest,
                      write_champion_digest, write_context, write_generation_report, write_run_digests)
+from .daemon import queued_key
 from .store import read_json, write_json
 
 ATTACK_DEFAULT = ["bw10_540", "arr_fast_540", "heavy_only", "zero_read"]
@@ -105,19 +106,16 @@ class Search:
         for workload in workloads or list(config.WORKLOADS):
             spec = config.STRESS_SPECS.get(workload) if stress else None
             have = len((cand["runs"].get(workload) or {}).get(tag) or [])
-            outstanding = cand["queued"].get((tag, workload), 0)
+            key = queued_key(tag, workload)
+            outstanding = cand["queued"].get(key, 0)
             for _ in range(max(0, rounds - have - outstanding)):
                 self.d.new_run(workload, "candidate", tag, cand=cand_id, gen=cand["gen"],
                                stress=workload if stress else None, workers=(spec or {}).get("workers", 4) if spec else 4,
                                overlay=overlay if overlay.exists() else None,
                                policy=read_json(policy_path) if policy_path.exists() else None,
                                max_tier=cand.get("tier", 0), exclusive=exclusive)
-                cand["queued"][(tag, workload)] = outstanding + 1
+                cand["queued"][key] = outstanding + 1
                 outstanding += 1
-
-    def note_queued(self, cand_id, tag, workload):
-        cand = self.cand(cand_id)
-        cand["queued"][(tag, workload)] = max(0, cand["queued"].get((tag, workload), 0) - 1)
 
     def complete(self, cand_id, tag, need, stress=False):
         cand = self.cand(cand_id)

@@ -89,9 +89,10 @@ class GenerationFlow(unittest.TestCase):
         write_json(self.tmp / "runs" / run_id / "result.json", dict(status="done", summary=dict(mean_ttft_s=ttft, makespan_s=makespan), digest=digest))
         return run_id
 
-    def fake_enqueue(self, cand_id, tag, rounds, workloads=None, stress=False, exclusive=False):
+    def fake_enqueue(self, cand_id, tag, rounds, workloads=None, stress=False, exclusive=None):
         if stress:
             self.d.state["candidates"][cand_id]["attack_specs"] = list(workloads or [])
+        self.d.state["candidates"][cand_id]["queued"][core.queued_key(tag, "x")] = 1
         for workload in workloads or W:
             self.enqueued.append((cand_id, tag, rounds, workload, stress))
 
@@ -177,6 +178,7 @@ class GenerationFlow(unittest.TestCase):
         search = Search(self.d)
         for _ in range(limit):
             search.step()
+            json.dumps(self.d.state)  # the state is JSON on disk; a tuple key crashed the daemon once
             self.feed()
             if self.d.state.get("history"):
                 return

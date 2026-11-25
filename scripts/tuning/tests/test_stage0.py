@@ -1,4 +1,5 @@
 """Stage 0 must survive a state written by the earlier version that reused one flag for two phases."""
+import json
 import shutil
 import sys
 import tempfile
@@ -9,6 +10,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from tuning import daemon as core  # noqa: E402
+from tuning.store import read_json, write_json  # noqa: E402
 
 
 def phase(body, start, end):
@@ -42,6 +44,29 @@ class Stage0Flags(unittest.TestCase):
             self.assertEqual(state["stage0"]["armed"], True)
             self.assertEqual(state["stage0"]["level"], 2)
             self.assertEqual(len(queued), 4)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+class CandidateCollection(unittest.TestCase):
+    def test_collecting_a_candidate_replay_keeps_the_state_writable(self):
+        """The first real candidate replay crashed the daemon: a counter was keyed by a tuple."""
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            daemon.state["phase"] = "run"
+            daemon.state["candidates"]["c0001"] = dict(id="c0001", kind="llm", gen=1, status="smoke", runs={}, queued={}, fail={})
+            run_id = daemon.new_run("408", "candidate", "smoke", cand="c0001", gen=1)
+            daemon.state["queue"].remove(run_id)
+            summary = dict(requests=408, workers=4, heavy=0, makespan_s=12.0, worker_finish_s=[12.0] * 4,
+                           mean_worker_finish_s=12.0, mean_ttft_s=2.0, median_ttft_s=2.0, p95_ttft_s=3.0,
+                           p99_ttft_s=3.5, max_ttft_s=4.0)
+            write_json(root / "runs" / run_id / "result.json", dict(status="done", summary=summary, digest={}))
+            daemon.collect(run_id, read_json(root / "runs" / run_id / "result.json"))
+            text = json.dumps(daemon.state)
+            self.assertIn('"smoke|408"', text)
+            self.assertEqual(len(daemon.state["candidates"]["c0001"]["runs"]["408"]["smoke"]), 1)
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
