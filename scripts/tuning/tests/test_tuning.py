@@ -313,6 +313,9 @@ class ReportTests(unittest.TestCase):
             self.assertNotIn("### c0002", text)
             self.assertIn("| mooncake | -20.0% | +20.0% | 1 | 是 |", text)
             self.assertIn("| 408 | +10.0% | -10.0% | 1 | 是 |", text)
+            # A pipe inside a name must not split the row into extra columns.
+            self.assertEqual(report.table(["候选", "机制"], [["c0003", "窗口 | 豁免"]]),
+                             "| 候选 | 机制 |\n|---|---|\n| c0003 | 窗口 \\| 豁免 |")
             self.assertIn("- 2026-11-26 04:06:10：回放改为一次一轮", text)
             self.assertNotIn("### c0002", text)
             # The proposers' context carries the same note.

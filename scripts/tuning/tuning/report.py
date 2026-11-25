@@ -25,9 +25,14 @@ def num(value, digits=3):
     return "-" if value is None else ("%.*f" % (digits, value))
 
 
+def _cell(value):
+    """A table cell. A candidate's name may contain a pipe or a line break; either would end the cell."""
+    return str(value).replace("|", "\\|").replace("\n", " ")
+
+
 def table(headers, rows):
-    out = ["| " + " | ".join(headers) + " |", "|" + "---|" * len(headers)]
-    out += ["| " + " | ".join(str(cell) for cell in row) + " |" for row in rows]
+    out = ["| " + " | ".join(_cell(h) for h in headers) + " |", "|" + "---|" * len(headers)]
+    out += ["| " + " | ".join(_cell(cell) for cell in row) + " |" for row in rows]
     return "\n".join(out)
 
 
