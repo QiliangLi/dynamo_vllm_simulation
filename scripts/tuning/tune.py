@@ -12,6 +12,7 @@
 The default workspace is the directory holding this file.
 """
 import argparse
+import hashlib
 import io
 import json
 import os
@@ -91,6 +92,22 @@ def write_cmd(path, text):
     cmd.exe reads CRLF; text mode on Windows would turn each CRLF into CR CR LF.
     """
     path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def frozen_mismatch(ws):
+    """Frozen files whose deployed bytes differ from the hashes the workspace registered.
+
+    The daemon refuses to start on such a difference, and the supervisor stops relaunching it after
+    five quick exits. A deploy that changes a frozen file therefore has to be followed by
+    ``control unfreeze`` before the daemon is next restarted, even when nothing restarts it at once.
+    """
+    ws = Path(ws)
+    path = ws / "state.json"
+    registered = json.loads(path.read_text(encoding="utf-8")).get("frozen") if path.exists() else None
+    if not registered:
+        return []
+    return sorted(name for name in core.FROZEN_FILES
+                  if registered.get(name) != hashlib.sha256((ws / "tuning" / name).read_bytes()).hexdigest())
 
 
 def write_controls(ws, pythonw):
@@ -179,7 +196,11 @@ def cmd_init(args):
 
     if not args.skip_wsl:
         wsl_setup(repo)
-    print(json.dumps(dict(workspace=str(ws), commit=commit, branch=branch), ensure_ascii=False))
+    changed = frozen_mismatch(ws)
+    if changed:
+        print("警告：冻结文件与工作区登记的哈希不同：%s。重启守护进程之前先运行 control unfreeze，否则它拒绝启动。"
+              % "、".join(changed))
+    print(json.dumps(dict(workspace=str(ws), commit=commit, branch=branch, frozen_changed=changed), ensure_ascii=False))
     return 0
 
 
@@ -360,10 +381,12 @@ def cmd_control(args):
         store = Store(ws)
         state = store.load()
         before = state.get("frozen")
-        state["frozen"] = core.frozen_hashes()
+        # The daemon hashes the package it runs from, which is the deployed copy, not this one.
+        state["frozen"] = {name: hashlib.sha256((ws / "tuning" / name).read_bytes()).hexdigest()
+                           for name in core.FROZEN_FILES}
         write_json(ws / "state.json", state)
         store.append(dict(kind="unfreeze", before=before, after=state["frozen"]))
-        print("已登记冻结区的新哈希。")
+        print("已登记冻结区的新哈希。" + ("" if not frozen_mismatch(ws) else " 仍有不一致：%s" % "、".join(frozen_mismatch(ws))))
     return 0
 
 

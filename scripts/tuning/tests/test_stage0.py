@@ -39,13 +39,65 @@ class Stage0Flags(unittest.TestCase):
             daemon = core.Daemon(root)
             daemon.state = state
             queued = []
-            daemon.new_run = lambda *args, **kwargs: queued.append(args) or "r%d" % len(queued)
+
+            def fake_new_run(*args, **kwargs):
+                queued.append((args, kwargs))
+                return "r%d" % len(queued)
+            daemon.new_run = fake_new_run
             daemon.stage0()
             self.assertEqual(state["stage0"]["armed"], True)
             self.assertEqual(state["stage0"]["level"], 2)
-            self.assertEqual(len(queued), 4)
+            # Two groups, every core workload in each, two replays per group.
+            self.assertEqual(len(queued), 20)
+            self.assertEqual(len({kwargs["group"] for args, kwargs in queued}), 10)
+            self.assertEqual({args[0] for args, kwargs in queued}, set(core.config.WORKLOADS))
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+
+class ParallelLevel(unittest.TestCase):
+    def decide(self, shifts):
+        """shifts: {level: {workload: relative shift of the probe results}}; returns the chosen level."""
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            state = core.initial_state("x")
+            state["baseline"] = {
+                workload: {"light": {"ttft": [10.0] * 7, "makespan": [40.0] * 7, "runs": []}}
+                for workload in core.config.WORKLOADS}
+            daemon.state = state
+            count = 0
+            for level, workloads in shifts.items():
+                for workload, shift in workloads.items():
+                    for index in range(4):
+                        count += 1
+                        run_id = "r%04d" % count
+                        spec = dict(run_id=run_id, workload=workload, arm="light", tag="probe", cand=None,
+                                    group="probe%d_0_%s" % (level, workload))
+                        summary = dict(mean_ttft_s=10.0 * (1 + shift), makespan_s=40.0 * (1 + shift))
+                        write_json(root / "runs" / run_id / "spec.json", spec)
+                        write_json(root / "runs" / run_id / "result.json", dict(status="done", summary=summary))
+            daemon.decide_parallel()
+            self.assertEqual(state["stage0"]["step"], "stress")
+            return state["parallel"]
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_one_sensitive_workload_refuses_the_level(self):
+        """408 read 7.7% slower in TTFT at level 2 while the others did not move."""
+        level = self.decide({2: {"408": 0.077, "540": 0.0, "mooncake": 0.0, "agentx-narrow": 0.0, "agentx-flex": 0.0}})
+        self.assertEqual(level, 1)
+
+    def test_a_level_nobody_reacts_to_is_taken(self):
+        self.assertEqual(self.decide({2: {w: 0.0 for w in core.config.WORKLOADS}}), 2)
+        self.assertEqual(self.decide({2: {w: 0.0 for w in core.config.WORKLOADS}, 3: {w: 0.0 for w in core.config.WORKLOADS}}), 3)
+
+    def test_a_level_above_a_refused_one_is_not_taken(self):
+        self.assertEqual(self.decide({2: {"408": 0.077, "540": 0.0, "mooncake": 0.0, "agentx-narrow": 0.0, "agentx-flex": 0.0},
+                                      3: {w: 0.0 for w in core.config.WORKLOADS}}), 1)
+
+    def test_a_workload_without_probes_refuses_the_level(self):
+        self.assertEqual(self.decide({2: {w: 0.0 for w in list(core.config.WORKLOADS)[:4]}}), 1)
 
 
 class CandidateCollection(unittest.TestCase):

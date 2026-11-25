@@ -42,9 +42,12 @@ def iso(ts):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts)) if ts else "-"
 
 
+def frozen_hashes_of(package_dir):
+    return {name: hashlib.sha256((Path(package_dir) / name).read_bytes()).hexdigest() for name in FROZEN_FILES}
+
+
 def frozen_hashes():
-    here = Path(__file__).parent
-    return {name: hashlib.sha256((here / name).read_bytes()).hexdigest() for name in FROZEN_FILES}
+    return frozen_hashes_of(Path(__file__).parent)
 
 
 def initial_state(base_commit):
@@ -584,9 +587,12 @@ class Daemon:
                     self.decide_parallel()
                     return
                 level = step["level_tested"] + 1
+                # Two groups per level, and every core workload in each: the level is only as good as the
+                # workload that reacts most to a neighbour, and that is not known before the probes run.
                 for index in range(2):
-                    for slot in range(level):
-                        self.new_run("540", "light", "probe", group="probe%d_%d" % (level, index))
+                    for workload in config.WORKLOADS:
+                        for slot in range(level):
+                            self.new_run(workload, "light", "probe", group="probe%d_%d_%s" % (level, index, workload))
                 step.update(armed=True, level=level)
                 self.log("stage0_parallel_probe", level=level)
                 return
@@ -620,25 +626,41 @@ class Daemon:
             self.log("stage0_done", parallel=state["parallel"], stress_built=state["stress"].get("built", False))
 
     def decide_parallel(self):
-        """Screening may use the largest probe level whose results look like the sequential baseline."""
-        light = self.state["baseline"]["540"]["light"]
-        ref_t, ref_m = evaluator.stats(light["ttft"]), evaluator.stats(light["makespan"])
+        """Replays may share the host up to the largest probe level that looks like the sequential baseline.
+
+        A level counts only when every workload accepts it. One workload that reacts to a neighbour is
+        enough to refuse it: every candidate would then be measured slower than the serial baseline on
+        that workload (measured 2026-11-26: level 2 read 7.7% slower in TTFT and 3.1% in makespan on 408,
+        nothing on mooncake and AgentX, 1.3% on 540). A level above a refused one is not usable either.
+        """
         chosen, report = 1, []
         for level in range(2, config.PARALLEL_MAX + 1):
-            runs = []
+            runs = {}
             for path in sorted((self.ws / "runs").glob("r*/spec.json")):
                 spec = read_json(path)
                 if spec.get("tag") == "probe" and str(spec.get("group", "")).startswith("probe%d_" % level):
                     result_path = path.parent / "result.json"
                     if result_path.exists() and read_json(result_path).get("status") == "done":
-                        runs.append(read_json(result_path)["summary"])
-            if len(runs) < 4:
-                report.append(dict(level=level, runs=len(runs), accepted=False, why="样本不足或运行失败"))
-                continue
-            t, m = evaluator.stats([r["mean_ttft_s"] for r in runs]), evaluator.stats([r["makespan_s"] for r in runs])
-            ok = (abs(t["mean"] - ref_t["mean"]) <= 0.025 * ref_t["mean"] and abs(m["mean"] - ref_m["mean"]) <= 0.025 * ref_m["mean"]
-                  and t["sd"] <= 2 * max(ref_t["sd"], 1e-6) and m["sd"] <= 2 * max(ref_m["sd"], 1e-6))
-            report.append(dict(level=level, runs=len(runs), accepted=ok, ttft=t["mean"], makespan=m["mean"]))
+                        runs.setdefault(spec.get("workload"), []).append(read_json(result_path)["summary"])
+            rows, ok = [], chosen == level - 1
+            for workload in config.WORKLOADS:
+                items = runs.get(workload, [])
+                row = dict(workload=workload, runs=len(items))
+                if len(items) < 2:
+                    row.update(accepted=False, why="样本不足或运行失败")
+                else:
+                    light = self.state["baseline"][workload]["light"]
+                    ref_t, ref_m = evaluator.stats(light["ttft"]), evaluator.stats(light["makespan"])
+                    t = evaluator.stats([r["mean_ttft_s"] for r in items])
+                    m = evaluator.stats([r["makespan_s"] for r in items])
+                    row.update(
+                        ttft=t["mean"], makespan=m["mean"],
+                        accepted=(abs(t["mean"] - ref_t["mean"]) <= 0.025 * ref_t["mean"]
+                                  and abs(m["mean"] - ref_m["mean"]) <= 0.025 * ref_m["mean"]
+                                  and t["sd"] <= 2 * max(ref_t["sd"], 1e-6) and m["sd"] <= 2 * max(ref_m["sd"], 1e-6)))
+                ok = ok and row["accepted"]
+                rows.append(row)
+            report.append(dict(level=level, accepted=ok, workloads=rows))
             if ok:
                 chosen = level
         self.state["parallel"] = chosen

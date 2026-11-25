@@ -198,6 +198,22 @@ class ControlScriptTests(unittest.TestCase):
             self.assertEqual(supervisor, (ws / "supervisor.vbs").read_bytes())
 
 
+class FrozenHashTests(unittest.TestCase):
+    def test_deploy_that_changes_a_frozen_file_is_reported(self):
+        """A changed frozen file stopped the daemon at its next restart; the deploy said nothing."""
+        import tune
+        with tempfile.TemporaryDirectory() as tmp:
+            ws = Path(tmp)
+            (ws / "tuning").mkdir()
+            for name in core.FROZEN_FILES:
+                (ws / "tuning" / name).write_bytes(b"first\n")
+            write_json(ws / "state.json", dict(frozen=core.frozen_hashes_of(ws / "tuning")))
+            self.assertEqual(tune.frozen_mismatch(ws), [])
+            (ws / "tuning" / "config.py").write_bytes(b"second\n")
+            self.assertEqual(tune.frozen_mismatch(ws), ["config.py"])
+            self.assertEqual(tune.frozen_mismatch(ws / "nowhere"), [])
+
+
 class StoreTests(unittest.TestCase):
     def test_state_round_trip_and_ledger(self):
         root = Path(tempfile.mkdtemp())

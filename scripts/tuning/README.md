@@ -41,7 +41,8 @@ python D:\Coding\tfs-tuning\tune.py control pause | resume | stop
 
 - **WSL 会空闲停机。** 没有会话挂着时，WSL 会在几分钟后停掉整个发行版，连同里面的回放。守护进程持有一个常驻会话防止这一点，并每分钟检查运行器是否还活着；消失就记失败并补跑。
 - **opencode 的项目目录取自环境变量 `PWD`/`OLDPWD`**，不是子进程的工作目录；每个任务使用私有服务（`--standalone`），启动时同步扫描角色定义。角色定义必须按 LF 写入。
-- **重新部署**：改了 `scripts/tuning/` 之后，运行 `python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init --skip-wsl`，再重启守护进程。动了 `evaluator.py`、`config.py`、`scope.py`、`gates.py` 还要先 `python tune.py control unfreeze` 登记新哈希。
+- **回放一次只跑一轮。** 候选要和串行测出的基线在同样的主机条件下比。实测（2026-11-26）两路并行时 light 基线在 408 上 TTFT 高 7.7%、完成时间高 3.1%，mooncake、AgentX 和 540 在噪声内；而晋升规则不允许任何一个负载有超出噪声的回退。第 0 代因此对每个并行档位探测全部核心负载，任何一个负载的偏移超过 2.5% 就不采用该档位。不要手工把并行度调高。
+- **重新部署**：改了 `scripts/tuning/` 之后，运行 `python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init --skip-wsl`，再重启守护进程。动了 `evaluator.py`、`config.py`、`scope.py`、`gates.py` 还要先 `python tune.py control unfreeze` 登记新哈希，**即使部署当时守护进程没有重启**：它只在校验启动时的字节，下一次重启才会发现不一致并拒绝启动，守护脚本连续五次后会停止拉起。`init` 会在输出里提示「冻结文件与工作区登记的哈希不同」。
 
 ## 硬规则在哪里
 
