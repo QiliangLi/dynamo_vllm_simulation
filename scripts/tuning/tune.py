@@ -60,7 +60,7 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 base = fso.GetParentFolderName(WScript.ScriptFullName)
 shell.CurrentDirectory = base
 Do While Not fso.FileExists(base & "\\control\\STOP")
-    code = shell.Run(""""%s"" ""tune.py"" daemon", 0, True)
+    code = shell.Run("""%s"" ""tune.py"" daemon", 0, True)
     If code = 0 Then Exit Do
     WScript.Sleep 60000
 Loop
