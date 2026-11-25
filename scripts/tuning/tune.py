@@ -53,6 +53,7 @@ ledger.jsonl*
 daemon.log
 daemon.pid
 NEEDS_HUMAN.md
+SUPERVISOR_STOPPED.txt
 FINAL_REPORT.md
 __pycache__/
 *.pyc
