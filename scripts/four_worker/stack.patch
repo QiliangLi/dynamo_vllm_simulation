@@ -1,0 +1,33 @@
+--- a/scripts/run_tfs_stack.py
++++ b/scripts/run_tfs_stack.py
+@@ -520,9 +520,11 @@
+         launch("frontend",frontend_args,frontend_env)
+         wait_for(lambda:frontend_ready(workers))
+         if server_dynamo:
+-            # Seed publishers emit a snapshot every 250 ms after binding.
+-            # Exclude subscription warm-up from measured replay.
+-            time.sleep(0.75)
++            # The benchmark's disk indexes are static. Publish several snapshots
++            # during initialization, then drain the indexer before client timing.
++            time.sleep(5.0)
++            (folder / 'tier_fixture.freeze').touch()
++            time.sleep(4.0)
+         if cfg['routing_accounting']['enabled']:
+             wait_for(lambda:(folder/'routing.score.identity.json').exists(),10)
+             identity = json.loads((folder/'routing.score.identity.json').read_text())
+--- a/scripts/tier_fixture_worker.py
++++ b/scripts/tier_fixture_worker.py
+@@ -63,8 +63,11 @@
+         endpoint.append(f'tcp://127.0.0.1:{port}')
+         ready.set()
+         sequence = 0
+-        while True:
+-            time.sleep(.25)
++        warmup_complete = Path(os.environ['SIM_STACK_CONFIG']).parent / 'tier_fixture.freeze'
++        while not warmup_complete.exists():
++            time.sleep(.75)
++            if warmup_complete.exists():
++                break
+             data = msgspec.msgpack.encode(EventBatch(ts=time.time(),events=events,data_parallel_rank=0))
+             socket.send_multipart([b'', sequence.to_bytes(8,'big'), data])
+             sequence += 1

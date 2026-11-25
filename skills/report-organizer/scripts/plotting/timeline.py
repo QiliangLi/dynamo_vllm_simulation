@@ -163,8 +163,8 @@ def load_case(spec):
     if not storage_path.is_file():
         storage_path = root/'storage.final.json'
     storage = read_json(track(storage_path))
-    require('layer_read_history' in storage and 'hit_bindings' in storage,
-            '当前适配器需要逐层读取日志 layer_read_history 和 hit_bindings，不支持旧 bulk/DES 格式。')
+    require('layer_read_history' in storage,
+            '当前适配器需要逐层读取日志 layer_read_history，不支持旧 bulk/DES 格式。')
     clock_path = root/'clock.json'
     scale = float(cfg.get('wall_time_scale', 1.))
     require(math.isfinite(scale) and scale > 0, 'wall_time_scale 必须为正数。')
@@ -175,12 +175,12 @@ def load_case(spec):
     else:
         require('origin_monotonic_s' in status, '缺少网关时钟原点；需要 clock.json 或状态中的 origin_monotonic_s。')
         origin = status['origin_monotonic_s']
-    client_path = next((p for p in (root/'client_report.json', root/'measured/report.json') if p.is_file()), None)
+    client_path = next((p for p in (root/'client_report.json', root/'measured/report.json', root/'report.json') if p.is_file()), None)
     if spec.get('formal_ids'):
         ids = set(spec['formal_ids'])
         id_source = 'manifest.formal_ids'
     else:
-        require(client_path is not None, '无法确定正式请求集合：需要 client_report.json、measured/report.json 或配置中的 formal_ids。')
+        require(client_path is not None, '无法确定正式请求集合：需要 client_report.json、measured/report.json、report.json 或配置中的 formal_ids。')
         client = read_json(track(client_path))
         ids = set(client['requests'])
         require(len(ids) == client['n_total'] == client['n_ok'], '正式客户端记录未全部成功，不输出看似完整的时间线。')
@@ -193,14 +193,15 @@ def load_case(spec):
     span = end-first
     require(span > 0, '正式执行窗口为空。')
     classifier = Classifier(status, cfg)
-    bindings = storage['hit_bindings']
+    bindings = storage.get('hit_bindings', {})
 
     def source_id(native):
         if native in status['records']:
             return native
         key = native.replace('-', '').lower()[:32]
-        require(key in bindings, f'无法关联请求 ID：{native}')
-        return bindings[key]
+        source = bindings.get(key, key)
+        require(source in status['records'], f'无法关联请求 ID：{native}')
+        return source
 
     workers = int(cfg['workers'])
     require(workers > 0, 'workers 必须为正数。')

@@ -1,3 +1,4 @@
 *.py text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
+four_worker/*.patch text eol=lf -whitespace

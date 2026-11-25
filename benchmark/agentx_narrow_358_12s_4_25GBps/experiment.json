@@ -1,0 +1,13 @@
+{
+  "model": "prefill50k_total16_v2",
+  "layers": 16,
+  "tp": 2,
+  "ordering": "fcfs",
+  "max_num_seqs": 1,
+  "schemes": [
+    "light",
+    "tfs",
+    "a_cap1"
+  ],
+  "entrypoint": "bash scripts/run_4w25.sh agentx-narrow POLICY NEW_OUTPUT_DIR"
+}

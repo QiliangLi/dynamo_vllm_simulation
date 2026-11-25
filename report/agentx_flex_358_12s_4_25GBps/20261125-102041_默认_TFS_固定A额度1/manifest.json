@@ -1,0 +1,107 @@
+{
+  "report_id": "agentx_flex_358_12s_4_25GBps/20261125-102041_默认_TFS_固定A额度1",
+  "benchmark_id": "agentx_flex_358_12s_4_25GBps",
+  "study_id": "agentx358-flex-20261125",
+  "created_at": "2026-11-25T10:20:41+08:00",
+  "experiment_dates": [
+    "2026-11-25"
+  ],
+  "schemes": [
+    {
+      "label": "默认（全轻读）"
+    },
+    {
+      "label": "普通 TFS"
+    },
+    {
+      "label": "固定 A 重读，额度 1"
+    }
+  ],
+  "compatibility": "matched_input_and_model",
+  "benchmark_input_sha256": "9f77ba7980ed962f6706e87e183278ea6240efce19aa896cdad45b8edeb6e13b",
+  "simulations_run": 0,
+  "performance_recomputed": false,
+  "files": {
+    ".gitattributes": {
+      "bytes": 20,
+      "sha256": "e97602ab9cac70102245345c5ab0fc9830df8b17f1072b188265a662a3a547ae"
+    },
+    "a_cap1.csv": {
+      "bytes": 53439,
+      "sha256": "d6530081985f594f1c25d8868d24e0505bfa5c7a41d027e8d791c57672cb0a98"
+    },
+    "a_cap1.json": {
+      "bytes": 928,
+      "sha256": "57a32b9d8a18172ec3e2ffa6fe0e6c5bf1d65bf3968f21d449504d6aa5964a25"
+    },
+    "bandwidth.png": {
+      "bytes": 309981,
+      "sha256": "42299c43f422e5de39a7ac20f2a77434bdac5dc6a14da97fee53ce7a50f80918"
+    },
+    "light.csv": {
+      "bytes": 53209,
+      "sha256": "92055ff6fbb321eaf55eb1f9dce5fd45368c6dad86ba9146fe68f187b779f794"
+    },
+    "light.json": {
+      "bytes": 911,
+      "sha256": "5fd9062b309540400c70d13d36fc6a7c8a0d3e16750fb703148833807edb793c"
+    },
+    "report.html": {
+      "bytes": 603613,
+      "sha256": "da1cfb5d90ebfe732ed0295ab50594c7332ffc1966c35a94a988541d507617e5"
+    },
+    "report.md": {
+      "bytes": 3658,
+      "sha256": "76b9f4e8eb95efea7322e49a51a4030c58d46b7dff05b08c4a5a158da71ccc0f"
+    },
+    "requests.csv": {
+      "bytes": 30155,
+      "sha256": "3f9ad2d84e5dfb1b26faa495380cc080ad70a85182b120e4dee2e4aca6560cd5"
+    },
+    "tfs.csv": {
+      "bytes": 52421,
+      "sha256": "cf18cb4b280e285f1104d2979697c002a257f10f59ba61ae64341f62e25f720c"
+    },
+    "tfs.json": {
+      "bytes": 941,
+      "sha256": "f42263c95d64e5e90ff8baa859041a96541b505480b83ae7868ab7633a39dd94"
+    },
+    "timeline.png": {
+      "bytes": 137135,
+      "sha256": "b529cdc7324a2ffc444ad54f99a9c0ed5439886906b840ad3a1bc6c72616488f"
+    }
+  },
+  "figures": [
+    {
+      "path": "bandwidth.png",
+      "width": 1920,
+      "height": 1280,
+      "source_sha256": "42299c43f422e5de39a7ac20f2a77434bdac5dc6a14da97fee53ce7a50f80918"
+    },
+    {
+      "path": "timeline.png",
+      "width": 2550,
+      "height": 1156,
+      "source_sha256": "b529cdc7324a2ffc444ad54f99a9c0ed5439886906b840ad3a1bc6c72616488f"
+    }
+  ],
+  "source_files": {
+    "a_cap1.csv": {
+      "bytes": 53439,
+      "sha256": "d6530081985f594f1c25d8868d24e0505bfa5c7a41d027e8d791c57672cb0a98"
+    },
+    "light.csv": {
+      "bytes": 53209,
+      "sha256": "92055ff6fbb321eaf55eb1f9dce5fd45368c6dad86ba9146fe68f187b779f794"
+    },
+    "requests.csv": {
+      "bytes": 30155,
+      "sha256": "3f9ad2d84e5dfb1b26faa495380cc080ad70a85182b120e4dee2e4aca6560cd5"
+    },
+    "tfs.csv": {
+      "bytes": 52421,
+      "sha256": "cf18cb4b280e285f1104d2979697c002a257f10f59ba61ae64341f62e25f720c"
+    }
+  },
+  "standard_dataset": null
+}

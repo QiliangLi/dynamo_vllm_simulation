@@ -1,0 +1,532 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1074,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1248
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "默认（全轻读）": "#888888",
+    "普通 TFS": "#55A868",
+    "固定 A 重读 / 额度 1": "#9974A5"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 2.5317664998583496,
+  "bin_ms": 50,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "light": {
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/worker0.steps.jsonl": {
+        "sha256": "7a728d839005d156d6a467ba97c63a2b185a674030b143995b9747e40970e19f",
+        "bytes": 1239602
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/worker1.steps.jsonl": {
+        "sha256": "422354e65993d82a761cf0f8a0bb1d3d763dda4c360ed326a76bc31abdc38b08",
+        "bytes": 1268548
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/worker2.steps.jsonl": {
+        "sha256": "937241598e5f12f53fc894f7e9232d143cca20f71e0caf17c88a3b8c5d0b1e3a",
+        "bytes": 1239775
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/worker3.steps.jsonl": {
+        "sha256": "e0af07134d74f218556c2eb3b52d088f6a190b6289ba47f0081ac335442af5d2",
+        "bytes": 1239833
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/check.json": {
+        "sha256": "43d84919cffc8966c0b4d942454936392b8f3c86689412434f259f553ad37211",
+        "bytes": 23164
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/layer_check.json": {
+        "sha256": "2353aa7826c0edaa6b1dfc8de4da3fc8aefd8db208ecbcf693777990edb33e65",
+        "bytes": 323
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/read_admission.check.json": {
+        "sha256": "be8bfa0f0a88850ef95331c3851cff2409d817d312b7cccface8891a1e742520",
+        "bytes": 436
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/trace.jsonl": {
+        "sha256": "ace4a4a3d4923770f295a13ccb42058bfa17ffdb7f0a93f1d00051a6813b74d9",
+        "bytes": 63336195
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/source-run.json": {
+        "sha256": "d48fc3c4bb0f85e59782b5aab9f87916a5b1d24f611eae5e5f68efaea8350c06",
+        "bytes": 2835
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/comparison.csv": {
+        "sha256": "d95f523bc64286fe6ccc52589ffd04929d56b6643dfcbbd817f5fbda858409c0",
+        "bytes": 1121
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/bandwidth-50ms.csv": {
+        "sha256": "c1e106bf12726f79dd313db1990df3915092545f92cbf064b67c908b8e86e4c6",
+        "bytes": 178629
+      },
+      "output/agentx358-a120-18to20-mac-20261125/comparison.csv": {
+        "sha256": "6f9f9910a07931aa5e48f1101b36a7ecd842d2d7bf41a3986aed76d16d6070df",
+        "bytes": 844
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-inputs.csv": {
+        "sha256": "5b366ac11f74fc44225a883bedc64efdb5f39bbcd8a6b59662e14bb47b11a0aa",
+        "bytes": 616
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-comparison.csv": {
+        "sha256": "b0b1fde427b98ca326fd49146c872280d41b6717752cff68678ddfd6431842de",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/request-inputs.csv": {
+        "sha256": "0a7f719bee9130ed5255ce2c18354bbb09749b439bc2963a478eafca271ac8f5",
+        "bytes": 34021
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/compare.py": {
+        "sha256": "6411f55b84c50733a2168ee603d824ddee2e5b8df089bdd8f324568a8b908c33",
+        "bytes": 9387
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/run.sh": {
+        "sha256": "5500d50aa63689b41e354104be41bb033dd5fa41ad0398aa880a3dcaa16a570d",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/admission.py": {
+        "sha256": "53e42588e4ecdbc16921fb45b31f3b3c0788246246dfe7ce05e6c95e78bdefc4",
+        "bytes": 10575
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/stack/read_admission.py": {
+        "sha256": "6cff96107dbafd5a67c8f5a2628b6d9ca517d74dc7102b49380b84dd522c9d85",
+        "bytes": 7974
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/prepare_report.py": {
+        "sha256": "f04a79f51d9636113d1e59b2353ac37a3bb0c2682119f116f8b7102c6a35182b",
+        "bytes": 16197
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/request_ids.json": {
+        "sha256": "3d99ae5f2ac5cb970f18a1943773afab74ddf112cb291666a90cccb5f4f49c24",
+        "bytes": 19693
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/report.json": {
+        "sha256": "3d65296573745d0bd543fce327740028dbaa0904917607946e53faf4ef2b6cb2",
+        "bytes": 139377
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/storage.final.json": {
+        "sha256": "adebefc8dfc4a5efdea66e3997f3fa30394ce4c750926cf326569c4bb921ca53",
+        "bytes": 9076622
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/admission.final.json": {
+        "sha256": "5027c1a4c91d2fa439af7b0cb0ae9e49a63a876e058a3bd472565cd22ed6c409",
+        "bytes": 2036621
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/dynamo.source.json": {
+        "sha256": "89f910226fc49c7357a355418a919816192496fa67313b48aa1fc651c1f13e07",
+        "bytes": 374
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/light/implementation.json": {
+        "sha256": "984ae3f9749665e26d064ad14507a8dd8888ed377cfa00df868bd9f196568cbf",
+        "bytes": 7444
+      }
+    },
+    "tfs": {
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/worker0.steps.jsonl": {
+        "sha256": "a9f4c0ba528a93a8f999951f34309bbea6e2519165ddde44c2a22f9b71578849",
+        "bytes": 1309307
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/worker1.steps.jsonl": {
+        "sha256": "0c915a5b31782947c2a6ac8adf7e08586db27bd058861ced592b5feea1be5708",
+        "bytes": 1253635
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/worker2.steps.jsonl": {
+        "sha256": "6fdaa53237e44fba7f2305421979e9911d2d82ac674c189c42b1bd52e4c81cc4",
+        "bytes": 1143160
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/worker3.steps.jsonl": {
+        "sha256": "40b2d6d99d02187d3e5cb465ce59b1cb311f9792b7098b55ef58a5beb16bf3cb",
+        "bytes": 1281461
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/check.json": {
+        "sha256": "d07176d607e98ce2a933fa223b928b1870f01ff1381dff093666175f309fc12f",
+        "bytes": 23161
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/layer_check.json": {
+        "sha256": "0828ae4b3a00a20bedffbc8a1d142595504be5a8ccc00d35c2a3eb6eb6409b28",
+        "bytes": 323
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/read_admission.check.json": {
+        "sha256": "2267ccfadba2c98b9d8c86d5cb1d0aa0adee30d36d4c62e7f49e8dd764ac226e",
+        "bytes": 479
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/trace.jsonl": {
+        "sha256": "ace4a4a3d4923770f295a13ccb42058bfa17ffdb7f0a93f1d00051a6813b74d9",
+        "bytes": 63336195
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/source-run.json": {
+        "sha256": "d48fc3c4bb0f85e59782b5aab9f87916a5b1d24f611eae5e5f68efaea8350c06",
+        "bytes": 2835
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/comparison.csv": {
+        "sha256": "d95f523bc64286fe6ccc52589ffd04929d56b6643dfcbbd817f5fbda858409c0",
+        "bytes": 1121
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/bandwidth-50ms.csv": {
+        "sha256": "c1e106bf12726f79dd313db1990df3915092545f92cbf064b67c908b8e86e4c6",
+        "bytes": 178629
+      },
+      "output/agentx358-a120-18to20-mac-20261125/comparison.csv": {
+        "sha256": "6f9f9910a07931aa5e48f1101b36a7ecd842d2d7bf41a3986aed76d16d6070df",
+        "bytes": 844
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-inputs.csv": {
+        "sha256": "5b366ac11f74fc44225a883bedc64efdb5f39bbcd8a6b59662e14bb47b11a0aa",
+        "bytes": 616
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-comparison.csv": {
+        "sha256": "b0b1fde427b98ca326fd49146c872280d41b6717752cff68678ddfd6431842de",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/request-inputs.csv": {
+        "sha256": "0a7f719bee9130ed5255ce2c18354bbb09749b439bc2963a478eafca271ac8f5",
+        "bytes": 34021
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/compare.py": {
+        "sha256": "6411f55b84c50733a2168ee603d824ddee2e5b8df089bdd8f324568a8b908c33",
+        "bytes": 9387
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/run.sh": {
+        "sha256": "5500d50aa63689b41e354104be41bb033dd5fa41ad0398aa880a3dcaa16a570d",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/admission.py": {
+        "sha256": "53e42588e4ecdbc16921fb45b31f3b3c0788246246dfe7ce05e6c95e78bdefc4",
+        "bytes": 10575
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/stack/read_admission.py": {
+        "sha256": "6cff96107dbafd5a67c8f5a2628b6d9ca517d74dc7102b49380b84dd522c9d85",
+        "bytes": 7974
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/prepare_report.py": {
+        "sha256": "f04a79f51d9636113d1e59b2353ac37a3bb0c2682119f116f8b7102c6a35182b",
+        "bytes": 16197
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/request_ids.json": {
+        "sha256": "0d46b57ddd03fd429f6be19cc9d3a51e479e3726bb299749c0489d669c870379",
+        "bytes": 19693
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/report.json": {
+        "sha256": "e9ce8c74eddd0923348ec1fbc7fe1386bef6ba65187706a4b3742bd54ebff257",
+        "bytes": 139430
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/storage.final.json": {
+        "sha256": "ad3cfcdcdd2bb9bc628fbacf1f49768f53844712e8f12284e454ee57359477db",
+        "bytes": 9076642
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/admission.final.json": {
+        "sha256": "458bc9bfa6eba519499c0a97bb11c7fac46abc3266b4ac43d3017aa105a7b011",
+        "bytes": 2336814
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/dynamo.source.json": {
+        "sha256": "89f910226fc49c7357a355418a919816192496fa67313b48aa1fc651c1f13e07",
+        "bytes": 374
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/tfs/implementation.json": {
+        "sha256": "7502a1370ecbef3ea7186fb3093f0fdceed7a59af65c56e8b1129dd950ea445f",
+        "bytes": 7444
+      }
+    },
+    "a_cap1": {
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/worker0.steps.jsonl": {
+        "sha256": "798537a6147f7764a5da718bc70486e622dce97532f190bb075440fd4b724616",
+        "bytes": 1183967
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/worker1.steps.jsonl": {
+        "sha256": "2058e319c08132180cbe9276d8060e7cbde52d2600d92fc87d66eaf46cf85689",
+        "bytes": 1268538
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/worker2.steps.jsonl": {
+        "sha256": "eabee6bbf4d6b77790699ed3b5707ce496082c125b41800308f1e17c893bf501",
+        "bytes": 1351152
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/worker3.steps.jsonl": {
+        "sha256": "bbd3128e91b33bcc1a1f2a7ccb417b1e1b9e6ee3ca8c74d12ca04e69c3108228",
+        "bytes": 1183767
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/check.json": {
+        "sha256": "d3bb3e2bd4ddbb4d6f3029600fa350d919879cbeb6796b8381b859ddcd4f8a1e",
+        "bytes": 23162
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/layer_check.json": {
+        "sha256": "952e4b4750f3b74a2efcb98f27c66cd1577be8b5969bef7af23415b0962c2f5c",
+        "bytes": 323
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/read_admission.check.json": {
+        "sha256": "57cccc2c7216868313eb0ebfd34dd7f70b2fd07a780a24ca5ef352f719675b18",
+        "bytes": 482
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/trace.jsonl": {
+        "sha256": "ace4a4a3d4923770f295a13ccb42058bfa17ffdb7f0a93f1d00051a6813b74d9",
+        "bytes": 63336195
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/source-run.json": {
+        "sha256": "d48fc3c4bb0f85e59782b5aab9f87916a5b1d24f611eae5e5f68efaea8350c06",
+        "bytes": 2835
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/comparison.csv": {
+        "sha256": "d95f523bc64286fe6ccc52589ffd04929d56b6643dfcbbd817f5fbda858409c0",
+        "bytes": 1121
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/bandwidth-50ms.csv": {
+        "sha256": "c1e106bf12726f79dd313db1990df3915092545f92cbf064b67c908b8e86e4c6",
+        "bytes": 178629
+      },
+      "output/agentx358-a120-18to20-mac-20261125/comparison.csv": {
+        "sha256": "6f9f9910a07931aa5e48f1101b36a7ecd842d2d7bf41a3986aed76d16d6070df",
+        "bytes": 844
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-inputs.csv": {
+        "sha256": "5b366ac11f74fc44225a883bedc64efdb5f39bbcd8a6b59662e14bb47b11a0aa",
+        "bytes": 616
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/cohort-comparison.csv": {
+        "sha256": "b0b1fde427b98ca326fd49146c872280d41b6717752cff68678ddfd6431842de",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/request-inputs.csv": {
+        "sha256": "0a7f719bee9130ed5255ce2c18354bbb09749b439bc2963a478eafca271ac8f5",
+        "bytes": 34021
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/compare.py": {
+        "sha256": "6411f55b84c50733a2168ee603d824ddee2e5b8df089bdd8f324568a8b908c33",
+        "bytes": 9387
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/run.sh": {
+        "sha256": "5500d50aa63689b41e354104be41bb033dd5fa41ad0398aa880a3dcaa16a570d",
+        "bytes": 686
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/admission.py": {
+        "sha256": "53e42588e4ecdbc16921fb45b31f3b3c0788246246dfe7ce05e6c95e78bdefc4",
+        "bytes": 10575
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/harness/sim/stack/read_admission.py": {
+        "sha256": "6cff96107dbafd5a67c8f5a2628b6d9ca517d74dc7102b49380b84dd522c9d85",
+        "bytes": 7974
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/prepare_report.py": {
+        "sha256": "f04a79f51d9636113d1e59b2353ac37a3bb0c2682119f116f8b7102c6a35182b",
+        "bytes": 16197
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/request_ids.json": {
+        "sha256": "6b7d06cc6f301df42c7ef2d93617b49b35c5790e6a2d7060389ff225d4187e4b",
+        "bytes": 19693
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/report.json": {
+        "sha256": "d4c331fa5cc5355dfb6af28512454327736c2013efcac2065af53870168ebfdf",
+        "bytes": 139435
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/storage.final.json": {
+        "sha256": "f5f068597aada8a15aff4bc63a9598e8aad8f0b09a1ce9bd5cfe352560582ef6",
+        "bytes": 9076299
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/admission.final.json": {
+        "sha256": "47e5901b636cfc7a724aeedb6475c067eeba31a6764f50d731dda089839da28c",
+        "bytes": 2449050
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/dynamo.source.json": {
+        "sha256": "89f910226fc49c7357a355418a919816192496fa67313b48aa1fc651c1f13e07",
+        "bytes": 374
+      },
+      "output/agentx358-a120-fixed-heavy-cap1-mac-20261125/a_cap1/implementation.json": {
+        "sha256": "8663283ae891f93a512b0f75add73b666fcb40288ad24b910e9136e08aa29b60",
+        "bytes": 7444
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/Users/zed/PycharmProjects/kv_aware_net/output/agentx358-a120-fixed-heavy-cap1-mac-20261125/report-dataset.json",
+    "sha256": "c5e762333d21aa216f34d72817468073aed8e18e4c6accd1315c66f521bdaca3"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "5bc17e42a867edea7e1af3791f245f5e6b9c98011f789151225606487d70b048",
+      "bytes": 41437
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "9dc221ae633aece13e4dc6105577f54c041ffc37c0f713cf7ee580638b08ae7f",
+      "bytes": 123622
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "892e5a49dd3e75167df2e22d6581c9dc52ae55f906d8d9606b0a2a0e0cfdf25a",
+      "bytes": 84142
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "da339245b45c23352242f79bd3db8d22e966e92753c5c5466320dbb0c64dc9c4",
+      "bytes": 314341
+    },
+    "figure/05_cdf.png": {
+      "sha256": "5f0bff912abe54d3d543e8738e9acd912c267cdf7de2072610d38e6ad6649d2b",
+      "bytes": 99387
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "707c7fb9b05e40f253ea4e00cc44d3147d9a1bbbd4bf28f86f6d658ffc62a709",
+      "bytes": 131309
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "318266a2fb579019d5a2e6c9f85d01d092b6cfa29248044f7c2fe1a34d378332",
+      "bytes": 52087
+    },
+    "report.md": {
+      "sha256": "0ebf0dce9f7502af9bd31910e96de2ea66ad0aa01ff48f39f7e621b9f8b008b6",
+      "bytes": 8654
+    },
+    "report_data/a_prefix_extensions.csv": {
+      "sha256": "956ccdfbf193a5f2e56836962920ef09ca5deabe47156c2ea87b9186a368189c",
+      "bytes": 264
+    },
+    "report_data/active_a_overlap.csv": {
+      "sha256": "f3e250b777eada5a22d034ff601b50831f9b12d4cc7fff7ace0bf662ec811d77",
+      "bytes": 219
+    },
+    "report_data/agentx_comparison.csv": {
+      "sha256": "f511f5ae99d7a01ed739151feafabd9f2072d818c9e2ab874deda48b9951f0d3",
+      "bytes": 1258
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "29071ebc9faf75e29b33f57f4fb2dfb99022e881dbc4fa46eb42c4cbf1f4699f",
+      "bytes": 223400
+    },
+    "report_data/cdf.csv": {
+      "sha256": "ce41798762e951291f51d5ee77fd9f21e28e059876048074bbff089f6b2f188b",
+      "bytes": 113397
+    },
+    "report_data/cohort_comparison.csv": {
+      "sha256": "3c86a8f2ee4de973a7030ab1dfe413953751326e4b076c11ed029932fd7ccffc",
+      "bytes": 689
+    },
+    "report_data/cohort_inputs.csv": {
+      "sha256": "be3b6164d5197d88f50d773f5e5cf46a32d759636db71e3f218c4913a44dbb03",
+      "bytes": 619
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "b5ef86e759a77f0910ff5b21f3885ded00c8fe4f3d6433fd78ce09504990d54f",
+      "bytes": 1054
+    },
+    "report_data/configuration.json": {
+      "sha256": "785dacf4eec3fcefda1020286adc98d7e17758eb1e9695f6aacd9028b8b82279",
+      "bytes": 5846
+    },
+    "report_data/dataset.json": {
+      "sha256": "bd8259f2b8e7280ccf533e2996fc9f265020676e55f9d719faeb6cb2f100ee07",
+      "bytes": 51369648
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "abfc48882b7868892c28c8748199eae82facd5cd54286c932995d4c5dcdc588d",
+      "bytes": 1258
+    },
+    "report_data/final_request.csv": {
+      "sha256": "2e2bc5cbe5d29d9d7c8d300ad7504920fc660c3e376ba34d2cd2a275a916ea93",
+      "bytes": 271
+    },
+    "report_data/permit_classification.csv": {
+      "sha256": "6ed195d207b51e8d6108feff65fbec98d6d3a95999750f551f370c856722f946",
+      "bytes": 246
+    },
+    "report_data/request_inputs.csv": {
+      "sha256": "255889e144b756031eeae500f2e0a39f7a37c88a0b640a7fe4a3f566f94ea84d",
+      "bytes": 34024
+    },
+    "report_data/requests.csv": {
+      "sha256": "b86df423e34945e24f7ae0122bd5de44cd0d8e509a28658b667027964735f599",
+      "bytes": 245783
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "9cbb2e1fb21f5e04a6b231328fde055a769716bd37a04a395263907549999e73",
+      "bytes": 1446
+    },
+    "report_data/sweep_bandwidth_50ms.csv": {
+      "sha256": "3ab58dd272f73c19ba5471b326eb011ccee140da13b3ccaf313f218cba3e7f91",
+      "bytes": 178632
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "f1d6743b540ec517cefff02c6727fa0f1249b3f38406541b58971f32dd99c9ca",
+      "bytes": 9232
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "ab75a1e90b767c1353e11e3de5010636c588e85b7b42ce3f2fe0d85a4921bfc6",
+      "bytes": 11439
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "e8a9a5bc2984a0fb722bd0f6817b39981dad7018e95920986487103e439b8f7c",
+      "bytes": 26352
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "f6924b0b299ae7f6078fb3832de614e6692c18888cd796abafe5de52787b0d71",
+      "bytes": 19244
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "78802a161b01f83be39b77993539f102b3669ccc37ba4e24d381157b56d4f32a",
+      "bytes": 7167
+    }
+  }
+}

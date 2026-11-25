@@ -30,6 +30,19 @@ class PortableReportTests(unittest.TestCase):
         self.assertAlmostEqual(result['model_compute_s'],4.4)
         self.assertAlmostEqual(result['mean_bandwidth_GBps'],5)
 
+    def test_four_worker_finish_mean_requires_all_four_workers(self):
+        data = validate_dataset(self.sample())
+        case = data["cases"][0]
+        self.assertNotIn("mean_worker_finish_s", metrics(data)["summary"][0])
+        case["summary"]["workers"] = 4
+        for worker, request in enumerate(case["requests"]):
+            request.update(worker=worker, client_finish_s=worker + 1)
+        self.assertEqual(metrics(data)["summary"][0]["mean_worker_finish_s"], 2.5)
+        del case["requests"][2]["client_finish_s"]
+        row = metrics(data)["summary"][0]
+        self.assertIsNone(row["mean_worker_finish_s"])
+        self.assertEqual(row["worker3_finish_s"], 4)
+
     def test_wrong_read_integral_is_rejected(self):
         data=self.sample();data['cases'][0]['bandwidth']['intervals'][0]['actual_Bps']-=1e6
         with self.assertRaises(DataError):validate_dataset(data)
