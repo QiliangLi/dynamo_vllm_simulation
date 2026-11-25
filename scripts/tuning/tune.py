@@ -36,6 +36,8 @@ BASE_PATHS = ["dynamo_vllm_cpu_sim/sim", "dynamo_vllm_cpu_sim/scripts", "dynamo_
 IGNORE = """runs/
 candidates/
 digest/gen_*/
+digest/baseline.md
+digest/champion.md
 tasks/
 meta/
 reviews/
@@ -189,6 +191,11 @@ def cmd_init(args):
 
     # 7. controls
     write_controls(ws, Path(sys.executable).with_name("pythonw.exe"))
+
+    # 7b. the two digests the daemon rewrites are not tracked: as tracked files the guard reverted each
+    #     update to the committed version (the champion digest back to "none" after the next model task)
+    subprocess.run(["git", "-C", str(ws), "rm", "-q", "--cached", "--ignore-unmatch", "digest/baseline.md", "digest/champion.md"],
+                   check=False, capture_output=True)
 
     # 8. commit everything that was written, so the tree the guard defends is the deployed one
     subprocess.run(["git", "-C", str(ws), "add", "-A"], check=True)

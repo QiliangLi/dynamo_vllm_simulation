@@ -234,6 +234,7 @@ class Daemon:
                     record["guard_restored"] = [path for _, path in undone][:30]
                     self.log("guard_restored", task=task_id, paths=record["guard_restored"])
                     self.alert("任务 %s 改动了受保护的内容，已还原：%s" % (task_id, "、".join(record["guard_restored"][:5])), level="warn")
+                self.refresh_digests()
                 own = next((p.split("/")[1] for p in write_paths if p.startswith("candidates/")), None)
                 for other in guard.tampered_candidates(self.state, self.ws, own):
                     if self.state["candidates"][other].get("status") not in ("champion",):
@@ -258,6 +259,20 @@ class Daemon:
         thread = threading.Thread(target=work, daemon=True)
         self.threads[task_id] = thread
         thread.start()
+
+    def refresh_digests(self):
+        """Rewrite the two digests the agents read, from the state.
+
+        ``digest/baseline.md`` and ``digest/champion.md`` are the daemon's own: the baseline grows
+        with every control run, the champion appears at the first promotion. They are not tracked,
+        so the guard's revert leaves them alone, and rewriting them here is what overwrites anything
+        an agent may have put into them. (Tracked, the guard reverted the champion to "none" after
+        the next task.)
+        """
+        from .report import write_baseline_digest, write_champion_digest
+        if any(bucket.get("light") for bucket in self.state["baseline"].values()):
+            write_baseline_digest(self)
+        write_champion_digest(self)
 
     def reap_threads(self):
         for task_id, thread in list(self.threads.items()):

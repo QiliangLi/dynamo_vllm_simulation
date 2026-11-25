@@ -214,6 +214,28 @@ class FrozenHashTests(unittest.TestCase):
             self.assertEqual(tune.frozen_mismatch(ws / "nowhere"), [])
 
 
+class DigestRefresh(unittest.TestCase):
+    def test_the_daemons_digests_are_rewritten_from_the_state_and_not_tracked(self):
+        """Tracked, the guard reverted the champion digest to "none" after the next model task."""
+        import tune
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            (root / "digest" / "champion.md").write_text("被某个任务改过的内容", encoding="utf-8")
+            daemon.refresh_digests()
+            self.assertIn("现在还没有冠军", (root / "digest" / "champion.md").read_text(encoding="utf-8"))
+            self.assertFalse((root / "digest" / "baseline.md").exists())
+            for workload in config.WORKLOADS:
+                daemon.state["baseline"][workload] = dict(light=dict(ttft=[2.0, 2.1], makespan=[10.0, 10.2], runs=[]))
+            daemon.refresh_digests()
+            self.assertIn("| ABC408 | 2 |", (root / "digest" / "baseline.md").read_text(encoding="utf-8"))
+            for name in ("digest/baseline.md", "digest/champion.md"):
+                self.assertIn(name + "\n", tune.IGNORE)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 class StoreTests(unittest.TestCase):
     def test_state_round_trip_and_ledger(self):
         root = Path(tempfile.mkdtemp())
