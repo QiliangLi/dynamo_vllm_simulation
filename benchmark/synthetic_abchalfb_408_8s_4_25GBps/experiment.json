@@ -1,0 +1,17 @@
+{
+  "model": "prefill50k_total16_v2",
+  "model_sha256": "48776fc742ba30edd6715219cff9fb9891104c55c5cc8e45df3a3f292857e1aa",
+  "layers": 16,
+  "tp": 2,
+  "ordering": "fcfs",
+  "max_num_seqs": 1,
+  "layer_submit_batch_size": 1,
+  "schemes": [
+    "默认（全轻读）",
+    "普通 TFS"
+  ],
+  "baseline": "light uses force-light classification in the research harness; config.json alone does not select this arm",
+  "classification": "ordinary TFS uses P75; business A/B/C labels are not heavy flags",
+  "replay": "Frozen token IDs are CPU simulation inputs, not a server prepare seed. Preserve exact bytes/order/H/arrival_s.",
+  "reproduction": "Archive only: the research harness and its policy overlays are not installed by benchmark/manage.py export."
+}

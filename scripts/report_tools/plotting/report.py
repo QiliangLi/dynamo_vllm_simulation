@@ -64,6 +64,14 @@ def metrics(data, bin_ms=10):
                  model_compute_s=s['model_s'],model_compute_pct=None if s['model_s'] is None else s['model_s']/s['workers']/span*100)
         for name in ('gateway_wait_ms','arrival_lateness_ms'):
             row['mean_'+name]=statistics.mean(r[name] for r in rr) if all(name in r for r in rr) else None
+        if s['workers'] == 4:
+            finishes = []
+            for worker in range(4):
+                times = [r.get('client_finish_s') for r in rr if r['worker'] == worker]
+                finish = max(times) if times and None not in times else None
+                row[f'worker{worker}_finish_s'] = finish
+                finishes.append(finish)
+            row['mean_worker_finish_s'] = statistics.mean(finishes) if None not in finishes else None
         for r,v in zip(rr,values):
             requests.append(dict(mode=key,**r,ttft_ms=v,slo_limit_ms=(r['deadline_s']-r['arrival_s'])*1000,
                                  slo_ok=int(r['completion_s']<=r['deadline_s'])))
@@ -157,15 +165,28 @@ def render_figures(data, result, output, dpi=160):
     available=[c for c in cases if c.get('bandwidth') is not None]
     if available:
         fig,axes=plt.subplots(len(available),1,figsize=(14.6,max(4,2.5*len(available)+1)),sharex=True,sharey=True,squeeze=False)
-        maxrate=max([.5]+[max(r['actual_GBps'],r['demand_GBps']) for r in result['bins']]+[c['bandwidth']['capacity_Bps']/1e9 for c in available])
+        from matplotlib.ticker import MaxNLocator
+        maxrate=max([max(r['actual_GBps'],r['demand_GBps']) for r in result['bins']]+[c['bandwidth']['capacity_Bps']/1e9 for c in available])
+        ticks=MaxNLocator(nbins=9,steps=[1,2,2.5,5,10]).tick_values(0,maxrate*1.04)
         for ax,c in zip(axes[:,0],available):
             rows=[r for r in result['bins'] if r['mode']==c['summary']['case']]
-            for field,color,label in [('demand_GBps',style.BANDWIDTH_COLOR['demand'],'需求 Σ申请率'),('actual_GBps',style.BANDWIDTH_COLOR['actual'],'实际 Σ分配率')]:
-                ax.plot([r['bin_mid_ms'] for r in rows],[max(.5,r[field]) for r in rows],color=color,lw=.9,label=label)
-            cap=c['bandwidth']['capacity_Bps']/1e9;ax.axhline(cap,color='black',ls='--',lw=1,label=f'容量 {cap:g} GB/s')
-            ax.set(yscale='log',ylim=(.5,maxrate*1.4),xlim=(0,result['horizon']*1000),ylabel='GB/s',title=c['summary']['label']);ax.grid(which='both',alpha=.16);ax.legend(loc='upper right',fontsize=8)
-        axes[-1,0].set_xlabel('从首条正式请求到达起的模型时间（ms）；对数底线0.5仅用于显示零值')
-        fig.suptitle('图4｜区间重叠积分；各方案容量取自本次数据');fig.tight_layout(rect=(0,0,1,.97));save(fig,3)
+            times=[r['bin_mid_ms'] for r in rows]
+            demand=np.array([r['demand_GBps'] for r in rows])
+            cap=c['bandwidth']['capacity_Bps']/1e9
+            ax.fill_between(times,cap,np.maximum(cap,demand),color=style.BANDWIDTH_COLOR['demand'],alpha=.25,step='mid')
+            ax.step(times,demand,where='mid',color=style.BANDWIDTH_COLOR['demand'],lw=1.2,label='带宽需求')
+            ax.step(times,[r['actual_GBps'] for r in rows],where='mid',color=style.BANDWIDTH_COLOR['actual'],lw=.95,label='实际分配')
+            ax.axhline(cap,color='black',ls='--',lw=1,label='容量')
+            peak=demand.max()
+            title=f"{c['summary']['label']}    需求峰值 {peak:.2f} GB/s    容量 {cap:g} GB/s"
+            if peak>cap:
+                title+=f"    超出 {peak-cap:.2f} GB/s（{(peak/cap-1)*100:.1f}%）"
+            ax.set(yticks=ticks,ylim=(0,ticks[-1]),xlim=(0,result['horizon']*1000),ylabel='GB/s',title=title)
+            ax.grid(axis='y',alpha=.22)
+        axes[-1,0].set_xlabel('从首条正式请求到达起的模型时间（ms）')
+        fig.suptitle('图4｜存储带宽时序')
+        fig.legend(*axes[0,0].get_legend_handles_labels(),loc='upper center',bbox_to_anchor=(.5,.956),ncol=3,frameon=False)
+        fig.tight_layout(rect=(0,0,1,.91));save(fig,3)
     missing=[c['summary']['label']+'：'+c.get('bandwidth_unavailable','未提供速率区间') for c in cases if c.get('bandwidth') is None]
     if missing:skipped[FIGURES[3]]='；'.join(missing)
     fig,ax=plt.subplots(figsize=(10.2,max(6,count*.35+3.5)))
@@ -242,13 +263,26 @@ def markdown(data, result, figures, skipped, narrative=None):
     text+='\n## 0. 总判决\n\n'
     text+=narrative.get('0',f"本组记录中，{best_slo['label']}的SLO满足率最高，为 **{best_slo['slo_pct']:.1f}%**；{fastest['label']}完成最快，为 **{fastest['completion_ms']:.1f} ms**。这只描述给定运行，不能单独证明稳定收益。")+'\n\n'
     text+='## 1. 汇总表与 SLO 柱状图\n\n'
-    text+=table(['方案','请求数','完成ms','平均TTFT ms','p95 ms','SLO%','网关等待ms'],[[s['label'],s['requests'],fmt(s['completion_ms']),fmt(s['mean_ttft_ms']),fmt(s['p95_ms']),fmt(s['slo_pct']),fmt(s['mean_gateway_wait_ms'])] for s in summaries])
+    headers=['方案','请求数','完成ms','平均TTFT ms','p95 ms','SLO%','网关等待ms']
+    rows=[[s['label'],s['requests'],fmt(s['completion_ms']),fmt(s['mean_ttft_ms']),fmt(s['p95_ms']),fmt(s['slo_pct']),fmt(s['mean_gateway_wait_ms'])] for s in summaries]
+    if any(s['workers'] == 4 for s in summaries):
+        headers.append('四个 worker 完成时刻均值（s）')
+        for row, s in zip(rows, summaries):
+            value=s.get('mean_worker_finish_s')
+            row.append(f'{value:.3f}' if value is not None else ('缺少数据' if s['workers']==4 else '不适用'))
+    text+=table(headers,rows)
     labels={s['mode']:s['label'] for s in summaries}
+    four_workers = [s for s in summaries if s['workers'] == 4]
+    if four_workers:
+        text+='\n以首条正式请求实际发送为 0 秒，按执行 worker 分组取最后一个客户端响应结束时刻。四个 worker 等权取均值。任一 worker 缺少完整记录或未执行请求时，均值标为缺少数据。\n\n'
+        seconds = lambda v: '缺少数据' if v is None else f'{v:.3f}'
+        text+=table(['方案',*[f'worker {i}（s）' for i in range(4)],'四个 worker 完成时刻均值（s）'],
+                    [[s['label'],*[seconds(s[f'worker{i}_finish_s']) for i in range(4)],seconds(s['mean_worker_finish_s'])] for s in four_workers])
     text+='\n分类结果使用输入cohort：\n\n'+table(['方案','分组','请求数','平均TTFT ms','SLO%'],[[labels[c['mode']],c['group'],c['n'],fmt(c['mean_ttft_ms']),fmt(c['slo_pct'])] for c in result['cohorts'] if c['group']!='all'])
     captions={0:'柱高与上表同口径。每条请求使用自身期限判断是否达标。',
         1:'蓝重读、橙轻读、紫轻重混批。红色为未被名义计算覆盖的在途IO，灰色含空闲、排队和控制。动态与冻结分类分别标注；直接放行分类仅作参考。虚线右侧仅为统一横轴补齐。',
         2:'箱线和热力图来自同一组逐实例数据。分母是各方案从首次正式到达到末条首token的窗口。该值不是硬件实测利用率。',
-        3:'橙线为需求，蓝线为实际分配，虚线为本次容量。按时间重叠积分，不对不等长事件直接取平均。零值在CSV保留0。',
+        3:'各方案共用从零起的线性纵轴。橙线为需求，蓝线为实际分配，黑虚线为容量。橙色阴影的高度表示需求超出容量的 GB/s。峰值取图中时间桶的平均需求最大值。',
         4:'经验CDF按rank/n绘制，终点为1。期限不同时，SLO必须逐请求匹配，不能由两条CDF交点推算。',
         5:'此处分组来自cohort，可能是历史A/B或业务分类，不用该标签推断在线轻重。',
         6:'此图描述客户端实际发送相对计划的迟到，不是单次准入RPC耗时。',

@@ -1,5 +1,7 @@
 # TFS与Mooncake360实验分支
 
+四实例 MiniMax 仿真使用[共享 25 GB/s 运行指南](docs/四实例25GB运行指南.md)。同一入口可运行 ABC408、ABC540、Mooncake 和两版 AgentX。
+
 同事首次运行服务器 `synthetic_abc` 仿真，请按[服务器负载与仿真运行指南](docs/服务器SyntheticABC与仿真运行指南.md)执行。包含安装、原始到达回放及 α=1/dev 对照。
 
 ## 2026-11-18：服务器三实例仿真与 benchmark

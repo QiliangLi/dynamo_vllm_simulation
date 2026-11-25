@@ -68,6 +68,8 @@ def verify_synthetic_contract(m,cfg,c):
 
 def verify_case(name):
     name=resolve_case(name);folder=ROOT/name;m=read(folder/'manifest.json');cfg=read(folder/'config.json')
+    if m.get('trace_format')=='server_stack_v1':
+        return verify_server_trace(folder,m,cfg)
     source,feature,count,window,workers,bandwidth=NAME.fullmatch(name).groups()
     count=int(count);window=float(window);workers=int(workers);bandwidth=float(bandwidth)*1e9
     assert window>0 and bandwidth>0
@@ -176,6 +178,42 @@ def verify():
     cases=[verify_case(n) for n in names]
     return dict(status='passed',requests_checked=sum(c['requests'] for c in cases),K=1,cases=cases)
 
+
+def verify_server_trace(folder,m,cfg):
+    """Validate native server-stack exports without changing their frozen tokens or times."""
+    source,feature,count,window,workers,bandwidth=NAME.fullmatch(folder.name).groups()
+    assert (source,feature,int(count),float(window),int(workers),float(bandwidth)*1e9)==(
+        m['source'],m['feature'],m['requests'],m['arrival_window_s'],m['workers'],m['shared_storage_Bps'])
+    assert cfg['workers']==m['workers'] and cfg['wall_time_scale']==m['K']==1
+    assert cfg['block_size']==m['block_size']
+    assert cfg['storage']['shared_link_Bps']==cfg['admission']['reference_bandwidth_Bps']==m['shared_storage_Bps']
+    assert m['portable_runner_status']=='export_only'
+    assert {'trace.jsonl.gz','requests.csv','config.json','config.historical.json'}<=set(m['files_sha256'])
+    for file,expected in m['files_sha256'].items():
+        assert Path(file).name==file and sha(folder/file)==expected,file
+    with (folder/'requests.csv').open(encoding='utf-8',newline='') as f:table=list(csv.DictReader(f))
+    digest=hashlib.sha256();totals=Counter();classes=Counter();arrivals=[];ids=set()
+    with gzip.open(folder/'trace.jsonl.gz','rb') as stream:
+        for line,s in zip(stream,table,strict=True):
+            digest.update(line);r=json.loads(line);tokens=r['prompt_token_ids']
+            n=len(tokens);h=r['remote_prefix_tokens'];u=n-h
+            assert all(type(t) is int and t>=0 for t in tokens)
+            assert type(h) is int and 0<=h<n and h%cfg['block_size']==0 and r['output_tokens']==1
+            assert n+1<=cfg['max_model_len']
+            assert r['id'] not in ids;ids.add(r['id'])
+            assert r['id']==s['id'] and r['class_id']==s['class_id']
+            assert (n,h,u,h*cfg['storage']['kv_bytes_per_token'])==tuple(int(s[k]) for k in ('input_tokens','hit_tokens','new_tokens','read_bytes'))
+            assert math.isfinite(r['arrival_s']) and r['arrival_s']==float(s['arrival_s'])
+            arrivals.append(r['arrival_s']);classes[r['class_id']]+=1
+            totals.update(requests=1,input_tokens=n,hit_tokens=h,new_tokens=u,read_bytes=h*cfg['storage']['kv_bytes_per_token'])
+    assert digest.hexdigest()==m['original_trace_sha256']
+    assert len(table)==m['requests'] and all(totals[k]==m[k] for k in totals)
+    assert dict(classes)==m['class_counts'] and arrivals==sorted(arrivals)
+    assert 0<=arrivals[0]<=arrivals[-1]<=m['arrival_window_s']
+    assert (arrivals[0],arrivals[-1])==(m['first_planned_arrival_s'],m['last_planned_arrival_s'])
+    return dict(case=m['case'],**totals,class_counts=dict(classes),original_trace_match=True,
+                arrival_window_s=m['arrival_window_s'],shared_storage_Bps=m['shared_storage_Bps'],portable_runner_status='export_only')
+
 def export(case,output,dynamo_python=None,quiet=False):
     case=resolve_case(case);verify_case(case);output=Path(output).resolve();output.mkdir(parents=True,exist_ok=False)
     source=ROOT/case;m=read(source/'manifest.json')
@@ -186,6 +224,7 @@ def export(case,output,dynamo_python=None,quiet=False):
     (output/'config.json').write_text(json.dumps(cfg,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     shutil.copy2(source/'manifest.json',output/'manifest.json')
     if (source/'run_contract.json').exists():shutil.copy2(source/'run_contract.json',output/'run_contract.json')
+    if (source/'experiment.json').exists():shutil.copy2(source/'experiment.json',output/'experiment.json')
     result=dict(status='exported',case=case,output=str(output),trace_sha256=sha(output/'trace.jsonl'),
                 config_sha256=sha(output/'config.json'),portable_runner_status=m['portable_runner_status'])
     if not quiet:print(json.dumps(result,ensure_ascii=False,indent=2))
@@ -199,12 +238,14 @@ def catalog_text():
         cfg=read(ROOT/m['case']/'config.json');classes='/'.join(f'{k}:{v}' for k,v in sorted(m['class_counts'].items()))
         model=cfg['compute'].get('batch_time_model',cfg['compute']['mode'])
         status='可运行' if m['portable_runner_status']=='supported' else '仅校验、导出'
+        if m.get('trace_format')=='server_stack_v1':status='[四实例入口](../docs/四实例25GB运行指南.md)'
         lines.append(f"| [{m['case']}]({m['case']}/README.md) | {m['source']} / {m['feature']} | {m['requests']} / {m['arrival_window_s']:g}s | {m['workers']} / {m['shared_storage_Bps']/1e9:g} GB/s | {m['new_tokens']}（{m['new_pct']:.6f}%） | {m['read_bytes']/1e9:.6f} | {classes} | {model} / {m['execution_feedback']} | {status} |")
     lines+=['','## 来源与构造说明','']
     for m in manifests():
         source=m.get('source_dataset',m.get('source_file',m['source']))
         lines.append(f"- **{m['case']}**：{m['description']} 来源：{source}，原行号 {m['source_first_line']}—{m['source_last_line']}。输入 SHA256：{m['original_trace_sha256']}。")
     lines+=['','## 附录：字段与类别','',
+        '- server_stack_v1：本次四实例MiniMax固定输入，保留原始token和计划到达，不重采样。窗口表示0到标称截止时刻，末次请求可早于截止。专用四实例入口直接运行冻结输入；旧 GLM5 运行器继续只校验和导出这些输入。',
         '- 名称顺序：数据来源_数据特征_请求总数_发送窗口_计算实例数_存储带宽。时间用 s；GBps 表示十进制 GB/s，1 GB = 10^9 B。带宽指单共享池，不是每实例独享带宽。',
         '- random：未按 ABC/ABCD 人为分配请求类别。不表示随机打乱、无采样或命中未处理。两份 random 的命中规则不同，见来源说明及各自 manifest。',
         '- mooncake 来源的 abc / abcd：总 input 的约 4% 为全局新算预算。A 重读轻计算（新算 1—16 token）；B 轻读重计算（承接剩余额度）；C 零读（短请求全部重算）；D 重读重计算（最长 20 条各新算 2033—2046 token）。按长度选类别后恢复原 trace 顺序，不按类别重排。',
