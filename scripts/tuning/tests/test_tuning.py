@@ -270,7 +270,10 @@ class ReportTests(unittest.TestCase):
 class SignatureVocabulary(unittest.TestCase):
     def test_card_vocabulary_matches_the_digest_paths(self):
         # A metric the card may promise must be something the gate can look up, and vice versa.
-        self.assertEqual(set(config.SIGNATURE_METRICS), set(gates.METRIC_PATHS))
+        # The two client-side metrics come from the run summary instead of the digest.
+        client_side = {"mean_ttft_s", "makespan_s"}
+        self.assertEqual(set(config.SIGNATURE_METRICS) - client_side, set(gates.METRIC_PATHS))
+        self.assertTrue(client_side <= set(config.SIGNATURE_METRICS))
 
     def test_every_promisable_metric_exists_in_the_digest_code(self):
         """``wsl/digest.py`` returns these keys; a renamed key would silently fail every promise."""
@@ -278,9 +281,11 @@ class SignatureVocabulary(unittest.TestCase):
         for metric, (section, key) in gates.METRIC_PATHS.items():
             if metric in ("mean_ttft_s", "makespan_s"):
                 continue  # client-side metrics, read from the summary
+            if key is None:
+                self.assertRegex(source, r"\b%s=" % re.escape(section), metric)  # a top-level scalar
+                continue
             self.assertRegex(source, r"%s=dict\(" % re.escape(section), metric)
-            if key is not None:
-                self.assertRegex(source, r"\b%s=" % re.escape(key), metric)
+            self.assertRegex(source, r"\b%s=" % re.escape(key), metric)
 
     def test_a_wrongly_named_promise_is_refused_by_the_card_check(self):
         card = dict(name="x", tier=0, mechanism=dict(signal=["demand_sum"], action=["admit"], timing=["schedule"], feedback=["closed_loop"]),
