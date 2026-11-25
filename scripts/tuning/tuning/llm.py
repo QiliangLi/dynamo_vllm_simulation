@@ -39,7 +39,9 @@ def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, 
     agent = "%s-%s" % (role, task_id)
     roles.write_agent(workspace, agent, role, write_paths, shell)
     limit = (timeout_min or config.TIMEOUT_MIN[role]) * 60
-    cmd = opencode_command() + ["run", "--agent", agent, "--format", "json", "--auto",
+    # A private server per task: it scans the workspace for agent files at start-up. The shared
+    # background service learns new agent files asynchronously and may not know this one yet.
+    cmd = opencode_command() + ["run", "--standalone", "--agent", agent, "--format", "json", "--auto",
                                 "--archived", "--title", "tuning-%s" % task_id]
     if session:
         cmd += ["--session", session]
