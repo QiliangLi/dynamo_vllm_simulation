@@ -146,6 +146,17 @@ tail -n 12 %s/runs/%s.log 2>/dev/null
     return out[-1500:] if rc == 0 else "probe failed: %s" % (reason or err[-300:])
 
 
+KEEPALIVE = ["wsl.exe", "-d", DISTRO, "--", "sleep", "infinity"]
+
+
+def running_runs():
+    """Ids of the replays whose runner is alive in WSL; None when WSL could not be asked."""
+    rc, out, err, reason = call("pgrep -fa 'run_tuning.py ' | grep -o 'runs/r[0-9]*/remote.json' | cut -d/ -f2\n", timeout=60)
+    if reason in ("host_out_of_memory", "wsl_unavailable", "timeout"):
+        return None
+    return set(out.split())
+
+
 def candidate_tests(cand_dir_on_windows, max_tier, timeout=420):
     """Build a harness with the candidate overlay and run its unit tests in WSL."""
     source = to_wsl(cand_dir_on_windows)

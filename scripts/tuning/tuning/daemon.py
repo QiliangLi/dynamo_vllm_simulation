@@ -8,6 +8,7 @@ safety reasons that need a human.
 """
 import hashlib
 import os
+import subprocess
 import threading
 import time
 import traceback
@@ -71,6 +72,8 @@ class Daemon:
         self.threads = {}
         self._errors = 0
         self._health = (0.0, None)
+        self._keep = None
+        self._probe_at = 0.0
         self._wsl_lock = threading.Lock()
         self.base_dir = self.ws / "base"
 
@@ -160,6 +163,8 @@ class Daemon:
                 self._errors = 0
             self.reap_threads()
             try:
+                self.keepalive()
+                self.check_liveness()
                 self.take_requests()
                 if now() - self.state["env"].get("disk_at", 0) > 900:
                     self.state["env"]["disk_at"] = now()
@@ -239,6 +244,45 @@ class Daemon:
         if record.get("status") == "running":
             return "running" if thread and thread.is_alive() else "lost"
         return record["status"]
+
+    # ------------------------------------------------------------ keeping WSL alive
+
+    def keepalive(self):
+        """Hold one WSL session open for as long as the daemon runs.
+
+        WSL stops a distribution that has no attached session, whatever runs inside it, and
+        that kills the replay in progress. A sleeping session costs nothing and keeps it up.
+        """
+        if self._keep is not None and self._keep.poll() is None:
+            return
+        if self._keep is not None:
+            self.log("wsl_keepalive_restarted", code=self._keep.returncode)
+        try:
+            self._keep = subprocess.Popen(wsl.KEEPALIVE, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                          stderr=subprocess.DEVNULL,
+                                          creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        except OSError as error:  # noqa: BLE001
+            self._keep = None
+            self.log("wsl_keepalive_failed", error=repr(error))
+
+    def check_liveness(self):
+        """A replay whose runner vanished (WSL restarted, process killed) must not wait for its timeout."""
+        active = self.state["active"]
+        if not active or now() - self._probe_at < 60:
+            return
+        self._probe_at = now()
+        with self._wsl_lock:
+            alive = wsl.running_runs()
+        if alive is None:
+            return
+        for run_id in sorted(active):
+            if run_id in alive or now() - active[run_id]["started"] < 45:
+                continue
+            if (self.ws / "runs" / run_id / "result.json").exists():
+                continue
+            del active[run_id]
+            self.alert("一轮回放的运行器消失了（WSL 重启或进程被杀），已记失败并补跑：%s" % run_id, level="warn")
+            self.collect(run_id, dict(status="failed", error="runner vanished: WSL restarted or the process was killed"))
 
     # ------------------------------------------------------------ helper requests
 
@@ -388,6 +432,14 @@ class Daemon:
         if not done:
             if spec["arm"] == "light" and spec["tag"] in INFRA_TAGS:
                 state["light_failed_streak"] += 1
+                # Baseline and stress runs are the reference for everything: replace a lost one, twice at most.
+                key = "%s|%s|%s" % (spec["tag"], spec["workload"], spec.get("stress"))
+                retries = state.setdefault("infra_retry", {})
+                retries[key] = retries.get(key, 0) + 1
+                if retries[key] <= 2 and spec["tag"] != "control":
+                    self.new_run(spec["workload"], "light", spec["tag"], gen=spec.get("gen", 0), stress=spec.get("stress"),
+                                 workers=spec["remote"].get("workers", 4), exclusive=spec.get("exclusive", False),
+                                 group=spec.get("group"))
                 if state["light_failed_streak"] >= 10:
                     self.needs_human("连续 10 轮默认策略运行失败：%s" % result.get("error", "")[:300])
             elif cand is not None:
