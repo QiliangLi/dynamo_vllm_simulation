@@ -85,6 +85,31 @@ def workspace_of(args):
     return Path(getattr(args, "workspace", None) or HERE).resolve()
 
 
+def write_cmd(path, text):
+    """Write a batch file with exactly the line ends it was written with.
+
+    cmd.exe reads CRLF; text mode on Windows would turn each CRLF into CR CR LF.
+    """
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def write_controls(ws, pythonw):
+    """The supervisor loop and the batch files that start it, open the dashboard and control the daemon."""
+    supervisor = SUPERVISOR % pythonw
+    (ws / "守护.vbs").write_text(supervisor, encoding="utf-8")
+    # The same script under an ASCII name: other launchers mangle non-ASCII paths.
+    (ws / "supervisor.vbs").write_text(supervisor, encoding="utf-8")
+    for name, action in (("暂停.cmd", "PAUSE"), ("停止并收尾.cmd", "STOP")):
+        write_cmd(ws / name, '@echo off\r\nchcp 65001 >nul\r\ncd /d "%%~dp0"\r\nif not exist control mkdir control\r\n'
+                   'type nul > control\\%s\r\necho 已记录：%s\r\ntimeout /t 3 >nul\r\n' % (action, action))
+    write_cmd(ws / "继续.cmd", '@echo off\r\nchcp 65001 >nul\r\ncd /d "%%~dp0"\r\n'
+               'if exist control\\PAUSE del control\\PAUSE\r\n'
+               'if exist NEEDS_HUMAN.md del NEEDS_HUMAN.md\r\n'
+               'if exist control\\STOP del control\\STOP\r\n'
+               'echo 已继续。守护进程每 5 秒检查一次。\r\ntimeout /t 3 >nul\r\n')
+    write_cmd(ws / "启动看板.cmd", '@echo off\r\ncd /d "%%~dp0"\r\nstart "" "dashboard\\index.html"\r\n')
+
+
 # ---------------------------------------------------------------- init
 
 def cmd_init(args):
@@ -145,20 +170,7 @@ def cmd_init(args):
             print("警告：无法建立仓库工作树（%s）。冠军将只保存在工作区，不会提交。" % result.stderr.strip()[-200:])
 
     # 7. controls
-    pythonw = Path(sys.executable).with_name("pythonw.exe")
-    supervisor = SUPERVISOR % pythonw
-    (ws / "守护.vbs").write_text(supervisor, encoding="utf-8")
-    # The same script under an ASCII name: other launchers mangle non-ASCII paths.
-    (ws / "supervisor.vbs").write_text(supervisor, encoding="utf-8")
-    for name, action in (("暂停.cmd", "PAUSE"), ("停止并收尾.cmd", "STOP")):
-        (ws / name).write_text('@echo off\r\nchcp 65001 >nul\r\ncd /d "%%~dp0"\r\nif not exist control mkdir control\r\n'
-                               'type nul > control\\%s\r\necho 已记录：%s\r\ntimeout /t 3 >nul\r\n' % (action, action), encoding="utf-8")
-    (ws / "继续.cmd").write_text('@echo off\r\nchcp 65001 >nul\r\ncd /d "%%~dp0"\r\n'
-                                 'if exist control\\PAUSE del control\\PAUSE\r\n'
-                                 'if exist NEEDS_HUMAN.md del NEEDS_HUMAN.md\r\n'
-                                 'if exist control\\STOP del control\\STOP\r\n'
-                                 'echo 已继续。守护进程每 5 秒检查一次。\r\ntimeout /t 3 >nul\r\n', encoding="utf-8")
-    (ws / "启动看板.cmd").write_text('@echo off\r\ncd /d "%%~dp0"\r\nstart "" "dashboard\\index.html"\r\n', encoding="utf-8")
+    write_controls(ws, Path(sys.executable).with_name("pythonw.exe"))
 
     # 8. commit everything that was written, so the tree the guard defends is the deployed one
     subprocess.run(["git", "-C", str(ws), "add", "-A"], check=True)

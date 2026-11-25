@@ -179,6 +179,25 @@ class GateTests(unittest.TestCase):
         self.assertTrue(missed[0].startswith("408"))
 
 
+class ControlScriptTests(unittest.TestCase):
+    def test_control_scripts_are_written_and_end_in_single_crlf(self):
+        import tune
+        with tempfile.TemporaryDirectory() as tmp:
+            ws = Path(tmp)
+            tune.write_controls(ws, "pythonw.exe")
+            for name in ("暂停.cmd", "继续.cmd", "停止并收尾.cmd", "启动看板.cmd"):
+                data = (ws / name).read_bytes()
+                self.assertTrue(data.endswith(b"\r\n"), name)
+                self.assertNotIn(b"\r\r\n", data, name)
+            self.assertIn(b"type nul > control\\PAUSE", (ws / "暂停.cmd").read_bytes())
+            self.assertIn(b"type nul > control\\STOP", (ws / "停止并收尾.cmd").read_bytes())
+            self.assertIn(b"del control\\PAUSE", (ws / "继续.cmd").read_bytes())
+            self.assertIn(b"dashboard\\index.html", (ws / "启动看板.cmd").read_bytes())
+            supervisor = (ws / "守护.vbs").read_bytes()
+            self.assertIn(b"pythonw.exe", supervisor)
+            self.assertEqual(supervisor, (ws / "supervisor.vbs").read_bytes())
+
+
 class StoreTests(unittest.TestCase):
     def test_state_round_trip_and_ledger(self):
         root = Path(tempfile.mkdtemp())
