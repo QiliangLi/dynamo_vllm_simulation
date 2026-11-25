@@ -142,15 +142,18 @@ def write_agent(workspace, name, role, write_paths, shell):
     lines.append('  - {action: edit, resource: "*", effect: deny}')
     for pattern in write_paths:
         lines.append('  - {action: edit, resource: "%s", effect: allow}' % pattern)
-    if not shell:
+    if shell:
+        # Last matching rule wins: deny everything first, then allow the task's commands.
         lines.append('  - {action: shell, resource: "*", effect: deny}')
-    else:
         for pattern in shell:
             lines.append('  - {action: shell, resource: "%s", effect: allow}' % pattern)
+    else:
+        lines.append('  - {action: shell, resource: "*", effect: deny}')
     lines += ["---", ROLE_PROMPTS[role].strip(), ""]
     path = agent_path(workspace, name)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines), encoding="utf-8")
+    # opencode reads the YAML frontmatter line by line: CRLF would make the agent invisible.
+    path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     return name
 
 
