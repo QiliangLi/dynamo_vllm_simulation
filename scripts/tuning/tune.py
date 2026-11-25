@@ -129,14 +129,13 @@ def cmd_init(args):
         write_json(ws / "state.json", state)
         store.append(dict(kind="reinit", commit=commit, branch=branch))
 
-    # 5. make the workspace a git repository holding exactly the protected files
+    # 5. the workspace is a git repository holding exactly the protected files. The commit
+    #    comes last, after every file is written: the daemon's guard reverts any uncommitted
+    #    change to a protected file after each model task, which would undo a fresh deploy.
     if not (ws / ".git").exists():
         subprocess.run(["git", "init", "-q", str(ws)], check=True)
     for key, value in (("user.name", "tuning-workflow"), ("user.email", "tuning@localhost")):
         subprocess.run(["git", "-C", str(ws), "config", key, value], check=True)
-    subprocess.run(["git", "-C", str(ws), "add", "-A"], check=True)
-    subprocess.run(["git", "-C", str(ws), "commit", "-q", "-m", "workspace baseline %s" % commit[:10],
-                    "--allow-empty"], check=True)
 
     # 6. a worktree of the tuning branch, so commits never touch the user's checkout
     if not (ws / "repo").exists():
@@ -160,6 +159,11 @@ def cmd_init(args):
                                  'if exist control\\STOP del control\\STOP\r\n'
                                  'echo 已继续。守护进程每 5 秒检查一次。\r\ntimeout /t 3 >nul\r\n', encoding="utf-8")
     (ws / "启动看板.cmd").write_text('@echo off\r\ncd /d "%%~dp0"\r\nstart "" "dashboard\\index.html"\r\n', encoding="utf-8")
+
+    # 8. commit everything that was written, so the tree the guard defends is the deployed one
+    subprocess.run(["git", "-C", str(ws), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(ws), "commit", "-q", "-m", "workspace baseline %s" % commit[:10],
+                    "--allow-empty"], check=True)
 
     if not args.skip_wsl:
         wsl_setup(repo)
