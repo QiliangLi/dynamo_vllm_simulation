@@ -8,6 +8,7 @@ can see when it decides.
 import html
 import json
 import statistics
+import time
 from pathlib import Path
 
 from . import config, evaluator, roles
@@ -533,16 +534,32 @@ class Dashboard:
         parts.append(card("提示与告警", alerts_html(state)))
         parts.append("</div>")
         link = lambda text, path: '<a href="%s">%s</a>' % (path, text)  # noqa: E731
-        parts.append('<p class="muted">%s · %s · %s · 刷新：每 60 秒</p>' % (
-            link("账本 ledger.jsonl", "../ledger.jsonl"), link("代码地图", "../digest/code_map.md"),
-            link("当前冠军", "../digest/champion.md")))
+        rendered = _now()
+        parts.append('<p class="muted">更新于 %s · %s · %s · %s · 刷新：每 60 秒</p>' % (
+            time.strftime("%H:%M:%S", time.localtime(rendered)), link("账本 ledger.jsonl", "../ledger.jsonl"),
+            link("代码地图", "../digest/code_map.md"), link("当前冠军", "../digest/champion.md")))
+        # The page only changes while the daemon renders it. A daemon that is down, or a supervisor that
+        # gave up on it, leaves the last page standing: say so on the page itself, however it was loaded.
         page = "<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta http-equiv='refresh' content='60'>" \
-               "<title>TFS 自动调优看板</title><style>%s</style></head><body>%s</body></html>" % (
-                   STYLE, "\n".join(parts))
+               "<title>TFS 自动调优看板</title><style>%s</style></head><body>%s%s</body></html>" % (
+                   STYLE, "\n".join(parts), STALE_SCRIPT.replace("RENDERED_MS", str(int(rendered * 1000))))
         out = d.ws / "dashboard" / "index.html"
         tmp = out.with_name("index.html.tmp")
         tmp.write_text(page, encoding="utf-8")
         tmp.replace(out)
+
+
+STALE_SCRIPT = """<script>
+(function () {
+  var staleMinutes = Math.floor((Date.now() - RENDERED_MS) / 60000);
+  if (staleMinutes < 5) return;
+  var box = document.createElement("div");
+  box.style.cssText = "border:1px solid #ff7a7a;padding:10px 14px;margin:10px 0;color:#ff7a7a";
+  box.textContent = "看板已经 " + staleMinutes + " 分钟没有更新：守护进程可能已经停止。" +
+    "查看工作区里的 SUPERVISOR_STOPPED.txt、NEEDS_HUMAN.md 和 daemon.log。";
+  document.body.insertBefore(box, document.body.firstChild);
+})();
+</script>"""
 
 
 def _now():

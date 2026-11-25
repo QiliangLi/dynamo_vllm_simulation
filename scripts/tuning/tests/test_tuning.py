@@ -298,6 +298,10 @@ class ReportTests(unittest.TestCase):
             page = (root / "dashboard" / "index.html").read_text(encoding="utf-8")
             self.assertIn("TFS 自动调优看板", page)
             self.assertIn("机制地图", page)
+            # A page that stops being redrawn must say so itself: the daemon may be down.
+            self.assertNotIn("RENDERED_MS", page)
+            self.assertRegex(page, r"Date\.now\(\) - \d{13}\)")
+            self.assertRegex(page, r"更新于 \d\d:\d\d:\d\d")
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
