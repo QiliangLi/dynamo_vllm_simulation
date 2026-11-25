@@ -1,0 +1,247 @@
+"""Unit tests of the tuning workflow that need neither WSL nor opencode.
+
+Run from scripts/tuning:  python -m unittest discover -s tests
+"""
+import json
+import shutil
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(HERE))
+
+from tuning import config, daemon as core, evaluator, gates, report, scope, store  # noqa: E402
+
+W = list(config.WORKLOADS)
+
+
+class EvaluatorTests(unittest.TestCase):
+    def test_improvement_and_bound(self):
+        reference = dict(mean=10.0, se=0.1)
+        candidate = dict(mean=9.0, se=0.1)
+        self.assertAlmostEqual(evaluator.improvement(reference, candidate), 0.10)
+        # 10% improvement, 95% lower bound is 10% - 1.645 * sqrt(0.02) / 10
+        self.assertAlmostEqual(evaluator.improvement_lb(reference, candidate), 0.10 - 1.645 * 0.1414213562 / 10)
+
+    def test_regression_allows_noise(self):
+        reference = dict(mean=10.0, se=0.2)
+        self.assertFalse(evaluator.regression(reference, dict(mean=10.2, se=0.2)))
+        self.assertTrue(evaluator.regression(reference, dict(mean=10.9, se=0.2)))
+
+    def _series(self, ttft, makespan):
+        return {w: dict(ttft=list(ttft), makespan=list(makespan)) for w in W}
+
+    def test_promotion_needs_confident_gain_without_regression(self):
+        reference = self._series([2.0, 2.1, 1.9], [10.0, 10.2, 9.8])
+        good = self._series([1.5, 1.6, 1.4], [9.0, 9.2, 8.8])
+        self.assertTrue(evaluator.decide_promotion(evaluator.workload_result(reference, good))["promote"])
+        noisy = self._series([2.0, 2.1, 1.9], [10.0, 10.2, 9.8])
+        self.assertFalse(evaluator.decide_promotion(evaluator.workload_result(reference, noisy))["promote"])
+        mixed = {w: dict(ttft=[1.5, 1.6, 1.4], makespan=[9.0, 9.2, 8.8]) for w in W}
+        mixed[W[1]] = dict(ttft=[2.6, 2.7, 2.5], makespan=[12.0, 12.2, 11.8])
+        decision = evaluator.decide_promotion(evaluator.workload_result(reference, mixed))
+        self.assertFalse(decision["promote"])
+        self.assertEqual(decision["regressions"], [W[1]])
+
+    def test_score_balances_mean_and_worst(self):
+        reference = self._series([2.0], [10.0])
+        candidate = self._series([1.0], [9.0])
+        results = evaluator.workload_result(reference, candidate)
+        # mean TTFT: 2.0 -> 1.0 is 50%; makespan: 10 -> 9 is 10%; per workload 30%, five equal workloads.
+        self.assertAlmostEqual(evaluator.total_score(results), 0.30)
+
+    def test_screen_pass_needs_both_directions(self):
+        reference = self._series([2.0], [10.0])
+        worse = self._series([2.2], [9.0])
+        self.assertFalse(evaluator.screen_pass(evaluator.workload_result(reference, worse))[0])
+        better = self._series([1.8], [9.0])
+        self.assertTrue(evaluator.screen_pass(evaluator.workload_result(reference, better))[0])
+
+    def test_control_outside_three_sigma(self):
+        self.assertEqual(evaluator.control_ok(dict(ttft=[2.0, 2.1, 1.9, 2.05], makespan=[10, 10.1, 9.9, 10]), 2.05, 10.0), [])
+        self.assertEqual(evaluator.control_ok(dict(ttft=[2.0, 2.1, 1.9, 2.05], makespan=[10, 10.1, 9.9, 10]), 2.6, 10.0), ["ttft"])
+
+
+class ScopeTests(unittest.TestCase):
+    def test_tier1_paths(self):
+        self.assertEqual(scope.check_overlay_paths(["sim/admission.py", "sim/stack/policy/budget.py"], 0), [])
+        self.assertEqual(scope.check_overlay_paths(["sim/storage.py"], 0), ["sim/storage.py"])
+        self.assertEqual(scope.check_overlay_paths(["../x.py"], 0), ["../x.py"])
+        self.assertEqual(scope.check_overlay_paths(["sim/stack/layer_storage.py"], 1), [])
+        self.assertEqual(scope.check_overlay_paths(["sim/priority.py"], 1), ["sim/priority.py"])
+        self.assertEqual(scope.check_overlay_paths(["sim/priority.py"], 2), [])
+
+    def test_policy_keys(self):
+        self.assertEqual(scope.check_policy({"admission": {}, "routing_accounting": {}}, 0), [])
+        self.assertEqual(scope.check_policy({"storage": {}}, 0), ["storage"])
+        self.assertEqual(scope.check_policy({"request_ordering": "edf"}, 2), [])
+        self.assertEqual(scope.check_policy({"request_ordering": "edf"}, 1), ["request_ordering"])
+
+    def test_forbidden_lines(self):
+        hard, allowed = scope.forbidden_lines(["x = 1", "label = row['class_id']", "os.environ['X']  # tuning-allow: read config"])
+        self.assertEqual(hard, ["label = row['class_id']"])
+        self.assertEqual(allowed, ["os.environ['X']  # tuning-allow: read config"])
+
+    def test_added_lines_and_protected_functions(self):
+        base = "def keep():\n    return 1\n\ndef other():\n    return 2\n"
+        new = "def keep():\n    return 1\n\ndef other():\n    return 3\n"
+        self.assertEqual(scope.added_source_lines(base, new), ["    return 3"])
+        path = "sim/stack/scheduler_admission.py"
+        self.assertEqual(scope.protected_functions_changed("def patch_schedule(x):\n    return 1\n", "def patch_schedule(x):\n    return 1\n", path), [])
+        self.assertEqual(scope.protected_functions_changed("def patch_schedule(x):\n    return 1\n", "def patch_schedule(x):\n    return 2\n", path), ["patch_schedule"])
+
+    def test_every_scope_file_exists_in_the_frozen_base(self):
+        base = HERE.parents[1] / "dynamo_vllm_cpu_sim"
+        if not base.exists():
+            self.skipTest("package sources not next to scripts/tuning")
+        missing = [f for f in scope.TIER1_FILES if not (base / f).exists()]
+        missing += [f for tier in scope.TIER2_ORDER for f in scope.TIER2[tier]["files"] if not (base / f).exists()]
+        self.assertEqual(missing, [])
+
+
+class GateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.base = self.tmp / "base"
+        package = self.base / scope.PACKAGE / "sim" / "stack"
+        package.mkdir(parents=True)
+        (package / "read_admission.py").write_text("VALUE = 1\n", encoding="utf-8")
+        self.cand = self.tmp / "candidates" / "c0001"
+        (self.cand / "overlay" / "sim" / "stack").mkdir(parents=True)
+        (self.cand / "tests").mkdir()
+        (self.cand / "overlay" / "sim" / "stack" / "read_admission.py").write_text("VALUE = 2\n", encoding="utf-8")
+        (self.cand / "tests" / "test_scale_invariance.py").write_text("import unittest\n", encoding="utf-8")
+        (self.cand / "policy.json").write_text(json.dumps({"admission": {"params": {"util": 0.9}}}), encoding="utf-8")
+        (self.cand / "card.json").write_text(json.dumps(self.card()), encoding="utf-8")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def card(self, **changes):
+        card = dict(name="带宽账本", tier=0, mechanism=dict(signal=["demand_sum"], action=["admit"], timing=["schedule"], feedback=["closed_loop"]),
+                    params={"admission.params.util": dict(value=0.9, min=0.5, max=1.0)},
+                    causal="把在途需求之和控制在链路带宽的一个比例以内，减少争用造成的等待，代价是可能让实例空转，用回填保护。",
+                    signature=[dict(workload="*", metric="overload_s", direction="down")],
+                    failure="当所有请求都是重读且实例数很少时，可能全部被挡住，造成空转和更长的完成时间，需要回填规则。",
+                    protection="等待超过阈值的请求优先放行一条，避免饿死和死锁情况的发生，保护机制必须足够简单。")
+        card.update(changes)
+        return card
+
+    def write_card(self, **changes):
+        (self.cand / "card.json").write_text(json.dumps(self.card(**changes)), encoding="utf-8")
+
+    def test_clean_candidate_passes(self):
+        result = gates.static_gate(self.cand, self.base, 0)
+        self.assertTrue(result.passed, result.issues)
+
+    def test_issues_are_reported(self):
+        self.write_card(tier=2, mechanism=dict(signal=["magic"], action=["admit"], timing=["schedule"], feedback=["closed_loop"]))
+        (self.cand / "overlay" / "sim" / "storage.py").write_text("X = 1\n", encoding="utf-8")
+        (self.cand / "overlay" / "sim" / "stack" / "read_admission.py").write_text("VALUE = row['class_id']\n", encoding="utf-8")
+        result = gates.static_gate(self.cand, self.base, 0)
+        self.assertFalse(result.passed)
+        joined = " ".join(result.issues)
+        for text in ("tier", "mechanism.signal", "sim/storage.py", "class_id"):
+            self.assertIn(text, joined)
+
+    def test_param_must_match_policy(self):
+        self.write_card(params={"admission.params.util": dict(value=0.7, min=0.5, max=1.0)})
+        result = gates.static_gate(self.cand, self.base, 0)
+        self.assertFalse(result.passed)
+        self.assertTrue(any("不一致" in issue for issue in result.issues))
+
+    def test_scale_test_is_required(self):
+        (self.cand / "tests" / "test_scale_invariance.py").unlink()
+        (self.cand / "tests" / "test_budget.py").write_text("import unittest\n", encoding="utf-8")
+        result = gates.static_gate(self.cand, self.base, 0)
+        self.assertTrue(any("尺度不变" in issue for issue in result.issues))
+
+    def test_manifest_detects_tampering(self):
+        gates.write_manifest(self.cand)
+        self.assertEqual(gates.manifest_changes(self.cand), [])
+        (self.cand / "policy.json").write_text("{}", encoding="utf-8")
+        self.assertEqual(gates.manifest_changes(self.cand), ["policy.json"])
+
+    def test_signature_check(self):
+        card = self.card(signature=[dict(workload="*", metric="overload_s", direction="down"), dict(workload="408", metric="idle_s", direction="up")])
+        digest = lambda overload, idle: {"overload": {"overload_s": overload}, "workers": {"idle_s": idle}}  # noqa: E731
+        pairs = {w: dict(cand=digest(1.0, 6.0), ref=digest(4.0, 3.0), cand_summary={"mean_ttft_s": 1, "makespan_s": 9}, ref_summary={"mean_ttft_s": 2, "makespan_s": 10}) for w in W}
+        kept, missed = gates.signature_check(card, pairs)
+        self.assertEqual(len(kept), 2)
+        self.assertEqual(missed, [])
+        pairs["408"] = dict(cand=digest(1.0, 3.0), ref=digest(4.0, 3.0), cand_summary={"mean_ttft_s": 1, "makespan_s": 9}, ref_summary={"mean_ttft_s": 2, "makespan_s": 10})
+        kept, missed = gates.signature_check(card, pairs)
+        self.assertEqual(len(kept), 1)
+        self.assertTrue(missed[0].startswith("408"))
+
+
+class StoreTests(unittest.TestCase):
+    def test_state_round_trip_and_ledger(self):
+        root = Path(tempfile.mkdtemp())
+        try:
+            store_ = store.Store(root)
+            state = core.initial_state("abc")
+            store_.save(state)
+            self.assertEqual(store_.load()["base_commit"], "abc")
+            store_.append(dict(kind="a", value=1))
+            store_.append(dict(kind="b", value=2))
+            self.assertEqual([e["kind"] for e in store_.events()], ["a", "b"])
+            self.assertEqual(len(store_.events("a")), 1)
+            with self.assertRaises(TimeoutError):
+                with store.Lock(root / "l.lock", timeout=0.1):
+                    with store.Lock(root / "l.lock", timeout=0.1):
+                        pass
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+class DaemonTests(unittest.TestCase):
+    def test_open_tier_follows_the_ladder(self):
+        state = core.initial_state("x")
+        for rung, tier in ((0, 0), (2, 0), (3, 1), (4, 2), (5, 3), (8, 3)):
+            state["ladder"] = rung
+            self.assertEqual(core.open_tier(state), tier, rung)
+
+    def test_new_run_spec(self):
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            run_id = daemon.new_run("408", "light", "baseline")
+            spec = json.loads((root / "runs" / run_id / "spec.json").read_text(encoding="utf-8"))
+            remote = spec["remote"]
+            self.assertEqual(remote["bench"], config.WORKLOADS["408"]["bench"])
+            self.assertTrue(remote["export_dir"].startswith("/mnt/"))
+            self.assertTrue(remote["base_manifest"].endswith("base_manifest.json"))
+            self.assertEqual(spec["exclusive"], False)
+            stress = daemon.new_run("bw10_540", "light", "stress_baseline", stress="bw10_540")
+            remote = json.loads((root / "runs" / stress / "spec.json").read_text(encoding="utf-8"))["remote"]
+            self.assertTrue(remote["input_dir"].endswith("/stress/bw10_540/input"))
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_initial_state_is_complete(self):
+        state = core.initial_state("x")
+        for key in ("phase", "baseline", "candidates", "gen", "meta", "map", "ladder", "crossval"):
+            self.assertIn(key, state)
+        self.assertEqual(state["phase"], "stage0")
+
+
+class ReportTests(unittest.TestCase):
+    def test_dashboard_renders_from_an_empty_state(self):
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            report.Dashboard(daemon).render()
+            page = (root / "dashboard" / "index.html").read_text(encoding="utf-8")
+            self.assertIn("TFS 自动调优看板", page)
+            self.assertIn("机制地图", page)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    unittest.main()
