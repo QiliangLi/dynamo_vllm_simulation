@@ -1,0 +1,135 @@
+{
+ "generation": 1,
+ "at": 1795641038.058602,
+ "champion": null,
+ "ladder": 0,
+ "parallel": 1,
+ "runs": {
+  "total": 174,
+  "ok": 145,
+  "failed": 7
+ },
+ "tokens": {
+  "glm": {
+   "input": 1676981,
+   "output": 210928,
+   "reasoning": 483866,
+   "calls": 10
+  },
+  "by_role": {
+   "analyst": {
+    "input": 54425,
+    "output": 8132,
+    "calls": 1
+   },
+   "proposer": {
+    "input": 952008,
+    "output": 128537,
+    "calls": 4
+   },
+   "redteam": {
+    "input": 244981,
+    "output": 14513,
+    "calls": 2
+   },
+   "meta": {
+    "input": 107077,
+    "output": 7250,
+    "calls": 1
+   },
+   "prover": {
+    "input": 141245,
+    "output": 17626,
+    "calls": 1
+   },
+   "toolmaker": {
+    "input": 177245,
+    "output": 34870,
+    "calls": 1
+   }
+  }
+ },
+ "history": [
+  {
+   "gen": 1,
+   "at": 1795641037.8623807,
+   "runs": 174,
+   "promoted": null,
+   "best_score": -0.014037636183152437
+  }
+ ],
+ "meta": {
+  "allocation": {
+   "llm": 3,
+   "param": 0
+  },
+  "hypotheses": [
+   {
+    "family": "demand_sum × admit：需求预算闸门 + 空闲强制放行",
+    "status": "tested",
+    "priority": "low",
+    "note": "c0001，第 1 代被拒（排序分 -2.7%）。平均 TTFT +2.7%、完成 -1.5%。540 TTFT +21.8%；mooncake TTFT -8.9%、完成 -3.3%（回退）；AgentX 噪声内。408 两轮为并行测量，偏低。原样重跑没有价值；可带走的只有 540 的收益形态。"
+   },
+   {
+    "family": "demand_sum × hold：read-demand window（summed held demand < 阈值）",
+    "status": "tested",
+    "priority": "low",
+    "note": "c0002，第 1 代被拒（排序分 -1.4%）。平均 TTFT +4.4%、完成 -0.7%。540 TTFT +22.5%；mooncake TTFT -5.1%、完成 -4.3%（回退）；AgentX 噪声内。与上一条同一个失败：在没有富余的负载上扣请求换来空转。"
+   },
+   {
+    "family": "跨家族：扣请求的收益与代价由链路富余（计算下界 - 链路下界）决定",
+    "status": "open",
+    "priority": "high",
+    "note": "假设，待第 2 代检验。富余：mooncake 0.53 s、408 0.78 s、540 3.90 s、agentx-narrow 10.2 s、agentx-flex 16.0 s（bottlenecks 各节「损失总账」，复算）。c0002 完成时间随富余单调：-4.3%、-0.9%、+0.4%、+0.6%、+0.7%；c0001 大体一致（408 受并行测量污染）。只有 2 个候选 × 5 个负载，后三个在噪声内。可检验推论：富余不到 1 s 的负载上，扣请求是纯损失，除非扣放依据与链路实际饱和一致。"
+   },
+   {
+    "family": "measured_rate × admit/hold/release：按链路实测吞吐扣放（闭环）",
+    "status": "open",
+    "priority": "high",
+    "note": "未试。动机：两个账面需求门控都在 mooncake 回退，而 mooncake 层计超载÷饱和 = 1.48、利用率 0.70，账面需求高估链路压力（bottlenecks 规律 6）。要回答：按链路实际饱和来扣放，能否保住 540 的 TTFT 收益并去掉 mooncake 回退。"
+   },
+   {
+    "family": "order / wait_time：排队顺序（回填、轻请求先放、最大等待上限）",
+    "status": "open",
+    "priority": "high",
+    "note": "未试（第 1 代没有候选落在 order、wait_time 行）。动机：短请求负载 TTFT 损失 = 每条延迟 × 队列深 89-135 条/实例；B/C 类条数占多数、几乎不读，却比 A 慢 1.1-4.1 s（bottlenecks 规律 4 及各节「排队顺序」）。等待上限同时是门控的出口。边界：FCFS 结构属第二梯队，需先确认 order 在配置面里的含义。"
+   },
+   {
+    "family": "count/bytes × admit/hold（时机 layer）：许可按层读取窗口计数",
+    "status": "open",
+    "priority": "high",
+    "note": "未试。动机：许可按请求生命周期计数，拉伸中位 2.4-4.0 倍与 4 实例同阶，并发读取没有被约束住（bottlenecks 规律 3、7b）。账本看不到加载开始与结束（bottlenecks 引 code_map §4），实现前先确认有无可用的层粒度信号。"
+   },
+   {
+    "family": "release 时机：starved 空转挽回",
+    "status": "open",
+    "priority": "medium",
+    "note": "间接证据一条：c0001 的『空闲强制放行』没有带来超出噪声的完成时间收益（五负载 -4.1%、-3.3%、+1.1%、+0.7%、-1.8%），但与需求闸门捆在一起，不能单独下结论。starved 占空转 65-80%（短请求负载）仍是最确定的可挽回损失（bottlenecks 规律 2）。"
+   },
+   {
+    "family": "observed_stretch × admit/hold：按读取拉伸扣放（闭环）",
+    "status": "open",
+    "priority": "medium",
+    "note": "未试。动机：拉伸是层读取重叠的直接观测量；短请求负载中位 2.4-4.0 倍、P95 14.8-133.2 倍（bottlenecks 各节）。与 measured_rate 同属闭环，建议二者先取其一，避免同代重复。"
+   },
+   {
+    "family": "分类与阈值：双峰分布、P75 单分位数、is_heavy_read 覆盖",
+    "status": "open",
+    "priority": "medium",
+    "note": "未试。408 与 540 同为双峰，P75 分别落在 A 段与 B 段，cap 一紧一松（bottlenecks 规律 7a，推导）。θ、cap 实际值与 B/C 是否受许可覆盖仍待验证（bottlenecks BLOCKERS）。"
+   },
+   {
+    "family": "route：巨需求请求错峰或分散",
+    "status": "open",
+    "priority": "low",
+    "note": "未试。540 的 A 类突发对齐是收益最大的形态，但 demand_sum 门控已在该形态拿到 TTFT 约 +22%；route 的边际价值取决于能否同时改善完成时间。暂排在 order、闭环扣放之后。"
+   },
+   {
+    "family": "跨负载：AgentX 上读调度收益有限（只求不受伤）",
+    "status": "tested",
+    "priority": "low",
+    "note": "两个候选在 agentx-narrow / agentx-flex 上全在噪声内（TTFT -0.3% 到 +0.7%，完成 +0.6% 到 +1.1%）；计算下界占参考完成 93-94%（bottlenecks）。只试过门控一类，『收益有限』对 order 类是否成立未知。当前按『不受伤』处理。"
+   }
+  ]
+ }
+}
