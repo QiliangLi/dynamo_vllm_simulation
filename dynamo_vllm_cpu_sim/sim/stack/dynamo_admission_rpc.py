@@ -80,11 +80,16 @@ class DynamoAdmissionServer:
         self.runtime = new_runtime(asyncio.get_running_loop())
         endpoint = self.runtime.endpoint(self.name)
         self.instance_id = endpoint.connection_id()
-        # The PyO3 binding returns an asyncio Future, rather than a coroutine.
-        self.task = asyncio.ensure_future(endpoint.serve_endpoint(self.receive, graceful_shutdown=False))
         try:
+            # The file store creates its bucket by lookup and then insert, without
+            # holding the lock. The client's watcher creates it first; a registration
+            # that raced it can lose the bucket and is then never renewed, so other
+            # processes expire its record after 10 s.
+            client = await endpoint.client()
+            await asyncio.sleep(0.2)
+            # The PyO3 binding returns an asyncio Future, rather than a coroutine.
+            self.task = asyncio.ensure_future(endpoint.serve_endpoint(self.receive, graceful_shutdown=False))
             async with asyncio.timeout(self.timeout_s):
-                client = await endpoint.client()
                 await client.wait_for_instances()
                 if set(client.instance_ids()) != {self.instance_id}:
                     raise RuntimeError('admission endpoint must have exactly one ledger instance')

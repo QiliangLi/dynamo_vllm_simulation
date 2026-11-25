@@ -1096,6 +1096,10 @@ runner 为每轮运行生成独立的 `dyn://命名空间.ledger.control` 端点
 `admission.rpc.json` 保存实例 ID、账本启动标识、进程 ID 和协议。
 EngineCore 固定目标实例，核对启动标识；超时、错误、发现变化时失败关闭，
 不自动改投其他账本或重放不确定申请。该账本仍只允许一个实例，无跨机容错。
+账本端点启动时先建客户端并让出事件循环，再注册实例。file 发现后端按 10 秒 TTL
+续期实例记录，而目录创建不是原子操作；注册与客户端监听并发时，注册方可能失去续期，
+记录约 10 秒后被其他进程删除。2026-11-25 修正启动顺序；此前四实例入口的 TFS 轮
+约半数因此在收尾审计失败，期间读准入全部旁路。
 
 功能验收：`.venv/bin/python scripts/validate_read_admission.py --output results/runtime_layer`。
 增加 `--kv-mode bulk` 验证整次加载；`--transport tcp` 或 `unix` 可复跑旧通信对照。

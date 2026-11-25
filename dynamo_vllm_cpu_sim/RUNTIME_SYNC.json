@@ -129,7 +129,7 @@
     "sim/stack/budget_priority.py": "f629a63226e96a9cc7ddde34a432936964c5ef2b2e1ad5b81cded60a9ecbd02d",
     "sim/stack/clock.py": "be1ee2b3bfa176d0c9dbb2e57ba8562af33afbc76184f793de0382ce0705b3fd",
     "sim/stack/connector_rpc.py": "efa0a4cb2b9b79893994ce243fa68b62cb84b61c8bf06685c86d548a2a0cd17f",
-    "sim/stack/dynamo_admission_rpc.py": "cd510ea9691be8cbaa0a2ef81c3bcde9cb5eb1ec85b6cd2332417440d92048cc",
+    "sim/stack/dynamo_admission_rpc.py": "172c74ce615bd04908c4ae00a490eb60d044faaf8ccfc2a7477ef5dafcd055a5",
     "sim/stack/edf_priority.py": "7f3094872df9d3086bb85b96abb8d06f8e2183c5e47405ec66f2b70ed635f59d",
     "sim/stack/executor.py": "0bd03a866b8b4686125eba1ccff1c7f1672df11da27c20be9815ee607276290b",
     "sim/stack/feedback.py": "e02bbfc1c03adfaab3c4bb7ea53907bb70b2e7377d2f30be01e1039e51e279ac",
@@ -164,7 +164,7 @@
     "tests/native_admission_fixture.py": "82fe3abdb0258a63c6acb941f6b112370b9c3feda2368709c01ff084bafd0837",
     "tests/test_ab_trace.py": "728157f24907620f2ff83748a3b7927d957088f5962d442fa9756fc7f63b9596",
     "tests/test_admission.py": "7fba70a7afe2870dff9552360a6626c346ada82e3f91c44d039b57e41bdd24a6",
-    "tests/test_admission_dynamo.py": "8c3252b56c58afc90463527f536af91b823a0ad657be9de15e587242d554151d",
+    "tests/test_admission_dynamo.py": "207125ff942454376ee0ae192a0a13ead7632f598f75ef50ad6b08bebf0b54be",
     "tests/test_admission_integration.py": "e7965d16e1ceb270a2a60c215c1a984fba4eeaebbe8afd755d27a95fa559efb8",
     "tests/test_admission_tcp.py": "df6c298dca2e0d2f9a2408cffb339010d8383503280e4d85cb90b3e51ea93b8c",
     "tests/test_compute_time.py": "8ef47f6a3bc47ec050f0a6260c062120ed51706d2bb62e18c02bba31fcf37a34",
@@ -245,5 +245,14 @@
     "tests/test_storage_owner.py": "9e9c0e6efdefb3f0932a7aaf4e116f281f84d635f523a82ebf61dae49259eb38",
     "tests/test_dev_mode.py": "20417906c5d280c149c9adb354ed7872fc822daa82640ab046b7f70f40a5b388"
   },
-  "source_exceptions": {}
+  "source_exceptions": {
+    "sim/stack/dynamo_admission_rpc.py": {
+      "sha256": "cd510ea9691be8cbaa0a2ef81c3bcde9cb5eb1ec85b6cd2332417440d92048cc",
+      "reason": "lql_1125_opt starts the ledger client before registering the endpoint: the Dynamo 1.2 file store creates its bucket by unlocked lookup then insert, and a registration that loses it is never renewed. Research version not yet updated; no behavior change after startup."
+    },
+    "tests/test_admission_dynamo.py": {
+      "sha256": "8c3252b56c58afc90463527f536af91b823a0ad657be9de15e587242d554151d",
+      "reason": "lql_1125_opt adds the ledger startup-order regression test. Research version not yet updated."
+    }
+  }
 }
