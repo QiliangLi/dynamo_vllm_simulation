@@ -6,6 +6,8 @@ spent. The orchestrator validates the task's output files itself; this module
 only reports what the agent did.
 """
 import json
+import os
+import shutil
 import subprocess
 import threading
 import time
@@ -21,20 +23,31 @@ def _kill_tree(pid):
     subprocess.run(["taskkill", "/T", "/F", "/PID", str(pid)], capture_output=True)
 
 
+def opencode_command():
+    """The opencode executable itself, not the npm shim: the shim's cmd.exe layer mangles arguments."""
+    shim = shutil.which("opencode.cmd") or shutil.which("opencode")
+    if not shim:
+        raise OSError("opencode is not on PATH")
+    native = Path(shim).parent / "node_modules" / "@opencode" / "cli" / "bin" / "opencode.exe"
+    return [str(native)] if os.name == "nt" and native.exists() else [shim]
+
+
 def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, session=None,
-             timeout_min=None):
+             timeout_min=None, _attempt=0):
     """Run one agent. Returns a dict with status, text, tokens, steps, session_id, duration_s, error."""
     workspace = Path(workspace)
     agent = "%s-%s" % (role, task_id)
     roles.write_agent(workspace, agent, role, write_paths, shell)
     limit = (timeout_min or config.TIMEOUT_MIN[role]) * 60
-    cmd = ["cmd.exe", "/d", "/c", "opencode", "run", "--agent", agent, "--format", "json", "--auto",
-           "--archived", "--title", "tuning-%s" % task_id]
+    cmd = opencode_command() + ["run", "--agent", agent, "--format", "json", "--auto",
+                                "--archived", "--title", "tuning-%s" % task_id]
     if session:
         cmd += ["--session", session]
     cmd += ["--model", model or config.MODELS[role]]
     cmd.append("你的任务书在 %s。先完整读它，然后严格按它执行。" % task_md)
 
+    # opencode takes its project directory from $PWD/$OLDPWD, not from the child's working directory.
+    env = dict(os.environ, PWD=Path(workspace).as_posix(), OLDPWD=Path(workspace).as_posix())
     started = time.time()
     result = dict(task_id=task_id, role=role, model=model or config.MODELS[role], status="error", text="",
                   tokens=dict(input=0, output=0, reasoning=0, cache_read=0, cache_write=0), steps=0,
@@ -76,7 +89,7 @@ def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, 
     with _semaphore:
         try:
             proc = subprocess.Popen(cmd, cwd=str(workspace), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    stdin=subprocess.DEVNULL)
+                                    stdin=subprocess.DEVNULL, env=env)
         except OSError as error:
             result["error"] = "cannot start opencode: %s" % error
             roles.remove_agent(workspace, agent)
@@ -106,6 +119,11 @@ def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, 
         result["error"] = " | ".join(err_tail[-5:])[-600:] or "no output"
     if result["status"] == "ok" and result["steps"] == 0:
         result.update(status="error", error="agent produced no steps")
+    if "Agent not found" in result["error"] and _attempt < 2:
+        # The background service learns a new agent file through a file watcher; give it a moment.
+        time.sleep(4)
+        return run_task(workspace, task_id, role, task_md, write_paths, shell, model=model, session=session,
+                        timeout_min=timeout_min, _attempt=_attempt + 1)
     folder = workspace / "tasks" / task_id
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "llm.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
