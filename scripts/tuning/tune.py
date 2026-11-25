@@ -133,7 +133,10 @@ def cmd_init(args):
 
     # 7. controls
     pythonw = Path(sys.executable).with_name("pythonw.exe")
-    (ws / "守护.vbs").write_text(SUPERVISOR % pythonw, encoding="utf-8")
+    supervisor = SUPERVISOR % pythonw
+    (ws / "守护.vbs").write_text(supervisor, encoding="utf-8")
+    # The same script under an ASCII name: other launchers mangle non-ASCII paths.
+    (ws / "supervisor.vbs").write_text(supervisor, encoding="utf-8")
     for name, action in (("暂停.cmd", "PAUSE"), ("停止并收尾.cmd", "STOP")):
         (ws / name).write_text('@echo off\r\nchcp 65001 >nul\r\ncd /d "%%~dp0"\r\nif not exist control mkdir control\r\n'
                                'type nul > control\\%s\r\necho 已记录：%s\r\ntimeout /t 3 >nul\r\n' % (action, action), encoding="utf-8")
