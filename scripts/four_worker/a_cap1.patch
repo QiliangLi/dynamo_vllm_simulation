@@ -1,0 +1,43 @@
+--- a/sim/admission.py
++++ b/sim/admission.py
+@@ -85,7 +85,7 @@
+         positive = [x for x in xs if x > 0]
+         raw = xs[math.floor(self.c["quantile"] * (len(xs) - 1))]
+         self.theta = (raw if raw > 0 else min(positive)) if positive else None
+-        self.cap = max(1, math.floor(self.c["reference_bandwidth_Bps"] / self.theta)) if self.theta else None
++        self.cap = 1  # Controlled experiment: one shared heavy-read permit.
+         if self.c.get("dev_mode", False):
+             self.cap = None
+         self.threshold_version += 1
+--- a/sim/stack/read_admission.py
++++ b/sim/stack/read_admission.py
+@@ -3,6 +3,9 @@
+ All calls run on the admission service's single asyncio event-loop thread.
+ No await occurs inside a ledger operation. This is not a distributed database.
+ """
++import json
++import os
++from pathlib import Path
+ import uuid
+ 
+ from sim.admission import AdmissionController
+@@ -11,6 +14,10 @@
+ 
+ class FrozenClassification:
+     def __init__(self, config):
++        # The runner has already mapped the input IDs to the IDs used by Dynamo.
++        trace = Path(os.environ["SIM_STACK_CONFIG"]).with_name("trace.jsonl")
++        with trace.open() as stream:
++            self.heavy_ids = {row["id"] for row in map(json.loads, stream) if row["class_id"] == "A"}
+         self.hints = {}
+         self.permits = {}
+         self.permit_keys = {}
+@@ -26,7 +33,7 @@
+         super().on_arrivals(profiles, now_s)
+         for profile in profiles:
+             hint = dict(version=1,
+-                        is_heavy_read=bool(profile.estimated_read_bytes > 0 and super().is_heavy(profile)),
++                        is_heavy_read=profile.request_id in self.heavy_ids,
+                         estimated_remote_read_bytes=profile.estimated_read_bytes,
+                         threshold_version=self.threshold_version)
+             self.hints[profile.request_id] = hint

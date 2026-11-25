@@ -1,5 +1,7 @@
 # Benchmark
 
+[四实例 25 GB/s 仿真入口](../docs/四实例25GB运行指南.md)支持本目录的五份四实例冻结输入。下文 supported/export_only 是旧运行器的状态。
+
 本目录保存可追溯的固定请求负载及其运行配置。每个 benchmark 使用一个文件夹；具体名单、构造说明、支持状态和字段解释统一见 [benchmark目录.md](benchmark目录.md)。AI 使用方法见 [agent.md](agent.md)。
 
 ## 命名

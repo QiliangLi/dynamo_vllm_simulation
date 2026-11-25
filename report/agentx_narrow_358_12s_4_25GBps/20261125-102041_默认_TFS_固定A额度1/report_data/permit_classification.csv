@@ -1,0 +1,10 @@
+﻿mode,cohort,count,heavy,single_demand_over_25,single_demand_over_25_light
+light,A,120,0,0,0
+light,B,150,0,0,0
+light,C,88,0,0,0
+tfs,A,120,86,0,0
+tfs,B,150,2,0,0
+tfs,C,88,0,0,0
+a_cap1,A,120,120,0,0
+a_cap1,B,150,0,0,0
+a_cap1,C,88,0,0,0
