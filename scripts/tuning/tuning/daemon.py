@@ -339,20 +339,29 @@ class Daemon:
                 spec["remote"]["port_offset"] = slot * wsl.PORT_STEP
                 spec["slot"] = slot
                 write_json(path, spec)
+                remote_path = path.with_name("remote.json")
+                write_json(remote_path, spec["remote"])
                 with self._wsl_lock:
-                    ok, detail = wsl.launch(run_id, path)
+                    ok, detail = wsl.launch(run_id, remote_path)
                 if ok:
                     active[run_id] = dict(slot=slot, started=now(), timeout=spec["remote"]["timeout_s"] + 240,
                                           exclusive=exclusive, group=spec.get("group"), workload=spec["workload"],
                                           tag=spec["tag"], cand=spec.get("cand"))
                     self.log("run_started", run=run_id, slot=slot, workload=spec["workload"], tag=spec["tag"], cand=spec.get("cand"))
-                elif any(key in str(detail) for key in WSL_REASONS) or "launched" not in str(detail):
+                elif any(key in str(detail) for key in WSL_REASONS if key != "not_launched"):
                     # WSL could not take it: keep it and wait for the environment.
                     queue.insert(0, run_id)
                     self.log("run_launch_failed", run=run_id, detail=str(detail)[:300])
                     return
                 else:
-                    self.collect(run_id, dict(status="failed", error="launch failed: %s" % str(detail)[:300]))
+                    # The runner died at once; twice means the run itself is broken.
+                    failures = state.setdefault("launch_fail", {})
+                    failures[run_id] = failures.get(run_id, 0) + 1
+                    self.log("run_launch_failed", run=run_id, detail=str(detail)[:400])
+                    if failures[run_id] < 2:
+                        queue.insert(0, run_id)
+                    else:
+                        self.collect(run_id, dict(status="failed", error="runner exited at once: %s" % str(detail)[-600:]))
 
     def collect(self, run_id, result):
         """Account for one finished run everywhere it matters."""

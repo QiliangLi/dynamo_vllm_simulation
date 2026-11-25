@@ -174,7 +174,7 @@ P=dynamo_vllm_cpu_sim
 [ -e $P/.venv ] || ln -s /root/.local/share/dynamo-vllm-simulation/139b58d6a3fb/.venv $P/.venv
 [ -e $P/upstream ] || ln -s "$(readlink -f /root/dv-repo-lql_1125_opt/$P/upstream 2>/dev/null || echo /nonexistent)" $P/upstream
 test -x $P/.venv/bin/python && echo venv_ok
-test -e $P/upstream/package.json && echo upstream_ok || echo upstream_missing
+test -d $P/upstream/vllm && echo upstream_ok || echo upstream_missing
 $P/.venv/bin/python scripts/tuning/wsl/run_tuning.py --base-manifest %(root)s/base_manifest.json
 echo WSL_SETUP_OK
 """ % dict(root=wsl.WSL_ROOT)

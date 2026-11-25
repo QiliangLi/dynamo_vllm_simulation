@@ -108,9 +108,10 @@ sleep 2
 if pgrep -f "run_tuning.py .*%s" > /dev/null; then echo launched; else echo not_launched; tail -n 5 %s/runs/%s.log; fi
 """ % (WSL_ROOT, WSL_ROOT, REPO, PY, RUNNER, spec, WSL_ROOT, run_id, run_id, WSL_ROOT, run_id)
     rc, out, err, reason = call(script, timeout=120)
-    if "launched" in out and "not_launched" not in out:
+    lines = out.strip().splitlines()
+    if lines and lines[0] == "launched":
         return True, ""
-    return False, reason or (out.strip().splitlines()[-1] if out.strip() else err.strip()[-300:])
+    return False, (" ".join([reason] + lines) + " " + err.strip()[-200:])[-700:]
 
 
 def kill(run_id):
