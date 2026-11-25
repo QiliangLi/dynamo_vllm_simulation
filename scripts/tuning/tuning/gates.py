@@ -97,6 +97,7 @@ def _get_path(policy, dotted):
 
 
 def card_tier(card, max_tier):
+    """The tier a candidate declares, clamped to what is open."""
     tier = card.get("tier") if isinstance(card, dict) else 0
     return tier if isinstance(tier, int) and not isinstance(tier, bool) and 0 <= tier <= max_tier else 0
 

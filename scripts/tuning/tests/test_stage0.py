@@ -25,7 +25,7 @@ class Stage0Flags(unittest.TestCase):
         self.assertIn('step["queued"] = True', baseline)
         self.assertNotIn('step["armed"] = True', baseline)
         self.assertIn("step.update(armed=True, level=level)", parallel)
-        self.assertIn('step["built"] = True', stress)
+        self.assertIn("built=True", stress)
         self.assertNotIn('step["armed"] = True', stress)
 
     def test_a_stale_armed_flag_is_repaired(self):

@@ -25,6 +25,7 @@ STRESS_ROOT = wsl.WSL_ROOT + "/stress"
 INFRA_TAGS = ("baseline", "control", "probe", "stress_baseline", "final")
 WSL_REASONS = ("host_out_of_memory", "wsl_unavailable", "not_launched", "timed out", "wsl_low")
 CANDIDATE_TAGS = ("smoke", "screen", "confirm", "attack", "final")
+STRESS_BASELINE_RUNS = 3
 
 
 def now():
@@ -313,7 +314,9 @@ class Daemon:
         folder = self.ws / "requests"
         if not folder.exists():
             return
-        for path in sorted(folder.glob("*.json")):
+        for path in sorted(folder.glob("smoke_*.json")):
+            if path.name.endswith(".started.json"):
+                continue  # the receipt this method writes for the waiting agent
             try:
                 request = read_json(path)
             except ValueError:
@@ -584,12 +587,15 @@ class Daemon:
                 ok, detail = self.build_stress()
                 if not ok:
                     self.alert("压力负载没有生成：%s" % str(detail)[-200:], level="error")
+                step.update(built=True, ok=ok)
+            if step.get("ok"):
+                # Three baseline runs per stress workload, asked for once. One that fails every
+                # time simply ends without a baseline and is left out of the attack suite.
+                asked = state.setdefault("stress_asked", {})
                 for name, spec in config.STRESS_SPECS.items():
-                    if ok:
-                        for _ in range(3):
-                            self.new_run(name, "light", "stress_baseline", stress=name, workers=spec.get("workers", 4))
-                step["built"] = True
-                return
+                    for _ in range(max(0, STRESS_BASELINE_RUNS - asked.get(name, 0))):
+                        self.new_run(name, "light", "stress_baseline", stress=name, workers=spec.get("workers", 4))
+                    asked[name] = max(STRESS_BASELINE_RUNS, asked.get(name, 0))
             if self.busy():
                 return
             step["step"] = "bounds"

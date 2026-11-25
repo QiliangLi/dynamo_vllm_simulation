@@ -5,6 +5,7 @@
   python tune.py daemon            run the orchestrator; returns only after a STOP
   python tune.py status            one screen of text
   python tune.py pause | resume | stop | unfreeze
+  python tune.py gate CANDIDATE    (agents) the static gate, offline
   python tune.py test CANDIDATE    (agents) run a candidate's unit tests in WSL
   python tune.py smoke CANDIDATE WORKLOAD   (agents) ask for one replay and wait for it
 
@@ -214,6 +215,33 @@ def cmd_test(args):
     return 0 if status == "pass" else 1
 
 
+def cmd_gate(args):
+    """The static gate, offline: scope, protected functions, forbidden content, card, parameters, tests."""
+    ws = workspace_of(args)
+    cand_id = args.candidate
+    if not cand_id.isalnum():
+        print("候选编号只能是字母和数字")
+        return 2
+    cand_dir = ws / "candidates" / cand_id
+    if not cand_dir.exists():
+        print("没有这个候选目录：candidates/%s" % cand_id)
+        return 2
+    state = read_json(ws / "state.json") if (ws / "state.json").exists() else {}
+    result = gates.static_gate(cand_dir, ws / "base", core.open_tier(state))
+    print("静态门禁：%s" % ("通过" if result.passed else "未通过"))
+    for issue in result.issues:
+        print("  问题：" + issue)
+    for warning in result.warnings:
+        print("  提醒：" + warning)
+    if result.allow_lines:
+        print("  带许可标记、将由红队复核的行：")
+        for line in result.allow_lines:
+            print("    " + line)
+    with open(cand_dir / "helper.log", "a", encoding="utf-8") as stream:
+        stream.write("%s gate %s %s\n" % (time.strftime("%H:%M:%S"), cand_id, "pass" if result.passed else "fail"))
+    return 0 if result.passed else 1
+
+
 def cmd_smoke(args):
     ws = workspace_of(args)
     cand_id, workload = args.candidate, args.workload
@@ -322,6 +350,8 @@ def main():
     sub.add_parser("status")
     test = sub.add_parser("test")
     test.add_argument("candidate")
+    gate = sub.add_parser("gate")
+    gate.add_argument("candidate")
     smoke = sub.add_parser("smoke")
     smoke.add_argument("candidate")
     smoke.add_argument("workload")
@@ -330,7 +360,7 @@ def main():
     args = parser.parse_args()
     if args.command == "control":
         return cmd_control(args)
-    return {"init": cmd_init, "daemon": cmd_daemon, "status": cmd_status, "test": cmd_test, "smoke": cmd_smoke}[args.command](args)
+    return {"init": cmd_init, "daemon": cmd_daemon, "status": cmd_status, "test": cmd_test, "gate": cmd_gate, "smoke": cmd_smoke}[args.command](args)
 
 
 if __name__ == "__main__":

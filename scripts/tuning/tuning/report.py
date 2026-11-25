@@ -90,7 +90,16 @@ CODE_MAP = """# TFS 代码地图与硬约束
 - 看不到（默认）：每次加载何时开始、何时结束，每一层读取的实际耗时。这些只写在 worker 本地的 `worker*.steps.loads.jsonl` 里。想知道在途读取，要么补一条反馈通路（见第 3 节第 8 条），要么用近似：重读请求发出 acquire 的时刻约等于它开始读取；首 token 约等于读取结束。
 - worker 侧（`ReadGate`）能看到：本实例的等待队列、运行队列、每条请求的提示、本实例的许可。
 
-## 5. 诊断量的定义
+## 5. 每一轮的运行配置（五个负载相同，除非注明）
+
+- 入口：`scripts/run_4w25.sh` 的步骤，4 个 worker，每个同时只跑 1 条请求（`max_num_seqs` 1），FCFS，`request_ordering` fcfs。
+- 存储：6 个盘各 4.167 GB/s，共享链路 25 GB/s（`shared_link_Bps` 25e9），`bandwidth_policy` max_min_fair，`kv_bytes_per_token` 65536，`read_latency_s` 0.0001。
+- 读取方式：`kv_transfer_mode` layer_pipeline，提前一层预取，16 层。
+- 准入：`admission.mode` tfs，`quantile` 0.75，`reference_bandwidth_Bps` 25e9，`release_on` first_token，`aging_enabled` false，`placement` scheduler，`classification` arrival，`retry_interval_wall_s` 0.002（墙钟秒），`idle_bypass` false，`profile_source` dynamo_tier，`native_ingress` true。候选只能通过 `policy.json` 改 `admission`、`routing_accounting`、`request_profile` 三个节里的键。
+- 路由：`router_mode` kv（Dynamo 原生 kv router 选实例），`routing_accounting.enabled` true，`waiting_factor`（α）0.1。
+- `wall_time_scale` 1：模型秒就是墙钟秒。
+
+## 6. 诊断量的定义
 
 逐轮摘要 `digest` 里的量，时间轴都以客户端首次发送为零点：
 
@@ -104,8 +113,9 @@ CODE_MAP = """# TFS 代码地图与硬约束
 - `reference.*`：无争用参考（每条请求按独占链路速度、同样的实例归属、FCFS）；计算下界 = 计算总量 / 实例数；链路下界 = 读取量 / 带宽。
 - `timeline`：0.25 秒一格的在途需求与正在执行的请求数。
 
-## 6. 自测命令
+## 7. 自测命令
 
+- `python tune.py gate <候选编号>`：离线跑一遍静态门禁（范围、受保护的函数、被禁内容、卡片字段、参数与测试是否齐全），不占用仿真机。
 - `python tune.py test <候选编号>`：在 WSL 里按你的覆盖层搭一份仿真环境，运行 `tests/` 下的 unittest。
 - `python tune.py smoke <候选编号> 408`：申请一次真实回放（408 最短）。结果写入 `candidates/<候选编号>/smoke.json`。排队期间请等待，不要重复申请。
 """
@@ -335,7 +345,7 @@ def write_bounds(daemon):
         if not light:
             continue
         agg = _mean_digest(digests_of(daemon, light["runs"]))
-        ref, sm = agg.get("reference", {}), evaluator.stats(light["makespan_s"])
+        ref, sm = agg.get("reference", {}), evaluator.stats(light["makespan"])
         floors = [v for v in (ref.get("compute_floor_s"), ref.get("link_floor_s")) if v]
         bounds[w] = dict(light_ttft=evaluator.stats(light["ttft"])["mean"], light_makespan=sm["mean"],
                          no_contention_ttft=ref.get("mean_ttft_s"), no_contention_makespan=ref.get("makespan_s"),

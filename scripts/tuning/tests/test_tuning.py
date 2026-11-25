@@ -13,6 +13,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from tuning import config, daemon as core, evaluator, gates, report, scope, store  # noqa: E402
+from tuning.store import write_json  # noqa: E402
 
 W = list(config.WORKLOADS)
 
@@ -230,6 +231,28 @@ class DaemonTests(unittest.TestCase):
 
 
 class ReportTests(unittest.TestCase):
+    def test_bounds_from_measured_baselines(self):
+        root = Path(tempfile.mkdtemp())
+        try:
+            daemon = core.Daemon(root)
+            daemon.state = core.initial_state("x")
+            digest = dict(reference=dict(mean_ttft_s=0.8, makespan_s=9.0, compute_floor_s=9.0, link_floor_s=5.0))
+            for workload in config.WORKLOADS:
+                runs = []
+                for ttft, makespan in ((2.0, 11.0), (2.1, 11.5)):
+                    run_id = "b_%s_%d" % (workload, len(runs))
+                    write_json(root / "runs" / run_id / "result.json", dict(status="done", digest=digest))
+                    runs.append(run_id)
+                daemon.state["baseline"][workload] = dict(light=dict(ttft=[2.0, 2.1], makespan=[11.0, 11.5], runs=runs))
+            report.write_bounds(daemon)
+            bounds = daemon.state["bounds"]["408"]
+            self.assertAlmostEqual(bounds["light_makespan"], 11.25)
+            self.assertAlmostEqual(bounds["light_ttft"], 2.05)
+            self.assertAlmostEqual(bounds["no_contention_makespan"], 9.0)
+            self.assertAlmostEqual(bounds["floor_makespan"], 9.0)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
     def test_dashboard_renders_from_an_empty_state(self):
         root = Path(tempfile.mkdtemp())
         try:
