@@ -477,33 +477,119 @@ def write_run_digests(daemon, generation):
     (folder / "run_digests.md").write_text("\n".join(lines), encoding="utf-8")
 
 
+EVALUATION_RULES = """## 评价规则（冻结，不能修改；写在这里，免得靠猜）
+
+参照对象：没有冠军时是默认策略的串行基线；有冠军后，晋升比较的是冠军的确认轮次。改进 =（参考均值 − 候选均值）/ 参考均值，正数是改进。
+- 每个负载的得分 = 0.5 × 平均 TTFT 改进 + 0.5 × 完成时间改进。
+- 排序分 = 0.5 ×（各负载得分的平均值）+ 0.5 ×（最差负载的得分）。
+- 筛选（每个负载 %(screen)d 轮）：五个负载的平均 TTFT 改进 > 0 且平均完成时间改进 > 0，并且任何一个负载上任何一个指标不低于 -10%%。
+- 确认（每个负载至少 %(confirm)d 轮，分不出高低时加到 %(most)d 轮）：排序分 > 0，并且任何一个负载上任何一个指标不低于 -5%%。
+- 晋升：排序分的 95%% 单侧下界 > 0，并且没有任何负载上任何指标出现超出噪声的回退。回退 = 候选均值 − 参考均值 > max(0.5%% × 参考均值, %(z).3f × 标准误)。
+- 晋升前另有压力负载（%(stress)d 个派生负载上不得比默认策略差）和留一法；候选在机制地图上承诺的诊断量要兑现。
+"""
+
+PARALLEL_EVENTS = ("stage0_parallel_decided", "manual_parallel")
+
+
+def _ledger_events(ws):
+    events = []
+    try:
+        with (Path(ws) / "ledger.jsonl").open(encoding="utf-8") as stream:
+            for line in stream:
+                try:
+                    events.append(json.loads(line))
+                except ValueError:
+                    continue
+    except OSError:
+        pass
+    return events
+
+
+def parallel_levels(ws):
+    """{run id: how many replays shared the host when that run started}.
+
+    Baselines are measured one replay at a time. A result measured beside another replay is not
+    comparable with them on every workload, so the report says which rows that applies to. The level
+    is 1 unless the ledger records a change (the stage-0 decision, or the operator's) before the start.
+    """
+    events = _ledger_events(ws)
+    changes = [(e["ts"], int(e.get("parallel") or 1)) for e in events if e["kind"] in PARALLEL_EVENTS]
+    levels = {}
+    for event in events:
+        if event["kind"] != "run_started":
+            continue
+        level = 1
+        for ts, value in changes:
+            if ts <= event["ts"]:
+                level = value
+        levels[event["run"]] = level
+    return levels
+
+
+def mechanism_text(card):
+    """('信号 × 动作 · 时机 · 反馈', '参数取值') of a candidate card."""
+    card = card if isinstance(card, dict) else {}
+    mechanism = card.get("mechanism") if isinstance(card.get("mechanism"), dict) else {}
+
+    def join(axis):
+        value = mechanism.get(axis)
+        if isinstance(value, list):
+            return "/".join(str(item) for item in value) or "?"
+        return str(value) if value else "?"
+
+    params = card.get("params") if isinstance(card.get("params"), dict) else {}
+    values = ", ".join("%s=%s" % (name, spec.get("value") if isinstance(spec, dict) else spec) for name, spec in params.items())
+    return "%s × %s · %s · %s" % (join("signal"), join("action"), join("timing"), join("feedback")), values or "无"
+
+
+def _clip(text, limit=900):
+    return str(text or "（卡片里没有写）").replace("\n", " ").strip()[:limit] or "（卡片里没有写）"
+
+
 def write_generation_report(daemon):
     """Facts of one generation for the meta-strategist; written by the program, not by a model."""
     from .store import read_json
     state = daemon.state
     generation = state["gen"]["n"]
     lines = ["# 第 %d 代报告" % generation, ""]
+    levels = parallel_levels(daemon.ws)
+    mine = [cand for cand in state["candidates"].values() if cand.get("gen") == generation]
     rows = []
-    for cand_id, cand in state["candidates"].items():
-        if cand.get("gen") != generation:
-            continue
-        rows.append([cand_id, cand["kind"], (cand.get("card") or {}).get("name", "")[:40], cand.get("status"),
-                     pct(cand.get("score")), (cand.get("reason") or "")[:160]])
-    lines += [table(["候选", "类型", "机制", "状态", "排序分", "原因"], rows) or "（本代没有候选）", ""]
+    for cand in mine:
+        mechanism, params = mechanism_text(cand.get("card"))
+        rows.append([cand["id"], cand["kind"], (cand.get("card") or {}).get("name", ""), mechanism, params, cand.get("status"),
+                     pct(cand.get("score")), cand.get("reason") or ""])
+    lines += [table(["候选", "类型", "名称", "机制：信号 × 动作 · 时机 · 反馈", "参数", "状态", "排序分", "原因"], rows)
+              or "（本代没有候选）", ""]
     # Where each candidate helped and where it hurt. The reason above is one sentence; the lessons
     # of the search are read off these numbers, so they must be in the report and not only on the dashboard.
     per_workload = [row for row in scored(state) if row["cand"].get("gen") == generation]
     lines += ["## 本代候选的逐负载结果", "",
-              "相对默认策略，正数是改进。取该候选轮次最多的一组回放（确认优先于筛选）；「回退」表示超出噪声。", ""]
+              "相对默认策略，正数是改进。取该候选轮次最多的一组回放（确认优先于筛选）；「回退」表示超出噪声。",
+              "「并行度」是该负载这几轮回放启动时同时占着主机的回放数：大于 1 的行与串行基线不完全可比（408 最敏感）。", ""]
     for row in per_workload:
         cand = row["cand"]
-        lines += ["### %s（%s）" % (row["id"], (cand.get("card") or {}).get("name", "")[:40]), ""]
-        lines += [table(["负载", "平均TTFT 改进", "完成时间 改进", "每个负载的轮次", "回退"],
-                        [[w, pct(r["ttft"]), pct(r["makespan"]), r["cand_n"], "是" if r["regresses"] else ""]
-                         for w, r in row["results"].items()]), ""]
+        measured = []
+        for workload, result in row["results"].items():
+            runs = ((cand.get("runs") or {}).get(workload) or {}).get(row["tag"]) or []
+            measured.append([workload, pct(result["ttft"]), pct(result["makespan"]), result["cand_n"],
+                             max([levels.get(item["run"], 1) for item in runs] or [1]), "是" if result["regresses"] else ""])
+        lines += ["### %s（%s）" % (row["id"], (cand.get("card") or {}).get("name", "")), ""]
+        lines += [table(["负载", "平均TTFT 改进", "完成时间 改进", "轮次", "并行度", "回退"], measured), ""]
     if not per_workload:
         lines += ["本代没有跑完五个负载的候选。", ""]
+    described = [cand for cand in mine if cand.get("card")]
+    if described:
+        lines += ["## 本代候选的卡片自述（提案人写的，不是结论）", ""]
+        for cand in described:
+            card = cand["card"]
+            lines += ["### %s（%s）" % (cand["id"], card.get("name", "")), "",
+                      "原因链：%s" % _clip(card.get("causal")), "",
+                      "预设的失败形态：%s" % _clip(card.get("failure")), "",
+                      "全文见 `candidates/%s/CARD.md`。" % cand["id"], ""]
     lines += operator_notes(state)
+    lines += [EVALUATION_RULES % dict(screen=config.SCREEN_RUNS, confirm=config.CONFIRM_RUNS, most=config.MAX_CONFIRM_RUNS,
+                                      z=evaluator.Z95, stress=len(config.STRESS_SPECS))]
     lines += ["冠军：%s。停滞阶梯：%d。已放开到第二梯队第 %d 档。" % (
         state.get("champion") or "无", state.get("ladder", 0), open_tier_of(state)), ""]
     kinds = state.get("runs_by_kind", {})

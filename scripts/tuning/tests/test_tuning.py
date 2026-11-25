@@ -302,22 +302,35 @@ class ReportTests(unittest.TestCase):
             daemon.state["operator_notes"] = [dict(at="2026-11-26 04:06:10", text="回放改为一次一轮")]
             runs = {workload: dict(screen=[dict(run="r_%s" % workload, ttft=2.0 * (1 - shift), makespan=10.0 * (1 + shift), stress=None)])
                     for workload, shift in (("408", 0.10), ("540", 0.10), ("mooncake", -0.20), ("agentx-narrow", 0.10), ("agentx-flex", 0.10))}
+            card = dict(name="需求预算闸门 | 回填", mechanism=dict(signal=["demand_sum"], action=["admit", "hold"], timing=["arrival"],
+                                                                  feedback=["open_loop"]),
+                        params=dict(budget_factor=dict(value=1.15, min=1.0, max=2.0)), causal="在持需求之和超出链路", failure="链路没有富余时回退")
             daemon.state["candidates"]["c0001"] = dict(
-                id="c0001", kind="llm", gen=1, status="rejected", card=dict(name="需求预算闸门"), runs=runs, score=-0.05,
-                reason="筛选未通过")
+                id="c0001", kind="llm", gen=1, status="rejected", card=card, runs=runs, score=-0.05, reason="筛选未通过")
             daemon.state["candidates"]["c0002"] = dict(id="c0002", kind="llm", gen=1, status="rejected", card=dict(name="x"), runs={}, reason="门禁未过")
+            # The ledger says replays shared the host only while r_408 was started.
+            with (root / "ledger.jsonl").open("a", encoding="utf-8") as stream:
+                for event in (dict(ts=50, kind="manual_parallel", parallel=2), dict(ts=60, kind="run_started", run="r_408"),
+                              dict(ts=70, kind="manual_parallel", parallel=1), dict(ts=80, kind="run_started", run="r_mooncake")):
+                    stream.write(json.dumps(event) + "\n")
             path = report.write_generation_report(daemon)
             text = (root / path).read_text(encoding="utf-8")
             self.assertIn("## 本代候选的逐负载结果", text)
-            self.assertIn("### c0001（需求预算闸门）", text)
-            self.assertNotIn("### c0002", text)
-            self.assertIn("| mooncake | -20.0% | +20.0% | 1 | 是 |", text)
-            self.assertIn("| 408 | +10.0% | -10.0% | 1 | 是 |", text)
+            self.assertIn("| mooncake | -20.0% | +20.0% | 1 | 1 | 是 |", text)
+            self.assertIn("| 408 | +10.0% | -10.0% | 1 | 2 | 是 |", text)
+            # The mechanism, the parameters and the proposer's own reasoning, so that nothing is inferred from a name.
+            self.assertIn("demand_sum × admit/hold · arrival · open_loop | budget_factor=1.15 |", text)
+            self.assertIn("需求预算闸门 \\| 回填", text)
+            self.assertIn("原因链：在持需求之和超出链路", text)
+            self.assertIn("预设的失败形态：链路没有富余时回退", text)
+            self.assertIn("## 评价规则（冻结，不能修改；写在这里，免得靠猜）", text)
+            self.assertIn("排序分 = 0.5 ×（各负载得分的平均值）+ 0.5 ×（最差负载的得分）", text)
+            # A candidate without a card is left out of the per-workload and self-description sections.
+            self.assertEqual(text.count("### c0002（x）"), 1)
             # A pipe inside a name must not split the row into extra columns.
             self.assertEqual(report.table(["候选", "机制"], [["c0003", "窗口 | 豁免"]]),
                              "| 候选 | 机制 |\n|---|---|\n| c0003 | 窗口 \\| 豁免 |")
             self.assertIn("- 2026-11-26 04:06:10：回放改为一次一轮", text)
-            self.assertNotIn("### c0002", text)
             # The proposers' context carries the same note.
             report.write_context(daemon, 1, "A")
             self.assertIn("回放改为一次一轮", (root / "digest" / "gen_1" / "context_A.md").read_text(encoding="utf-8"))
