@@ -1,0 +1,35 @@
+{
+ "generation": 0,
+ "at": 1795632410.5200505,
+ "champion": null,
+ "ladder": 0,
+ "parallel": 2,
+ "runs": {
+  "total": 147,
+  "ok": 119,
+  "failed": 6
+ },
+ "tokens": {
+  "glm": {
+   "input": 54425,
+   "output": 8132,
+   "reasoning": 33386,
+   "calls": 1
+  },
+  "by_role": {
+   "analyst": {
+    "input": 54425,
+    "output": 8132,
+    "calls": 1
+   }
+  }
+ },
+ "history": [],
+ "meta": {
+  "allocation": {
+   "llm": 2,
+   "param": 2
+  },
+  "hypotheses": []
+ }
+}
