@@ -178,7 +178,7 @@ def parse_json(text):
     return json.loads(strip_fences(text))
 
 
-def task_book(task_dir, title, goal, inputs, outputs, notes):
+def task_book(task_dir, title, goal, inputs, outputs, notes=()):
     """Write TASK.md and return its path."""
     lines = ["# %s" % title, "", "## 目标", goal, "", "## 输入（只读）"]
     lines += ["- `%s` — %s" % (path, why) for path, why in inputs]

@@ -80,8 +80,8 @@ class Daemon:
         self.state["last_beat"] = now()
         self.store.save(self.state)
 
-    def log(self, kind, **fields):
-        self.store.append(dict(kind=kind, **fields))
+    def log(self, event, **fields):
+        self.store.append(dict(fields, kind=event))
 
     def health(self):
         if self._health[1] is None or now() - self._health[0] > 30:

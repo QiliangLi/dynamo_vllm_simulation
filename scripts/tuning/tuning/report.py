@@ -10,7 +10,7 @@ import json
 import statistics
 from pathlib import Path
 
-from . import config, evaluator
+from . import config, evaluator, roles
 from .store import read_json
 
 W = list(config.WORKLOADS)
@@ -413,8 +413,8 @@ def open_tier_of(state):
 
 
 def roles_lens(state, lab):
-    index = (state["gen"]["n"] * 2 + (0 if lab == "A" else 1)) % len(config.LENSES)
-    return config.LENSES[index]
+    index = (state["gen"]["n"] * 2 + (0 if lab == "A" else 1)) % len(roles.LENSES)
+    return roles.LENSES[index]
 
 
 def map_counts(state):

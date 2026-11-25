@@ -41,8 +41,8 @@ class Search:
     def step(self):
         getattr(self, "step_" + self.state["gen"]["step"])()
 
-    def log(self, kind, **fields):
-        self.d.log(kind, gen=self.state["gen"]["n"], **fields)
+    def log(self, event, **fields):
+        self.d.log(event, gen=self.state["gen"]["n"], **fields)
 
     def cand(self, cand_id):
         return self.state["candidates"][cand_id]
@@ -66,7 +66,7 @@ class Search:
         self.state["candidates"][cand_id] = dict(id=cand_id, created=time.time(), runs={}, queued={}, gate=None,
                                                  reason="", score=None, fail={}, **fields)
         self.cand_dir(cand_id).mkdir(parents=True, exist_ok=True)
-        self.log("candidate_created", cand=cand_id, kind=fields.get("kind"))
+        self.log("candidate_created", cand=cand_id, candidate_kind=fields.get("kind"))
         return cand_id
 
     def reject(self, cand_id, reason):
@@ -150,8 +150,8 @@ class Search:
         write_champion_digest(self.d)
         write_run_digests(self.d, generation)
         allocation = self.allocation()
-        champion = self.state["candidates"].get(self.state["champion"]) if self.state["champion"] else None
-        if champion:
+        champion = self.state.get("champion")
+        if champion and self.state["candidates"].get(champion):
             for _ in range(allocation["param"]):
                 child = self.param_child(champion, generation)
                 if child:
@@ -498,7 +498,7 @@ class Search:
         task = "auditor_%s" % cand_id
         rows = [(w, r["run"]) for w in config.WORKLOADS for r in (cand["runs"].get(w) or {}).get("confirm") or []]
         expected = {w: dict(mean_ttft_s=statistics.mean(x["ttft"] for x in cand["runs"][w]["confirm"]),
-                            makespan_s=statistics.mean(x["makespan_s"] for x in cand["runs"][w]["confirm"])) for w in config.WORKLOADS}
+                            makespan_s=statistics.mean(x["makespan"] for x in cand["runs"][w]["confirm"])) for w in config.WORKLOADS}
         write_json(self.ws / "audits" / cand_id / "expected.json", expected)
         inputs = [("runs/%s/raw/report.json" % run_id, "%s 的一轮原始记录（逐请求 ttft_s、e2e_s、sent_perf_s）" % w) for w, run_id in rows]
         inputs += [("runs/%s/raw/worker_of.json" % run_id, "同上：每条请求所在实例") for w, run_id in rows]
