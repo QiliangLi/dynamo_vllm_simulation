@@ -39,6 +39,23 @@ SMOKE_WORKLOADS = (config.SMOKE_WORKLOAD, "540")
 EVENT_LIMIT = 9200
 
 
+def finding_text(item):
+    """One red-team finding as a line of text.
+
+    The reviewers write findings as objects (id, severity, point, evidence, consequence, fix) or as
+    strings. The first real rejection joined objects as if they were strings and stopped the
+    generation: the pipeline step raised on every pass until the daemon was restarted.
+    """
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        head = "、".join(str(item[key]) for key in ("id", "severity") if item.get(key))
+        body = item.get("point") or item.get("issue") or item.get("consequence") or item.get("fix") \
+            or json.dumps(item, ensure_ascii=False)
+        return "%s：%s" % (head, body) if head else str(body)
+    return str(item)
+
+
 class Search:
     def __init__(self, daemon):
         self.d = daemon
@@ -344,7 +361,8 @@ class Search:
             return True
         cand["review"] = verdict
         if verdict["verdict"] == "reject":
-            self.reject(cand_id, "红队否决：%s" % "；".join((verdict.get("case_specific") or verdict.get("cheat_paths") or ["见 review.json"]))[:500])
+            findings = verdict.get("case_specific") or verdict.get("cheat_paths") or verdict.get("risks") or ["见 review.json"]
+            self.reject(cand_id, "红队否决：%s" % "；".join(finding_text(item)[:240] for item in findings[:4])[:900])
             return True
         if verdict["verdict"] == "fix":
             return self.send_back(cand_id, verdict.get("required_fixes") or ["按 review.json 修改"], "红队要求修改")
@@ -381,7 +399,7 @@ class Search:
         rounds = cand.get("fix_rounds", 0) + 1
         cand.update(fix_rounds=rounds, fix_issues=list(issues)[:20], fix_why=why, status="revising")
         if cand["kind"] != "llm" or rounds > 3:
-            self.reject(cand_id, "%s，且无法再修改：%s" % (why, "；".join(str(i) for i in issues)[:500]))
+            self.reject(cand_id, "%s，且无法再修改：%s" % (why, "；".join(finding_text(item)[:240] for item in issues[:4])[:900]))
         return True
 
     def at_revising(self, cand_id):

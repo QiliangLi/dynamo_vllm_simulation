@@ -15,7 +15,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from tuning import config, daemon as core, report, wsl  # noqa: E402
-from tuning.search import Search  # noqa: E402
+from tuning.search import Search, finding_text  # noqa: E402
 from tuning.store import read_json, write_json  # noqa: E402
 
 W = list(config.WORKLOADS)
@@ -73,6 +73,7 @@ class GenerationFlow(unittest.TestCase):
         self.bad_lab = None
         self.event_total = None   # ledger events of a smoke replay, when the fake digest reports them
         self.smoke_seen = []
+        self.redteam_verdict = None   # what the fake red team writes, on top of its default "pass"
         self.tool_request = "一个按负载汇总候选成绩的脚本"
         self.tool_script = "print('load ttft makespan')\n"
         # fakes
@@ -116,8 +117,10 @@ class GenerationFlow(unittest.TestCase):
             state["candidates"][cand_id].update(quality="good" if good else "bad")
         elif task_id.startswith("redteam_"):
             cand_id = task_id.split("_")[1]
-            write_json(ws / "reviews" / cand_id / "review.json", dict(cheat_paths=[], case_specific=[], risks=[], zero_findings=False,
-                                                                      verdict="pass", required_fixes=[], attack=dict(name="bw10_540"), why=""))
+            review = dict(cheat_paths=[], case_specific=[], risks=[], zero_findings=False,
+                          verdict="pass", required_fixes=[], attack=dict(name="bw10_540"), why="")
+            review.update(self.redteam_verdict or {})
+            write_json(ws / "reviews" / cand_id / "review.json", review)
         elif task_id.startswith("crossval_"):
             write_json(ws / task_id.replace("crossval_", "crossval/").replace("_c", "_c").split(".json")[0] if False else ws / write_paths[0],
                        dict(opinion="看起来成立", agree=True, recommend_more_runs=False, concerns=[]))
@@ -292,6 +295,28 @@ class GenerationFlow(unittest.TestCase):
             config.CROSSVAL_ENABLED, config.MODELS["crossval"] = enabled, model
         self.assertNotIn("moonshot", config.MODELS["crossval"])
         self.assertEqual(config.NON_GLM_ROLES, frozenset())
+
+    def test_a_red_team_rejection_with_structured_findings_rejects_the_candidate_and_the_generation_goes_on(self):
+        """The first real rejection joined the findings as if they were strings; the step raised on every
+        pass and the generation stood still. Findings are objects, or strings, or both."""
+        self.redteam_verdict = dict(
+            verdict="reject",
+            case_specific=[dict(id="CS1", severity="高", kind="代码事实", point="常数按负载类的均值拟合", evidence=[], consequence="换负载就失效"),
+                           dict(id="CS2", severity="中", point="没有推导"), "一条纯文本的发现"],
+            risks=[dict(risk="空转上升")], cheat_paths=[])
+        self.drive()
+        state = self.d.state
+        first = [c for c, r in state["candidates"].items() if r.get("gen") == 1]
+        self.assertEqual([state["candidates"][c]["status"] for c in first], ["rejected", "rejected"])
+        for cand_id in first:
+            self.assertIn("红队否决：CS1、高：常数按负载类的均值拟合；CS2、中：没有推导；一条纯文本的发现",
+                          state["candidates"][cand_id]["reason"])
+        self.assertEqual(len(state["history"]), 1)
+        self.assertIsNone(state["champion"])
+        text = finding_text
+        self.assertEqual(text(dict(fix="改 test_scale.py 第 9 行")), "改 test_scale.py 第 9 行")
+        self.assertEqual(text(dict(other=1)), '{"other": 1}')
+        self.assertEqual(text(7), "7")
 
     def test_generation_survives_when_every_proposal_fails(self):
         self.bad_lab = "A"
