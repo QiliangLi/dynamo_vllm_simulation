@@ -132,7 +132,7 @@ class CandidateCollection(unittest.TestCase):
             daemon.state["phase"] = "run"
             daemon.state["candidates"]["c0002"] = dict(id="c0002", kind="llm", gen=1, status="screen", runs={}, queued={}, fail={})
             failed = dict(status="failed", error="RunError: replay exited with 1", summary=None,
-                          log_tail="replayed 540: ok=540\nTraceback (most recent call last):\n  File x.py, line 85\n    rid = aliases[uuid.UUID(match.group()).hex]\nKeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'\n")
+                          log_tail="replayed 540: ok=540\nTraceback (most recent call last):\n  File \"/root/tuning/runs/r00066/harness/sim/stack/load_observation.py\", line 85, in with_local_observations\n    rid = aliases[uuid.UUID(match.group()).hex]\nKeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'\n")
             for _ in range(2):
                 run_id = daemon.new_run("540", "candidate", "screen", cand="c0002", gen=1)
                 daemon.state["queue"].remove(run_id)
@@ -140,7 +140,8 @@ class CandidateCollection(unittest.TestCase):
             # The replacement asked for by the first failure is still queued.
             self.assertEqual(len(daemon.state["queue"]), 1)
             cand = daemon.state["candidates"]["c0002"]
-            self.assertIn("540 screen：RunError: replay exited with 1 | KeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'", cand["run_failed"])
+            self.assertIn("540 screen：RunError: replay exited with 1 | load_observation.py:85 with_local_observations: "
+                          "KeyError: '9ee0acf28ccf4bae9dfc651ecb15bc94'", cand["run_failed"])
             json.dumps(daemon.state)
         finally:
             shutil.rmtree(root, ignore_errors=True)

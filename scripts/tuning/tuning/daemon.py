@@ -8,6 +8,7 @@ safety reasons that need a human.
 """
 import hashlib
 import os
+import re
 import subprocess
 import threading
 import time
@@ -44,7 +45,13 @@ def failure_reason(result):
     error = str(result.get("error", "")).strip()
     lines = [line.strip() for line in str(result.get("log_tail", "")).splitlines() if line.strip()]
     tail = next((line for line in reversed(lines) if line not in error), "")
-    return ("%s | %s" % (error, tail[-240:])) if tail else error
+    # The frame under the exception: "KeyError: ..." alone does not say which check refused the replay.
+    frame = next((match.groupdict() for line in reversed(lines) for match in [FRAME.search(line)] if match), None)
+    where = "%s:%s %s: " % (frame["path"].rsplit("/", 1)[-1], frame["line"], frame["func"]) if frame else ""
+    return ("%s | %s%s" % (error, where, tail[-200:])) if tail else error
+
+
+FRAME = re.compile(r'File "(?P<path>[^"]+)", line (?P<line>\d+), in (?P<func>\w+)')
 
 
 STRESS_BASELINE_RUNS = 3
