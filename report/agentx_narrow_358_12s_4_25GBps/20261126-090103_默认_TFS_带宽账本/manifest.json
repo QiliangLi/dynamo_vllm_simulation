@@ -1,0 +1,303 @@
+{
+  "report_id": "agentx_narrow_358_12s_4_25GBps/20261126-090103_默认_TFS_带宽账本",
+  "benchmark_id": "agentx_narrow_358_12s_4_25GBps",
+  "study_id": "bandwidth-ledger-20261125",
+  "created_at": "2026-11-26T09:01:03+08:00",
+  "experiment_dates": [
+    "2026-11-25",
+    "2026-11-26"
+  ],
+  "schemes": [
+    {
+      "id": "light",
+      "label": "默认全轻读"
+    },
+    {
+      "id": "tfs",
+      "label": "普通 TFS"
+    },
+    {
+      "id": "bandwidth",
+      "label": "带宽账本 TFS"
+    }
+  ],
+  "compatibility": "matched_input_and_model",
+  "benchmark_input_sha256": "ace4a4a3d4923770f295a13ccb42058bfa17ffdb7f0a93f1d00051a6813b74d9",
+  "simulations_run": 0,
+  "performance_recomputed": false,
+  "source_execution": {
+    "formal_runs": 3,
+    "repeats_per_policy": 1
+  },
+  "source_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "fbbcc9fc24053fbc26c08f2dd6d21dae4a6eeba935c1462d1ccc1d617377c19d",
+      "bytes": 51694
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "05433ff6dfa2e6f2ab2379428384c3f41c2f8a8471a91bfee847607b9ff23a87",
+      "bytes": 168342
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "1fa714a710b0e8c2a7a4d9be5168f3ee9d71ba3838d53d7dd39c7486220d6538",
+      "bytes": 96802
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "bf175355e973fd2fc29c1ca39a2d7c753503f8ac683ac873eecee02798934383",
+      "bytes": 386309
+    },
+    "figure/05_cdf.png": {
+      "sha256": "98e05b71c8356df0c2071d47254c69ffd342ad0a75ea06e18dcb6211cfd1f853",
+      "bytes": 90292
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "8dd5d6982f85e905935ac41ce09ed561699327fa51bef7bb69c8683609104ed2",
+      "bytes": 146092
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "9f716942da59766bec3ff8be1a133b59d7e13eec9d0b6afe1c3b1d45ac401a11",
+      "bytes": 58816
+    },
+    "report.md": {
+      "sha256": "4bdd25c878b9310412b91fc4d75fa223685c6a9099c71b4fd08ec72a37b3521b",
+      "bytes": 9378
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "27dc1a1069ec960279eb23c3549450bbfb1839b7a0779b9081035e5c99f4d103",
+      "bytes": 172094
+    },
+    "report_data/cdf.csv": {
+      "sha256": "0c7bf6021263475112588b3f0702201985c75bde1dde814e88f258cc0a969302",
+      "bytes": 115529
+    },
+    "report_data/client_comparison.csv": {
+      "sha256": "17d0da2b5b76d7e70a6eb0fe82e21c6101a378b73aa4b8971efe3a8fd9953e8d",
+      "bytes": 1705
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "cee277221f41f2ce4ff2d8c3f9d67491ace7cef8ccdf0077dde364fa6e2b1149",
+      "bytes": 1100
+    },
+    "report_data/configuration.json": {
+      "sha256": "48b8591661fc5b537c095582fd4e5161b1e7b8325e15a8105e55d31008fd9ac7",
+      "bytes": 6223
+    },
+    "report_data/dataset.json": {
+      "sha256": "15d06b48b7d56440a0d6342d4c2d53a5eea6fe1298cc18c04899633ee366db90",
+      "bytes": 6524129
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "e945e8096de36e66622550c0c7ff1b1527200f389dfdbeff086732e9418b0bf4",
+      "bytes": 1270
+    },
+    "report_data/request_wait_details.csv": {
+      "sha256": "968092f7d7a5d6f752ac4fb9b55a05c03ada2fae789b9685d9a101db4a757874",
+      "bytes": 151033
+    },
+    "report_data/requests.csv": {
+      "sha256": "f070ed589dd9f4df2bcba4ab0f99d02e493db762b624ea3672055e41bbf3dddf",
+      "bytes": 227549
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "85cbda724b1062e52b2276dc8853ee863b855c2f19d870c8a7af084f33d92715",
+      "bytes": 1333
+    },
+    "report_data/validation.json": {
+      "sha256": "62ca26c8d4e33592542e23ac87bd19c30ff4d6a296c16e8915d36c914ddff053",
+      "bytes": 19537
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "3f4b9fa71b1f7bf5b135730003685174b4c9bcdf3a062086498ce866ed14f6b7",
+      "bytes": 11419
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "2ed1b0d3a9f1eaf463bc5a7afd65bd3723ae986ce734aca3cb637c0309605b4c",
+      "bytes": 25398
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "2d37c4c6bd9d39e4118f121e25982a9c885893db4ebd66bca1368801ad7868ec",
+      "bytes": 18405
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    }
+  },
+  "figures": [
+    {
+      "path": "figure/01_slo_bar.png",
+      "source_sha256": "fbbcc9fc24053fbc26c08f2dd6d21dae4a6eeba935c1462d1ccc1d617377c19d",
+      "width": 1888,
+      "height": 992
+    },
+    {
+      "path": "figure/02_full-sort-ms.png",
+      "source_sha256": "05433ff6dfa2e6f2ab2379428384c3f41c2f8a8471a91bfee847607b9ff23a87",
+      "width": 2640,
+      "height": 1248
+    },
+    {
+      "path": "figure/03_util_box_heatmap.png",
+      "source_sha256": "1fa714a710b0e8c2a7a4d9be5168f3ee9d71ba3838d53d7dd39c7486220d6538",
+      "width": 2240,
+      "height": 848
+    },
+    {
+      "path": "figure/04_bandwidth.png",
+      "source_sha256": "bf175355e973fd2fc29c1ca39a2d7c753503f8ac683ac873eecee02798934383",
+      "width": 2336,
+      "height": 1360
+    },
+    {
+      "path": "figure/05_cdf.png",
+      "source_sha256": "98e05b71c8356df0c2071d47254c69ffd342ad0a75ea06e18dcb6211cfd1f853",
+      "width": 1632,
+      "height": 960
+    },
+    {
+      "path": "figure/06_cdf_by_class.png",
+      "source_sha256": "8dd5d6982f85e905935ac41ce09ed561699327fa51bef7bb69c8683609104ed2",
+      "width": 2880,
+      "height": 752
+    },
+    {
+      "path": "figure/07_arrival_lateness.png",
+      "source_sha256": "9f716942da59766bec3ff8be1a133b59d7e13eec9d0b6afe1c3b1d45ac401a11",
+      "width": 1632,
+      "height": 800
+    }
+  ],
+  "source_visual_reviewed": true,
+  "standard_dataset": "report_data/dataset.json.gz",
+  "report_bin_ms": 50.0,
+  "files": {
+    ".gitattributes": {
+      "sha256": "e97602ab9cac70102245345c5ab0fc9830df8b17f1072b188265a662a3a547ae",
+      "bytes": 20
+    },
+    "report.html": {
+      "sha256": "4b5f446fccdd60dcf8bc2f33a08ead4a3e928a3df7b62489ef9dd552f28996fc",
+      "bytes": 1350094
+    },
+    "report.md": {
+      "sha256": "8dd871c1bca73285e56210fcbfe3ef876d6efd6933f5058bbbc3a225f37f673b",
+      "bytes": 9463
+    },
+    "figure/01_slo_bar.png": {
+      "sha256": "fbbcc9fc24053fbc26c08f2dd6d21dae4a6eeba935c1462d1ccc1d617377c19d",
+      "bytes": 51694
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "05433ff6dfa2e6f2ab2379428384c3f41c2f8a8471a91bfee847607b9ff23a87",
+      "bytes": 168342
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "1fa714a710b0e8c2a7a4d9be5168f3ee9d71ba3838d53d7dd39c7486220d6538",
+      "bytes": 96802
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "bf175355e973fd2fc29c1ca39a2d7c753503f8ac683ac873eecee02798934383",
+      "bytes": 386309
+    },
+    "figure/05_cdf.png": {
+      "sha256": "98e05b71c8356df0c2071d47254c69ffd342ad0a75ea06e18dcb6211cfd1f853",
+      "bytes": 90292
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "8dd5d6982f85e905935ac41ce09ed561699327fa51bef7bb69c8683609104ed2",
+      "bytes": 146092
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "9f716942da59766bec3ff8be1a133b59d7e13eec9d0b6afe1c3b1d45ac401a11",
+      "bytes": 58816
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "27dc1a1069ec960279eb23c3549450bbfb1839b7a0779b9081035e5c99f4d103",
+      "bytes": 172094
+    },
+    "report_data/cdf.csv": {
+      "sha256": "0c7bf6021263475112588b3f0702201985c75bde1dde814e88f258cc0a969302",
+      "bytes": 115529
+    },
+    "report_data/client_comparison.csv": {
+      "sha256": "17d0da2b5b76d7e70a6eb0fe82e21c6101a378b73aa4b8971efe3a8fd9953e8d",
+      "bytes": 1705
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "cee277221f41f2ce4ff2d8c3f9d67491ace7cef8ccdf0077dde364fa6e2b1149",
+      "bytes": 1100
+    },
+    "report_data/configuration.json": {
+      "sha256": "48b8591661fc5b537c095582fd4e5161b1e7b8325e15a8105e55d31008fd9ac7",
+      "bytes": 6223
+    },
+    "report_data/dataset.json.gz": {
+      "sha256": "25f1e7065f3cb90fe6629e5161fdb87663e29d41ad366045c892cbda0dc26ae6",
+      "bytes": 926778
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "e945e8096de36e66622550c0c7ff1b1527200f389dfdbeff086732e9418b0bf4",
+      "bytes": 1270
+    },
+    "report_data/requests.csv": {
+      "sha256": "f070ed589dd9f4df2bcba4ab0f99d02e493db762b624ea3672055e41bbf3dddf",
+      "bytes": 227549
+    },
+    "report_data/request_wait_details.csv": {
+      "sha256": "968092f7d7a5d6f752ac4fb9b55a05c03ada2fae789b9685d9a101db4a757874",
+      "bytes": 151033
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "85cbda724b1062e52b2276dc8853ee863b855c2f19d870c8a7af084f33d92715",
+      "bytes": 1333
+    },
+    "report_data/source_validation.json": {
+      "sha256": "62ca26c8d4e33592542e23ac87bd19c30ff4d6a296c16e8915d36c914ddff053",
+      "bytes": 19537
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/README.md": {
+      "sha256": "b89f25b46ce8241bebc342078f782b971b59b9fedd39c82b91277fcca8a44f1a",
+      "bytes": 383
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "3f4b9fa71b1f7bf5b135730003685174b4c9bcdf3a062086498ce866ed14f6b7",
+      "bytes": 11419
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "2ed1b0d3a9f1eaf463bc5a7afd65bd3723ae986ce734aca3cb637c0309605b4c",
+      "bytes": 25398
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "2d37c4c6bd9d39e4118f121e25982a9c885893db4ebd66bca1368801ad7868ec",
+      "bytes": 18405
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    }
+  }
+}

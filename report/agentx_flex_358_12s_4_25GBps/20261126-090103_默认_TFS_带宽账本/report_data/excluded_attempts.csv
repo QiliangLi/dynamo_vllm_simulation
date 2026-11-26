@@ -1,0 +1,2 @@
+﻿mode,run,n_total,n_ok,reason,frontend_start,frontend_stop,run_log_sha256,client_report_sha256
+tfs,agentx-flex-tfs-failed-suspend,358,0,跨宿主休眠，客户端回放失败,2026-11-25T18:05:48.889316+08:00,2026-11-26T08:42:34.975913+08:00,ea762868326383c11057890833bbe9f6bd92a5a83deb35296e87f4e954e1285e,75832810365ce205d6e49ce9aa3dbb0ad06484761ee3363c90396379dcabd25c

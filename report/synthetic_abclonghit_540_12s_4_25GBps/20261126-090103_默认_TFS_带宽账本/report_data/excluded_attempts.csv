@@ -1,0 +1,2 @@
+﻿mode,run,n_total,n_ok,reason,frontend_start,frontend_stop,run_log_sha256,client_report_sha256
+bandwidth,540-bandwidth-superseded-float,540,540,小数带宽版本曾通过，随后统一按整数 B/s 最终版本重跑,2026-11-26T08:48:19.096226+08:00,2026-11-26T08:49:05.421642+08:00,4964f18e463aaff51c24a008654b6699ea14b4d16f7f5620fcc57d8eb0c687ac,21be688173086a5aa0a0e3e7da1e40dfc1fb3759f35a83d4dbf5604b8220b893

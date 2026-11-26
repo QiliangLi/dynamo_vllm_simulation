@@ -1,0 +1,388 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1080,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1248
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "默认全轻读": "#888888",
+    "普通 TFS": "#55A868",
+    "带宽账本 TFS": "#9974A5"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 2.7217877109999336,
+  "bin_ms": 50.0,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "light": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/admission.final.json": {
+        "sha256": "81ec69de48a900bc22b59bd49c9a412f76f9e4b6e28dce19ef9112abf3d3193a",
+        "bytes": 2039649
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/storage.final.json": {
+        "sha256": "e55d6e7532409f53d55e44ddd7f5d70ec7a27cc2a50172de15f0a751c7022bcd",
+        "bytes": 4879313
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/report.json": {
+        "sha256": "c9737cc903415dd99456c29b666a9af9239066c6713138d0674614bf6798f939",
+        "bytes": 141172
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker0.steps.jsonl": {
+        "sha256": "95545ca83d0c0e3a56bd71b6a591ad22de68cf80b5710d53c2c8df2c1ec6fb33",
+        "bytes": 1290279
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker1.steps.jsonl": {
+        "sha256": "5a65fc0f58808b8e5a09c6646d897508441fcdb64729b1e786b9dc9d14cba1d7",
+        "bytes": 1148148
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker2.steps.jsonl": {
+        "sha256": "ffe1ebcf599ac1a0d9318aea9bfdd5605c4ece9d0d20afe815d769479fed7f3f",
+        "bytes": 1159679
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker3.steps.jsonl": {
+        "sha256": "d28e14f864a91dd6d43dcc1b7a330309810bab2df6cb042691e7ffaad8ca6be6",
+        "bytes": 1137452
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/request_ids.json": {
+        "sha256": "23fa8f3c7d0fde70c6b034a1703e4354ecfd4f4a688557a37445d2ac9752081c",
+        "bytes": 21135
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/read_admission.check.json": {
+        "sha256": "d4ab10233aa65e552d54251dbe73d4d91f4ed639ed9b7b68df295f01538e478e",
+        "bytes": 436
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/check.json": {
+        "sha256": "3a7ba9fc0206407d1304436be625341612f8e211dac57aa61afa2c1610cce9e3",
+        "bytes": 23268
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/layer_check.json": {
+        "sha256": "90f31de3839c4313fe78e704cc56c083c194d56808b2d003920afc2af1a3daae",
+        "bytes": 322
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/frontend.log": {
+        "sha256": "615510edf8f4df066332aafe92737151ecc0a2d20eb36a4c1fc34792f0554037",
+        "bytes": 2833471
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker2.read_admission.jsonl": {
+        "sha256": "f36de4dec0d6adb0f75ea527904df1ab8ab76436bbe42ec7daaae2e098ab838a",
+        "bytes": 22494
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker1.read_admission.jsonl": {
+        "sha256": "bf949f729224df0d8969d793ce84b37e837d706beca04d4377a1b329327cf57a",
+        "bytes": 22750
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker0.read_admission.jsonl": {
+        "sha256": "4f2bb96d8934130c9178d618ba8614461a48fc9e68e4c170180801fb434504f3",
+        "bytes": 25094
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-light/run/worker3.read_admission.jsonl": {
+        "sha256": "2778c6099649bf113c18be925324a8b3e0159d32b3f88c65585fa72fbe87bc48",
+        "bytes": 21779
+      }
+    },
+    "tfs": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/admission.final.json": {
+        "sha256": "8d334a70cd07dfa46a11c4bf0d0335110049cd7ae7f460aa246dcb8b183aad95",
+        "bytes": 2376001
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/storage.final.json": {
+        "sha256": "c6e1dcffc1e1f03337d5213e444e9ec6459fd89cdf8102a78ed40e042dfa566d",
+        "bytes": 4877171
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/report.json": {
+        "sha256": "2a42b72474e64add881f024a82520c86ea1c99a6b389b190a13db37d497a85ac",
+        "bytes": 141097
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker0.steps.jsonl": {
+        "sha256": "4e99eddf039825a94a08748ddfbfea457928cf3d26704bed80b53a39bacfe2c1",
+        "bytes": 892313
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker1.steps.jsonl": {
+        "sha256": "b0e4be3ad7b416d99b6f238c0be19ea70f9d92e259322b594d5e16c6faf1070f",
+        "bytes": 1179706
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker2.steps.jsonl": {
+        "sha256": "dcc0d970087557ca711c2423532774507f1831a7a75b1c1405782ad041d8c3aa",
+        "bytes": 1436687
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker3.steps.jsonl": {
+        "sha256": "ed4355a55cdce1d06b1fb2a384ffc018a4ceff06dbcc563050e7e9c0d244c3eb",
+        "bytes": 1226802
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/request_ids.json": {
+        "sha256": "350a598adc54e4f73dff2854604d7c851ca827de9008243e5f670a8b00bd81bf",
+        "bytes": 21135
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/read_admission.check.json": {
+        "sha256": "1c0e377b73b26ae4dd0f82f4a9d11b9b0b21d040cf5e541f51016f1060dee59e",
+        "bytes": 480
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/check.json": {
+        "sha256": "5486eee9af8cecf193b6e40435ef60550215bb645e79b4448c88691ce4eac47e",
+        "bytes": 23269
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/layer_check.json": {
+        "sha256": "be24a1d01f1ba3f0e8452486af2d321d9c3254942c411159233e0e1627ec41cc",
+        "bytes": 323
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/frontend.log": {
+        "sha256": "a3a972f98ece854c0fadf1d6565a61f2682c968cb658d5d8aaf1931028018d3f",
+        "bytes": 2844884
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker2.read_admission.jsonl": {
+        "sha256": "4768a10986f54f896d5ccac2c2591830070eddb8df741a4f7aacad5ba0c764a9",
+        "bytes": 69858
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker1.read_admission.jsonl": {
+        "sha256": "e5ee0c23a69b032fcda6947101c3e5a3277c0a07f26281f072acf2780a623ff1",
+        "bytes": 44830
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker0.read_admission.jsonl": {
+        "sha256": "9515d1a70ad1f1161dec130dcbea2f9ca3331a6882034547a9a0429ef4b0aa8d",
+        "bytes": 61480
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-tfs/run/worker3.read_admission.jsonl": {
+        "sha256": "69bce306b4c1e27afa0dab1c86d9e9b39356df422b337b35606ad41ac995369f",
+        "bytes": 58873
+      }
+    },
+    "bandwidth": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/config.json": {
+        "sha256": "40cce5c67b98ff4626f37ae3ee5e10ce1641b1fd86313b1e8a1b83184b80d487",
+        "bytes": 1618
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/admission.final.json": {
+        "sha256": "91691fe12f8797095141a31b750ebad9d2b9a252bff203c934601262a461d9dc",
+        "bytes": 2425957
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/storage.final.json": {
+        "sha256": "70a8abc4ffc04a826d2db400a790eda5e986827a4eacb7ac581fc0a4570bd456",
+        "bytes": 4881453
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/report.json": {
+        "sha256": "2e002254a859f49600ad968b341636b037e5c841640e220c6b404953c4cbca20",
+        "bytes": 141657
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker0.steps.jsonl": {
+        "sha256": "a9dbce4f531130773726ad54701649f09eb3fd3cd6da101404c9f94f905a83a4",
+        "bytes": 1001246
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker1.steps.jsonl": {
+        "sha256": "92a10442f3ee8831cd5fc5a555107321b35fb867439ed3296e7a9a81a24cc499",
+        "bytes": 1480790
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker2.steps.jsonl": {
+        "sha256": "e4ebd1e29fc50c216e8fb2437bcbb5a44311de2b044bb7cb49a481172f02411b",
+        "bytes": 1165306
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker3.steps.jsonl": {
+        "sha256": "25107a318008d7390410465498e52bc857450a992cd96d9cb9162b4f627335c4",
+        "bytes": 1111237
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/request_ids.json": {
+        "sha256": "284c930e5c111e2327a29eff3c6c7e23e2f4c405c765d3b6d888f557f073ba89",
+        "bytes": 21135
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/read_admission.check.json": {
+        "sha256": "a1ccaa14a0dd779bb60467a4a3551ebb4f5e770fbf4f3c12206012c8fba09a0a",
+        "bytes": 640
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/check.json": {
+        "sha256": "5b96bbd6b08d89b94bf43ab62978f49bb0bfa657aec58911dc8be36b8683a205",
+        "bytes": 23274
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/layer_check.json": {
+        "sha256": "b8bd2b57d3a0a84cbbef87702c1b9a6b96be317c9bf21842c33fae3a64ee880f",
+        "bytes": 323
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/frontend.log": {
+        "sha256": "95d9d814b3f6c07dbc9bcdda0da8145ee7e20e1fafd46d2cd11e68eb60bf3ff4",
+        "bytes": 2901801
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker2.read_admission.jsonl": {
+        "sha256": "45a60508fd6cca0cd3a159c91774a87626b0ffedfdcada9b468520bbd8d8ec08",
+        "bytes": 46544
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker1.read_admission.jsonl": {
+        "sha256": "5a66bed64bba0e74f8289b9318aa193acd662439661cad903b0e8ef6aedaa553",
+        "bytes": 61516
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker0.read_admission.jsonl": {
+        "sha256": "010156e230dc15e7dcb51ea422809f68843c394049708cebd3b0a360a1d5df31",
+        "bytes": 40029
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/mooncake-bandwidth/run/worker3.read_admission.jsonl": {
+        "sha256": "16b72b36bf66034843c2e02337b4bd5846e096fa50951c4a2fb3c74147eafc8e",
+        "bytes": 49389
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/reports_final/mooncake/dataset.json",
+    "sha256": "6daa7974c0c7139835d97294d44b6751779784e87fa9ba12db0a762ad8fbfecf"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "f1fb1e7d2ff262b848d9db94198b59e58c8d7ab593868e2a2a9496faed86f02f",
+      "bytes": 52363
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "305127c75801ca8425af20957268a51e89e61dd08c55bc8f6fd3f254de1b104e",
+      "bytes": 173684
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "0aa23b29cf04d987c2ce3833aa5371b247a1100a0c5bc2b55cd42b3d18dc0bb1",
+      "bytes": 96189
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "14cafc1fed9be94b5c025e45b12efa67fc87ef867362dadf5ac8c1252135288e",
+      "bytes": 224898
+    },
+    "figure/05_cdf.png": {
+      "sha256": "eba8ad85dffc5fef0b7f647ae7410b5c5e6b7110c5e29e42fbf414dfe8f7a3f2",
+      "bytes": 98027
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "b81f651efd9e7a77e4d2398ddd68406080f7eb88c32ef469bcae38de9fa918eb",
+      "bytes": 141865
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "c092b34798ab52690b52412d73f5106205448c66c059e05a0c8a143bae60d790",
+      "bytes": 73837
+    },
+    "report.md": {
+      "sha256": "89e6924b6d3447cda57fb7b50c0edb1856e2c5ccbcc6a3d23e9a910b98475de8",
+      "bytes": 9706
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "aed9771aec680d72dd092c8800cf8ea95d60b5d0802fc34c48212b60d8bd58ee",
+      "bytes": 63559
+    },
+    "report_data/cdf.csv": {
+      "sha256": "d2db82bc262ccd6069f6a83a491d4d51db37d66db4d7fbf3ac106998a3066380",
+      "bytes": 114721
+    },
+    "report_data/client_comparison.csv": {
+      "sha256": "1a2ac7eb679eb06df5cc310de5493e5f9c628af797a358841e02b7efe2f02394",
+      "bytes": 1730
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "cc904b2419e8f1063f4d6b71052f19df2eba4d19f4b56fe17e430e5e0c83d94c",
+      "bytes": 1046
+    },
+    "report_data/configuration.json": {
+      "sha256": "8376dc67184057cce50211157ac483e5dfb39166cc2a07386f760512dd64c675",
+      "bytes": 6223
+    },
+    "report_data/dataset.json": {
+      "sha256": "6daa7974c0c7139835d97294d44b6751779784e87fa9ba12db0a762ad8fbfecf",
+      "bytes": 6034915
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "3e0c96cc0fb2c1b8ec73081df201009eb2ecda3c2fd6e4b05ead515d44536bf9",
+      "bytes": 1263
+    },
+    "report_data/excluded_attempts.csv": {
+      "sha256": "03891d7f8930793dbe9c3d910096ac1e1079430eff316f2c485f009d00149d0f",
+      "bytes": 412
+    },
+    "report_data/request_wait_details.csv": {
+      "sha256": "10781a081e5584e10315d4e5e26751c929c60bfd592d507580fbb97c7fe65111",
+      "bytes": 158361
+    },
+    "report_data/requests.csv": {
+      "sha256": "9488fb6429cb2685da745293e8775c48ccf5e3d490f843011d8c3df7aa854f6b",
+      "bytes": 226087
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "11cd010b4ea69339e7a1f8d53379e284d0620057c54b2237585347beab1a9719",
+      "bytes": 1324
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "3f4b9fa71b1f7bf5b135730003685174b4c9bcdf3a062086498ce866ed14f6b7",
+      "bytes": 11419
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "2ed1b0d3a9f1eaf463bc5a7afd65bd3723ae986ce734aca3cb637c0309605b4c",
+      "bytes": 25398
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "2d37c4c6bd9d39e4118f121e25982a9c885893db4ebd66bca1368801ad7868ec",
+      "bytes": 18405
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    }
+  }
+}

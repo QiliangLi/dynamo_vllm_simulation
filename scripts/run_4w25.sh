@@ -4,7 +4,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 dv="$repo/dynamo_vllm_cpu_sim"
 if [[ $# != 3 ]]; then
-    echo "Usage: bash scripts/run_4w25.sh 408|540|mooncake|agentx-narrow|agentx-flex light|tfs|a_cap1 NEW_OUTPUT_DIR" >&2
+    echo "Usage: bash scripts/run_4w25.sh 408|540|mooncake|agentx-narrow|agentx-flex light|tfs|bandwidth|a_cap1 NEW_OUTPUT_DIR" >&2
     exit 2
 fi
 case "$1" in
@@ -17,7 +17,7 @@ case "$1" in
 esac
 arm=$2
 case "$1:$arm" in
-    *:light|*:tfs|540:a_cap1|agentx-*:a_cap1) ;;
+    *:light|*:tfs|*:bandwidth|540:a_cap1|agentx-*:a_cap1) ;;
     *) echo "Unsupported workload/policy: $1/$arm" >&2; exit 2 ;;
 esac
 python=${DV_PYTHON:-$dv/.venv/bin/python}
@@ -34,12 +34,28 @@ ln -s "$upstream" "$harness/upstream"
 for item in configs minimax_prefill source-fingerprints.json; do ln -s "$dv/$item" "$harness/$item"; done
 "$python" "$harness/scripts/apply_ascend_patch.py"
 patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/stack.patch"
-if [[ $arm != tfs ]]; then patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/$arm.patch"; fi
+config="$out/input/config.json"
+if [[ $arm == bandwidth ]]; then
+    patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/bandwidth_central.patch"
+    patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/bandwidth_scheduler.patch"
+    "$python" - "$config" "$out/bandwidth-config.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+config["admission"]["bandwidth_permits"] = True
+Path(sys.argv[2]).write_text(json.dumps(config, indent=2) + "\n")
+PY
+    config="$out/bandwidth-config.json"
+elif [[ $arm != tfs ]]; then
+    patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/$arm.patch"
+fi
 export PYTHONHASHSEED=0 HF_HUB_OFFLINE=1 VLLM_PLUGINS='' TMPDIR=/tmp
 export DYN_TCP_RPC_HOST=127.0.0.1 DYN_TCP_REQUEST_TIMEOUT=60 DYN_TFS_CONTROL_TIMEOUT_MS=3000
 echo "$bench / $arm -> $out/run"
 cd "$harness"
-"$python" scripts/run_tfs_stack.py --config "$out/input/config.json" --trace "$out/input/trace.jsonl" \
+"$python" scripts/run_tfs_stack.py --config "$config" --trace "$out/input/trace.jsonl" \
     --workers 4 --mode tfs --no-idle-bypass --server-dynamo "$server" --output "$out/run" > "$out/run.log" 2>&1 || {
     tail -n 15 "$out/run.log" >&2
     exit 1

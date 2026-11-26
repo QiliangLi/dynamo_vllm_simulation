@@ -1,0 +1,388 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 3,
+  "requests": 1620,
+  "figure_count": 7,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      1248
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth.png": [
+      2336,
+      1360
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      2880,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "默认全轻读": "#888888",
+    "普通 TFS": "#55A868",
+    "带宽账本 TFS": "#9974A5"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 2.8414703880000616,
+  "bin_ms": 50.0,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "light": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/admission.final.json": {
+        "sha256": "ece8f9431853fece397d2a3ae01eee5ab9181aeff3b27aa692307c87439bed0c",
+        "bytes": 3029813
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/storage.final.json": {
+        "sha256": "afa5c2f09ea8d713529ed435d25ff3960c71d6bcd368814611a41673d00cb9b4",
+        "bytes": 4166923
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/report.json": {
+        "sha256": "46f32cbd7e574ae14683e1c5ecf116f2cb60de337a054aaa2887293435d90d34",
+        "bytes": 210911
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker0.steps.jsonl": {
+        "sha256": "007ac93a20991cd3d25cde5fd8afbcfbe70544011e9e5388d83649df8b5885b6",
+        "bytes": 1495737
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker1.steps.jsonl": {
+        "sha256": "5db22c4c0a1fc088a23a3b5d69ab09abaa3c832777ec86aef6106cf776bdc8f1",
+        "bytes": 1463747
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker2.steps.jsonl": {
+        "sha256": "9c8023163187080ce6e336aa389f7af9efe177fbeda7b132917f4ce666739a85",
+        "bytes": 1472317
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker3.steps.jsonl": {
+        "sha256": "27f0ab3c024ca8c79b327f86efe1de840bea409182e0b370eb1505430b26fd99",
+        "bytes": 1448226
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/request_ids.json": {
+        "sha256": "8668c4b574f968903ed19db89619ae2c9e8e7e55d65854768e9c013f9797a1f1",
+        "bytes": 25923
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/read_admission.check.json": {
+        "sha256": "dcc69d98c10cfcb986ae0577a2c8378e87b1cabb5185c4999e9d625a99b25a69",
+        "bytes": 436
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/check.json": {
+        "sha256": "5156d9cf90b87f83765f4c2e970ce70d87e062e7251a9795bb6ef07f4ebb3c94",
+        "bytes": 34424
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/layer_check.json": {
+        "sha256": "1e24ee23c81f060cef31bc78a051f2e03b4764a1073a97977b10f4304d41c61b",
+        "bytes": 322
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/frontend.log": {
+        "sha256": "7c8dad35729dc50ae3efe4a3f98ce59b65468a813f1fb6d2c577cbcf7f8e104d",
+        "bytes": 4240304
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker2.read_admission.jsonl": {
+        "sha256": "697c82f024869b5bd3439811999ec827966f162589628f0b2bf7ff3aaccb14a5",
+        "bytes": 34683
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker1.read_admission.jsonl": {
+        "sha256": "83b0d18653eda0ad7c36114add6dc1a733a5774d721d5879bcbbdc192ddf8b0f",
+        "bytes": 34194
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker0.read_admission.jsonl": {
+        "sha256": "74d9ed2b07b3c62fe73a7091305c410ff74f7af347f6df28dec8471673600d6f",
+        "bytes": 35638
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-light/run/worker3.read_admission.jsonl": {
+        "sha256": "21e7262ef3d203145647b66fcc9329e46d274ad86b7cb2a58be0143a9d8bdeb9",
+        "bytes": 32239
+      }
+    },
+    "tfs": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/admission.final.json": {
+        "sha256": "f5283282c23a3dd4fefd130a017922719992e507715e4debba4d1a759e587c35",
+        "bytes": 3970232
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/storage.final.json": {
+        "sha256": "442d38b7e4a9896e6ac2681b90bf57a3e974e847fc01a611c90dc68bc19afc03",
+        "bytes": 4167231
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/report.json": {
+        "sha256": "9f2565bc0b196f1987cab669534f16c2ef012340cff4c820464e6824c8bee7b5",
+        "bytes": 210795
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker0.steps.jsonl": {
+        "sha256": "3e2f46d3adbb33fd5b31adefaaee8d3b5c7c708218d4acd00d4522c413451b55",
+        "bytes": 1537992
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker1.steps.jsonl": {
+        "sha256": "4fb3aa91dfcea3512d7316422d37657a76f2cf51edb17901acbea85671eb2077",
+        "bytes": 1398176
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker2.steps.jsonl": {
+        "sha256": "9301f66bf26da9a6a211a1e9ee1908e5da859fd651dd07ee478dd3b4fbc9e9bd",
+        "bytes": 1468680
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker3.steps.jsonl": {
+        "sha256": "4c2bb1d221135c1666fcc46b3d3a7197045e102d47c269f9d077355dae81a195",
+        "bytes": 1475027
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/request_ids.json": {
+        "sha256": "6d25ac03f550413b3e81dc578dea9314cbc0fc17a6bd90ab7566fb220920758d",
+        "bytes": 25923
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/read_admission.check.json": {
+        "sha256": "8eece5d3267cbe220809649b500cbbb616098615612cd736bff67f347d37fb61",
+        "bytes": 489
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/check.json": {
+        "sha256": "a4579163b33a8a0c08775c9a86d1e146802051761aaff379e5cf4727b1aa29c8",
+        "bytes": 34425
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/layer_check.json": {
+        "sha256": "99719cf1d8c5d45ada88efc64e41ac95788d286adbccd7f0364af21c1a4a0c50",
+        "bytes": 321
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/frontend.log": {
+        "sha256": "a52cb186f4ccdebabfa4dfebc6886695dfbb6111f5ee95ea8c7aa04a750195df",
+        "bytes": 4543634
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker2.read_admission.jsonl": {
+        "sha256": "902027ec39132e8d41e262d0d88814d251c7661a93a20826ee2220d3d6a28a88",
+        "bytes": 84266
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker1.read_admission.jsonl": {
+        "sha256": "0210d433f0ef58705c8262443fd0f5d515b67eaedd1f193b43c9584e923df82d",
+        "bytes": 80529
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker0.read_admission.jsonl": {
+        "sha256": "f2191741e7f337d24a42ea4d4a09bcbac801bc7f939365270544a44c333908b0",
+        "bytes": 85693
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-tfs/run/worker3.read_admission.jsonl": {
+        "sha256": "3b689821cf134d3be4b71af2989d53de8f37aa6a0311b0d9160e33f893a43200",
+        "bytes": 84922
+      }
+    },
+    "bandwidth": {
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/config.json": {
+        "sha256": "40cce5c67b98ff4626f37ae3ee5e10ce1641b1fd86313b1e8a1b83184b80d487",
+        "bytes": 1618
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/admission.final.json": {
+        "sha256": "045e2378c8f6673a72e934abbd433f6522f9b44a2d06ca3ed2f97b81802e190c",
+        "bytes": 3381281
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/storage.final.json": {
+        "sha256": "e75712f6127a5288566e0fe8dbcd3619d485c657fe5195fc428337e91f2dc842",
+        "bytes": 4170209
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/report.json": {
+        "sha256": "88244e56a8c69fb5129aba3e89f43f136bc4147622b5912adedabc73b35233b7",
+        "bytes": 212271
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker0.steps.jsonl": {
+        "sha256": "3ffa3e76f29a095ce934e295785315497a362ddef9398d4f3cd567c3fda66366",
+        "bytes": 1440780
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker1.steps.jsonl": {
+        "sha256": "0a82b3d7753bbbbf0f7eac14ab1c99cfa28febb523dd1d69045a63a94b381fa0",
+        "bytes": 1494702
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker2.steps.jsonl": {
+        "sha256": "b0e38a5c01659334de1a126d1a09fa822f40f46a1ec5a6ac4478d71daa98892e",
+        "bytes": 1490526
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker3.steps.jsonl": {
+        "sha256": "3d94a3f4e4a28897c31b9e47dcf6065a7a96b6bb8136a6e1b684b1297a43296c",
+        "bytes": 1481631
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/request_ids.json": {
+        "sha256": "c88dc7b035b3e33262815ac4ec71b3e5df2db2483905b709d4ad7d6035a31ce7",
+        "bytes": 25923
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/read_admission.check.json": {
+        "sha256": "ae1a462c8ba7e8c22c8ad9c3d5621951bca4e219ff727e9a30b0cdc333263096",
+        "bytes": 652
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/check.json": {
+        "sha256": "bc712aa36170f5643cba19b291f251b0700fd26e1964bc66f4fb2a139084adb4",
+        "bytes": 34428
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/layer_check.json": {
+        "sha256": "d82e7274aca2e7026c4c59cd5c83310c4906b108d7cd96d284ecde616d14c4c7",
+        "bytes": 322
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/frontend.log": {
+        "sha256": "4b99d500bf690e8c4807ecbd4867eff4352a419f195529e947808a7dbdfec469",
+        "bytes": 4377823
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker2.read_admission.jsonl": {
+        "sha256": "56ddc951501904c659ebb0c0b138754cb876ca4140923f2d219f7df197a9af95",
+        "bytes": 90052
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker1.read_admission.jsonl": {
+        "sha256": "9a1af6c380dc6ae5acbe684ebb0e55eea00d3f6db7cc483c6ce8d57686c5c08a",
+        "bytes": 101793
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker0.read_admission.jsonl": {
+        "sha256": "ee8275510e77cd552f4730d15a515bd30252ae560b706ccde71e4a1f2d2739ba",
+        "bytes": 118014
+      },
+      "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/540-bandwidth/run/worker3.read_admission.jsonl": {
+        "sha256": "5b7fd65399fef9b4ae869a3375d69c8f2c8b918b5fec13cf1a521887ddf6d4a5",
+        "bytes": 108227
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "/home/zed/.local/share/state-aware-network/audits/server-dynamo-1.2/bandwidth_quota_20261125_IM4o4U/reports_final/540/dataset.json",
+    "sha256": "72234e9e604b2599c3d6e02d8f9ca0b2914d628115e850f0bc81f2c61468feb3"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "936e85235a16d395e76669c880f731960548527ceb373a7246d33217e770e39c",
+      "bytes": 51076
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "4fc8c6d513e8cee3617ad8d194976e6e0354a0ba531431c2facb5b82ab95e769",
+      "bytes": 171050
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "1016c1d13d3685f38c1dd1ad4d5faa814c3881938833a57bc536628fcb15677e",
+      "bytes": 96316
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "715afd02f6b31daeb92a992ac5debf86097ac91a320b5f56c774274ec1dfe421",
+      "bytes": 206508
+    },
+    "figure/05_cdf.png": {
+      "sha256": "028fd2c3a371924e572c6d3ae08ee83d0596bd1e1d7b2e4e0483a5915783d8de",
+      "bytes": 109189
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "29a9488101233ea5f450dd5c4b7aa9c3f88bee99bb889eee118e3a118ebdc29e",
+      "bytes": 148468
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "c3ab18ace41f767643f1159411f8de6f31e9ecf299623394a02e649ed15c7523",
+      "bytes": 71201
+    },
+    "report.md": {
+      "sha256": "ac9c097ad979c032f3aa659a3583773276ae22702723d91c483acfd5b06c12a0",
+      "bytes": 9743
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "5bde33348782026507562fb9a401e6a80ec397ca16335c60946cce387119d269",
+      "bytes": 66215
+    },
+    "report_data/cdf.csv": {
+      "sha256": "16cab513c3b1a078cd98815306b489532efe4a83e10e35de41b8d204ee315db7",
+      "bytes": 173444
+    },
+    "report_data/client_comparison.csv": {
+      "sha256": "224fee39a3cf25c5d88e787f19e12349554cda0ae94005168512c37773a36e67",
+      "bytes": 1735
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "67c724cd0506a917ba21893871fa53da8b7b5f0f018fa0e4e81acfbd2db94e71",
+      "bytes": 1012
+    },
+    "report_data/configuration.json": {
+      "sha256": "d6d3fb8684a48a230cf75486d587be71abcb2fc15e64e328a2c942be05273abf",
+      "bytes": 6223
+    },
+    "report_data/dataset.json": {
+      "sha256": "72234e9e604b2599c3d6e02d8f9ca0b2914d628115e850f0bc81f2c61468feb3",
+      "bytes": 7549361
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "98ba3c54ee32c1efb0dd3cf820e24acc69898d978eab9f60726443992382df8b",
+      "bytes": 1292
+    },
+    "report_data/excluded_attempts.csv": {
+      "sha256": "2702ea6ef67f2d4fb869c5518e0bb79af4e6c106e41f15b89fd3c468206a6a39",
+      "bytes": 419
+    },
+    "report_data/request_wait_details.csv": {
+      "sha256": "b560f9399e397c760efa71ccc3917080186732853f0e807c1032befa6f2dfa0a",
+      "bytes": 178056
+    },
+    "report_data/requests.csv": {
+      "sha256": "6648c10fedeac336cde48acfb27f43079080a4edc1cb94ec2fa4ccf91d3ddc31",
+      "bytes": 335575
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "6dedcf86486d4e0e4b160a71e1f3dc1b2a85065aea97c92874ad18aa48670e75",
+      "bytes": 1324
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "3f4b9fa71b1f7bf5b135730003685174b4c9bcdf3a062086498ce866ed14f6b7",
+      "bytes": 11419
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "2ed1b0d3a9f1eaf463bc5a7afd65bd3723ae986ce734aca3cb637c0309605b4c",
+      "bytes": 25398
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "2d37c4c6bd9d39e4118f121e25982a9c885893db4ebd66bca1368801ad7868ec",
+      "bytes": 18405
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    }
+  }
+}

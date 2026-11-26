@@ -144,7 +144,12 @@ def redraw(path,output):
             import shutil
             with gzip.open(source,'rb') as src,target.open('wb') as dst:shutil.copyfileobj(src,dst)
         else:target.write_bytes(source.read_bytes())
-        subprocess.run([sys.executable,str(TOOLS/'generate_report.py'),'--dataset',str(target),'--output',str(output)],check=True)
+        command=[sys.executable,str(TOOLS/'generate_report.py'),'--dataset',str(target),'--output',str(output)]
+        if 'report_bin_ms' in m:
+            # This report records its own frozen renderer and bin width.
+            command[1]=str(folder/'reproduce/generate_report.py')
+            command.extend(['--bin-ms',str(m['report_bin_ms'])])
+        subprocess.run(command,check=True)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='action',required=True)

@@ -1,0 +1,245 @@
+--- a/sim/request_profile.py
++++ b/sim/request_profile.py
+@@ -58,6 +58,8 @@
+          "idle_bypass": False}
+     a.update(c.get("admission", {}))
+     a.setdefault("dev_mode", False)
++    if a.get("bandwidth_permits"):
++        a["worker_count"] = c["workers"]
+     if type(a["dev_mode"]) is not bool:
+         raise ValueError("admission.dev_mode must be boolean")
+     a.setdefault('profile_source', 'trace')
+--- a/sim/admission.py
++++ b/sim/admission.py
+@@ -86,7 +86,7 @@
+         raw = xs[math.floor(self.c["quantile"] * (len(xs) - 1))]
+         self.theta = (raw if raw > 0 else min(positive)) if positive else None
+         self.cap = max(1, math.floor(self.c["reference_bandwidth_Bps"] / self.theta)) if self.theta else None
+-        if self.c.get("dev_mode", False):
++        if self.c.get("dev_mode", False) or self.c.get("bandwidth_permits"):
+             self.cap = None
+         self.threshold_version += 1
+         self._log("threshold_updated", now_s, threshold_version=self.threshold_version,
+--- a/sim/stack/storage_hint.py
++++ b/sim/stack/storage_hint.py
+@@ -5,15 +5,19 @@
+ """
+ import base64
+ import json
++import math
+ 
+ PREFIX = "storage_hint_v1:"
+ 
+ 
+ def validate_hint(value):
+-    if not isinstance(value, dict) or set(value) != {
+-        "version", "is_heavy_read", "estimated_remote_read_bytes", "threshold_version"
+-    }:
++    required = {"version", "is_heavy_read", "estimated_remote_read_bytes", "threshold_version"}
++    if not isinstance(value, dict) or set(value) - {"pressure_Bps"} != required:
+         raise ValueError("invalid storage_hint fields")
++    if "pressure_Bps" in value:
++        pressure = value["pressure_Bps"]
++        if type(pressure) not in (int, float) or not math.isfinite(pressure) or pressure < 0:
++            raise ValueError("pressure_Bps must be finite and nonnegative")
+     if type(value["version"]) is not int or value["version"] != 1:
+         raise ValueError("unsupported storage_hint version")
+     if type(value["is_heavy_read"]) is not bool:
+--- a/sim/stack/read_admission.py
++++ b/sim/stack/read_admission.py
+@@ -3,6 +3,7 @@
+ All calls run on the admission service's single asyncio event-loop thread.
+ No await occurs inside a ledger operation. This is not a distributed database.
+ """
++import math
+ import uuid
+ 
+ from sim.admission import AdmissionController
+@@ -15,7 +16,19 @@
+         self.permits = {}
+         self.permit_keys = {}
+         self.placement = config.get("placement", "gateway")
++        self.bandwidth_permits = config.get("bandwidth_permits", False)
+         super().__init__(config)
++
++    @property
++    def held_Bps(self):
++        # Immutable arrival profiles already belong to the lease records.
++        # Closing/rolling back an existing lease therefore removes exactly its demand.
++        return sum(self.hints[r.profile.request_id]["pressure_Bps"] for r in self.records.values()
++                         if r.lease_open and self.is_heavy(r.profile))
++
++    @property
++    def bandwidth_limit_Bps(self):
++        return self.c["reference_bandwidth_Bps"]
+ 
+     def is_heavy(self, profile):
+         hint = self.hints.get(profile.request_id)
+@@ -29,6 +42,10 @@
+                         is_heavy_read=bool(profile.estimated_read_bytes > 0 and super().is_heavy(profile)),
+                         estimated_remote_read_bytes=profile.estimated_read_bytes,
+                         threshold_version=self.threshold_version)
++            if self.bandwidth_permits:
++                share = self.bandwidth_limit_Bps / self.c["worker_count"]
++                hint["is_heavy_read"] = hint["is_heavy_read"] and profile.pressure_Bps > share
++                hint["pressure_Bps"] = round(profile.pressure_Bps)  # Integer B/s survives the RPC wire.
+             self.hints[profile.request_id] = hint
+             self._log("storage_hint_created", now_s, id=profile.request_id, hint=hint)
+ 
+@@ -62,7 +79,7 @@
+                                                   if force else ("reserved", "submitted")),
+                         permit_id=permit["permit_id"], reason=permit["state"], replay=True)
+         if force:
+-            if not self.c.get('idle_bypass'):
++            if self.bandwidth_permits or not self.c.get('idle_bypass'):
+                 raise ValueError('idle bypass is disabled')
+             if (not isinstance(permit_id, str) or len(permit_id) != 32
+                     or uuid.UUID(hex=permit_id).hex != permit_id or permit_id in self.permits):
+@@ -87,25 +104,46 @@
+         if rec.worker_id == -1:
+             rec.worker_id = worker
+             self._log("worker_assigned", now_s, id=rid, worker=worker)
+-        if not force and self.cap is not None and self.held >= self.cap:
++        before = self.held
++        bandwidth = {}
++        if self.bandwidth_permits:
++            demand = hint["pressure_Bps"]
++            held_Bps = self.held_Bps
++            limit = self.bandwidth_limit_Bps
++            bandwidth = dict(pressure_Bps=demand, held_Bps_before=held_Bps,
++                             budget_Bps=limit)
++            # A request larger than the entire link can still run alone.
++            # An already occupied ledger must have room for the entire new request.
++            if before and held_Bps + demand > limit:
++                remaining = max(0., limit - held_Bps)
++                self._log("read_permit_denied", now_s, id=rid, worker=worker,
++                          reason="full", held=before, cap=self.cap,
++                          remaining_Bps=remaining, held_Bps=held_Bps, **bandwidth)
++                return dict(granted=False, permit_id=None, reason="full",
++                            remaining_Bps=remaining, held_Bps=held_Bps)
++        elif not force and self.cap is not None and before >= self.cap:
+             self._log("read_permit_denied", now_s, id=rid, worker=worker,
+-                      reason="full", held=self.held, cap=self.cap)
++                      reason="full", held=before, cap=self.cap)
+             return dict(granted=False, permit_id=None, reason="full")
+-        before = self.held
+         token = permit_id if force else uuid.uuid4().hex
+         grant_time = decision_s if force else now_s
+         permit = dict(permit_id=token, id=rid, worker=worker, attempt=attempt,
+                       acquisition_key=key, state="reserved", granted_s=grant_time,
+                       registered_s=now_s, forced=force)
++        if self.bandwidth_permits:
++            permit["pressure_Bps"] = demand
+         self.permits[token] = permit
+         self.permit_keys[identity] = token
+         rec.reserved_s, rec.lease_open, rec.lease_release_reason = grant_time, True, None
++        if self.bandwidth_permits:
++            bandwidth.update(held_Bps_after=self.held_Bps,
++                             oversized_alone=before == 0 and demand > limit)
+         self._log("admission_reserved", now_s, id=rid, worker=worker, permit_id=token,
+                   heavy=True, held_before=before, held_after=self.held, cap=self.cap,
+                   theta=self.theta, threshold_version=self.threshold_version,
+                   mode=self.c["mode"], reason="idle_bypass" if force else "normal", placement="scheduler",
+                   decision_s=grant_time, proof=proof, over_cap=self.cap is not None and self.held > self.cap,
+-                  release_on=self.c["release_on"])
++                  release_on=self.c["release_on"], **bandwidth)
+         return dict(granted=True, permit_id=token, reason="granted", replay=False)
+ 
+     def rollback(self, rid, worker, token, now_s):
+--- a/scripts/check_read_admission.py
++++ b/scripts/check_read_admission.py
+@@ -1,6 +1,7 @@
+ """Audit scheduler permits against gateway facts and independent worker logs."""
+ import argparse
+ import json
++import math
+ from pathlib import Path
+ import statistics
+ import sys
+@@ -47,6 +48,8 @@
+         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
+     events, records, hints, permits = (status[k] for k in ('events','records','storage_hints','permits'))
+     assert status['status'] == 'ready' and not status['invalid_reasons']
++    config = json.loads((folder/'config.json').read_text())
++    weighted = config['admission'].get('bandwidth_permits', False)
+     rpc = status.get('rpc')
+     if rpc:
+         configured = json.loads((folder/'config.json').read_text())['admission']['rpc_transport']
+@@ -66,7 +69,7 @@
+                 assert rid not in received and row['hint'] == hints[rid]
+                 received[rid] = row
+             elif row['event'] == 'read_acquire_response':
+-                assert hints[rid]['is_heavy_read'] and row['round'] not in full_rounds
++                assert hints[rid]['is_heavy_read'] and (weighted or row['round'] not in full_rounds)
+                 assert row['ok'] is True
+                 if rpc:
+                     assert row['rpc_transport'] == rpc['transport']
+@@ -134,6 +137,7 @@
+     # every outstanding lease must still count toward normal admission held.
+     max_forced_per_worker = check_permit_ledger(events, permits)
+     assert not status.get('pending_engine_events')
++    bandwidth = check_bandwidth_ledger(events, records, hints, permits, config) if weighted else {}
+     durations = [r['duration_ns']/1e6 for r in responses]
+     return dict(status='pass', requests=len(records), hints_received=len(received),
+                 rpc_transport=rpc['transport'] if rpc else 'legacy_unix',
+@@ -146,7 +150,47 @@
+                 acquire_rpc_mean_wall_ms=statistics.mean(durations) if durations else 0,
+                 acquire_rpc_p50_wall_ms=statistics.median(durations) if durations else 0,
+                 acquire_rpc_p95_wall_ms=sorted(durations)[int(.95*(len(durations)-1))] if durations else 0,
+-                acquire_rpc_max_wall_ms=max(durations, default=0))
++                acquire_rpc_max_wall_ms=max(durations, default=0), **bandwidth)
++
++
++def check_bandwidth_ledger(events, records, hints, permits, config):
++    limit = config['admission']['reference_bandwidth_Bps']
++    share = limit / config['workers']
++    thresholds = {e['threshold_version']: e['theta'] for e in events
++                  if e['event'] == 'threshold_updated'}
++    for rid, hint in hints.items():
++        demand = records[rid]['profile']['pressure_Bps']
++        theta = thresholds[hint['threshold_version']]
++        assert hint['pressure_Bps'] == round(demand)
++        assert hint['is_heavy_read'] == (demand > share and theta is not None and demand >= theta)
++    active = {}
++    peak = 0.
++    oversized = 0
++    for e in events:
++        before = math.fsum(active.values())
++        if e['event'] in ('admission_reserved', 'read_permit_denied'):
++            demand = hints[e['id']]['pressure_Bps']
++            assert e['pressure_Bps'] == demand and e['budget_Bps'] == limit
++            assert math.isclose(e['held_Bps_before'], before)
++            allowed = not active or before + demand <= limit
++            if e['event'] == 'read_permit_denied':
++                assert not allowed
++                assert e['held_Bps'] == e['held_Bps_before']
++                assert math.isclose(e['remaining_Bps'], max(0., limit - before))
++                continue
++            assert allowed and not permits[e['permit_id']]['forced']
++            assert permits[e['permit_id']]['pressure_Bps'] == demand
++            assert e['oversized_alone'] == (not active and demand > limit)
++            oversized += int(e['oversized_alone'])
++            active[e['id']] = demand
++            after = math.fsum(active.values())
++            assert math.isclose(e['held_Bps_after'], after)
++            peak = max(peak, after)
++        elif e['event'] == 'admission_released':
++            del active[e['id']]
++    assert not active
++    return dict(bandwidth_budget_Bps=limit, fair_share_Bps=share,
++                peak_held_Bps=peak, oversized_alone_grants=oversized, final_held_Bps=0.)
+ 
+ 
+ def configured_idle(folder):
+--- a/sim/stack/server_ingress_control.py
++++ b/sim/stack/server_ingress_control.py
+@@ -93,7 +93,8 @@
+             del self.registrations[key]
+             state.log_event('terminal_history_pruned', id=rid, retention_s=self.policy.retention)
+         # Full events remain in the JSONL file; snapshots keep a bounded tail.
+-        if len(self.state.events) > 10000:
++        # Weighted runs audit every denial and grant. The replay is finite.
++        if len(self.state.events) > 10000 and not self.state.config['admission'].get('bandwidth_permits'):
+             del self.state.events[:-10000]
+ 
+     def hello(self):

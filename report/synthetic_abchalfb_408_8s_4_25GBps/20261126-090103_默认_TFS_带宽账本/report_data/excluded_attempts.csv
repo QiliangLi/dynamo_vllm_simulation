@@ -1,0 +1,3 @@
+﻿mode,run,n_total,n_ok,reason,frontend_start,frontend_stop,run_log_sha256,client_report_sha256
+bandwidth,408-bandwidth-failed-metadata,408,0,Dynamo Python 端严格字段校验拒绝新增带宽画像字段,2026-11-26T08:44:57.517646+08:00,2026-11-26T08:45:32.169318+08:00,3825e900d94d122e109bdb1cee06c9a74c1180855a54902f3785fea1caa09f76,77fc13d026b8db9fe68c202c2c4ea35c7cc2c356f6c409e8c3b2a6a7a6cd31b8
+bandwidth,408-bandwidth-superseded-float,408,408,小数带宽版本曾通过，随后统一按整数 B/s 最终版本重跑,2026-11-26T08:47:17.265697+08:00,2026-11-26T08:48:00.914678+08:00,2699e5a7d301e48e2b06956df7f2d1a20daa264935dcaf19a757a0d06ff0bce5,56b84beabc0aa6e069aa09a8c22cb000c7d9deb0108f7715e7f25c65ff198304
