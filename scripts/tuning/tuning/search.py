@@ -51,8 +51,8 @@ def finding_text(item):
         return item
     if isinstance(item, dict):
         head = "、".join(str(item[key]) for key in ("id", "severity") if item.get(key))
-        body = item.get("point") or item.get("issue") or item.get("consequence") or item.get("fix") \
-            or json.dumps(item, ensure_ascii=False)
+        body = next((str(item[key]) for key in ("point", "title", "issue", "summary", "description", "consequence", "fix")
+                     if item.get(key)), json.dumps(item, ensure_ascii=False))
         return "%s：%s" % (head, body) if head else str(body)
     return str(item)
 
