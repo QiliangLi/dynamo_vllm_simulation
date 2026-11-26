@@ -1,0 +1,3 @@
+﻿case,requests,scheduled_steps,batch_histogram,first_layer_reads,layer_reads,read_bytes,nominal_compute_s,max_replayed_read_error_us,heavy_hints,grants,denied,leaked_permits,forced_grants,acquire_rpc_p95_wall_ms
+default,720,721,{'1': 721},486,7776,711093911552.0,107.87109166115964,2.1316282072803006e-08,,,,,,
+tfs,720,721,{'1': 721},486,7776,711093911552.0,107.87109166116045,7.105427357601002e-09,207,207,4045,0,0,2.493166
