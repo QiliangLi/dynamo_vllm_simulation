@@ -315,6 +315,7 @@ class GenerationFlow(unittest.TestCase):
         self.assertIsNone(state["champion"])
         text = finding_text
         self.assertEqual(text(dict(fix="改 test_scale.py 第 9 行")), "改 test_scale.py 第 9 行")
+        self.assertEqual(text(dict(id="CS1", severity="high", title="slack 是计数", evidence=[])), "CS1、high：slack 是计数")
         self.assertEqual(text(dict(other=1)), '{"other": 1}')
         self.assertEqual(text(7), "7")
 
