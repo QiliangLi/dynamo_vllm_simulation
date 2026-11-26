@@ -14,7 +14,10 @@ WORKLOADS = OrderedDict([
     ("agentx-flex", dict(bench="agentx_flex_358_12s_4_25GBps", title="AgentX 宽区间")),
 ])
 
-# Section 5. GLM does the work; kimi-k3.1-pro only cross-checks, a few times per generation.
+# Section 5. GLM does the work. Cross-validation is a second look, in a session of its own, where the
+# red team found nothing and before a champion is replaced. It was kimi-k3.1-pro (another model family)
+# until its quota ran out on 2026-11-26; since then it is GLM-5.4, at the user's instruction.
+# CROSSVAL_ENABLED = False skips those two points instead (the design's fallback for a missing model).
 # The suffix is the reasoning level. Measured 2026-11-26 on one ten-tool-call task: the default
 # (max) level took 395 s, #high 27 s with the same calls. Roles that read code and write files make
 # five to ten times as many calls, so they run at #high; the roles that judge from a few files keep max.
@@ -22,11 +25,12 @@ MODELS = dict(
     proposer="kimi/zhipu/glm-5.4#high", redteam="kimi/zhipu/glm-5.4#high", judge="kimi/zhipu/glm-5.4",
     prover="kimi/zhipu/glm-5.4", meta="kimi/zhipu/glm-5.4", toolmaker="kimi/zhipu/glm-5.4#high",
     analyst="kimi/zhipu/glm-5.3", auditor="kimi/zhipu/glm-5.3#high",
-    crossval="kimi/moonshot/kimi-k3.1-pro")
-NON_GLM_ROLES = frozenset({"crossval"})
+    crossval="kimi/zhipu/glm-5.4#high")
+NON_GLM_ROLES = frozenset()   # roles run on a model that is not GLM; their tokens are counted apart
+CROSSVAL_ENABLED = True
 CROSSVAL_PER_GENERATION = 5
 TIMEOUT_MIN = dict(analyst=45, proposer=150, redteam=45, judge=30, auditor=30, prover=35, meta=40,
-                   crossval=15, revise=60, toolmaker=45)
+                   crossval=25, revise=60, toolmaker=45)
 
 # Section 10, frozen.
 SCREEN_RUNS = 2

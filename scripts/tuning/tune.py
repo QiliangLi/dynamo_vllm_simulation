@@ -4,7 +4,9 @@
   python tune.py init --workspace D:\\Coding\\tfs-tuning [--repo PATH] [--skip-wsl]
   python tune.py daemon            run the orchestrator; returns only after a STOP
   python tune.py status            one screen of text
-  python tune.py pause | resume | stop | unfreeze
+  python tune.py control pause | resume | stop | unfreeze | restart
+                                    unfreeze: register changed frozen files; restart: reload the deployed code.
+                                    The daemon does both itself at the first moment no model task runs.
   python tune.py gate CANDIDATE    (agents) the static gate, offline
   python tune.py test CANDIDATE    (agents) run a candidate's unit tests in WSL
   python tune.py smoke CANDIDATE WORKLOAD   (agents) ask for one replay and wait for it
@@ -370,6 +372,9 @@ def cmd_status(args):
         len(state.get("active", {})), "正常" if d.health()["ok"] else d.health()["reason"]))
     for row in (state.get("alerts") or [])[-5:]:
         print("  [%s] %s %s" % (row["level"], row["at"], row["text"]))
+    waiting = [name for name in ("UNFREEZE", "RESTART") if (ws / "control" / name).exists()]
+    if waiting:
+        print("已登记、等模型任务结束：%s" % "、".join("登记冻结区新哈希" if name == "UNFREEZE" else "重启" for name in waiting))
     return 0
 
 
@@ -386,15 +391,15 @@ def cmd_control(args):
             (control / name).unlink(missing_ok=True)
         (ws / "NEEDS_HUMAN.md").unlink(missing_ok=True)
     elif args.action == "unfreeze":
-        store = Store(ws)
-        state = store.load()
-        before = state.get("frozen")
-        # The daemon hashes the package it runs from, which is the deployed copy, not this one.
-        state["frozen"] = {name: hashlib.sha256((ws / "tuning" / name).read_bytes()).hexdigest()
-                           for name in core.FROZEN_FILES}
-        write_json(ws / "state.json", state)
-        store.append(dict(kind="unfreeze", before=before, after=state["frozen"]))
-        print("已登记冻结区的新哈希。" + ("" if not frozen_mismatch(ws) else " 仍有不一致：%s" % "、".join(frozen_mismatch(ws))))
+        # A request, not a write: the daemon overwrites the state file every few seconds from memory,
+        # so hashes written here while it runs would be lost, and it would refuse its next start.
+        changed = frozen_mismatch(ws)
+        (control / "UNFREEZE").write_text("")
+        print("已登记。守护进程会在没有模型任务运行时登记冻结区的新哈希并重启" +
+              ("（变化的文件：%s）" % "、".join(changed) if changed else "（当前没有不一致的文件）"))
+    elif args.action == "restart":
+        (control / "RESTART").write_text("")
+        print("已登记。守护进程会在没有模型任务运行时自行重启，回放不受影响。")
     return 0
 
 
@@ -415,7 +420,7 @@ def main():
     smoke.add_argument("candidate")
     smoke.add_argument("workload")
     control = sub.add_parser("control")
-    control.add_argument("action", choices=["pause", "resume", "stop", "unfreeze"])
+    control.add_argument("action", choices=["pause", "resume", "stop", "unfreeze", "restart"])
     args = parser.parse_args()
     if args.command == "control":
         return cmd_control(args)

@@ -25,6 +25,7 @@ STRESS_ROOT = wsl.WSL_ROOT + "/stress"
 INFRA_TAGS = ("baseline", "control", "probe", "stress_baseline", "final")
 WSL_REASONS = ("host_out_of_memory", "wsl_unavailable", "not_launched", "timed out", "wsl_low")
 CANDIDATE_TAGS = ("smoke", "screen", "confirm", "attack", "final")
+RESTART_EXIT = 3   # a planned restart: the supervisor starts the daemon again a minute later
 
 
 def queued_key(tag, workload):
@@ -141,11 +142,48 @@ class Daemon:
         pinned = self.state.get("frozen") or {}
         if pinned and pinned != current:
             changed = sorted(k for k in current if pinned.get(k) != current[k])
-            raise SystemExit("frozen files changed: %s (planned upgrade: python tune.py unfreeze)" % changed)
+            raise SystemExit("frozen files changed: %s (planned upgrade: python tune.py control unfreeze)" % changed)
+
+    def register_frozen_at_start(self):
+        """Honour control/UNFREEZE before the check: the request is the operator's explicit consent."""
+        path = self.ws / "control" / "UNFREEZE"
+        if not path.exists():
+            return False
+        path.unlink(missing_ok=True)
+        before = self.state.get("frozen")
+        self.state["frozen"] = frozen_hashes()
+        self.log("unfreeze", at_start=True, before=before, after=self.state["frozen"])
+        return True
+
+    def planned_exit(self):
+        """Why the daemon should stop now, so that the supervisor starts it again a minute later.
+
+        Returns 'unfreeze', 'restart' or None. Both requests are files in control/ and wait for a moment
+        when no model task is running: killing a task loses its work (a proposal runs for half an hour
+        or more). The loop asks here before it enters any step that could start one.
+
+        ``unfreeze`` registers the frozen files as they are on disk. The daemon does it itself rather
+        than a command writing the state file, because this process overwrites that file every few
+        seconds with what it holds in memory.
+        """
+        if any(thread.is_alive() for thread in self.threads.values()):
+            return None
+        control = self.ws / "control"
+        if (control / "UNFREEZE").exists():
+            (control / "UNFREEZE").unlink(missing_ok=True)
+            before = self.state.get("frozen")
+            self.state["frozen"] = frozen_hashes()
+            self.log("unfreeze", before=before, after=self.state["frozen"])
+            return "unfreeze"
+        if (control / "RESTART").exists():
+            (control / "RESTART").unlink(missing_ok=True)
+            return "restart"
+        return None
 
     # ------------------------------------------------------------ the loop
 
     def loop(self):
+        self.register_frozen_at_start()
         self.verify_frozen()
         self.log("daemon_start", pid=os.getpid())
         (self.ws / "daemon.pid").write_text(str(os.getpid()))
@@ -166,6 +204,13 @@ class Daemon:
                     self.state["phase"] = self.state.get("resume_phase") or "run"
                     self.log("resumed", phase=self.state["phase"])
                 phase = self.state["phase"]
+                reason = None if phase == "stopping" else self.planned_exit()
+                if reason:
+                    # A task that has just finished is already recorded; the next daemon picks its result up.
+                    self.save()
+                    self.log("planned_restart", reason=reason, phase=phase, gen=self.state["gen"]["n"],
+                             step=self.state["gen"].get("step"))
+                    raise SystemExit(RESTART_EXIT)
                 if phase == "stopping":
                     from .search import Finalizer
                     Finalizer(self).step()

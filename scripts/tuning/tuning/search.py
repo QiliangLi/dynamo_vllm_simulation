@@ -134,7 +134,12 @@ class Search:
         return "wait" if status == "running" else status
 
     def crossval(self, task_id, question, inputs, output):
-        """One kimi-k3.1-pro opinion within the per-generation cap: 'wait', a dict, or None."""
+        """One independent opinion within the per-generation cap: 'wait', a dict, or None when skipped.
+
+        None is the same answer the callers get at the cap: the point goes ahead without the second look.
+        """
+        if not config.CROSSVAL_ENABLED:
+            return None
         book = self.state["crossval"]
         if book.get("gen") != self.state["gen"]["n"]:
             self.state["crossval"] = book = dict(gen=self.state["gen"]["n"], used=0)

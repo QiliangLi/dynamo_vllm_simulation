@@ -28,9 +28,9 @@ python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init
 # 2. 启动（双击工作区里的 守护.vbs，或命令行）
 python D:\Coding\tfs-tuning\tune.py daemon
 
-# 状态；暂停、继续、停止并收尾
+# 状态；暂停、继续、停止并收尾；安全重启；登记冻结区的新哈希
 python D:\Coding\tfs-tuning\tune.py status
-python D:\Coding\tfs-tuning\tune.py control pause | resume | stop
+python D:\Coding\tfs-tuning\tune.py control pause | resume | stop | restart | unfreeze
 ```
 
 工作区里的三个双击脚本：`暂停.cmd`、`继续.cmd`、`停止并收尾.cmd`。看板是 `dashboard\index.html`，每分钟自动刷新。部署时会在用户的「启动」文件夹放一个指向 `supervisor.vbs` 的快捷方式，登录后自动恢复运行；「停止并收尾」之后它不再启动。
@@ -42,7 +42,8 @@ python D:\Coding\tfs-tuning\tune.py control pause | resume | stop
 - **WSL 会空闲停机。** 没有会话挂着时，WSL 会在几分钟后停掉整个发行版，连同里面的回放。守护进程持有一个常驻会话防止这一点，并每分钟检查运行器是否还活着；消失就记失败并补跑。
 - **opencode 的项目目录取自环境变量 `PWD`/`OLDPWD`**，不是子进程的工作目录；每个任务使用私有服务（`--standalone`），启动时同步扫描角色定义。角色定义必须按 LF 写入。
 - **回放一次只跑一轮。** 候选要和串行测出的基线在同样的主机条件下比。实测（2026-11-26）两路并行时 light 基线在 408 上 TTFT 高 7.7%、完成时间高 3.1%，mooncake、AgentX 和 540 在噪声内；而晋升规则不允许任何一个负载有超出噪声的回退。第 0 代因此对每个并行档位探测全部核心负载，任何一个负载的偏移超过 2.5% 就不采用该档位。不要手工把并行度调高。
-- **重新部署**：改了 `scripts/tuning/` 之后，运行 `python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init --skip-wsl`，再重启守护进程。动了 `evaluator.py`、`config.py`、`scope.py`、`gates.py` 还要先 `python tune.py control unfreeze` 登记新哈希，**即使部署当时守护进程没有重启**：它只在校验启动时的字节，下一次重启才会发现不一致并拒绝启动，守护脚本连续五次后会停止拉起。`init` 会在输出里提示「冻结文件与工作区登记的哈希不同」。
+- **重新部署**：改了 `scripts/tuning/` 之后，运行 `python scripts/tuning/tune.py --workspace D:\Coding\tfs-tuning init --skip-wsl`，然后 `python D:\Coding\tfs-tuning\tune.py control restart`。守护进程会在没有模型任务运行的那一刻自行重启（回放不受影响，正在跑的提案不会被中断），新代码从那时起生效。
+- **动了 `evaluator.py`、`config.py`、`scope.py`、`gates.py`**，部署后还要 `python D:\Coding\tfs-tuning\tune.py control unfreeze`：它只是登记一个请求，由守护进程自己在没有模型任务时登记新哈希并重启。**即使部署当时守护进程没有重启也要做**：它只在校验启动时的字节，下一次重启才发现不一致并拒绝启动，守护脚本连续五次后会停止拉起。`init` 会在输出里提示「冻结文件与工作区登记的哈希不同」。不要在守护进程运行时直接改写 `state.json`，它每几秒会用内存里的状态覆盖磁盘。
 
 ## 硬规则在哪里
 
@@ -54,4 +55,6 @@ python D:\Coding\tfs-tuning\tune.py control pause | resume | stop
 
 ## 模型
 
-主力是 GLM 系列（经本机 opencode 的网关调用）；kimi-k3.1-pro 只在关键环节做交叉验证，每代不超过 5 次。角色定义和提示词在 `tuning/roles.py`。
+全部角色用 GLM 系列（经本机 opencode 的网关调用），角色定义和提示词在 `tuning/roles.py`。
+
+交叉验证是在红队「零发现」时和冠军更替前多看一眼，每代不超过 5 次，由一个没有参与前面工作的独立会话来做。它原先是另一个模型家族的 kimi-k3.1-pro；2026-11-26 起它的额度用完，按用户指示改为 GLM-5.4。要停用交叉验证，把 `tuning/config.py` 里的 `CROSSVAL_ENABLED` 改为 `False`（这两个环节照常进行，只是不再复核），再按上面的步骤部署。

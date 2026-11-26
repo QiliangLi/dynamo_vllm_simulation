@@ -245,6 +245,19 @@ class GenerationFlow(unittest.TestCase):
         search.step_open()
         self.assertEqual(state["gen"]["llm"], ["c0006"])
 
+    def test_cross_validation_can_be_switched_off(self):
+        """kimi-k3.1-pro ran out of quota; the design's fallback is to skip the two points it sits at."""
+        enabled, model = config.CROSSVAL_ENABLED, config.MODELS["crossval"]
+        config.CROSSVAL_ENABLED = False
+        try:
+            search = Search(self.d)
+            self.assertIsNone(search.crossval("crossval_review_c0001_0", "问题", [], "crossval/review_c0001.json"))
+            self.assertEqual(self.d.state["tasks"], {})
+        finally:
+            config.CROSSVAL_ENABLED, config.MODELS["crossval"] = enabled, model
+        self.assertNotIn("moonshot", config.MODELS["crossval"])
+        self.assertEqual(config.NON_GLM_ROLES, frozenset())
+
     def test_generation_survives_when_every_proposal_fails(self):
         self.bad_lab = "A"
         other = "B"

@@ -734,18 +734,22 @@ def improvements_table(state, champion, base):
 def usage_table(state, daemon):
     kinds = state.get("runs_by_kind", {})
     total = kinds.get("llm", 0) + kinds.get("param", 0)
-    glm, kimi = state["tokens"].get("glm", {}), state["tokens"].get("kimi", {})
+    glm, other = state["tokens"].get("glm", {}), state["tokens"].get("kimi", {})
     health = state["env"].get("health") or {}
+    crossval = ("已停用" if not config.CROSSVAL_ENABLED else
+                "第 %d 代用了 %d 次 / 上限 %d（%s 的独立会话）" % (
+                    state["crossval"]["gen"], state["crossval"]["used"], config.CROSSVAL_PER_GENERATION,
+                    config.MODELS["crossval"].rsplit("/", 1)[-1].split("#")[0]))
     return "<table>%s</table>" % "".join(
         "<tr><td class='lbl'>%s</td><td>%s</td><td class='lbl'>%s</td><td>%s</td></tr>" % (pair[0][0], pair[0][1], pair[1][0], pair[1][1])
         for pair in [
         (("运行轮次", "%d（成功 %d，失败 %d）" % (state["runs_total"], state["runs_ok"], state["runs_failed"])),
          ("并行度（筛选）", "%d" % state["parallel"])),
         (("GLM token", "%.2f 亿（%d 次调用）" % (sum(glm.get(k, 0) for k in ("input", "output", "reasoning")) / 1e8, glm.get("calls", 0))),
-         ("交叉验证", "第 %d 代用了 %d 次 / 上限 %d" % (state["crossval"]["gen"], state["crossval"]["used"], config.CROSSVAL_PER_GENERATION))),
+         ("交叉验证", crossval)),
         (("探索 / 调参（轮次）", "%.0f%% / %.0f%%（保底 %.0f%%）" % (
             100 * kinds.get("llm", 0) / (total or 1), 100 * kinds.get("param", 0) / (total or 1), 100 * config.EXPLORE_MIN)),
-         ("kimi token", "%.0f 万" % (sum(kimi.get(k, 0) for k in ("input", "output", "reasoning")) / 1e4))),
+         ("非 GLM 模型 token", "%.0f 万" % (sum(other.get(k, 0) for k in ("input", "output", "reasoning")) / 1e4))),
         (("WSL", "正常" if health.get("ok") else ("异常：%s" % health.get("reason"))),
          ("漂移", "对照连续偏离 %d 次" % state.get("drift_strikes", 0))),
         (("排队 / 在跑", "%d / %d" % (len(state["queue"]), len(state["active"]))),

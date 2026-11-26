@@ -7,6 +7,7 @@ import re
 import shutil
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -234,6 +235,49 @@ class DigestRefresh(unittest.TestCase):
                 self.assertIn(name + "\n", tune.IGNORE)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+
+class PlannedExit(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp())
+        self.daemon = core.Daemon(self.root)
+        self.daemon.state = core.initial_state("x")
+        self.control = self.root / "control"
+        self.control.mkdir(exist_ok=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def test_a_restart_waits_for_the_model_tasks(self):
+        """Killing a task loses half an hour of a proposal's work."""
+        (self.control / "RESTART").write_text("")
+        release = threading.Event()
+        worker = threading.Thread(target=release.wait, daemon=True)
+        worker.start()
+        self.daemon.threads["proposer_g1_A"] = worker
+        self.assertIsNone(self.daemon.planned_exit())
+        self.assertTrue((self.control / "RESTART").exists())
+        release.set()
+        worker.join()
+        self.assertEqual(self.daemon.planned_exit(), "restart")
+        self.assertFalse((self.control / "RESTART").exists())
+        self.assertIsNone(self.daemon.planned_exit())
+
+    def test_unfreeze_registers_what_is_on_disk(self):
+        """A command that wrote the state file itself lost the race with the daemon's own saves."""
+        self.daemon.state["frozen"] = dict(config_py="stale")
+        (self.control / "UNFREEZE").write_text("")
+        self.assertEqual(self.daemon.planned_exit(), "unfreeze")
+        self.assertEqual(self.daemon.state["frozen"], core.frozen_hashes())
+        self.assertFalse((self.control / "UNFREEZE").exists())
+
+    def test_an_unfreeze_left_for_a_stopped_daemon_is_honoured_before_the_check(self):
+        self.daemon.state["frozen"] = dict(config_py="stale")
+        (self.control / "UNFREEZE").write_text("")
+        self.assertTrue(self.daemon.register_frozen_at_start())
+        self.daemon.verify_frozen()  # does not raise
+        self.assertFalse((self.control / "UNFREEZE").exists())
+        self.assertFalse(self.daemon.register_frozen_at_start())
 
 
 class StoreTests(unittest.TestCase):
