@@ -1,0 +1,3 @@
+﻿mode,label,last_send_s,drain_s,unfinished,unfinished_heavy,mean_to_first_compute_ms
+default,默认直发,115.00095004215837,11.70494083291851,170,74,8706.931968454392
+tfs,普通 TFS,115.0042119580321,17.320999291958287,180,109,8487.822811428106

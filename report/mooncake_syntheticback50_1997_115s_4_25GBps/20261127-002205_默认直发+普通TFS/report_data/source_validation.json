@@ -1,0 +1,365 @@
+{
+  "producer": "state-aware-report-v1",
+  "schema_version": 1,
+  "status": "passed",
+  "simulations_run": 0,
+  "visual_reviewed": true,
+  "cases": 2,
+  "requests": 3994,
+  "figure_count": 9,
+  "image_pixels": {
+    "01_slo_bar.png": [
+      1888,
+      992
+    ],
+    "02_full-sort-ms.png": [
+      2640,
+      896
+    ],
+    "03_util_box_heatmap.png": [
+      2240,
+      848
+    ],
+    "04_bandwidth_default.png": [
+      2080,
+      704
+    ],
+    "04_bandwidth_tfs.png": [
+      2080,
+      704
+    ],
+    "04_bandwidth.png": [
+      2336,
+      960
+    ],
+    "05_cdf.png": [
+      1632,
+      960
+    ],
+    "06_cdf_by_class.png": [
+      1920,
+      752
+    ],
+    "07_arrival_lateness.png": [
+      1632,
+      800
+    ]
+  },
+  "skipped": {},
+  "colors": {
+    "默认直发": "#888888",
+    "普通 TFS": "#55A868"
+  },
+  "reference": {
+    "status": "not_available",
+    "reason": "标准数据输入未指定原报告；仅执行内部一致性校验。"
+  },
+  "elapsed_s": 7.179925875039771,
+  "bin_ms": 50.0,
+  "checks": [
+    "逐请求SLO与计数",
+    "nearest-rank分位数及rank/n经验CDF",
+    "实例计算/红色IO/灰色时间账本",
+    "可用带宽事件与分桶积分",
+    "来源及产物SHA256",
+    "Markdown相对链接",
+    "ZIP CRC及逐文件内容"
+  ],
+  "source_files": {
+    "default": {
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/request_ids.json": {
+        "sha256": "96f4ae0148ff6adad68ce21a4d02d2d735220f492f912d72d0da45b5505fb159",
+        "bytes": 113832
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/config.json": {
+        "sha256": "bb7f8eb04b4ddd547c87f3792d201c38c080a7163c75692eb2e09923f33f6d09",
+        "bytes": 1564
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/report.json": {
+        "sha256": "13e19cbbf0bc0ab0060825b9ee087ed6c95c8df057accbcd99b74d58ad79bfa7",
+        "bytes": 785864
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/check.json": {
+        "sha256": "c11ea0c43a2e1cf19ee02bd37dc6bbe345c7e65bd841496dcfeb9488e339ea86",
+        "bytes": 271891
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/layer_check.json": {
+        "sha256": "bcfb41806218d4a702a675ede01a3bd6181d8da50f9e5783e82448ecb62285ad",
+        "bytes": 328
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/dynamo.source.json": {
+        "sha256": "89f910226fc49c7357a355418a919816192496fa67313b48aa1fc651c1f13e07",
+        "bytes": 374
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/implementation.json": {
+        "sha256": "984ae3f9749665e26d064ad14507a8dd8888ed377cfa00df868bd9f196568cbf",
+        "bytes": 7444
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/storage.final.json": {
+        "sha256": "ad6037f75d24d63ef284f9d1dc55db4faec9e87ef49bc26d7536af85f462ba35",
+        "bytes": 28109728
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/input.json": {
+        "sha256": "b6e1b5c55540599be89060fb2592160c3958e20ac48fa10c89c286307cf889ac",
+        "bytes": 1475
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/request-inputs.csv": {
+        "sha256": "71090fd6f21188defc3ad08d816327c8ede53b56b74606b2546f70309e7ed36b",
+        "bytes": 116930
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/trace.jsonl.gz": {
+        "sha256": "f4b574a3c283a325ca75a45130c25835b4f42340de91243928342b4b994b93ba",
+        "bytes": 665494
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/worker0.steps.jsonl": {
+        "sha256": "f44a2636732e0833f089ae958d431c5ea4f06913f71dfb22f2163885fabc63e0",
+        "bytes": 6971027
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/worker1.steps.jsonl": {
+        "sha256": "918d5f11920ff253f3f83b85bbc1d8a0d1413ce150fa2b75493c9528033c7cfc",
+        "bytes": 6201060
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/worker2.steps.jsonl": {
+        "sha256": "eb364d2ea2ee79d02ed0db88bb00d6c3037443605f88ceb59e9492055554624f",
+        "bytes": 5233319
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/default/worker3.steps.jsonl": {
+        "sha256": "59a89a2f49c905b5678c69b53391090460889464b2e5858ecf9791cc2af04f1a",
+        "bytes": 5773399
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/admission.final.json": {
+        "sha256": "ea341efce612525ab3c68b62b26b0c3553013f5addc6a103a10942209404f246",
+        "bytes": 17365929
+      }
+    },
+    "tfs": {
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/request_ids.json": {
+        "sha256": "f91ac2eee62ee66f87c699fc009a8e04ee0090ab4d29ab4e916c0893aafa013e",
+        "bytes": 113832
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/config.json": {
+        "sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+        "bytes": 1564
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/report.json": {
+        "sha256": "1db623300012036451a38bfc0aaf3aa561a9370f74ac1957d3d0953d7422d3f2",
+        "bytes": 785725
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/check.json": {
+        "sha256": "0b739034b8594c45720b793c87de58e6a07928150338325fb5268e6052ccaeaa",
+        "bytes": 124802
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/layer_check.json": {
+        "sha256": "feb3e3856930a4111caab4d17b8c2464de6b1fcbe71801ecb4524a7adf6c03f3",
+        "bytes": 327
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/dynamo.source.json": {
+        "sha256": "89f910226fc49c7357a355418a919816192496fa67313b48aa1fc651c1f13e07",
+        "bytes": 374
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/implementation.json": {
+        "sha256": "ce4678b9a8a60f184940595cd7f47234582670271ae1ade230faaebb31c06857",
+        "bytes": 7444
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/storage.final.json": {
+        "sha256": "e233c29e6595f278a3cc385bdf13cfeb80d19797b0f36c937c64e5c9e53b81df",
+        "bytes": 28111115
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/input.json": {
+        "sha256": "b6e1b5c55540599be89060fb2592160c3958e20ac48fa10c89c286307cf889ac",
+        "bytes": 1475
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/request-inputs.csv": {
+        "sha256": "71090fd6f21188defc3ad08d816327c8ede53b56b74606b2546f70309e7ed36b",
+        "bytes": 116930
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/trace.jsonl.gz": {
+        "sha256": "f4b574a3c283a325ca75a45130c25835b4f42340de91243928342b4b994b93ba",
+        "bytes": 665494
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/worker0.steps.jsonl": {
+        "sha256": "5e14d0730bf51323cfd40f44cb5d271d545cfc612284c82ec4372c25057633a0",
+        "bytes": 5481222
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/worker1.steps.jsonl": {
+        "sha256": "3880ef5492b57fdb6a5d13b182121f72c10caa03b370a4323eda4aaeb830fd0e",
+        "bytes": 6275386
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/worker2.steps.jsonl": {
+        "sha256": "ec71e8f27a35e423254fbad37bcb74b2447fac4353aa4a0511b803a83dd57583",
+        "bytes": 5791240
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/worker3.steps.jsonl": {
+        "sha256": "46394a61be91c511981d2e1905d3aeedaa63e1a92ee44ccc6473e7ced965d24e",
+        "bytes": 6631377
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/read_admission.check.json": {
+        "sha256": "407141d78d82e3ebcbc396f10c9ede48f4f87dd30351d5ad83399bffd6ac04b6",
+        "bytes": 487
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/admission.events.jsonl": {
+        "sha256": "a0f0c321e51140d88362513ce00ead3873731a94d25d10ff3a8f633f162ac814",
+        "bytes": 10729865
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/routing.final.json": {
+        "sha256": "31a54b0e1c932060d2c5a2f031ad454a555dc10c42aba744dce31af725e48565",
+        "bytes": 1030
+      },
+      "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/tfs/admission.final.json": {
+        "sha256": "ea341efce612525ab3c68b62b26b0c3553013f5addc6a103a10942209404f246",
+        "bytes": 17365929
+      }
+    }
+  },
+  "dataset_input": {
+    "path": "workspace/output/synthetic1997-back50-warm-115s-mac-20261127/dataset.json",
+    "sha256": "56da5a668def3124d12b9f0d1a1bfd7a307be07d7c31a5a7cffb89ba4bf10ef9"
+  },
+  "semantics": {
+    "cohorts": "input cohort; distinct from online heavy/light",
+    "compute": "nominal model time; not measured hardware utilization",
+    "aggregation": "none; one independent frozen run per case"
+  },
+  "output_files": {
+    "figure/01_slo_bar.png": {
+      "sha256": "ca0b2c3d668f580937b4d1b142c95431a7e4941146053b34fb70f3c93ba865e2",
+      "bytes": 35954
+    },
+    "figure/02_full-sort-ms.png": {
+      "sha256": "e49c4fce319dcd98d5365981d86ac3417a6cb67964f263c48cd77a7a7306bf3e",
+      "bytes": 107487
+    },
+    "figure/03_util_box_heatmap.png": {
+      "sha256": "a2d8016afc5b4ecb66839860146fc9237696726403254271506dab3a3fe31ad5",
+      "bytes": 65863
+    },
+    "figure/04_bandwidth.png": {
+      "sha256": "b8ce66101273de3ecea9f0c4c3e13ac99095e7fd182b6f64ead454b7eb477d93",
+      "bytes": 228333
+    },
+    "figure/04_bandwidth_default.png": {
+      "sha256": "cafa0bb2165afe84c3b3500d0ab5bbe9782d1586ad19c7023f13722a24d391b4",
+      "bytes": 133659
+    },
+    "figure/04_bandwidth_tfs.png": {
+      "sha256": "94cfab3461b396d4e958ce5699c838905911e27a8e104135f530f2fc36845680",
+      "bytes": 132415
+    },
+    "figure/05_cdf.png": {
+      "sha256": "6b1f1a7bc679f099c80ba64a5b51ac901aaf166e56b4d85805f77d24099adbbd",
+      "bytes": 89183
+    },
+    "figure/06_cdf_by_class.png": {
+      "sha256": "997c28af951dc940a8fc020837d5b2171d3b15a954110a7cc3c646effa110a54",
+      "bytes": 93270
+    },
+    "figure/07_arrival_lateness.png": {
+      "sha256": "5eccffe774700947cff3b4cb7802ee8bd2c8c7b4e40e63d9579a5c7312c4e9f1",
+      "bytes": 42691
+    },
+    "report.md": {
+      "sha256": "f46c51b285c35c452982d56687caa5aaa9a2290115da60365c3d125350a64a79",
+      "bytes": 11585
+    },
+    "report_data/bandwidth_bins.csv": {
+      "sha256": "8b7fa685b219de9e8787d49df111b051dd4f7b6320bae655c63e09f39890bbd3",
+      "bytes": 384664
+    },
+    "report_data/cdf.csv": {
+      "sha256": "9f1f344994365ebbbb73a1afa89f19f27f16a3080e90d4362abb7d94b6d633d7",
+      "bytes": 508174
+    },
+    "report_data/cohort_summary.csv": {
+      "sha256": "0a92c80970745ca3602cf8065db0aae8266d1aaadff34d36a5d5d55a304cb5f8",
+      "bytes": 635
+    },
+    "report_data/configuration.json": {
+      "sha256": "c259e8123e0fd5595acf18aced72f0db576eaf7e0ffa9f0dafa96c456d4563e1",
+      "bytes": 4361
+    },
+    "report_data/dataset.json": {
+      "sha256": "f4b715f85e10bcd828ac1c26f1dd139493dadf7103f8856712aee582afaf6ea0",
+      "bytes": 156193317
+    },
+    "report_data/device_utilization.csv": {
+      "sha256": "ce19b930b514ea2deec0b53f25d8497f8c61621e3f19843ebe0f2e00ac66a14e",
+      "bytes": 873
+    },
+    "report_data/drain.csv": {
+      "sha256": "833ee155ee632848fc75b6e5dc29c1f7d3dd3f8c713a04377cddbea5f230a2f1",
+      "bytes": 251
+    },
+    "report_data/input_requests.csv": {
+      "sha256": "ee72c04a01b641f482707c3343c6ed223ade20a495481153c7b02e62a94a9183",
+      "bytes": 116933
+    },
+    "report_data/layers.csv": {
+      "sha256": "1b1bdc295bff85ad8351c8ae13a8115c95bc83f21904043dc3a283729aea6abd",
+      "bytes": 6087029
+    },
+    "report_data/paired_cohorts.csv": {
+      "sha256": "86547082dd723268f182e97c1719348f0af5de3e4a441fa339c8b24dabdc1075",
+      "bytes": 590
+    },
+    "report_data/requests.csv": {
+      "sha256": "ecff4c0a60eee1124430702ed5f2d78d14550691d907e960d3b5f4f3d1421903",
+      "bytes": 1352707
+    },
+    "report_data/run_audit.csv": {
+      "sha256": "7afd88ac2ac8600a6ba390228f6219e2fc6f6a4d6682abddbceeb9bf33fce8e4",
+      "bytes": 424
+    },
+    "report_data/run_summary.csv": {
+      "sha256": "a4a95a06d2b105bb3f1b94d5cbaa10de360237801b78381ef3feef075f86b8d7",
+      "bytes": 1640
+    },
+    "report_data/send_windows.csv": {
+      "sha256": "021c44a945ef656e3e571dd212594f98be85221f76d27a1d8086e2b4e9358d75",
+      "bytes": 1428
+    },
+    "report_data/shortened_inputs.csv": {
+      "sha256": "b050fbb65d632ab389825e5d99ffc4be5f14fa5d5de38be282ea422590864632",
+      "bytes": 194
+    },
+    "report_data/tail.csv": {
+      "sha256": "d25d99491bb5806bff048d775065137bf8c37bce2d370263ecc13f1e26b9283c",
+      "bytes": 284
+    },
+    "report_data/tfs_grant_caps.csv": {
+      "sha256": "2435659ef198d5ebe7afaabdbce98c7251331864cecd1d2eb909ee7a1b0a8002",
+      "bytes": 77
+    },
+    "report_data/tfs_last_request_admission.csv": {
+      "sha256": "9027c9998280afa9a575cedc21a2872f2273df9b8efa1b7a58996eb6d96a3beb",
+      "bytes": 2141
+    },
+    "reproduce/generate_report.py": {
+      "sha256": "c8e253386542c38bc328937386b741bb94fa9b58958722f6a0e634ce89c8ccee",
+      "bytes": 9246
+    },
+    "reproduce/plotting/__init__.py": {
+      "sha256": "54570b3320dbb324f46bbacdaa2042e232e9ed73ad512d8e54522853bd182167",
+      "bytes": 69
+    },
+    "reproduce/plotting/dataset.py": {
+      "sha256": "3f4b9fa71b1f7bf5b135730003685174b4c9bcdf3a062086498ce866ed14f6b7",
+      "bytes": 11419
+    },
+    "reproduce/plotting/report.py": {
+      "sha256": "cf42a69c8981b88f46c4c99b4b5b814c073ff02d4e152d26bd7a2afcfa75de66",
+      "bytes": 30001
+    },
+    "reproduce/plotting/report_style.py": {
+      "sha256": "66c1763b704e35b6a2819ede5e8484d2851c538a1e18d7a8b539737dc27ae8bc",
+      "bytes": 3351
+    },
+    "reproduce/plotting/timeline.py": {
+      "sha256": "645568eb36941a331d60d815ff007db9965b304f70114522c8fc3530f9888bb1",
+      "bytes": 19271
+    },
+    "reproduce/redraw_timeline.py": {
+      "sha256": "b3ac389acd6a79f51a8d5226b6350e1597b40dc516d87c692a6fc30edec4b55e",
+      "bytes": 7068
+    }
+  }
+}
