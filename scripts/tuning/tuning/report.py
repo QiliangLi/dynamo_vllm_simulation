@@ -41,7 +41,7 @@ def table(headers, rows):
 CODE_MAP = """# TFS 代码地图与硬约束
 
 本文件描述仿真栈里读调度逻辑的位置、冻结校验对候选的硬性要求、以及账本在决策时刻能看到什么。提案前必读。
-所有路径相对 `base/dynamo_vllm_cpu_sim/`。
+所有路径相对 `base/dynamo_vllm_cpu_sim/`。候选的覆盖层（`candidates/<编号>/overlay/`）里就是这些路径，不再套一层 `dynamo_vllm_cpu_sim/`：例如 `overlay/sim/stack/read_admission.py`。
 
 ## 1. 一条请求怎么流过 TFS
 

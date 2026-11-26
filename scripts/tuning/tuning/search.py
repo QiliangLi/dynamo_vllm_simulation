@@ -20,6 +20,7 @@ import subprocess
 import sys
 import time
 import traceback
+from pathlib import Path
 
 from . import config, evaluator, gates, roles, wsl
 from .report import (_mean_digest, baseline_series, digests_of, leave_one_out, open_tier_of,
@@ -38,6 +39,43 @@ REPLAY_TAGS = ("smoke", "screen", "confirm", "attack", "final")
 # was stopped). Past EVENT_LIMIT the candidate goes back before any screening run is spent on it.
 SMOKE_WORKLOADS = (config.SMOKE_WORKLOAD, "540")
 EVENT_LIMIT = 9200
+
+
+def normalize_overlay(folder):
+    """Put files that were written one directory too deep where they belong; returns what it did.
+
+    A few proposers took "the paths match the package" to include the package's own folder and wrote
+    ``overlay/dynamo_vllm_cpu_sim/sim/...``. The gate refused them as out of scope. The shell denies rm,
+    del and mv, so they could not undo it: one spent three revision rounds on it and was lost. Where a
+    file exists at both places the newer one wins.
+    """
+    overlay = Path(folder) / "overlay"
+    deep = overlay / "dynamo_vllm_cpu_sim"
+    if not deep.is_dir():
+        return []
+    done = []
+    for path in sorted(p for p in deep.rglob("*") if p.is_file() and "__pycache__" not in p.parts):
+        target = overlay / path.relative_to(deep)
+        name = path.relative_to(overlay).as_posix()
+        if target.exists() and target.stat().st_mtime >= path.stat().st_mtime:
+            path.unlink()
+            done.append("dropped %s (the copy at the right path is newer or equal)" % name)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.exists():
+                target.unlink()
+            shutil.move(str(path), str(target))
+            done.append("moved %s to %s" % (name, target.relative_to(overlay).as_posix()))
+    for path in sorted((p for p in deep.rglob("*") if p.is_dir()), key=lambda p: len(p.parts), reverse=True):
+        try:
+            path.rmdir()
+        except OSError:
+            pass
+    try:
+        deep.rmdir()
+    except OSError:
+        pass
+    return done
 
 
 def finding_text(item):
@@ -271,6 +309,10 @@ class Search:
 
     def step_propose(self):
         gen = self.state["gen"]
+        # Every group still working keeps this step alive. The flag used to be reset inside the loop, so it
+        # said only whether the last group looked at was busy: when that group finished first the step moved
+        # on, and the other proposals were left in "drafting" for good (generation 4 lost two of three).
+        waiting = False
         for lab, cand_id in zip(roles.LABS, gen["llm"]):
             cand = self.cand(cand_id)
             if cand["status"] != "drafting":
@@ -280,9 +322,8 @@ class Search:
             status = self.ensure(task, "proposer", ["candidates/%s/**" % cand_id], roles.PROPOSER_SHELL + self.read_shell,
                                  lambda task=task, lab=lab, cand_id=cand_id, folder=folder: self.proposer_book(task, lab, cand_id, folder),
                                  max_attempts=2, timeout_min=config.TIMEOUT_MIN["proposer"])
-            waiting = False
             if status == "wait":
-                # Both proposal groups work at the same time; come back when each has finished.
+                # The groups work at the same time; come back when each has finished.
                 waiting = True
                 continue
             card, errors = gates.load_card(self.cand_dir(cand_id))
@@ -304,7 +345,9 @@ class Search:
         if champion:
             inputs.append(("candidates/%s" % champion["id"], "现任冠军的覆盖层与卡片，可以在它之上改进"))
         outputs = [(folder + "/card.json", "候选卡（JSON，字段见下）"), (folder + "/CARD.md", "给人看的说明"),
-                   (folder + "/policy.json", "要下发的配置与参数"), (folder + "/overlay/**", "替换的包内文件，路径与 base/ 里一致"),
+                   (folder + "/policy.json", "要下发的配置与参数"),
+                   (folder + "/overlay/**", "替换的包内文件：直接按包内路径放，例如 overlay/sim/stack/read_admission.py、overlay/sim/stack/policy/xxx.py；"
+                    "不要再套一层 dynamo_vllm_cpu_sim/，你也没有删除权限，放错了改不回来"),
                    (folder + "/tests/test_*.py", "unittest，其中必须有文件名含 scale 的尺度不变性测试")]
         notes = ["card.json 的字段：name、tier（整数，0 表示只用核心范围）、parent（父候选编号或 null）、mechanism"
                  "（signal/action/timing/feedback 四个列表，标签见上下文的机制地图）、params（对象，键是 policy.json 里的点路径，"
@@ -322,6 +365,10 @@ class Search:
     # ------------------------------------------------------------ pipeline
 
     def step_pipeline(self):
+        # A candidate is not "active" while it is still being drafted. So a proposal that was still being
+        # written when this step began is picked up here, instead of being passed over until the generation ends.
+        if any(self.cand(cand_id)["status"] == "drafting" for cand_id in self.members()):
+            self.step_propose()
         again = True
         while again:
             again = False
@@ -449,6 +496,9 @@ class Search:
         """The static gate, then unit tests, then one smoke replay."""
         cand = self.cand(cand_id)
         folder = self.cand_dir(cand_id)
+        moved = normalize_overlay(folder)
+        if moved:
+            self.log("overlay_normalized", cand=cand_id, moves=moved[:30])
         result = gates.static_gate(folder, self.d.base_dir, open_tier_of(self.state))
         if not result.passed:
             cand["gate"] = result.as_dict()

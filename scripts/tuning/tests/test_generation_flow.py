@@ -5,17 +5,20 @@ a helper injects run results for whatever the search enqueues. The test proves
 the state machine reaches a promotion and starts the next generation.
 """
 import json
+import os
 import shutil
 import sys
 import tempfile
+import time
 import unittest
+from collections import Counter
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from tuning import config, daemon as core, report, wsl  # noqa: E402
-from tuning.search import Search, finding_text  # noqa: E402
+from tuning.search import Search, finding_text, normalize_overlay  # noqa: E402
 from tuning.store import read_json, write_json  # noqa: E402
 
 W = list(config.WORKLOADS)
@@ -344,6 +347,63 @@ class GenerationFlow(unittest.TestCase):
         # The other proposal was not held up: it was screened and promoted.
         self.assertEqual(state["champion"], "c0001")
         self.assertEqual(len(state["history"]), 1)
+
+    def test_proposals_that_finish_after_the_last_group_are_still_picked_up(self):
+        """Generation 4 lost two of its three proposals: the step moved on as soon as the last group it
+        looked at had finished, and a candidate still being drafted does not count as active."""
+        self.d.state["meta"]["allocation"] = dict(llm=3, param=0)
+        finish_on = {"proposer_g1_A": 4, "proposer_g1_B": 6}   # the third group finishes on its first call
+        original, calls = self.fake_task, Counter()
+
+        def slow(task_id, role, task_md, write_paths, shell, **options):
+            calls[task_id] += 1
+            if calls[task_id] < finish_on.get(task_id, 1):
+                self.d.state["tasks"][task_id] = dict(status="running", role=role, attempts=1, error="")
+                return
+            original(task_id, role, task_md, write_paths, shell, **options)
+        self.d.start_task = slow
+        self.drive()
+        state = self.d.state
+        first = [c for c, r in state["candidates"].items() if r.get("gen") == 1]
+        self.assertEqual(len(first), 3)
+        self.assertEqual([state["candidates"][c]["status"] for c in first].count("drafting"), 0)
+        for cand_id in first:
+            self.assertIn("redteam_%s_0" % cand_id, state["tasks"])
+        self.assertGreaterEqual(calls["proposer_g1_A"], 4)
+        self.assertGreaterEqual(calls["proposer_g1_B"], 6)
+
+    def test_overlay_files_written_one_directory_too_deep_are_moved_before_the_gate(self):
+        """Proposers cannot delete what they wrote, so the gate kept refusing the misplaced copies."""
+        root = Path(tempfile.mkdtemp())
+        try:
+            overlay = root / "overlay"
+            deep = overlay / "dynamo_vllm_cpu_sim" / "sim" / "stack"
+            deep.mkdir(parents=True)
+            (overlay / "sim" / "stack").mkdir(parents=True)
+            (deep / "read_admission.py").write_text("old", encoding="utf-8")
+            (overlay / "sim" / "stack" / "read_admission.py").write_text("newer", encoding="utf-8")
+            (deep / "policy").mkdir()
+            (deep / "policy" / "budget.py").write_text("budget", encoding="utf-8")
+            os.utime(deep / "read_admission.py", (1, 1))
+            os.utime(overlay / "sim" / "stack" / "read_admission.py", (time.time(), time.time()))
+
+            done = normalize_overlay(root)
+            self.assertEqual(sorted(done), ["dropped dynamo_vllm_cpu_sim/sim/stack/read_admission.py (the copy at the right path is newer or equal)",
+                                            "moved dynamo_vllm_cpu_sim/sim/stack/policy/budget.py to sim/stack/policy/budget.py"])
+            self.assertFalse((overlay / "dynamo_vllm_cpu_sim").exists())
+            self.assertEqual((overlay / "sim" / "stack" / "read_admission.py").read_text(encoding="utf-8"), "newer")
+            self.assertEqual((overlay / "sim" / "stack" / "policy" / "budget.py").read_text(encoding="utf-8"), "budget")
+            self.assertEqual(normalize_overlay(root), [])
+
+            # The deeper copy wins when it is the newer one.
+            deep.mkdir(parents=True)
+            (deep / "late.py").write_text("latest", encoding="utf-8")
+            (overlay / "sim" / "stack" / "late.py").write_text("earlier", encoding="utf-8")
+            os.utime(overlay / "sim" / "stack" / "late.py", (1, 1))
+            normalize_overlay(root)
+            self.assertEqual((overlay / "sim" / "stack" / "late.py").read_text(encoding="utf-8"), "latest")
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def test_generation_survives_when_every_proposal_fails(self):
         self.bad_lab = "A"
