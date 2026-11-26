@@ -238,14 +238,14 @@ def catalog_text():
         cfg=read(ROOT/m['case']/'config.json');classes='/'.join(f'{k}:{v}' for k,v in sorted(m['class_counts'].items()))
         model=cfg['compute'].get('batch_time_model',cfg['compute']['mode'])
         status='可运行' if m['portable_runner_status']=='supported' else '仅校验、导出'
-        if m.get('trace_format')=='server_stack_v1':status='[四实例入口](../docs/四实例25GB运行指南.md)'
+        if m.get('trace_format')=='server_stack_v1' and m.get('four_worker_runner', True):status='[四实例入口](../docs/四实例25GB运行指南.md)'
         lines.append(f"| [{m['case']}]({m['case']}/README.md) | {m['source']} / {m['feature']} | {m['requests']} / {m['arrival_window_s']:g}s | {m['workers']} / {m['shared_storage_Bps']/1e9:g} GB/s | {m['new_tokens']}（{m['new_pct']:.6f}%） | {m['read_bytes']/1e9:.6f} | {classes} | {model} / {m['execution_feedback']} | {status} |")
     lines+=['','## 来源与构造说明','']
     for m in manifests():
         source=m.get('source_dataset',m.get('source_file',m['source']))
         lines.append(f"- **{m['case']}**：{m['description']} 来源：{source}，原行号 {m['source_first_line']}—{m['source_last_line']}。输入 SHA256：{m['original_trace_sha256']}。")
     lines+=['','## 附录：字段与类别','',
-        '- server_stack_v1：本次四实例MiniMax固定输入，保留原始token和计划到达，不重采样。窗口表示0到标称截止时刻，末次请求可早于截止。专用四实例入口直接运行冻结输入；旧 GLM5 运行器继续只校验和导出这些输入。',
+        '- server_stack_v1：本次四实例MiniMax固定输入，保留原始token和计划到达，不重采样。窗口表示0到标称截止时刻，末次请求可早于截止。目录标有四实例入口的用例可用专用运行器。仅校验、导出条目见各自说明。',
         '- 名称顺序：数据来源_数据特征_请求总数_发送窗口_计算实例数_存储带宽。时间用 s；GBps 表示十进制 GB/s，1 GB = 10^9 B。带宽指单共享池，不是每实例独享带宽。',
         '- random：未按 ABC/ABCD 人为分配请求类别。不表示随机打乱、无采样或命中未处理。两份 random 的命中规则不同，见来源说明及各自 manifest。',
         '- mooncake 来源的 abc / abcd：总 input 的约 4% 为全局新算预算。A 重读轻计算（新算 1—16 token）；B 轻读重计算（承接剩余额度）；C 零读（短请求全部重算）；D 重读重计算（最长 20 条各新算 2033—2046 token）。按长度选类别后恢复原 trace 顺序，不按类别重排。',

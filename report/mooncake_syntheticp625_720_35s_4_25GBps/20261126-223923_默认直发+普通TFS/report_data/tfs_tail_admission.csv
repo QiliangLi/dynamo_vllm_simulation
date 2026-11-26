@@ -1,0 +1,16 @@
+﻿event,client_axis_s,cap
+request_correlated,33.520286082988605,
+dynamo_tier_profile_resolved,33.68314258311875,
+request_arrived,33.68282087496482,
+storage_hint_created,33.68282087496482,
+request_submitted,33.68313891696744,
+storage_hint_forwarded,33.68321108305827,
+worker_assigned,41.660914374981076,
+read_permit_denied,41.660914374981076,1
+routing_score_activation_queued,41.665327792055905,
+admission_reserved,41.66520266700536,1
+feedback_received,41.81152629200369,
+feedback_delivered,41.8116499169264,
+admission_released,41.81154250004329,
+feedback_received,41.812128083081916,
+feedback_delivered,41.81215058313683,

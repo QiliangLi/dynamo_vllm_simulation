@@ -1,0 +1,4 @@
+*.md text eol=lf
+*.csv -text whitespace=cr-at-eol
+*.json text eol=lf
+*.gz -text
