@@ -318,6 +318,32 @@ class GenerationFlow(unittest.TestCase):
         self.assertEqual(text(dict(other=1)), '{"other": 1}')
         self.assertEqual(text(7), "7")
 
+    def test_a_step_that_raises_only_stops_its_own_candidate(self):
+        """The first real red-team rejection raised inside the step on every pass; the other two
+        proposals of the generation stood still with it."""
+        original = Search.at_screen
+
+        def raising(self_, cand_id):
+            if cand_id == "c0002":   # the bad proposal of this test: its screening step is the broken one
+                raise TypeError("sequence item 0: expected str instance, dict found")
+            return original(self_, cand_id)
+        Search.at_screen = raising
+        try:
+            self.bad_lab = "B"
+            self.drive()
+        finally:
+            Search.at_screen = raising.__wrapped__ if hasattr(raising, "__wrapped__") else original
+        state = self.d.state
+        stuck = state["candidates"]["c0002"]
+        self.assertEqual(stuck["status"], "stuck")
+        self.assertEqual(stuck["resume_status"], "screen")
+        self.assertEqual(stuck["step_errors"], 5)
+        self.assertIn("TypeError('sequence item 0: expected str", stuck["reason"])
+        self.assertTrue(any("被搁置" in a["text"] for a in state["alerts"]))
+        # The other proposal was not held up: it was screened and promoted.
+        self.assertEqual(state["champion"], "c0001")
+        self.assertEqual(len(state["history"]), 1)
+
     def test_generation_survives_when_every_proposal_fails(self):
         self.bad_lab = "A"
         other = "B"

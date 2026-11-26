@@ -248,6 +248,17 @@ class PlannedExit(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.root, ignore_errors=True)
 
+    def test_the_same_error_ten_passes_in_a_row_asks_for_a_person(self):
+        """Forty passes of any errors, with a backoff up to five minutes, was two hours of standing still."""
+        for _ in range(9):
+            self.assertFalse(self.daemon.note_error(TypeError("sequence item 0: expected str")))
+        self.assertTrue(self.daemon.note_error(TypeError("sequence item 0: expected str")))
+        # Different errors in turn are counted, but only the long threshold applies to them.
+        other = core.Daemon(self.root)
+        for index in range(39):
+            self.assertFalse(other.note_error(ValueError("number %d" % index)))
+        self.assertTrue(other.note_error(ValueError("number 39")))
+
     def test_a_restart_waits_for_the_model_tasks(self):
         """Killing a task loses half an hour of a proposal's work."""
         (self.control / "RESTART").write_text("")

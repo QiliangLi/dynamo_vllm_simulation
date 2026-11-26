@@ -104,6 +104,7 @@ class Daemon:
             (self.ws / name).mkdir(parents=True, exist_ok=True)
         self.threads = {}
         self._errors = 0
+        self._same = ("", 0)   # the last error and how many passes in a row it repeated
         self._health = (0.0, None)
         self._keep = None
         self._probe_at = 0.0
@@ -150,6 +151,18 @@ class Daemon:
         if pinned and pinned != current:
             changed = sorted(k for k in current if pinned.get(k) != current[k])
             raise SystemExit("frozen files changed: %s (planned upgrade: python tune.py control unfreeze)" % changed)
+
+    def note_error(self, error):
+        """Count a failed pass. True when the daemon should stop and ask for a person.
+
+        Forty failed passes of any kind used to be the only threshold; with a backoff that grows to
+        five minutes that is two hours of standing still. The same error ten passes in a row (about
+        nine minutes) is not going to clear by itself, so that asks at once.
+        """
+        self._errors += 1
+        text = repr(error)
+        self._same = (text, self._same[1] + 1) if text == self._same[0] else (text, 1)
+        return self._errors >= 40 or self._same[1] >= 10
 
     def register_frozen_at_start(self):
         """Honour control/UNFREEZE before the check: the request is the operator's explicit consent."""
@@ -231,10 +244,10 @@ class Daemon:
             except SystemExit:
                 raise
             except Exception as error:  # noqa: BLE001 - the loop must survive any single failure
-                self._errors += 1
-                self.log("daemon_error", error=repr(error), trace=traceback.format_exc()[-3000:], streak=self._errors)
-                if self._errors >= 40:
-                    self.needs_human("连续 %d 次内部错误：%s" % (self._errors, repr(error)[:300]))
+                if self.note_error(error):
+                    self.needs_human("内部错误反复出现，没有自行恢复：%s" % repr(error)[:300])
+                self.log("daemon_error", error=repr(error), trace=traceback.format_exc()[-3000:],
+                         streak=self._errors, same=self._same[1])
                 time.sleep(min(300, 10 * self._errors))
             else:
                 self._errors = 0

@@ -19,6 +19,7 @@ import statistics
 import subprocess
 import sys
 import time
+import traceback
 
 from . import config, evaluator, gates, roles, wsl
 from .report import (_mean_digest, baseline_series, digests_of, leave_one_out, open_tier_of,
@@ -331,13 +332,28 @@ class Search:
             self.state["gen"]["step"] = "meta"
 
     def advance(self, cand_id):
-        """Move one candidate forward. True when its status changed."""
+        """Move one candidate forward. True when its status changed.
+
+        A step that raises is confined to its candidate. The first time the red team rejected one,
+        the step raised on every pass and the other two proposals of the generation stood still with it.
+        """
         cand = self.cand(cand_id)
         status = cand["status"]
         handler = getattr(self, "at_" + status, None)
         if not handler:
             return False
-        return handler(cand_id)
+        try:
+            return handler(cand_id)
+        except Exception as error:  # noqa: BLE001 - logged with its trace; the other candidates go on
+            cand["step_errors"] = cand.get("step_errors", 0) + 1
+            self.log("candidate_step_error", cand=cand_id, status=status, error=repr(error),
+                     trace=traceback.format_exc()[-2000:], count=cand["step_errors"])
+            if cand["step_errors"] >= 5:
+                cand.update(resume_status=status, status="stuck",
+                            reason="流程在处理它（%s）时连续出错：%r" % (status, repr(error)[:300]))
+                self.d.alert("候选 %s 被搁置：流程处理它时连续 5 次出错（%r）" % (cand_id, error), level="error")
+                return True
+            return False
 
     def at_drafted(self, cand_id):
         cand = self.cand(cand_id)
