@@ -29,8 +29,12 @@ MODELS = dict(
 NON_GLM_ROLES = frozenset()   # roles run on a model that is not GLM; their tokens are counted apart
 CROSSVAL_ENABLED = True
 CROSSVAL_PER_GENERATION = 5
-TIMEOUT_MIN = dict(analyst=45, proposer=150, redteam=45, judge=30, auditor=30, prover=35, meta=40,
-                   crossval=25, revise=60, toolmaker=45)
+# Minutes one task may run before it is stopped and started over. A restart repeats all of the work, so
+# the limits sit well above what has been seen (first three generations, 2026-11-26): analyst 12 min,
+# proposer 39, red team 15, toolmaker 27, prover 31, meta-strategist 36 and once past 40, which is what
+# raised these from 30–45. The judge and the auditor have not run for real yet.
+TIMEOUT_MIN = dict(analyst=60, proposer=150, redteam=60, judge=60, auditor=45, prover=60, meta=75,
+                   crossval=25, revise=90, toolmaker=60)
 
 # Section 10, frozen.
 SCREEN_RUNS = 2
