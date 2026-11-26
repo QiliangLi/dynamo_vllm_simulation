@@ -9,10 +9,27 @@ import statistics
 from pathlib import Path
 
 BIN_S = 0.25
+# The ingress keeps only the last 10000 ledger events of a run (sim/stack/ingress_control.py, register).
+# Past that, the checker cannot join the workers' load records to their requests and the replay fails.
+ADMISSION_EVENT_CAP = 10000
 
 
 def _read(path):
     return json.loads(Path(path).read_bytes())
+
+
+def admission_events(run, final):
+    """How many ledger events the run produced, against the cap of what is kept.
+
+    The JSONL log holds all of them; the snapshot holds a bounded tail.
+    """
+    total = len(final["events"])
+    try:
+        with (Path(run) / "admission.events.jsonl").open(encoding="utf-8") as stream:
+            total = max(total, sum(1 for _ in stream))
+    except OSError:
+        pass
+    return dict(total=total, cap=ADMISSION_EVENT_CAP, kept=len(final["events"]), capped=total > len(final["events"]))
 
 
 def short(rid):
@@ -248,6 +265,7 @@ def digest(run, bench_dir, summary):
                      peak_held=check["held_heavy_peak"], blocked_requests=len(denied),
                      blocked_total_s=sum(waits), blocked_max_s=max(waits, default=0.0)),
         waits=dict(admission_mean_s=check["central_wait_mean_s"], admission_max_s=check["central_wait_max_s"]),
+        admission_events=admission_events(run, final),
         pressure_GBs=dict(zero_read_share=1 - len(positive) / len(items),
                           min=positive[0] if positive else 0.0,
                           median=statistics.median(positive) if positive else 0.0,

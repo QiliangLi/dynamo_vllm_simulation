@@ -280,6 +280,23 @@ class PlannedExit(unittest.TestCase):
         self.assertFalse(self.daemon.register_frozen_at_start())
 
 
+class DigestTests(unittest.TestCase):
+    def test_event_count_comes_from_the_full_log_and_says_when_the_snapshot_was_capped(self):
+        """The snapshot keeps the last 10000 ledger events; the join in the checker needs the first ones."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("digest", HERE / "wsl" / "digest.py")
+        digest = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(digest)
+        root = Path(tempfile.mkdtemp())
+        try:
+            (root / "admission.events.jsonl").write_text('{"event": "a"}\n' * 10001 + '{"event": "last"}\n', encoding="utf-8")
+            final = dict(events=[dict(event="late")] * 10000)
+            self.assertEqual(digest.admission_events(root, final), dict(total=10002, cap=10000, kept=10000, capped=True))
+            self.assertEqual(digest.admission_events(Path(root) / "nowhere", dict(events=[1, 2])), dict(total=2, cap=10000, kept=2, capped=False))
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 class StoreTests(unittest.TestCase):
     def test_state_round_trip_and_ledger(self):
         root = Path(tempfile.mkdtemp())

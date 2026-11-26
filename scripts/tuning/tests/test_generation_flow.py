@@ -71,6 +71,8 @@ class GenerationFlow(unittest.TestCase):
         (package / "read_admission.py").write_text('"""Frozen arrival classification."""\nimport uuid\n', encoding="utf-8")
         self.enqueued = []
         self.bad_lab = None
+        self.event_total = None   # ledger events of a smoke replay, when the fake digest reports them
+        self.smoke_seen = []
         self.tool_request = "一个按负载汇总候选成绩的脚本"
         self.tool_script = "print('load ttft makespan')\n"
         # fakes
@@ -94,6 +96,8 @@ class GenerationFlow(unittest.TestCase):
             self.d.state["candidates"][cand_id]["attack_specs"] = list(workloads or [])
         self.d.state["candidates"][cand_id]["queued"][core.queued_key(tag, "x")] = 1
         for workload in workloads or W:
+            if tag == "smoke":
+                self.smoke_seen.append((cand_id, tag, rounds, workload, stress))
             self.enqueued.append((cand_id, tag, rounds, workload, stress))
 
     def fake_task(self, task_id, role, task_md, write_paths, shell, **options):
@@ -172,7 +176,38 @@ class GenerationFlow(unittest.TestCase):
                 ttft = base["ttft"][len(rows) % 5] * factor_ttft
                 makespan = base["makespan"][len(rows) % 5] * factor_mk
                 digest = digest_with(overload=1.0 if cand.get("quality") == "good" else 6.0)
+                if tag == "smoke" and self.event_total:
+                    digest["admission_events"] = dict(total=self.event_total, cap=10000, kept=self.event_total, capped=False)
                 rows.append(dict(run=self.mkrun(workload, ttft, makespan, digest), ttft=ttft, makespan=makespan, stress=None))
+
+    def test_a_candidate_near_the_ledger_event_cap_goes_back_before_any_screening_run(self):
+        """On 540 a deny-heavy candidate passed 7 replays in 8 and failed the eighth: past 10000 ledger
+        events the checker cannot join the workers' load records any more."""
+        self.event_total = 9600
+        search = Search(self.d)
+        why = "账本事件量越线风险"
+        for _ in range(200):
+            search.step()
+            self.feed()
+            if any(self.d.state["candidates"][c].get("fix_why") == why for c in self.d.state["gen"]["llm"]):
+                break
+        sent = [self.d.state["candidates"][c] for c in self.d.state["gen"]["llm"] if self.d.state["candidates"][c].get("fix_why") == why]
+        self.assertEqual(len(sent), 2)
+        for cand in sent:
+            self.assertEqual(cand["status"], "revising")
+            self.assertIn("540 上 9600 条", json.dumps(cand["fix_issues"], ensure_ascii=False))
+        self.assertFalse([e for e in self.enqueued if e[1] == "screen"])
+        self.assertFalse([c for c in self.d.state["candidates"].values() if c.get("runs", {}).get("408", {}).get("screen")])
+        # Once the proposer has brought the event count down, the generation completes as usual.
+        self.event_total = None
+        for _ in range(400):
+            search.step()
+            self.feed()
+            if self.d.state.get("history"):
+                break
+        self.assertTrue(self.d.state.get("history"), self.d.state["gen"])
+        smoked = sorted({workload for _, tag, _, workload, _ in self.smoke_seen})
+        self.assertEqual(smoked, ["408", "540"])
 
     def drive(self, limit=400):
         search = Search(self.d)

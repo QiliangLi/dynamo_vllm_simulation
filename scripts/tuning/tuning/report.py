@@ -87,7 +87,7 @@ CODE_MAP = """# TFS 代码地图与硬约束
 8. 账本状态里 `execution_feedback` 现在是 `disabled`，此时不允许出现带 `engine_id` 的 `feedback_received` 事件。如果要让执行器向账本上报加载开始/结束，必须把这两个地方一起改一致。
 9. 记录的时间顺序：`arrival_s <= submitted_s <= first_token_s <= finish_s`，`load_submit_s <= load_done_s <= first_token_s`。
 10. 执行侧的计算模型由 `check_minimax_steps` 以 1e-12 的误差校验，不能动。请求数、读取字节、模型计算总量会与基线逐值比对。
-11. **账本事件总数一轮不能超过 10000 条。** 入口每注册一个请求，就把账本的事件表裁到最近 10000 条（`sim/stack/ingress_control.py` 的 `register` 末尾，`server_ingress_control.py` 同）。校验要把 worker 加载日志里的每个请求关联到它的 `request_correlated` 事件；一旦越线，最早的这些事件被挤掉，整轮以 `KeyError` 失败在 `load_observation.py` 的 `with_local_observations`。这与候选代码的对错无关，只与事件量有关。固定开销：默认策略在 408、mooncake、AgentX 上约 4000–4500 条；**540 上带 TFS 的候选约 8000 条，余量只有约 2000 条**。基线版账本每次拒绝申请都记一条 `read_permit_denied`，而 worker 默认每 2 ms 重试一次（配置键 `admission.retry_interval_wall_s`），所以拒绝频繁的候选在 540 上必然越线：实测一个候选被拒 1354–2108 次时，8 轮里 1 轮失败。做法任选其一或组合：不逐次记录拒绝（按请求聚合，或只记首次）；放慢被拒后的重试；让被拒的请求等到有许可释放再申请。冒烟结果里 `digest.permits.denied` 是这一轮的拒绝次数，**在 540 上要留在 1000 以内**。
+11. **账本事件总数一轮不能超过 10000 条。** 入口每注册一个请求，就把账本的事件表裁到最近 10000 条（`sim/stack/ingress_control.py` 的 `register` 末尾，`server_ingress_control.py` 同）。校验要把 worker 加载日志里的每个请求关联到它的 `request_correlated` 事件；一旦越线，最早的这些事件被挤掉，整轮以 `KeyError` 失败在 `load_observation.py` 的 `with_local_observations`。这与候选代码的对错无关，只与事件量有关。固定开销：默认策略在 408、mooncake、AgentX 上约 4000–4500 条；**540 上带 TFS 的候选约 8000 条，余量只有约 2000 条**。基线版账本每次拒绝申请都记一条 `read_permit_denied`，而 worker 默认每 2 ms 重试一次（配置键 `admission.retry_interval_wall_s`），所以拒绝频繁的候选在 540 上必然越线：实测一个候选被拒 1354–2108 次时，8 轮里 1 轮失败。做法任选其一或组合：不逐次记录拒绝（按请求聚合，或只记首次）；放慢被拒后的重试；让被拒的请求等到有许可释放再申请。冒烟结果里 `digest.admission_events.total` 是这一轮的账本事件总数（`digest.permits.denied` 是拒绝次数）。**冒烟会在 408 和 540 上各跑一轮，任一轮的事件总数达到 9200 条，候选就会被退回修改，不进入筛选；540 上的目标是不超过 9000 条。**
 
 把这些约束换个角度看：**「正式许可」和「你自己的带宽预算记账」可以分开。** 校验只管正式许可的生命周期。一个候选可以让正式许可照旧在首 token 释放，同时在账本里另记一本「在读需求」的账，在加载完成时就不再计入需求。这样的机制不违反任何一条。
 
@@ -230,7 +230,7 @@ def _mean_digest(digests):
     if not digests:
         return {}
     out = {}
-    for key in ("overload", "workers", "permits", "waits", "read_wait_s", "model_sum_s", "reference"):
+    for key in ("overload", "workers", "permits", "waits", "read_wait_s", "model_sum_s", "reference", "admission_events"):
         samples = [d[key] for d in digests if key in d]
         if not samples:
             continue
@@ -311,6 +311,9 @@ def workload_block(daemon, name, label, cand=None):
                                  o.get("overload_s", 0), o.get("saturated_s", 0), o.get("read_stretch_p95", 0),
                                  w.get("idle_s", 0), w.get("starved_idle_s", 0), agg.get("read_wait_s", 0),
                                  agg.get("permits", {}).get("blocked_requests", 0), agg.get("permits", {}).get("blocked_total_s", 0)))
+                events = agg.get("admission_events") or {}
+                if events.get("total"):
+                    lines.append("候选每轮的账本事件约 %d 条（账本只保留 10000 条，超过即校验失败）。" % events["total"])
     return "\n".join(lines)
 
 

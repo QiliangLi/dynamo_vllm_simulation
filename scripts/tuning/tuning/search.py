@@ -31,6 +31,12 @@ ATTACK_DEFAULT = ["bw10_540", "arr_fast_540", "heavy_only", "zero_read"]
 ATTACK_PARAM = ["bw10_540", "arr_fast_540"]
 ACTIVE = ("drafted", "revising", "reviewed", "ready", "smoke", "screen", "confirm", "promotable", "audited")
 REPLAY_TAGS = ("smoke", "screen", "confirm", "attack", "final")
+# The smoke replays run on the usual workload and on 540: 540 has 540 requests, about 8000 ledger events
+# before the first denial, and the ledger keeps only 10000. A candidate that is denied often there
+# passes some replays and fails others with KeyError in the checker's join (one lost 1 run in 8, another
+# was stopped). Past EVENT_LIMIT the candidate goes back before any screening run is spent on it.
+SMOKE_WORKLOADS = (config.SMOKE_WORKLOAD, "540")
+EVENT_LIMIT = 9200
 
 
 class Search:
@@ -432,21 +438,34 @@ class Search:
         else:
             # The official smoke replays exactly what passed the gate. A smoke the proposer asked
             # for earlier may predate its last edits, so it does not count.
-            cand["runs"].get(config.SMOKE_WORKLOAD, {}).pop("smoke", None)
+            for workload in SMOKE_WORKLOADS:
+                cand["runs"].get(workload, {}).pop("smoke", None)
             cand["status"] = "smoke"
-            self.enqueue(cand_id, "smoke", 1, workloads=[config.SMOKE_WORKLOAD])
+            self.enqueue(cand_id, "smoke", 1, workloads=list(SMOKE_WORKLOADS))
         return True
 
     def at_smoke(self, cand_id):
         cand = self.cand(cand_id)
-        rows = (cand["runs"].get(config.SMOKE_WORKLOAD) or {}).get("smoke") or []
-        if not rows:
-            if cand.get("run_failed"):
-                reason, cand["run_failed"] = cand["run_failed"], ""
-                return self.send_back(cand_id, [reason[:1500]], "冒烟回放失败")
+        rows = {workload: (cand["runs"].get(workload) or {}).get("smoke") or [] for workload in SMOKE_WORKLOADS}
+        if cand.get("run_failed"):
+            reason, cand["run_failed"] = cand["run_failed"], ""
+            return self.send_back(cand_id, [reason[:1500]], "冒烟回放失败")
+        for workload, items in rows.items():
+            # A candidate already waiting for its smoke when the second workload was added never asked for it.
+            if not items and not cand.get("queued", {}).get(queued_key("smoke", workload)):
+                self.enqueue(cand_id, "smoke", 1, workloads=[workload])
+        if not all(rows.values()):
             return False
-        result = read_json(self.ws / "runs" / rows[0]["run"] / "result.json")
-        write_json(self.cand_dir(cand_id) / "smoke.json", dict(summary=result["summary"], digest=result["digest"]))
+        results = {workload: read_json(self.ws / "runs" / items[0]["run"] / "result.json") for workload, items in rows.items()}
+        events = {workload: int((((result.get("digest") or {}).get("admission_events") or {}).get("total")) or 0)
+                  for workload, result in results.items()}
+        near = ["%s 上 %d 条" % (workload, total) for workload, total in events.items() if total >= EVENT_LIMIT]
+        if near:
+            return self.send_back(cand_id, ["账本事件总数接近上限（10000 条，超过后校验以 KeyError 失败，而且越线与否取决于当轮的拒绝次数）：%s。"
+                                            "压低事件量：不逐次记录拒绝、放慢被拒后的重试，或等有许可释放再申请。见 digest/code_map.md 第 3 节第 11 条。"
+                                            % "、".join(near)], "账本事件量越线风险")
+        first = results[config.SMOKE_WORKLOAD]
+        write_json(self.cand_dir(cand_id) / "smoke.json", dict(summary=first["summary"], digest=first["digest"], admission_events=events))
         cand["status"] = "screen"
         self.enqueue(cand_id, "screen", config.SCREEN_RUNS)
         return True
