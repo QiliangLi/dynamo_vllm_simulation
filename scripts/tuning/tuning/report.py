@@ -735,15 +735,47 @@ def improvements_table(state, champion, base):
             % "".join(rows) if rows else "<p class='muted'>还没有冠军。参照对象是默认策略。</p>")
 
 
+def models_actually_used(state):
+    """( {"<model id> (<reasoning level>)": tasks}, tasks without a record )
+
+    Read from opencode's own sessions, not from what the roles were assigned: its provider is the user's
+    gateway and is called "kimi" for every model it carries, GLM included, which reads as if a Kimi model
+    were in use. The model id is what tells them apart.
+    """
+    from . import llm
+    index = llm.session_model_index()
+    counts, unverified = {}, 0
+    for record in (state.get("tasks") or {}).values():
+        models = record.get("models")
+        key = max(models, key=models.get) if models else index.get(record.get("session_id"))
+        if not key:
+            unverified += 1
+            continue
+        name, _, variant = key.partition("#")
+        name = name.rsplit("/", 1)[-1] + ("" if variant in ("default", "") else "（%s 档）" % variant)
+        counts[name] = counts.get(name, 0) + 1
+    return counts, unverified
+
+
 def usage_table(state, daemon):
     kinds = state.get("runs_by_kind", {})
     total = kinds.get("llm", 0) + kinds.get("param", 0)
-    glm, other = state["tokens"].get("glm", {}), state["tokens"].get("kimi", {})
+    glm = state["tokens"].get("glm", {})
+    other = sum(sum(row.get(k, 0) for k in ("input", "output", "reasoning"))
+                for family, row in state["tokens"].items() if family not in ("glm", "by_role", "by_model"))
     health = state["env"].get("health") or {}
     crossval = ("已停用" if not config.CROSSVAL_ENABLED else
                 "第 %d 代用了 %d 次 / 上限 %d（%s 的独立会话）" % (
                     state["crossval"]["gen"], state["crossval"]["used"], config.CROSSVAL_PER_GENERATION,
                     config.MODELS["crossval"].rsplit("/", 1)[-1].split("#")[0]))
+    try:
+        used, unverified = models_actually_used(state)
+        used_text = "、".join("%s ×%d" % (name, count) for name, count in sorted(used.items(), key=lambda item: -item[1])) \
+            + ("；无法核对 %d 次" % unverified if unverified else "")
+        if not used and not unverified:
+            used_text = "还没有任务"
+    except Exception as error:  # noqa: BLE001 - the dashboard must render
+        used_text = "读不到 opencode 的记录：%r" % error
     return "<table>%s</table>" % "".join(
         "<tr><td class='lbl'>%s</td><td>%s</td><td class='lbl'>%s</td><td>%s</td></tr>" % (pair[0][0], pair[0][1], pair[1][0], pair[1][1])
         for pair in [
@@ -751,9 +783,11 @@ def usage_table(state, daemon):
          ("并行度（筛选）", "%d" % state["parallel"])),
         (("GLM token", "%.2f 亿（%d 次调用）" % (sum(glm.get(k, 0) for k in ("input", "output", "reasoning")) / 1e8, glm.get("calls", 0))),
          ("交叉验证", crossval)),
+        (("实际使用的模型（opencode 的记录）", html.escape(used_text)),
+         ("非 GLM 模型 token", "%.0f 万" % (other / 1e4))),
         (("探索 / 调参（轮次）", "%.0f%% / %.0f%%（保底 %.0f%%）" % (
             100 * kinds.get("llm", 0) / (total or 1), 100 * kinds.get("param", 0) / (total or 1), 100 * config.EXPLORE_MIN)),
-         ("非 GLM 模型 token", "%.0f 万" % (sum(other.get(k, 0) for k in ("input", "output", "reasoning")) / 1e4))),
+         ("kimi 字样", "来自网关（提供商）的名字，GLM 也挂在它下面；模型看后半段")),
         (("WSL", "正常" if health.get("ok") else ("异常：%s" % health.get("reason"))),
          ("漂移", "对照连续偏离 %d 次" % state.get("drift_strikes", 0))),
         (("排队 / 在跑", "%d / %d" % (len(state["queue"]), len(state["active"]))),

@@ -308,6 +308,64 @@ class DigestTests(unittest.TestCase):
             shutil.rmtree(root, ignore_errors=True)
 
 
+class ModelRecordTests(unittest.TestCase):
+    def test_the_model_a_task_ran_on_is_read_from_opencode_not_assumed_from_the_role(self):
+        """The provider is the user's gateway, called "kimi" for GLM too; opencode's own default is a Kimi model."""
+        import sqlite3
+        from tuning import llm
+        root = Path(tempfile.mkdtemp())
+        try:
+            db = root / "opencode.db"
+            connection = sqlite3.connect(db)
+            connection.execute("CREATE TABLE session_message (id TEXT, session_id TEXT, type TEXT, seq INTEGER, time_created INTEGER, time_updated INTEGER, data TEXT)")
+            connection.execute("CREATE TABLE session_v2 (id TEXT, model TEXT)")
+            glm = dict(providerID="kimi", id="zhipu/glm-5.4", variant="high")
+            kimi = dict(providerID="kimi", id="moonshot/kimi-k3.1-pro")
+            rows = [("ses_a", 100_000, glm), ("ses_a", 200_000, glm), ("ses_a", 900_000, kimi),   # the last one is a later task's
+                    ("ses_b", 100_000, kimi), ("ses_c", 100_000, None)]
+            for index, (session, created, model) in enumerate(rows):
+                connection.execute("INSERT INTO session_message VALUES (?, ?, 'assistant', ?, ?, 0, ?)",
+                                   (str(index), session, index, created, json.dumps(dict(role="assistant", model=model))))
+            connection.execute("INSERT INTO session_v2 VALUES ('ses_a', ?)", (json.dumps(glm),))
+            connection.execute("INSERT INTO session_v2 VALUES ('ses_b', ?)", (json.dumps(kimi),))
+            connection.execute("INSERT INTO session_v2 VALUES ('ses_d', NULL)")
+            connection.commit()
+            connection.close()
+
+            self.assertEqual(llm.session_models("ses_a", 95, 240, db_path=db),
+                             {"kimi/zhipu/glm-5.4#high": 2})
+            self.assertEqual(llm.session_models("ses_b", 95, 240, db_path=db), {"kimi/moonshot/kimi-k3.1-pro#default": 1})
+            self.assertEqual(llm.session_models("ses_c", 95, 240, db_path=db), {})
+            self.assertIsNone(llm.session_models(None, 95, 240, db_path=db))
+            self.assertIsNone(llm.session_models("ses_a", 95, 240, db_path=root / "nowhere.db"))
+            self.assertEqual(llm.session_model_index(db_path=db),
+                             {"ses_a": "kimi/zhipu/glm-5.4#high", "ses_b": "kimi/moonshot/kimi-k3.1-pro#default"})
+
+            family = core.model_family
+            self.assertEqual(family({"kimi/zhipu/glm-5.4#high": 3}, "proposer"), "glm")
+            self.assertEqual(family({"kimi/zhipu/glm-5.4#high": 3, "kimi/glm-5.3#high": 1}, "auditor"), "glm")
+            self.assertEqual(family({"kimi/moonshot/kimi-k3.1-pro#default": 1}, "crossval"), "kimi")
+            self.assertEqual(family({"kimi/kimi-k3#default": 1}, "crossval"), "kimi")
+            self.assertEqual(family(None, "proposer"), "glm")
+            self.assertEqual(family(None, "crossval"), "glm")   # the role's label, since the record could not be read
+
+            state = core.initial_state("x")
+            state["tokens"] = {"glm": dict(input=10, output=1, reasoning=1, calls=1, by_model={})}
+            state["tasks"] = {"proposer_g1_A": dict(status="ok", session_id="ses_a", models={"kimi/zhipu/glm-5.4#high": 2}),
+                              "crossval_x": dict(status="ok", session_id="ses_b"),
+                              "proposer_g1_B": dict(status="ok", session_id="ses_z")}
+            original = llm.OPENCODE_DB
+            llm.OPENCODE_DB = db
+            try:
+                used, unverified = report.models_actually_used(state)
+            finally:
+                llm.OPENCODE_DB = original
+            self.assertEqual(used, {"glm-5.4（high 档）": 1, "kimi-k3.1-pro": 1})
+            self.assertEqual(unverified, 1)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 class StoreTests(unittest.TestCase):
     def test_state_round_trip_and_ledger(self):
         root = Path(tempfile.mkdtemp())

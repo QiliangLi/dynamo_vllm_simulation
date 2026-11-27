@@ -8,6 +8,7 @@ only reports what the agent did.
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import threading
 import time
@@ -17,6 +18,74 @@ from . import config, roles
 
 _semaphore = threading.Semaphore(3)
 TAIL = 4000
+# Where opencode keeps its sessions, with the model of every assistant message. The workflow names a model
+# per role, but opencode has a default of its own; what ran is what this database says ran.
+OPENCODE_DB = Path.home() / ".local" / "share" / "opencode" / "opencode.db"
+
+
+def _model_key(model):
+    model = model if isinstance(model, dict) else {}
+    return "%s/%s#%s" % (model.get("providerID"), model.get("id"), model.get("variant") or "default")
+
+
+def _connect(db_path):
+    connection = sqlite3.connect(Path(db_path).as_uri() + "?mode=ro", uri=True, timeout=5)
+    connection.execute("PRAGMA query_only = 1")
+    return connection
+
+
+def session_models(session_id, started, finished, db_path=None):
+    """Which models opencode really ran one task on: {"<provider>/<id>#<variant>": assistant messages}.
+
+    None when the session is unknown or the database cannot be read. A session may continue an earlier one
+    (the meta-strategist keeps its session across generations), so only the assistant messages written
+    while this task was running count.
+    """
+    path = Path(db_path) if db_path else OPENCODE_DB
+    if not session_id or not path.exists():
+        return None
+    try:
+        connection = _connect(path)
+        rows = connection.execute("SELECT time_created, data FROM session_message WHERE session_id = ? AND type = 'assistant'",
+                                  (session_id,)).fetchall()
+        connection.close()
+    except sqlite3.Error:
+        return None
+    counts = {}
+    for created, data in rows:
+        if not started - 5 <= created / 1000.0 <= finished + 60:
+            continue
+        try:
+            model = json.loads(data).get("model")
+        except ValueError:
+            continue
+        if not isinstance(model, dict) or not model.get("id"):
+            continue
+        key = _model_key(model)
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def session_model_index(db_path=None):
+    """{session id: "<provider>/<id>#<variant>"} for every session opencode recorded; {} when unreadable."""
+    path = Path(db_path) if db_path else OPENCODE_DB
+    if not path.exists():
+        return {}
+    try:
+        connection = _connect(path)
+        rows = connection.execute("SELECT id, model FROM session_v2").fetchall()
+        connection.close()
+    except sqlite3.Error:
+        return {}
+    index = {}
+    for session_id, model in rows:
+        try:
+            parsed = json.loads(model) if model else None
+        except ValueError:
+            parsed = None
+        if session_id and isinstance(parsed, dict):
+            index[session_id] = _model_key(parsed)
+    return index
 
 
 def _kill_tree(pid):
@@ -53,7 +122,7 @@ def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, 
     started = time.time()
     result = dict(task_id=task_id, role=role, model=model or config.MODELS[role], status="error", text="",
                   tokens=dict(input=0, output=0, reasoning=0, cache_read=0, cache_write=0), steps=0,
-                  tool_calls=0, session_id=None, duration_s=0.0, error="")
+                  tool_calls=0, session_id=None, duration_s=0.0, error="", models=None)
     texts, err_tail = [], []
     state = dict(session=None)
 
@@ -117,6 +186,8 @@ def run_task(workspace, task_id, role, task_md, write_paths, shell, model=None, 
     result["text"] = "\n".join(texts).strip()
     result["session_id"] = state["session"]
     result["duration_s"] = round(time.time() - started, 1)
+    # What ran, read back from opencode's own record rather than assumed from the role.
+    result["models"] = session_models(state["session"], started, time.time())
     if result["status"] != "ok" and not result["error"]:
         result["error"] = " | ".join(err_tail[-5:])[-600:] or "no output"
     if result["status"] == "ok" and result["steps"] == 0:

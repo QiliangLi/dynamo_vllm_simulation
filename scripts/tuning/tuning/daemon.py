@@ -65,6 +65,22 @@ def iso(ts):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts)) if ts else "-"
 
 
+def model_family(models, role):
+    """The family of the models a task really ran on: 'glm', or the other family's name.
+
+    ``models`` is what ``llm.session_models`` read from opencode: {"<provider>/<id>#<variant>": messages}.
+    The provider is the user's gateway and is called "kimi" for every model it carries, GLM included, so
+    only the model id decides. Without a record the role's label stands, and the task is marked unverified.
+    """
+    names = [key.split("#")[0].rsplit("/", 1)[-1].lower() for key in (models or {})]
+    if not names:
+        return "kimi" if role in config.NON_GLM_ROLES else "glm"
+    if all("glm" in name for name in names):
+        return "glm"
+    other = next(name for name in names if "glm" not in name)
+    return other.split("-")[0].split(".")[0] or "other"
+
+
 def frozen_hashes_of(package_dir):
     return {name: hashlib.sha256((Path(package_dir) / name).read_bytes()).hexdigest() for name in FROZEN_FILES}
 
@@ -307,18 +323,36 @@ class Daemon:
                         self.alert("候选 %s 的文件被任务 %s 改动，已作废" % (other, task_id), level="warn")
             except Exception as error:  # noqa: BLE001
                 self.log("guard_error", task=task_id, error=repr(error))
-            family = "kimi" if role in config.NON_GLM_ROLES else "glm"
+            # Count the tokens under the model that really ran (read back from opencode's record), not under
+            # the model the role was supposed to get. opencode's own default is not a GLM model.
+            models = outcome.get("models")
+            record["models"] = models
+            family = model_family(models, role)
             bucket = self.state["tokens"].setdefault(family, dict(input=0, output=0, reasoning=0, calls=0))
             for key in ("input", "output", "reasoning"):
                 bucket[key] += (outcome.get("tokens") or {}).get(key, 0)
             bucket["calls"] += 1
+            if models:
+                # Several models in one task is not expected; the one with the most messages carries the tokens.
+                used = self.state["tokens"].setdefault("by_model", {})
+                row = used.setdefault(max(models, key=models.get), dict(calls=0, input=0, output=0, reasoning=0))
+                row["calls"] += 1
+                for key in ("input", "output", "reasoning"):
+                    row[key] += (outcome.get("tokens") or {}).get(key, 0)
+            else:
+                record["model_unverified"] = True
+            if family != "glm":
+                self.alert("任务 %s 实际跑在 %s 的模型上，不是 GLM：%s" % (task_id, family, "、".join(models or ["（opencode 没有记录）"])),
+                           level="error")
+                self.log("non_glm_model", task=task_id, role=role, models=models)
             by_role = self.state["tokens"].setdefault("by_role", {})
             role_bucket = by_role.setdefault(role, dict(input=0, output=0, calls=0))
             for key in ("input", "output"):
                 role_bucket[key] += (outcome.get("tokens") or {}).get(key, 0)
             role_bucket["calls"] += 1
             self.log("llm_task", task=task_id, role=role, status=outcome["status"],
-                     duration_s=outcome["duration_s"], tokens=outcome.get("tokens"), error=outcome.get("error", ""))
+                     duration_s=outcome["duration_s"], tokens=outcome.get("tokens"), error=outcome.get("error", ""),
+                     models=models)
             self.save()
 
         thread = threading.Thread(target=work, daemon=True)
