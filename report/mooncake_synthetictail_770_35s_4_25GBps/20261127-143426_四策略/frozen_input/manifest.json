@@ -1,0 +1,28 @@
+{
+  "case": "mooncake_720_plus_synthetic_head50_30s",
+  "requests": 770,
+  "arrival_window_s": 35,
+  "class_counts": {
+    "remote_read": 487,
+    "zero_read": 283
+  },
+  "source_dataset_sha256": "bd070915a98fc0ed264d7cfef2ce746002eb3076a695ec31ba2674c0111ec131",
+  "base_trace_sha256": "d79b922424f300c66ade34b1cb095a9cf02324443282999480645aaabeb2d68d",
+  "original_trace_sha256": "82e6606c8dd8d84dbfec9ea2c1efb1c3d9839dd135e85c89cc11afa101c84245",
+  "read_bytes": 713006514176,
+  "input_tokens": 13331448,
+  "hit_tokens": 10879616,
+  "head_source_lines": [
+    1,
+    50
+  ],
+  "base_source_lines": [
+    2496,
+    3215
+  ],
+  "head_start_s": 30.0,
+  "head_last_s": 32.84797246158245,
+  "original_head_window_s": 14.514,
+  "original_base_window_s": 178.369,
+  "time_scale": 0.19622243775543957
+}

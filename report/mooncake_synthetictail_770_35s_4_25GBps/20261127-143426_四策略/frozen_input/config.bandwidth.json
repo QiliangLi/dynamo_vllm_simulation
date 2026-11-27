@@ -1,0 +1,64 @@
+{
+  "workers": 4,
+  "scheduler": "upstream",
+  "policy": "fcfs",
+  "block_size": 128,
+  "num_blocks": 5900,
+  "max_model_len": 98000,
+  "max_num_seqs": 1,
+  "max_num_batched_tokens": 50000,
+  "enable_prefix_caching": false,
+  "storage": {
+    "disks": 6,
+    "paths_per_disk": 256,
+    "disk_Bps": 4166666666.6666665,
+    "shared_link_Bps": 25000000000,
+    "path_Bps": 1000000000,
+    "read_latency_s": 0.0001,
+    "kv_bytes_per_token": 65536,
+    "bandwidth_policy": "max_min_fair",
+    "record_reads": true,
+    "gc_policy": "defer_during_run"
+  },
+  "compute": {
+    "mode": "prefill_fit"
+  },
+  "ttft_slo_s": 0.02,
+  "router_mode": "kv",
+  "wall_time_scale": 1,
+  "admission": {
+    "mode": "tfs",
+    "quantile": 0.75,
+    "reference_bandwidth_Bps": 25000000000,
+    "release_on": "first_token",
+    "aging_enabled": false,
+    "aging_wait_s": 0.5,
+    "aging_cooldown_s": 0.05,
+    "feedback_delay_s": 0.0,
+    "placement": "scheduler",
+    "classification": "arrival",
+    "retry_interval_wall_s": 0.002,
+    "rpc_transport": "dynamo",
+    "rpc_timeout_wall_s": 5.0,
+    "idle_bypass": false,
+    "profile_source": "dynamo_tier",
+    "native_ingress": true,
+    "dev_mode": false,
+    "bandwidth_permits": true,
+    "worker_count": 4
+  },
+  "routing_accounting": {
+    "enabled": true,
+    "waiting_factor": 0.1,
+    "rpc_timeout_wall_s": 2.0
+  },
+  "request_profile": {
+    "mode": "prefill_fit_reference_v1",
+    "profile_token_budget": 50000,
+    "slo_multiplier": 4.0
+  },
+  "frontend_tokenizer": "fastokens",
+  "kv_transfer_mode": "layer_pipeline",
+  "request_ordering": "fcfs",
+  "server_dynamo": true
+}
