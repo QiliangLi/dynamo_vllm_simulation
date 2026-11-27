@@ -1,0 +1,14 @@
+{
+  "model": "prefill50k_total16_v2",
+  "model_sha256": "48776fc742ba30edd6715219cff9fb9891104c55c5cc8e45df3a3f292857e1aa",
+  "layers": 16,
+  "tp": 2,
+  "ordering": "fcfs",
+  "max_num_seqs": 1,
+  "configurations": {
+    "immediate": "config.default.json",
+    "tfs": "config.tfs.json"
+  },
+  "classification": "普通 TFS 使用 P75 和整数许可，等待评分 α=0.1，关闭空闲超额放行。",
+  "arrival_formula_s": "30 + source_timestamp_ms / 1000 * (35 / 178.369)"
+}
