@@ -1,0 +1,15 @@
+{
+  "model": "prefill50k_total16_v2",
+  "layers": 16,
+  "ordering": "fcfs",
+  "max_num_seqs": 1,
+  "configurations": {
+    "light": "config.light.json",
+    "tfs": "config.tfs.json",
+    "bandwidth": "config.bandwidth.json",
+    "snapshot-tfs": "config.snapshot-tfs.json"
+  },
+  "default_overlay": "force-light classification in the simulation harness",
+  "replay": "Frozen CPU simulation token IDs. Keep values, order, H/U and times unchanged.",
+  "slo": "Client send to first token. Per-request deadline width is 4 times full-miss prefill compute with 50,000-token chunks."
+}
