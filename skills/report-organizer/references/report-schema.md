@@ -10,7 +10,7 @@ case字段：
 |---|---|
 | `summary.case` / `summary.label` | 唯一方案ID / 显示名称 |
 | `summary.workers` | 正整数，包含本轮未执行的实例 |
-| `summary.span_s` | 首条正式网关到达到最后首token的秒数 |
+| `summary.span_s` | 共同时间原点到末条请求首 token 的秒数 |
 | `summary.rule` | 有时间线时为`arrival`或`dynamic` |
 | `summary.classification_reference_only` | 有时间线时必须为布尔值；直接放行显示参考分类时为true |
 | `requests` | 正式请求列表，不含预热；必须非空 |
@@ -25,8 +25,12 @@ case字段：
 requests每行必须有：
 
 - `id`、`worker`、`cohort`。
-- `arrival_s`、`completion_s`、`deadline_s`。三者以本方案首条正式网关到达为0。completion指首token，不是整个decode结束。arrival最小为0，completion最大等于span_s。
+- `arrival_s`、`completion_s`、`deadline_s`。三者采用同一时间原点。默认以本方案首条正式客户端实际发送为 0。采用原生网关口径时，以首条正式网关到达为 0。completion 指首 token。arrival 最小为 0，completion 最大等于 span_s。
 - 可选 `compute_classes`（逐请求观察到的在线分类）、`gateway_wait_ms`（中央提交−网关到达）、`arrival_lateness_ms`（客户端实际发送−计划发送）、`read_bytes`。
+
+顶层可选字段 `timing_basis` 决定图表和主表的计时文字。客户端口径填写 `"client"`，原生网关口径填写 `"gateway"`。旧数据省略该字段时，图表使用通用计时标签。
+
+默认全 miss SLO 在适配阶段计算。按请求 ID 从冻结输入取完整 prompt token 数，使用本轮模型和 prefill 分块预算，估算从空前缀开始且零远端读取的耗时。分块时，后续 chunk 的 H 为前序 chunk 已计算的 token 数。设 `deadline_s = arrival_s + 4 * full_miss_prefill_s`。此口径的 arrival 和 completion 分别取客户端实发与收到首 token 的时刻。各策略使用同一组逐请求期限宽度。将计算口径写入 `metadata`，生成器读取已适配的时间和期限。
 
 四实例报告还使用可选的逐请求字段 `client_finish_s`。它表示以本轮首条正式请求实际发送为零点的客户端响应结束时刻，单位为模型秒。原生客户端日志用 `(sent_perf_s - 首次 sent_perf_s) / wall_time_scale + e2e_s` 换算。按实际执行 worker 分别取最大值，写入 `run_summary.csv` 的 `worker0_finish_s` 至 `worker3_finish_s`。四项齐全时，将等权算术平均写入 `mean_worker_finish_s`。缺少响应结束时间或某个 worker 未执行请求时，保留已有分项，均值留空。
 

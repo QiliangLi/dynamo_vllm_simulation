@@ -12,7 +12,7 @@ from unittest.mock import patch
 SKILL=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(SKILL/'scripts'))
 from plotting.dataset import validate_dataset
-from plotting.report import metrics
+from plotting.report import FIGURES, markdown, metrics
 from plotting.timeline import DataError
 import redraw_timeline
 
@@ -29,6 +29,16 @@ class PortableReportTests(unittest.TestCase):
         self.assertAlmostEqual(result['slo_pct'],50)
         self.assertAlmostEqual(result['model_compute_s'],4.4)
         self.assertAlmostEqual(result['mean_bandwidth_GBps'],5)
+
+    def test_timing_basis_labels_and_preserves_metrics(self):
+        sample = self.sample()
+        for basis, boundary in (('client', '客户端实际发送到收到首 token'), ('gateway', '网关到达到首 token')):
+            data = validate_dataset(dict(deepcopy(sample), timing_basis=basis))
+            result = metrics(data)
+            self.assertIn(boundary, markdown(data, result, [name+'.png' for name in FIGURES], {}))
+            self.assertEqual(result['summary'][0]['slo_pct'], 50)
+        with self.assertRaises(DataError):
+            validate_dataset(dict(sample, timing_basis='unknown'))
 
     def test_four_worker_finish_mean_requires_all_four_workers(self):
         data = validate_dataset(self.sample())

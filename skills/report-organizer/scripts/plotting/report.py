@@ -16,6 +16,12 @@ FIGURES = ['01_slo_bar','02_full-sort-ms','03_util_box_heatmap','04_bandwidth',
            '05_cdf','06_cdf_by_class','07_arrival_lateness']
 PALETTE = ['#888888','#C44E52','#DD8452','#55A868','#4C72B0','#9974A5','#937860','#DA8BC3','#64B5CD']
 
+TIMING_LABELS = {
+    'client': ('客户端 TTFT', '首条正式请求实际发送', '客户端实际发送到收到首 token'),
+    'gateway': ('网关 TTFT', '首条正式请求网关到达', '网关到达到首 token'),
+    None: ('TTFT', '数据集定义的时间原点', '按数据集中的到达和首 token 时刻计算'),
+}
+
 
 def wrapped(text, width=16):
     lines=[];current='';used=0
@@ -130,6 +136,7 @@ def render_figures(data, result, output, dpi=160):
     import matplotlib.pyplot as plt
     import numpy as np
     cases=data['cases']; out=Path(output); out.mkdir(parents=True,exist_ok=True)
+    ttft_label, time_origin, _ = TIMING_LABELS[data.get('timing_basis')]
     labels=[c['summary']['label'] for c in cases]; colors=[c.get('color') or PALETTE[i%len(PALETTE)] for i,c in enumerate(cases)]
     summaries=result['summary']; count=len(cases); generated=[]; skipped={}
     def save(fig,index):
@@ -144,7 +151,8 @@ def render_figures(data, result, output, dpi=160):
     ax.grid(axis='y',alpha=.16);ax.set_axisbelow(True);fig.tight_layout();save(fig,0)
     available=[c for c in cases if c.get('comp') is not None]
     if available:
-        timeline_render(available,out/(FIGURES[1]+'.png'),'图2｜'+data['title']+'｜在线轻重时间线',dpi);generated.append(FIGURES[1]+'.png')
+        timeline_render(available,out/(FIGURES[1]+'.png'),'图2｜'+data['title']+'｜在线轻重时间线',dpi,
+                        time_origin=time_origin);generated.append(FIGURES[1]+'.png')
         fig,(box,heat)=plt.subplots(1,2,figsize=(max(14,max(c['summary']['workers'] for c in available)*.25+7),max(5.3,len(available)*.52+2)),gridspec_kw={'width_ratios':[1,1.6]})
         values=[[a['model_s']/c['summary']['span_s']*100 for a in c['accounts']] for c in available]
         bp=box.boxplot(values,patch_artist=True,showmeans=True,meanprops=dict(marker='D',markerfacecolor=style.UTIL_MEAN_COLOR,markeredgecolor=style.UTIL_MEAN_COLOR),medianprops=dict(color='black'))
@@ -180,7 +188,7 @@ def render_figures(data, result, output, dpi=160):
                 title+=f"    超出 {peak-cap:.2f} GB/s（{(peak/cap-1)*100:.1f}%）"
             ax.set(yticks=ticks,ylim=(0,ticks[-1]),xlim=(0,result['horizon']*1000),ylabel='GB/s',title=title)
             ax.grid(axis='y',alpha=.22)
-        axes[-1,0].set_xlabel('从首条正式请求到达起的模型时间（ms）')
+        axes[-1,0].set_xlabel(f'从{time_origin}起的模型时间（ms）')
         fig.suptitle('图4｜存储带宽时序')
         fig.legend(*axes[0,0].get_legend_handles_labels(),loc='upper center',bbox_to_anchor=(.5,.956),ncol=3,frameon=False)
         fig.tight_layout(rect=(0,0,1,.91));save(fig,3)
@@ -193,7 +201,7 @@ def render_figures(data, result, output, dpi=160):
     widths=[{r['id']:(r['deadline_s']-r['arrival_s'])*1000 for r in c['requests']} for c in cases]
     same=all(w.keys()==widths[0].keys() and all(abs(w[k]-widths[0][k])<1e-6 for k in w) for w in widths)
     if same:ecdf(ax,list(widths[0].values()),'#444444','共同逐请求期限宽度分布',':')
-    ax.set(xlim=(0,None),ylim=(0,1.02),xlabel='网关 TTFT（ms，包含准入等待）',ylabel='累计分布 CDF',title='图5｜总体 TTFT；分位数使用 nearest-rank')
+    ax.set(xlim=(0,None),ylim=(0,1.02),xlabel=f'{ttft_label}（ms）',ylabel='累计分布 CDF',title='图5｜总体 TTFT；分位数使用 nearest-rank')
     ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8);fig.tight_layout();save(fig,4)
     groups=sorted({r['cohort'] for c in cases for r in c['requests']})
     fig,axes=plt.subplots(1,len(groups),figsize=(max(6,6*len(groups)),max(4.7,count*.3+3)),sharey=True,squeeze=False)
@@ -201,14 +209,14 @@ def render_figures(data, result, output, dpi=160):
         for c,color in zip(cases,colors):
             subset=[r for r in c['requests'] if r['cohort']==group]
             ecdf(ax,[(r['completion_s']-r['arrival_s'])*1000 for r in subset],color,c['summary']['label']+f'（n={len(subset)}）')
-        ax.set(xlim=(0,None),ylim=(0,1.02),xlabel='网关 TTFT（ms）',title=group);ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8)
+        ax.set(xlim=(0,None),ylim=(0,1.02),xlabel=f'{ttft_label}（ms）',title=group);ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8)
     axes[0,0].set_ylabel('累计分布 CDF');fig.suptitle('图6｜输入cohort分组；不等同于时间线的在线轻重分类');fig.tight_layout(rect=(0,0,1,.91));save(fig,5)
     available=[(c,color) for c,color in zip(cases,colors) if all('arrival_lateness_ms' in r for r in c['requests'])]
     if available:
         fig,ax=plt.subplots(figsize=(10.2,max(5,count*.3+3)))
         for c,color in available:ecdf(ax,[r['arrival_lateness_ms'] for r in c['requests']],color,c['summary']['label'])
         # Negative lateness is retained if present; TTFT remains nonnegative.
-        ax.set(ylim=(0,1.02),xlabel='实际客户端发送−计划发送（ms）',ylabel='累计分布 CDF',title='图7｜客户端投递迟到；不替换网关TTFT计时边界');ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8);fig.tight_layout();save(fig,6)
+        ax.set(ylim=(0,1.02),xlabel='实际客户端发送−计划发送（ms）',ylabel='累计分布 CDF',title='图7｜客户端投递迟到');ax.grid(alpha=.18);ax.legend(loc='lower right',fontsize=8);fig.tight_layout();save(fig,6)
     missing=[c['summary']['label'] for c in cases if not all('arrival_lateness_ms' in r for r in c['requests'])]
     if missing:skipped[FIGURES[6]]='缺少计划与实际发送记录：'+','.join(missing)
     return generated,skipped,dict(zip(labels,colors))
@@ -221,6 +229,7 @@ def table(headers, rows):
 
 def markdown(data, result, figures, skipped, narrative=None):
     narrative=narrative or {}; summaries=result['summary']; best_slo=max(summaries,key=lambda r:r['slo_pct']); fastest=min(summaries,key=lambda r:r['completion_ms'])
+    _, _, timing = TIMING_LABELS[data.get('timing_basis')]
     fmt=lambda v:'缺少数据' if v is None else f'{v:.1f}'
     text='# 实验结果：'+data['title']+'\n\n'
     text+=table(['项目','约定'],[
@@ -228,7 +237,7 @@ def markdown(data, result, figures, skipped, narrative=None):
         ['方案顺序',' → '.join(s['label'] for s in summaries)],
         ['输入种子 / 重复','每个case独立展示一个冻结运行；种子与重复见附表，未提供时不推断'],
         ['汇总 / 轨迹','不跨case合并样本、不生成置信区间；轨迹保留全部正式请求'],
-        ['SLO / TTFT','逐请求匹配deadline；TTFT=first_token−gateway arrival，包含准入等待'],
+        ['SLO / TTFT',f'逐请求匹配数据中的期限。TTFT {timing}。'],
         ['分组','分类表和CDF使用输入cohort；时间线使用在线轻重判定'],
         ['单位','时间秒/毫秒；容量字节；带宽GB/s=10^9 B/s'],
         *[[str(k),str(v)] for k,v in data.get('metadata',{}).items()]])
