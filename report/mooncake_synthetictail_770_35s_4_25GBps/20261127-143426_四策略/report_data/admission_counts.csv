@@ -1,0 +1,4 @@
+﻿mode,status,requests,hints_received,rpc_transport,heavy_hints,grants,denied,skipped_heavy_requests,leaked_permits,rolled_back,forced_grants,forced_over_cap,max_unreleased_forced_per_worker,acquire_rpc_mean_wall_ms,acquire_rpc_p50_wall_ms,acquire_rpc_p95_wall_ms,acquire_rpc_max_wall_ms,bandwidth_budget_Bps,fair_share_Bps,peak_held_Bps,oversized_alone_grants,final_held_Bps,prefill_registered,prefill_forced,prefill_late_notices,prefill_snapshot_version,prefill_selection_events
+tfs,pass,770,770,dynamo,208,208,435,128,0,0,0,0,0,2.154686734059098,1.844358,3.981102,7.077986,,,,,,,,,,
+bandwidth,pass,770,770,dynamo,209,209,594,47,0,0,0,0,0,2.111796631382316,1.74794,4.324696,9.448745,25000000000,6250000000.0,118659464605.0,159,0.0,,,,,
+snapshot-tfs,pass,770,770,dynamo,209,209,685,163,0,0,0,0,0,2.16340551901566,1.8348445,4.170342,7.381367,25000000000,6250000000.0,118659464605.0,159,0.0,483,0,0,966,4232
