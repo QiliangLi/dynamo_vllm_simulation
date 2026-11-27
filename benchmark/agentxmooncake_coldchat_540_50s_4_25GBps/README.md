@@ -15,6 +15,10 @@ python benchmark/manage.py verify
 python benchmark/manage.py export agentxmooncake_coldchat_540_50s_4_25GBps --output /tmp/agentxmooncake_coldchat_540_50s_4_25GBps
 ```
 
-此 benchmark 的发布状态为 `export_only`。完整四策略重跑使用对应的研究仿真环境与策略覆盖。默认全轻读需要仿真启动时启用全轻读覆盖。四策略配置文件见 [experiment.json](experiment.json)。
+旧统一运行器可校验和导出此负载。四实例回放使用下面的独立入口。默认全轻读需要仿真启动时启用全轻读覆盖。四策略配置文件见 [experiment.json](experiment.json)。
 
 [四策略报告](../../report/agentxmooncake_coldchat_540_50s_4_25GBps/README.md)
+
+## 四实例重读分散回放
+
+用 `bash scripts/run_4w25.sh agentx-mooncake540 spread10 NEW_OUTPUT_DIR` 运行。四档对照与构建步骤见[四实例 TFS 策略入口](../../docs/四实例TFS策略入口.md)。

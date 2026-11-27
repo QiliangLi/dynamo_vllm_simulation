@@ -4,7 +4,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 dv="$repo/dynamo_vllm_cpu_sim"
 if [[ $# != 3 ]]; then
-    echo "Usage: bash scripts/run_4w25.sh 408|540|mooncake|agentx-narrow|agentx-flex light|tfs|bandwidth|a_cap1 NEW_OUTPUT_DIR" >&2
+    echo "Usage: bash scripts/run_4w25.sh 408|540|mooncake|agentx-narrow|agentx-flex|synthetic770|agentx-mooncake540 light|tfs|bandwidth|snapshot-light|snapshot-tfs|spread5|spread10|spread100|a_cap1 NEW_OUTPUT_DIR" >&2
     exit 2
 fi
 case "$1" in
@@ -13,13 +13,19 @@ case "$1" in
     mooncake) bench=mooncake_head875_360_12s_4_25GBps ;;
     agentx-narrow) bench=agentx_narrow_358_12s_4_25GBps ;;
     agentx-flex) bench=agentx_flex_358_12s_4_25GBps ;;
+    synthetic770) bench=mooncake_synthetictail_770_35s_4_25GBps ;;
+    agentx-mooncake540) bench=agentxmooncake_coldchat_540_50s_4_25GBps ;;
     *) echo "Unknown workload: $1" >&2; exit 2 ;;
 esac
 arm=$2
 case "$1:$arm" in
-    *:light|*:tfs|*:bandwidth|540:a_cap1|agentx-*:a_cap1) ;;
+    *:light|*:tfs|*:bandwidth|*:snapshot-light|*:snapshot-tfs|*:spread5|*:spread10|*:spread100|540:a_cap1|agentx-narrow:a_cap1|agentx-flex:a_cap1) ;;
     *) echo "Unsupported workload/policy: $1/$arm" >&2; exit 2 ;;
 esac
+launch_flags=()
+if [[ $arm == spread* ]]; then
+    launch_flags=(--heavy-spread "${arm#spread}")
+fi
 python=${DV_PYTHON:-$dv/.venv/bin/python}
 server=$(cd "${DYNAMO_PYTHON_DIR:-$HOME/.cache/dynamo-server-sim/build-1.2/python}" && pwd)
 upstream=$(cd "${DV_UPSTREAM:-$dv/upstream}" && pwd)
@@ -35,16 +41,26 @@ for item in configs minimax_prefill source-fingerprints.json; do ln -s "$dv/$ite
 "$python" "$harness/scripts/apply_ascend_patch.py"
 patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/stack.patch"
 config="$out/input/config.json"
-if [[ $arm == bandwidth ]]; then
+if [[ $arm == bandwidth || $arm == snapshot-* || $arm == spread* ]]; then
     patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/bandwidth_central.patch"
     patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/bandwidth_scheduler.patch"
-    "$python" - "$config" "$out/bandwidth-config.json" <<'PY'
+    if [[ $arm != bandwidth ]]; then
+        patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/snapshot_central.patch"
+        patch -s -d "$harness" -p1 < "$repo/scripts/four_worker/snapshot_scheduler.patch"
+    fi
+    "$python" - "$config" "$out/bandwidth-config.json" "$arm" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 config = json.loads(Path(sys.argv[1]).read_text())
-config["admission"]["bandwidth_permits"] = True
+arm = sys.argv[3]
+admission = config["admission"]
+admission["bandwidth_permits"] = arm != "snapshot-light"
+if arm != "bandwidth":
+    admission["prefill_bandwidth_selection"] = True
+    if arm == "snapshot-light":
+        admission["force_light"] = True
 Path(sys.argv[2]).write_text(json.dumps(config, indent=2) + "\n")
 PY
     config="$out/bandwidth-config.json"
@@ -56,7 +72,7 @@ export DYN_TCP_RPC_HOST=127.0.0.1 DYN_TCP_REQUEST_TIMEOUT=60 DYN_TFS_CONTROL_TIM
 echo "$bench / $arm -> $out/run"
 cd "$harness"
 "$python" scripts/run_tfs_stack.py --config "$config" --trace "$out/input/trace.jsonl" \
-    --workers 4 --mode tfs --no-idle-bypass --server-dynamo "$server" --output "$out/run" > "$out/run.log" 2>&1 || {
+    --workers 4 --mode tfs --no-idle-bypass --server-dynamo "$server" --output "$out/run" "${launch_flags[@]}" > "$out/run.log" 2>&1 || {
     tail -n 15 "$out/run.log" >&2
     exit 1
 }

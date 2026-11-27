@@ -304,11 +304,31 @@ impl<C: WorkerConfigLike> WorkerSelector<C> for DefaultWorkerSelector {
                     .map(move |dp_rank| WorkerWithDpRank::new(*worker_id, dp_rank))
             });
 
+        #[cfg(feature = "tfs-admission")]
+        let spread = request.tfs_score.as_ref().filter(|snapshot| snapshot.heavy)
+            .and_then(|snapshot| {
+                static MODE: std::sync::OnceLock<&'static str> = std::sync::OnceLock::new();
+                let mode = *MODE.get_or_init(|| {
+                    match std::env::var("DYN_TFS_HEAVY_SPREAD").as_deref() {
+                        Ok("5") => "5",
+                        Ok("10") => "10",
+                        Ok("100") => "100",
+                        _ => "off",
+                    }
+                });
+                (temperature == 0.0 && mode != "off").then_some((snapshot, mode))
+            });
+        #[cfg(feature = "tfs-admission")]
+        let mut spread_scores = Vec::new();
         let (best_worker, best_logit) = if temperature == 0.0 {
             let mut min_workers = Vec::new();
             let mut min_score = f64::INFINITY;
             for worker in worker_iter {
                 let score = get_score(worker);
+                #[cfg(feature = "tfs-admission")]
+                if spread.is_some() {
+                    spread_scores.push((worker, score));
+                }
                 if score < min_score {
                     min_workers.clear();
                     min_workers.push(worker);
@@ -332,6 +352,65 @@ impl<C: WorkerConfigLike> WorkerSelector<C> for DefaultWorkerSelector {
             }
 
             softmax_sample(&worker_logits, temperature)
+        };
+
+        #[cfg(feature = "tfs-admission")]
+        let (best_worker, best_logit) = if let Some((snapshot, mode)) = spread {
+            let hits = |worker| {
+                let tier = &request.tier_overlap_blocks;
+                (
+                    tier.device.get(&worker).copied().unwrap_or(0),
+                    tier.host_pinned.get(&worker).copied().unwrap_or(0),
+                    tier.disk.get(&worker).copied().unwrap_or(0),
+                    request.effective_overlap_blocks_for(worker),
+                    request.effective_cached_tokens_for(worker),
+                )
+            };
+            let baseline_hits = hits(best_worker);
+            let ceiling = match mode {
+                "5" => best_logit * 1.05,
+                "10" => best_logit * 1.10,
+                _ => f64::INFINITY,
+            };
+            let count = |worker| snapshot.waiting.get(&worker).map_or(0, |load| load.count);
+            let mut selected = vec![best_worker];
+            let mut selected_count = count(best_worker);
+            let mut selected_score = best_logit;
+            for &(worker, score) in &spread_scores {
+                if worker == best_worker || score > ceiling || hits(worker) != baseline_hits {
+                    continue;
+                }
+                let waiting_count = count(worker);
+                if (waiting_count, score) < (selected_count, selected_score) {
+                    selected.clear();
+                    selected.push(worker);
+                    selected_count = waiting_count;
+                    selected_score = score;
+                } else if (waiting_count, score) == (selected_count, selected_score) {
+                    selected.push(worker);
+                }
+            }
+            let selected_worker = if selected.contains(&best_worker) || selected.len() == 1 {
+                selected.iter().copied().find(|worker| *worker == best_worker).unwrap_or(selected[0])
+            } else {
+                selected[rand::rng().random_range(0..selected.len())]
+            };
+            tracing::debug!(
+                request_id = ?request.maybe_request_id,
+                mode,
+                baseline_worker_id = best_worker.worker_id,
+                selected_worker_id = selected_worker.worker_id,
+                selected_dp_rank = selected_worker.dp_rank,
+                baseline_score = best_logit,
+                selected_score,
+                candidates = ?spread_scores.iter().map(|&(worker, score)| {
+                    (worker.worker_id, worker.dp_rank, score, count(worker), hits(worker))
+                }).collect::<Vec<_>>(),
+                "TFS_HEAVY_SPREAD"
+            );
+            (selected_worker, selected_score)
+        } else {
+            (best_worker, best_logit)
         };
 
         let best_host_pinned_overlap_blocks = request
@@ -789,7 +868,10 @@ mod tests {
                 heavy,
                 ..Default::default()
             };
-            snap.waiting.insert(worker, 160);
+            snap.waiting.insert(
+                worker,
+                crate::pending_score::WaitingLoad { tokens: 160, count: 1 },
+            );
             snap.active_prefill.insert(worker, 320);
             snap.additional_blocks.insert(worker, 8);
             request.tfs_score = Some(snap);

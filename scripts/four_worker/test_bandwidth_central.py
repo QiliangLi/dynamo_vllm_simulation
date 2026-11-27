@@ -1,9 +1,14 @@
 """Exercise the weighted permit contract against the patched simulator."""
 from dataclasses import asdict
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
+from scripts.run_tfs_stack import save_admission_snapshot
 from sim.control_events import ControlEvent
 from sim.request_profile import RequestProfile
+from sim.stack.admission_service import AdmissionState
 from sim.stack.read_admission import FrozenAdmission
 from sim.stack.storage_hint import attach_http_hint, hint_from_request
 from check_read_admission import check_bandwidth_ledger
@@ -96,6 +101,26 @@ class BandwidthCentralTests(unittest.TestCase):
         self.assertEqual(self.ledger.held_Bps, hint["pressure_Bps"])
         self.release("fractional")
         self.audit()
+
+    def test_event_rollover_keeps_full_offline_history(self):
+        import sim
+        config_path = Path(sim.__file__).resolve().parents[1] / "configs/demo.json"
+        config = json.loads(config_path.read_text())
+        config["scheduler"] = "upstream"
+        config["admission"] = dict(self.config, classification="arrival", aging_enabled=False)
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            state = AdmissionState(config, folder / "admission.events.jsonl")
+            with state.log:
+                for seq in range(10000):
+                    state.log_event("sample", seq=seq)
+                state.controller.logs.append(dict(event="last", seq=10000))
+                online = state.snapshot()  # Drains the controller's last event.
+            self.assertEqual([e["seq"] for e in online["events"]], list(range(1, 10001)))
+            offline = save_admission_snapshot(folder, online, full_event_log=True)
+            self.assertEqual([e["seq"] for e in offline["events"]], list(range(10001)))
+            raw = json.loads((folder / "admission.runtime.final.json").read_text())
+            self.assertEqual(raw["events"], online["events"])
 
 
 if __name__ == "__main__":

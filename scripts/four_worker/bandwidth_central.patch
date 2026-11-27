@@ -156,16 +156,19 @@
  from pathlib import Path
  import statistics
  import sys
-@@ -47,6 +48,8 @@
-         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
-     events, records, hints, permits = (status[k] for k in ('events','records','storage_hints','permits'))
-     assert status['status'] == 'ready' and not status['invalid_reasons']
+@@ -41,6 +42,11 @@
+ def check(folder, status=None):
+     folder = Path(folder)
+     status = status or json.loads((folder/'admission.final.json').read_text())
 +    config = json.loads((folder/'config.json').read_text())
 +    weighted = config['admission'].get('bandwidth_permits', False)
-     rpc = status.get('rpc')
-     if rpc:
-         configured = json.loads((folder/'config.json').read_text())['admission']['rpc_transport']
-@@ -66,7 +69,7 @@
++    if weighted:
++        from sim.stack.load_observation import with_audit_events
++        status = with_audit_events(status, folder)
+     if status.get('execution_feedback') == 'disabled':
+         from sim.stack.load_observation import with_local_observations
+         status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
+@@ -66,7 +72,7 @@
                  assert rid not in received and row['hint'] == hints[rid]
                  received[rid] = row
              elif row['event'] == 'read_acquire_response':
@@ -174,7 +177,7 @@
                  assert row['ok'] is True
                  if rpc:
                      assert row['rpc_transport'] == rpc['transport']
-@@ -134,6 +137,7 @@
+@@ -134,6 +140,7 @@
      # every outstanding lease must still count toward normal admission held.
      max_forced_per_worker = check_permit_ledger(events, permits)
      assert not status.get('pending_engine_events')
@@ -182,7 +185,7 @@
      durations = [r['duration_ns']/1e6 for r in responses]
      return dict(status='pass', requests=len(records), hints_received=len(received),
                  rpc_transport=rpc['transport'] if rpc else 'legacy_unix',
-@@ -146,7 +150,47 @@
+@@ -146,7 +153,47 @@
                  acquire_rpc_mean_wall_ms=statistics.mean(durations) if durations else 0,
                  acquire_rpc_p50_wall_ms=statistics.median(durations) if durations else 0,
                  acquire_rpc_p95_wall_ms=sorted(durations)[int(.95*(len(durations)-1))] if durations else 0,
@@ -231,15 +234,94 @@
  
  
  def configured_idle(folder):
---- a/sim/stack/server_ingress_control.py
-+++ b/sim/stack/server_ingress_control.py
-@@ -93,7 +93,8 @@
-             del self.registrations[key]
-             state.log_event('terminal_history_pruned', id=rid, retention_s=self.policy.retention)
-         # Full events remain in the JSONL file; snapshots keep a bounded tail.
--        if len(self.state.events) > 10000:
-+        # Weighted runs audit every denial and grant. The replay is finite.
-+        if len(self.state.events) > 10000 and not self.state.config['admission'].get('bandwidth_permits'):
-             del self.state.events[:-10000]
+--- a/sim/stack/admission_service.py
++++ b/sim/stack/admission_service.py
+@@ -1,6 +1,7 @@
+ """Dynamo 前的请求级准入服务；复用既有 TFS，不访问引擎队列或存储真值。"""
+ import argparse
+ import asyncio
++from collections import deque
+ from contextlib import asynccontextmanager
+ from dataclasses import asdict, replace
+ import heapq
+@@ -46,7 +47,7 @@
+         self.uuid_by_id = {}
+         self.tier_pending = {}
+         self.tier_snapshots = {}
+-        self.events = []
++        self.events = deque(maxlen=10000) if self.config["admission"].get("bandwidth_permits") else []
+         self.delayed = []
+         self.sequence = 0
+         self.wakeup = asyncio.Event()
+@@ -306,7 +307,7 @@
+                     snapshot=asdict(self.controller.snapshot(self.now())),
+                     records={rid:asdict(r) for rid,r in self.controller.records.items()},
+                     delayed_events=len(self.delayed),invalid_reasons=sorted(self.controller.invalid_reasons),
+-                    events=self.events)
++                    events=list(self.events) if isinstance(self.events, deque) else self.events)
  
-     def hello(self):
+ 
+ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
+--- a/sim/stack/load_observation.py
++++ b/sim/stack/load_observation.py
+@@ -60,6 +60,12 @@
+         _observers[key] = LoadObserver(path, int(os.environ.get('SIM_STACK_WORKER_ID', '0')))
+         atexit.register(_observers[key].close)
+     return _observers[key]
++
++
++def with_audit_events(status, folder):
++    """Read the full central log in the offline process, in append order."""
++    with (folder / "admission.events.jsonl").open(encoding="utf-8") as stream:
++        return dict(status, events=[json.loads(line) for line in stream])
+ 
+ 
+ def with_local_observations(status, paths):
+--- a/scripts/run_tfs_stack.py
++++ b/scripts/run_tfs_stack.py
+@@ -24,11 +24,14 @@
+     path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+"\n")
+ 
+ 
+-def save_admission_snapshot(folder, status):
++def save_admission_snapshot(folder, status, *, full_event_log=False):
+     """Keep each final refresh's raw ledger and its offline report copy separate."""
+     if status.get('execution_feedback') == 'disabled' and not status.get('load_observation_source'):
+         from sim.stack.load_observation import with_local_observations
+         write(folder/'admission.runtime.final.json', status)
++        if full_event_log:
++            from sim.stack.load_observation import with_audit_events
++            status = with_audit_events(status, folder)
+         status = with_local_observations(status, sorted(folder.glob('worker*.loads.jsonl')))
+     write(folder/'admission.final.json', status)
+     return status
+@@ -101,8 +104,10 @@
+ 
+ 
+ def verify(folder,status,report,storage):
++    config = json.loads((folder/"config.json").read_text())
+     if status.get('execution_feedback') == 'disabled':
+-        status = save_admission_snapshot(folder, status)
++        status = save_admission_snapshot(
++            folder, status, full_event_log=config["admission"].get("bandwidth_permits", False))
+         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
+     records = status["records"]
+     assert status["status"]=="ready" and not status["invalid_reasons"]
+@@ -121,7 +126,6 @@
+     byte_count = sum(r["submitted_read_bytes"] for r in records.values())
+     assert byte_count==storage["bytes_submitted"]
+     assert abs(storage["bytes_transferred"]-byte_count)<1
+-    config = json.loads((folder/"config.json").read_text())
+     from sim.stack.clock import TimeScale
+     clock = TimeScale.from_config(config)
+     assert status.get("wall_time_scale",1.)==report.get("wall_time_scale",1.)==storage.get("wall_time_scale",1.)==clock.factor
+@@ -623,7 +627,8 @@
+             wait_for(score_drained,5)
+             status = request_json('http://127.0.0.1:28766/sim/admission')
+             status['routing_score'] = score_snapshot()
+-            status = save_admission_snapshot(folder, status)
++            status = save_admission_snapshot(
++                folder, status, full_event_log=cfg["admission"].get("bandwidth_permits", False))
+             write(folder/'routing.score.final.json',status['routing_score'])
+             from check_routing_accounting import check as check_weighted_routing
+             if not server_dynamo:

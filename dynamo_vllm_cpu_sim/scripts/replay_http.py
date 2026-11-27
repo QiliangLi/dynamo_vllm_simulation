@@ -116,7 +116,9 @@ async def replay(
     jobs = []
     records: dict[str, dict] = {}
     skipped = 0
-    async with httpx.AsyncClient(timeout=clock.to_wall(120),trust_env=False) as client:
+    # The trace sets the offered load. Pool queuing would shift open-loop arrivals.
+    limits = httpx.Limits(max_connections=None, max_keepalive_connections=20)
+    async with httpx.AsyncClient(timeout=clock.to_wall(120), trust_env=False, limits=limits) as client:
         for row in rows:
             ids = row.get("prompt_token_ids")
             text = row.get("prompt_text")

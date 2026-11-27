@@ -1,0 +1,324 @@
+--- a/sim/stack/scheduler_admission.py
++++ b/sim/stack/scheduler_admission.py
+@@ -5,6 +5,7 @@
+ are inserted. This deliberately changes scheduling and is not instrumentation.
+ """
+ import ast
++from collections import deque
+ import functools
+ import hashlib
+ import inspect
+@@ -21,7 +22,8 @@
+ 
+ class ReadGate:
+     def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False,
+-                 tier_kv_bytes_per_token=None, bandwidth_share_Bps=None):
++                 tier_kv_bytes_per_token=None, bandwidth_share_Bps=None,
++                 prefill_bandwidth_Bps=None):
+         if client is None:
+             raise RuntimeError("read admission requires a control connection")
+         self.client = client
+@@ -43,10 +45,19 @@
+         self.remaining_Bps = None
+         self.light_limit_Bps = None
+         self.rejected_this_step = False
++        self.prefill_bandwidth_Bps = prefill_bandwidth_Bps
++        self.prefill_snapshot = None
++        self.prefill_replies = deque()
++        self.prefill_notified = set()
++        self.snapshot_candidates = None
++        self.snapshot_min = None
++        self.snapshot_heavy_count = 0
+         self.force_candidate = None
+         self.force_committed = False
+         self.idle_proof = None
+-        if idle_bypass:
++        if prefill_bandwidth_Bps is not None:
++            self.client.enable_ordered_controls()
++        elif idle_bypass:
+             self.client.enable_idle_bypass()
+ 
+     def log(self, event, **fields):
+@@ -57,10 +68,12 @@
+ 
+     def begin_step(self, scheduler=None):
+         self.client.check()  # Surface a late stream failure even on all-light rounds.
++        self.snapshot_candidates = None
+         if scheduler is not None:
+             live = {r.request_id for name in ('running', 'waiting', 'skipped_waiting')
+                     for r in getattr(scheduler, name, ())}
+-            for items in (self.seen, self.skipped, self.no_remote, self.bypassed):
++            for items in (self.seen, self.skipped, self.no_remote, self.bypassed,
++                          self.prefill_notified):
+                 items.intersection_update(live)
+             for mapping in (self.permits, self.generations):
+                 for rid in tuple(mapping):
+@@ -104,6 +117,8 @@
+ 
+     def select_waiting(self, scheduler, native_queue):
+         request = native_queue.peek_request()
++        if self.prefill_bandwidth_Bps is not None:
++            return self.select_snapshot(scheduler, native_queue, request)
+         if self.light_limit_Bps is None:
+             return native_queue, request
+         # A new heavy request at the native head gets an opportunity to
+@@ -139,7 +154,65 @@
+                  source="current_denial" if self.rejected_this_step else "previous_denial")
+         return queue, selected
+ 
++    def update_snapshot(self, reply):
++        snapshot = reply.get("snapshot")
++        if snapshot is not None and (self.prefill_snapshot is None or
++                snapshot["version"] > self.prefill_snapshot["version"]):
++            self.prefill_snapshot = snapshot
++
++    def select_snapshot(self, scheduler, native_queue, request):
++        while self.prefill_replies and self.prefill_replies[0].done():
++            reply = self.prefill_replies.popleft()
++            if reply.exception() is None:
++                self.update_snapshot(reply.result())
++        snapshot = self.prefill_snapshot
++        if (snapshot is None or request.num_computed_tokens or
++                request.request_id in self.permits or
++                scheduler._is_blocked_waiting_status(request.status)):
++            return native_queue, request
++
++        if self.snapshot_candidates is None:
++            self.snapshot_candidates = {}
++            for queue in (scheduler.skipped_waiting, scheduler.waiting):
++                for candidate in queue:
++                    rid = candidate.request_id
++                    if (candidate.num_computed_tokens or rid in self.permits or
++                            scheduler._is_blocked_waiting_status(candidate.status)):
++                        continue
++                    hint = self.hint(candidate)
++                    self.snapshot_candidates[rid] = (
++                        queue, candidate, hint.get("pressure_Bps", 0.0), hint["is_heavy_read"])
++            self.snapshot_min = min(self.snapshot_candidates.values(),
++                                    key=lambda item: item[2], default=None)
++            self.snapshot_heavy_count = sum(item[3] for item in self.snapshot_candidates.values())
++        smallest = self.snapshot_min
++        if smallest is None:
++            return native_queue, request
++
++        remaining = self.prefill_bandwidth_Bps - snapshot["other_active_Bps"]
++        all_over_budget = smallest[2] > remaining
++        if all_over_budget:
++            choice = (next(item for item in self.snapshot_candidates.values()
++                           if item is smallest or item[3])
++                      if self.snapshot_heavy_count else smallest)
++        else:
++            choice = next(item for item in self.snapshot_candidates.values()
++                          if item[3] or item[2] <= remaining)
++        queue, selected, pressure, heavy = choice
++        self.log("prefill_bandwidth_selected", request_id=selected.request_id,
++                 pressure_Bps=pressure, heavy=heavy, snapshot=snapshot,
++                 remaining_Bps=remaining, min_pressure_Bps=smallest[2],
++                 heavy_candidates=self.snapshot_heavy_count, all_over_budget=all_over_budget)
++        return queue, selected
++
+     def pop_selected(self, queue, request):
++        if self.snapshot_candidates is not None:
++            candidate = self.snapshot_candidates.pop(request.request_id, None)
++            if candidate is not None:
++                self.snapshot_heavy_count -= int(candidate[3])
++                if candidate is self.snapshot_min:
++                    self.snapshot_min = min(self.snapshot_candidates.values(),
++                                            key=lambda item: item[2], default=None)
+         if request is queue.peek_request():
+             return queue.pop_request()
+         queue.remove_request(request)
+@@ -178,6 +251,8 @@
+             load_attempt_id=1, storage_hint=hint)
+         self.log("read_acquire_response", request_id=rid, start_ns=start,
+                  duration_ns=time.monotonic_ns()-start, **response)
++        if self.prefill_bandwidth_Bps is not None:
++            self.update_snapshot(response)
+         if response.get('bypass'):
+             self.bypassed.add(rid)
+             self.log('read_admission_bypassed', request_id=rid, reason=response.get('reason'))
+@@ -215,15 +290,28 @@
+         self.log("read_permit_rollback", request_id=rid, permit_id=permit)
+ 
+     def after_allocation(self, request, external_tokens, scheduled_tokens):
+-        if request.request_id != self.force_candidate or not external_tokens:
++        rid = request.request_id
++        if rid != self.force_candidate or not external_tokens:
++            if (self.prefill_bandwidth_Bps is not None and
++                    not request.num_computed_tokens and rid not in self.prefill_notified):
++                self.prefill_notified.add(rid)
++                _, _, reply = self.client.prefill_started_async(rid, external_load=bool(external_tokens))
++                if reply is not None:
++                    self.prefill_replies.append(reply)
+             return
+         if scheduled_tokens:
+             raise RuntimeError('idle exception would join existing scheduled work')
+         allocated_mono = time.monotonic()
+         proof = dict(self.idle_proof, allocated=True, external_tokens=external_tokens,
+                      allocation_completed_mono=allocated_mono)
+-        token, decision_mono = self.client.force_admit_async(request.request_id,
+-                                                           self.hint(request), proof)
++        if self.prefill_bandwidth_Bps is None:
++            token, decision_mono = self.client.force_admit_async(rid, self.hint(request), proof)
++        else:
++            self.prefill_notified.add(rid)
++            token, decision_mono, reply = self.client.prefill_started_async(
++                rid, hint=self.hint(request), proof=proof)
++            if reply is not None:
++                self.prefill_replies.append(reply)
+         if token is None:
+             self.bypassed.add(request.request_id)
+             self.force_candidate = None
+@@ -384,7 +472,9 @@
+             tier_kv_bytes_per_token=(cfg['storage']['kv_bytes_per_token']
+                 if cfg['admission'].get('profile_source') == 'dynamo_tier' else None),
+             bandwidth_share_Bps=(cfg['admission']['reference_bandwidth_Bps'] / cfg['workers']
+-                if cfg['admission'].get('bandwidth_permits') else None))
++                if cfg['admission'].get('bandwidth_permits') else None),
++            prefill_bandwidth_Bps=(cfg['admission']['reference_bandwidth_Bps']
++                if cfg['admission'].get('prefill_bandwidth_selection') else None))
+ 
+     @functools.wraps(original_add)
+     def add_request(self, request):
+--- a/sim/stack/admission_outbox.py
++++ b/sim/stack/admission_outbox.py
+@@ -33,15 +33,26 @@
+         self.queue.put((row, result))
+         return result.result(timeout=self.client.timeout_s + 1) if wait else result
+ 
+-    def force(self, rid, hint, proof):
+-        self.check()
++    def force_row(self, rid, hint, proof):
+         token = uuid.uuid4().hex
+-        row = dict(op='force_acquire', request_id=rid, worker_id=self.client.worker,
++        return dict(op='force_acquire', request_id=rid, worker_id=self.client.worker,
+                    acquisition_key=f'{rid}:idle:{token}', permit_id=token,
+                    load_attempt_id=1, storage_hint=hint, proof=proof,
+                    occurred_mono=time.monotonic(), clock_id=self.client.clock_id)
++
++    def force(self, rid, hint, proof):
++        row = self.force_row(rid, hint, proof)
+         self.send(row, wait=False)
+-        return token, row['occurred_mono']
++        return row['permit_id'], row['occurred_mono']
++
++    def prefill_started(self, rid, *, hint=None, proof=None, external_load=True):
++        if proof is None:
++            row = dict(op='prefill_started', request_id=rid,
++                       worker_id=self.client.worker, forced=False, external_load=external_load)
++        else:
++            row = self.force_row(rid, hint, proof)
++            row.update(op='prefill_started', forced=True)
++        return row.get('permit_id'), row.get('occurred_mono'), self.send(row, wait=False)
+ 
+     def run(self):
+         try:
+@@ -54,7 +65,8 @@
+                     continue
+                 try:
+                     response = self.client._exchange(row)
+-                    if row.get('op') == 'force_acquire' and not response.get('bypass'):
++                    if ((row['op'] == 'force_acquire' or row.get('forced'))
++                            and not response.get('bypass')):
+                         if not response.get('granted') or response['permit_id'] != row['permit_id']:
+                             raise RuntimeError('forced admission was not acknowledged')
+                     result.set_result(response)
+--- a/sim/stack/feedback.py
++++ b/sim/stack/feedback.py
+@@ -76,14 +76,21 @@
+             self.close()
+             raise
+ 
+-    def enable_idle_bypass(self):
++    def enable_ordered_controls(self):
+         if self.outbox is None:
+             from sim.stack.admission_outbox import AdmissionOutbox
+             self.outbox = AdmissionOutbox(self)
+ 
++    def enable_idle_bypass(self):
++        self.enable_ordered_controls()
++
+     def force_admit_async(self, rid, hint, proof):
+         self.check()
+         return self.outbox.force(rid, hint, proof)
++
++    def prefill_started_async(self, rid, *, hint=None, proof=None, external_load=True):
++        self.check()
++        return self.outbox.prefill_started(rid, hint=hint, proof=proof, external_load=external_load)
+ 
+     def control(self, op, rid, **payload):
+         """Immediate reply; ambiguous transport errors fail the run closed.
+--- a/sim/stack/best_effort.py
++++ b/sim/stack/best_effort.py
+@@ -98,7 +98,7 @@
+         self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=1,
+                                                         thread_name_prefix='tfs-reconnect')
+         self.recovery = None
+-        self.idle_enabled = False
++        self.ordered_controls_enabled = False
+         try:
+             self.client = factory()
+         except Exception as exc:
+@@ -108,8 +108,8 @@
+         if self.recovery is not None and self.recovery.done():
+             try:
+                 self.client = self.recovery.result()
+-                if self.idle_enabled:
+-                    self.client.enable_idle_bypass()
++                if self.ordered_controls_enabled:
++                    self.client.enable_ordered_controls()
+                 LOG.info('TFS control connection recovered')
+             except Exception as exc:
+                 LOG.warning('TFS control reconnect failed: %s', exc)
+@@ -131,15 +131,18 @@
+         if self.client is not None:
+             try:
+                 self.client.check()
+-                if self.idle_enabled:
++                if self.ordered_controls_enabled:
+                     self.client.outbox.check()
+             except Exception as exc:
+                 self._failed(exc)
+ 
++    def enable_ordered_controls(self):
++        self.ordered_controls_enabled = True
++        if self.client is not None:
++            self.client.enable_ordered_controls()
++
+     def enable_idle_bypass(self):
+-        self.idle_enabled = True
+-        if self.client is not None:
+-            self.client.enable_idle_bypass()
++        self.enable_ordered_controls()
+ 
+     @property
+     def outbox(self):
+@@ -154,6 +157,16 @@
+         except Exception as exc:
+             self._failed(exc)
+             return None, time.monotonic()
++
++    def prefill_started_async(self, request_id, *, hint=None, proof=None, external_load=True):
++        self.check()
++        if self.client is not None:
++            try:
++                return self.client.prefill_started_async(
++                    request_id, hint=hint, proof=proof, external_load=external_load)
++            except Exception as exc:
++                self._failed(exc)
++        return None, time.monotonic(), None
+ 
+     def control(self, op, request_id, **fields):
+         self.check()
+--- a/scripts/stack_vllm_worker.py
++++ b/scripts/stack_vllm_worker.py
+@@ -146,7 +146,8 @@
+         from sim.stack.scheduler_admission import install_scheduler_adapter
+         if load_stack_config().get("server_dynamo"):
+             os.environ["DYN_TFS_VLLM"] = "1"
+-            if load_stack_config()["admission"].get("bandwidth_permits"):
++            admission = load_stack_config()["admission"]
++            if admission.get("bandwidth_permits") or admission.get("prefill_bandwidth_selection"):
+                 # The native Python handler parses the annotation before the
+                 # scheduler. Reuse the expanded simulator hint validator.
+                 from dynamo.vllm import tfs_metadata
