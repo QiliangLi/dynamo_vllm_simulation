@@ -1,0 +1,34 @@
+{
+  "case": "agentx360_mooncake_chat180_50s_20261127",
+  "requests": 540,
+  "window_s": 50.0,
+  "read_bytes": 839515111424,
+  "groups": {
+    "AgentX": {
+      "requests": 360,
+      "input_tokens": 13290078,
+      "hit_tokens": 12673792,
+      "hit_requests": 357,
+      "clipped": 2,
+      "source_lines": [
+        72863,
+        73222
+      ]
+    },
+    "Mooncake Chat": {
+      "requests": 180,
+      "input_tokens": 2504038,
+      "hit_tokens": 136192,
+      "hit_requests": 170,
+      "clipped": 2,
+      "source_lines": [
+        1,
+        180
+      ]
+    }
+  },
+  "sha256": "6676c26c71a9fc28438909f4ea56f0124e9a323d735b23a5b6cbea6a2164d669",
+  "cache_model": "cold_start_first_seen_strictly_earlier",
+  "previous_trace_sha256": "bfcaf74a98febbffe2b73338a6b79fd67c5aa9cc8fecfdace00cec01772e0de1",
+  "arrival_scale": 1.3888888888888888
+}

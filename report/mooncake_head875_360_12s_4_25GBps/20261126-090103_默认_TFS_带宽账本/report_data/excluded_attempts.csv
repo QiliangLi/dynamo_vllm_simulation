@@ -1,0 +1,2 @@
+﻿mode,run,n_total,n_ok,reason,frontend_start,frontend_stop,run_log_sha256,client_report_sha256
+bandwidth,mooncake-bandwidth-failed-rpc,360,360,小数带宽经 RPC 往返发生数值差异，准入验收未通过,2026-11-26T08:49:25.852015+08:00,2026-11-26T08:50:08.687850+08:00,32238c555a19598ea390538f1be6a4bd3b66ddf2868a14620a0b443105ecf93a,2aa0db4c798f0b6c171477f7130f6db0e661b29af918baf8ee600fdc5ead714c

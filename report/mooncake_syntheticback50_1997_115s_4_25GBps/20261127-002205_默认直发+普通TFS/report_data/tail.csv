@@ -1,0 +1,3 @@
+﻿mode,id,worker,classification,arrival_s,first_compute_s,finish_s,interlayer_wait_ms
+default,synthetic:L3993,1,light,115.00095004215837,126.64128575008363,126.70589087507688,0.0
+tfs,synthetic:L3966,3,heavy,113.09951683296822,132.14656358305365,132.3252112499904,85.9815911487658

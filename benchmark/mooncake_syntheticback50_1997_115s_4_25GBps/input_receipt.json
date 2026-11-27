@@ -1,0 +1,67 @@
+{
+  "source_sha256": "bd070915a98fc0ed264d7cfef2ce746002eb3076a695ec31ba2674c0111ec131",
+  "parent_trace_sha256": "696068b3fd4ca515c59408dd0ac3af6934fa42522009b809cda03fa5fc1c6a46",
+  "trace_sha256": "35cbdd47d42f7131d1c1ed1bcd4c5434ec7a03aab5ea70222d307eca96080789",
+  "count": 1997,
+  "source_lines": [
+    1997,
+    3993
+  ],
+  "historical_requests": 1996,
+  "duration_s": 115.0,
+  "original_span_s": 489.51900000000006,
+  "truncated": [
+    {
+      "line": 2051,
+      "original": 191374,
+      "used": 97792
+    },
+    {
+      "line": 2205,
+      "original": 191373,
+      "used": 97792
+    },
+    {
+      "line": 2535,
+      "original": 191372,
+      "used": 97792
+    },
+    {
+      "line": 2573,
+      "original": 191367,
+      "used": 97792
+    },
+    {
+      "line": 2876,
+      "original": 191372,
+      "used": 97792
+    },
+    {
+      "line": 3083,
+      "original": 191374,
+      "used": 97792
+    },
+    {
+      "line": 3209,
+      "original": 191378,
+      "used": 97792
+    },
+    {
+      "line": 3686,
+      "original": 191371,
+      "used": 97792
+    },
+    {
+      "line": 3792,
+      "original": 191378,
+      "used": 97792
+    }
+  ],
+  "cache": "inherited prefix matches from full trace, including omitted earlier rows; 128-token aligned",
+  "prompt_tokens": 35710163,
+  "hit_tokens": 30777728,
+  "expected_read_bytes": 2017049182208,
+  "hit_pct": 86.18758755035647,
+  "previous_duration_s": 120.0,
+  "arrival_scale_from_previous": 0.9583333333333334
+}

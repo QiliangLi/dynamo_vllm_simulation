@@ -1,0 +1,76 @@
+{
+  "case": "agentxmooncake_coldchat_540_50s_4_25GBps",
+  "requests": 540,
+  "window_s": 50.0,
+  "read_bytes": 839515111424,
+  "groups": {
+    "AgentX": {
+      "requests": 360,
+      "input_tokens": 13290078,
+      "hit_tokens": 12673792,
+      "hit_requests": 357,
+      "clipped": 2,
+      "source_lines": [
+        72863,
+        73222
+      ]
+    },
+    "Mooncake Chat": {
+      "requests": 180,
+      "input_tokens": 2504038,
+      "hit_tokens": 136192,
+      "hit_requests": 170,
+      "clipped": 2,
+      "source_lines": [
+        1,
+        180
+      ]
+    }
+  },
+  "cache_model": "cold_start_first_seen_strictly_earlier",
+  "previous_trace_sha256": "bfcaf74a98febbffe2b73338a6b79fd67c5aa9cc8fecfdace00cec01772e0de1",
+  "arrival_scale": 1.3888888888888888,
+  "input_tokens": 15794116,
+  "hit_tokens": 12809984,
+  "new_tokens": 2984132,
+  "source": "agentxmooncake",
+  "feature": "coldchat",
+  "arrival_window_s": 50,
+  "workers": 4,
+  "shared_storage_Bps": 25000000000,
+  "K": 1,
+  "block_size": 128,
+  "new_pct": 18.893947594154685,
+  "class_counts": {
+    "AgentX": 360,
+    "Mooncake Chat": 180
+  },
+  "trace_format": "server_stack_v1",
+  "allocation_scope": "frozen_server_trace",
+  "portable_runner_status": "export_only",
+  "four_worker_runner": false,
+  "runner_profile": "server_stack_v1",
+  "portable_runner_reason": "导出冻结输入及配置。完整四策略回放使用研究仿真环境。",
+  "description": "AgentX 源行 72863–73222 和 Mooncake Chat 前 180 条，各自冷启动。计划 50 秒发完。",
+  "execution_feedback": "first_token",
+  "source_dataset": "AgentX 与 Mooncake Chat（各源行范围见 groups）",
+  "source_first_line": 1,
+  "source_last_line": 540,
+  "original_trace_sha256": "6676c26c71a9fc28438909f4ea56f0124e9a323d735b23a5b6cbea6a2164d669",
+  "first_planned_arrival_s": 0.0,
+  "last_planned_arrival_s": 50.0,
+  "max_input_tokens": 97999,
+  "historical_config_sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+  "files_sha256": {
+    "config.bandwidth.json": "40cce5c67b98ff4626f37ae3ee5e10ce1641b1fd86313b1e8a1b83184b80d487",
+    "config.historical.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "config.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "config.light.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "config.snapshot-tfs.json": "c290b4293bcc5085b7a8a78fdb5425428a32d60d5a9fd200d04c50ccff46890a",
+    "config.tfs.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "experiment.json": "840b2f6ab99f1d1b9b9cedef9e8c2bbf9a9d21e5e9f2e77371bcf9e51cc73d43",
+    "README.md": "c480e0c2b56ed51ebbaa4f277b2bcef21c4973f0af02b9f4c4a38fba653c89b5",
+    "requests.csv": "5a2ebcfbebb7919cbed6fd379e6e7a9d694f2d7e1f644b50659d18e04184660e",
+    "trace.jsonl.gz": "d8870ce86aa4caeea08bb501e061bb25029c76aee33bab50024046007956f3fe"
+  }
+}

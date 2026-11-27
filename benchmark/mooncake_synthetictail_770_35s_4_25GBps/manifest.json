@@ -1,0 +1,63 @@
+{
+  "case": "mooncake_synthetictail_770_35s_4_25GBps",
+  "requests": 770,
+  "arrival_window_s": 35,
+  "class_counts": {
+    "remote_read": 487,
+    "zero_read": 283
+  },
+  "source_dataset_sha256": "bd070915a98fc0ed264d7cfef2ce746002eb3076a695ec31ba2674c0111ec131",
+  "base_trace_sha256": "d79b922424f300c66ade34b1cb095a9cf02324443282999480645aaabeb2d68d",
+  "original_trace_sha256": "82e6606c8dd8d84dbfec9ea2c1efb1c3d9839dd135e85c89cc11afa101c84245",
+  "read_bytes": 713006514176,
+  "input_tokens": 13331448,
+  "hit_tokens": 10879616,
+  "head_source_lines": [
+    1,
+    50
+  ],
+  "base_source_lines": [
+    2496,
+    3215
+  ],
+  "head_start_s": 30.0,
+  "head_last_s": 32.84797246158245,
+  "original_head_window_s": 14.514,
+  "original_base_window_s": 178.369,
+  "time_scale": 0.19622243775543957,
+  "source": "mooncake",
+  "feature": "synthetictail",
+  "workers": 4,
+  "shared_storage_Bps": 25000000000,
+  "K": 1,
+  "block_size": 128,
+  "new_tokens": 2451832,
+  "trace_format": "server_stack_v1",
+  "allocation_scope": "frozen_server_trace",
+  "portable_runner_status": "export_only",
+  "four_worker_runner": false,
+  "runner_profile": "server_stack_v1",
+  "portable_runner_reason": "支持校验和原样导出。仿真使用四实例 MiniMax server-stack，单独选择默认或 TFS 配置。",
+  "description": "保留原 720 条的 35 秒到达计划，在第 30 秒起追加 Synthetic 开头 50 条。",
+  "execution_feedback": "first_token",
+  "source_dataset": "Mooncake synthetic_trace.jsonl",
+  "source_first_line": 2496,
+  "source_last_line": 3215,
+  "first_planned_arrival_s": 0.0,
+  "last_planned_arrival_s": 35.0,
+  "max_input_tokens": 97792,
+  "historical_config_sha256": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+  "new_pct": 18.391340535551727,
+  "files_sha256": {
+    ".gitattributes": "e97602ab9cac70102245345c5ab0fc9830df8b17f1072b188265a662a3a547ae",
+    "config.default.json": "bb7f8eb04b4ddd547c87f3792d201c38c080a7163c75692eb2e09923f33f6d09",
+    "config.historical.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "config.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "config.tfs.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
+    "experiment.json": "8665e98c7b81326fb5aff22675e3ec99d8b8545581684ecd939a82cd96f83ee5",
+    "head50_requests.json": "153f79997da8dd58e8df5f8562a2a4dcec39b6c48374d638bc0713d69cfe61d3",
+    "README.md": "f9cc269a5fd8a97a3b908f603e7ba39b03187f291d74d49e570446795f996c05",
+    "requests.csv": "64aafb499019a4170db6e47cb19d7976d123b62c1f2fa68b005da4ece7e43a3a",
+    "trace.jsonl.gz": "eb9fb2f2e58c9769418ab5164d8866f200b8cabdff51b33bca587a7d6a109df1"
+  }
+}
