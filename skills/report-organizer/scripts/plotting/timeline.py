@@ -290,7 +290,7 @@ def load_case(spec):
                 accounts=accounts, sources=fingerprints)
 
 
-def render(cases, output, title, dpi=160):
+def render(cases, output, title, dpi=160, *, time_origin='首条正式请求网关到达'):
     from . import report_style as style
     style.configure()
     import matplotlib.pyplot as plt
@@ -325,7 +325,7 @@ def render(cases, output, title, dpi=160):
         rule='到达时冻结分类' if summary['rule']=='arrival' else '每层开始时动态分类'
         if summary['classification_reference_only']:rule+='；直接放行，仅作参考'
         ax.set_title(f"{summary['label']}｜完成 {summary['span_s']*1000:.1f} ms｜{rule}",loc='left',fontsize=10)
-    axes[-1][0].set_xlabel('从首条正式请求网关到达起的模型时间（ms）；虚线后仅为统一横轴补齐')
+    axes[-1][0].set_xlabel(f'从{time_origin}起的模型时间（ms）；虚线后仅为统一横轴补齐')
     legend=[Patch(color=COLORS[key],label=label) for key,label in [
         ('heavy','重读请求计算'),('light','轻读请求计算'),('mixed','轻重混批计算'),
         ('io','在途IO／无名义计算'),('idle','空闲、排队或控制开销')]]

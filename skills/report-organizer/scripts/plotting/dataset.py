@@ -10,7 +10,7 @@ from .timeline import (discover, load_case, read_json, digest, require,
 def native_dataset(report=None, manifest=None):
     spec = discover(report, manifest)
     extra = read_json(manifest) if manifest else {}
-    result = dict(schema_version=1, title=spec['title'],
+    result = dict(schema_version=1, title=spec['title'], timing_basis='gateway',
                   metadata=extra.get('metadata', {}), cases=[])
     for item in spec['cases']:
         case = load_case(item)
@@ -96,6 +96,8 @@ def reconstruct_pool(storage, cfg, formal, first, origin):
 
 def validate_dataset(data):
     require(data.get('schema_version') == 1, 'dataset.schema_version 必须为1。')
+    if 'timing_basis' in data:
+        require(data['timing_basis'] in ('client','gateway'), 'timing_basis 必须为 client 或 gateway。')
     require(data.get('title') and data.get('cases'), '缺少标题或方案。')
     identifiers = [c['summary']['case'] for c in data['cases']]
     require(len(set(identifiers)) == len(identifiers), '方案ID重复。')

@@ -63,7 +63,7 @@ python skills/report-organizer/scripts/generate_report.py \
 
 ## 原生日志适配边界
 
-TTFT按网关到达到首token，SLO逐请求匹配deadline，分位数为nearest-rank。
+默认报告使用客户端 TTFT 和逐请求全 miss SLO。先按[标准报告数据](report-schema.md)适配数据，设定 `timing_basis: "client"`，再调用生成工具。工具按输入的 `arrival_s`、`completion_s` 和 `deadline_s` 逐请求统计。直接读取 DV 原生运行时，使用网关到达到首 token 的计时和原记录的期限。分位数使用 nearest-rank。
 时间线在线分类与输入cohort分开。红色在途IO不是纯依赖等待，灰色不是没有请求。
 带宽重建只用于DV单盘、零启动延迟、grouped max-min共享池，并校验实际速率积分与读量。
 该模型会继续分配富余带宽，所以申请率不是实际速率的硬上限。其他拓扑导出真实区间，不假设一直满带宽。
