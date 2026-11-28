@@ -1,0 +1,28 @@
+--- a/scripts/run_tfs_stack.py
++++ b/scripts/run_tfs_stack.py
+@@ -514,6 +514,8 @@
+                                        "dynamo_llm::kv_router::routing_host=debug")
+             if tier_mode:
+                 frontend_env['DYN_LOG'] += ',dynamo_llm::kv_router::tier_admission=debug,dynamo_kv_router::pending_score=debug'
++        if "SIM_TFS_HEAVY_SPREAD" in os.environ:
++            frontend_args += ["--heavy-spread", os.environ["SIM_TFS_HEAVY_SPREAD"]]
+         write(folder/"routing.launch.json",dict(router_mode=cfg["router_mode"],
+               argv=frontend_args,environment={k:v for k,v in frontend_env.items() if not k.endswith('_TOKEN')}))
+         launch("frontend",frontend_args,frontend_env)
+@@ -679,6 +681,7 @@
+     parser.add_argument("--python",type=Path,default=Path(sys.executable))
+     parser.add_argument("--mode",choices=["immediate","tfs","quota_fcfs","slack_only"],default="tfs")
+     parser.add_argument("--release-on",choices=["first_token"],default="first_token")
++    parser.add_argument("--heavy-spread", choices=["off", "5", "10", "100"], default=None)
+     parser.add_argument("--workers",type=int,default=2)
+     parser.add_argument("--server-dynamo", type=Path, help="isolated Dynamo 1.2 build's python directory")
+     parser.add_argument("--router-mode",choices=["kv","round-robin"],help="native Dynamo selection; inherit config when omitted")
+@@ -713,6 +716,8 @@
+     parser.add_argument('--routing-python-path',type=Path,
+                         help='isolated patched Dynamo wheel extraction, used by frontend only')
+     args = parser.parse_args()
++    if args.heavy_spread is not None:
++        os.environ["SIM_TFS_HEAVY_SPREAD"] = args.heavy_spread
+     if os.environ.get("PYTHONHASHSEED") != "0":
+         parser.error("set PYTHONHASHSEED=0 for deterministic verification and child-process block hashes")
+     cfg = json.loads(args.config.read_text())

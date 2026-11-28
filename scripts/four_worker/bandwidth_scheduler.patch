@@ -1,0 +1,168 @@
+--- a/sim/stack/scheduler_admission.py
++++ b/sim/stack/scheduler_admission.py
+@@ -21,7 +21,7 @@
+ 
+ class ReadGate:
+     def __init__(self, client, retry_interval=0.002, log_path=None, *, idle_bypass=False,
+-                 tier_kv_bytes_per_token=None):
++                 tier_kv_bytes_per_token=None, bandwidth_share_Bps=None):
+         if client is None:
+             raise RuntimeError("read admission requires a control connection")
+         self.client = client
+@@ -39,6 +39,10 @@
+         self.log_path = Path(log_path) if log_path else None
+         self.idle_bypass = idle_bypass
+         self.tier_kv_bytes_per_token = tier_kv_bytes_per_token
++        self.bandwidth_share_Bps = bandwidth_share_Bps
++        self.remaining_Bps = None
++        self.light_limit_Bps = None
++        self.rejected_this_step = False
+         self.force_candidate = None
+         self.force_committed = False
+         self.idle_proof = None
+@@ -63,6 +67,7 @@
+                     if rid not in live:
+                         del mapping[rid]
+         self.round += 1
++        self.rejected_this_step = False
+         self.pending_allocation.clear()
+         self.full = time.monotonic() < self.full_until
+         self.force_candidate = None
+@@ -96,6 +101,49 @@
+             self.seen.add(request.request_id)
+             self.log("storage_hint_received", request_id=request.request_id, hint=hint)
+         return hint
++
++    def select_waiting(self, scheduler, native_queue):
++        request = native_queue.peek_request()
++        if self.light_limit_Bps is None:
++            return native_queue, request
++        # A new heavy request at the native head gets an opportunity to
++        # acquire. A refusal in this step instead prioritizes light requests.
++        # Already allocated and blocked requests retain native handling.
++        if request.num_computed_tokens or request.request_id in self.permits:
++            return native_queue, request
++        if not self.rejected_this_step and self.hint(request)["is_heavy_read"]:
++            return native_queue, request
++
++        candidates = []
++        for queue in (scheduler.skipped_waiting, scheduler.waiting):
++            for candidate in queue:
++                if scheduler._is_blocked_waiting_status(candidate.status):
++                    continue
++                hint = self.hint(candidate)
++                if not hint["is_heavy_read"]:
++                    candidates.append((queue, candidate, hint.get("pressure_Bps", 0.0)))
++        if not candidates:
++            return native_queue, request
++
++        limit = self.light_limit_Bps
++        fits = [item for item in candidates if item[2] <= limit]
++        if fits:
++            queue, selected, pressure = min(fits, key=lambda item: (
++                -item[2], item[1].arrival_time))
++        else:
++            queue, selected, pressure = min(candidates, key=lambda item: (
++                item[2], item[1].arrival_time))
++        self.log("bandwidth_light_selected", request_id=selected.request_id,
++                 pressure_Bps=pressure, limit_Bps=limit, fitted=bool(fits),
++                 remaining_Bps=self.remaining_Bps,
++                 source="current_denial" if self.rejected_this_step else "previous_denial")
++        return queue, selected
++
++    def pop_selected(self, queue, request):
++        if request is queue.peek_request():
++            return queue.pop_request()
++        queue.remove_request(request)
++        return request
+ 
+     def allow(self, request, external_tokens=None):
+         hint = self.hint(request)
+@@ -114,7 +162,12 @@
+             return True  # No permit RPC. Commit only after native allocate_slots.
+         if self.force_committed:
+             return False  # Exactly one forced request in this native round.
+-        if self.full:
++        # Count-based permits can suppress all further heavy candidates.
++        # For bandwidth permits, a smaller request may fit the last reply.
++        if self.full and (self.bandwidth_share_Bps is None or
++                          hint["pressure_Bps"] > self.remaining_Bps):
++            if self.bandwidth_share_Bps is not None:
++                self.rejected_this_step = True
+             if rid not in self.skipped:
+                 self.log("read_skipped_full", request_id=rid)
+                 self.skipped.add(rid)
+@@ -130,11 +183,19 @@
+             self.log('read_admission_bypassed', request_id=rid, reason=response.get('reason'))
+             return True
+         if response["granted"]:
++            if self.bandwidth_share_Bps is not None:
++                self.remaining_Bps = self.light_limit_Bps = None
++                self.full = self.rejected_this_step = False
++                self.full_until = 0.0
+             self.permits[rid] = response["permit_id"]
+             self.pending_allocation.add(rid)
+             return True
+         if response.get("reason") != "full":
+             raise RuntimeError(f"unexpected acquire response: {response}")
++        if self.bandwidth_share_Bps is not None:
++            self.remaining_Bps = response["remaining_Bps"]
++            self.light_limit_Bps = min(self.remaining_Bps, self.bandwidth_share_Bps)
++            self.rejected_this_step = True
+         self.full = True
+         self.full_until = time.monotonic()+self.retry_interval
+         return False
+@@ -222,9 +283,27 @@
+     if len(queries) != 1:
+         raise RuntimeError("expected one external KV query anchor")
+     query = queries[0]
++
++    # Select an arbitrary local light request when a bandwidth grant is denied
++    # without changing the order of the other waiting requests.
++    class SelectWaiting(ast.NodeTransformer):
++        def visit_Assign(self, node):
++            if ast.unparse(node) == "request = request_queue.peek_request()":
++                return ast.parse(
++                    "request_queue, request = self._read_gate.select_waiting(self, request_queue)"
++                ).body[0]
++            return self.generic_visit(node)
++
++        def visit_Call(self, node):
++            if ast.unparse(node) == "request_queue.pop_request()":
++                return ast.parse("self._read_gate.pop_selected(request_queue, request)",
++                                 mode="eval").body
++            return self.generic_visit(node)
++
++    SelectWaiting().visit(loop)
+     hook = ast.parse('''
+ if not self._read_gate.allow(request):
+-    request_queue.pop_request()
++    self._read_gate.pop_selected(request_queue, request)
+     step_skipped_waiting.prepend_request(request)
+     continue
+ ''').body[0]
+@@ -303,7 +382,9 @@
+             config_path.parent/f"worker{worker}.read_admission.jsonl",
+             idle_bypass=cfg['admission'].get('idle_bypass',False),
+             tier_kv_bytes_per_token=(cfg['storage']['kv_bytes_per_token']
+-                if cfg['admission'].get('profile_source') == 'dynamo_tier' else None))
++                if cfg['admission'].get('profile_source') == 'dynamo_tier' else None),
++            bandwidth_share_Bps=(cfg['admission']['reference_bandwidth_Bps'] / cfg['workers']
++                if cfg['admission'].get('bandwidth_permits') else None))
+ 
+     @functools.wraps(original_add)
+     def add_request(self, request):
+--- a/scripts/stack_vllm_worker.py
++++ b/scripts/stack_vllm_worker.py
+@@ -147,5 +147,11 @@
+         if load_stack_config().get("server_dynamo"):
+             os.environ["DYN_TFS_VLLM"] = "1"
++            if load_stack_config()["admission"].get("bandwidth_permits"):
++                # The native Python handler parses the annotation before the
++                # scheduler. Reuse the expanded simulator hint validator.
++                from dynamo.vllm import tfs_metadata
++                from sim.stack.storage_hint import hint_from_request
++                tfs_metadata.storage_hint = lambda annotations: hint_from_request({"annotations": annotations})
+         else:
+             from sim.stack.storage_hint import install_dynamo_adapter
+             install_dynamo_adapter()

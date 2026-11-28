@@ -25,3 +25,7 @@ python benchmark/manage.py export "$CASE" --output "$OUT"
 | 普通 TFS | `--workers 4 --mode tfs --no-idle-bypass` | `benchmark/$CASE/config.tfs.json` |
 
 `config.json` 采用本次普通 TFS 的冻结配置。两组使用相同的计算和存储设置。普通 TFS 启用原生入口、Dynamo 分层画像、调度器准入及路由记账。详见 [实验配置清单](experiment.json)。
+
+## 四实例重读分散回放
+
+用 `bash scripts/run_4w25.sh synthetic770 spread10 NEW_OUTPUT_DIR` 运行。四档对照与构建步骤见[四实例 TFS 策略入口](../../docs/四实例TFS策略入口.md)。

@@ -35,7 +35,7 @@
   "trace_format": "server_stack_v1",
   "allocation_scope": "frozen_server_trace",
   "portable_runner_status": "export_only",
-  "four_worker_runner": false,
+  "four_worker_runner": true,
   "runner_profile": "server_stack_v1",
   "portable_runner_reason": "支持校验和原样导出。仿真使用四实例 MiniMax server-stack，单独选择默认或 TFS 配置。",
   "description": "保留原 720 条的 35 秒到达计划，在第 30 秒起追加 Synthetic 开头 50 条。",
@@ -56,7 +56,7 @@
     "config.tfs.json": "551ba530b26d0af7eac4e9339a4efb5cf72eec97dbea0ec9c06e3a4c6f3527bf",
     "experiment.json": "8665e98c7b81326fb5aff22675e3ec99d8b8545581684ecd939a82cd96f83ee5",
     "head50_requests.json": "153f79997da8dd58e8df5f8562a2a4dcec39b6c48374d638bc0713d69cfe61d3",
-    "README.md": "f9cc269a5fd8a97a3b908f603e7ba39b03187f291d74d49e570446795f996c05",
+    "README.md": "206a66a96952ea5a427cd6f96e6fcff2dec3d12f40900e554a9171bac20f31d1",
     "requests.csv": "64aafb499019a4170db6e47cb19d7976d123b62c1f2fa68b005da4ece7e43a3a",
     "trace.jsonl.gz": "eb9fb2f2e58c9769418ab5164d8866f200b8cabdff51b33bca587a7d6a109df1"
   }

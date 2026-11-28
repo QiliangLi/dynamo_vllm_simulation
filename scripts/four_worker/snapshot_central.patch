@@ -1,0 +1,253 @@
+--- a/sim/stack/read_admission.py
++++ b/sim/stack/read_admission.py
+@@ -45,7 +45,10 @@
+             if self.bandwidth_permits:
+                 share = self.bandwidth_limit_Bps / self.c["worker_count"]
+                 hint["is_heavy_read"] = hint["is_heavy_read"] and profile.pressure_Bps > share
++            if self.bandwidth_permits or self.c.get("prefill_bandwidth_selection"):
+                 hint["pressure_Bps"] = round(profile.pressure_Bps)  # Integer B/s survives the RPC wire.
++            if self.c.get("force_light"):
++                hint["is_heavy_read"] = False
+             self.hints[profile.request_id] = hint
+             self._log("storage_hint_created", now_s, id=profile.request_id, hint=hint)
+ 
+--- a/sim/stack/admission_service.py
++++ b/sim/stack/admission_service.py
+@@ -47,7 +47,12 @@
+         self.uuid_by_id = {}
+         self.tier_pending = {}
+         self.tier_snapshots = {}
+-        self.events = deque(maxlen=10000) if self.config["admission"].get("bandwidth_permits") else []
++        admission = self.config["admission"]
++        self.prefill_bandwidth_selection = admission.get("prefill_bandwidth_selection", False)
++        self.active_prefill = {}
++        self.prefill_snapshot_version = 0
++        self.events = (deque(maxlen=10000)
++                       if admission.get("bandwidth_permits") or self.prefill_bandwidth_selection else [])
+         self.delayed = []
+         self.sequence = 0
+         self.wakeup = asyncio.Event()
+@@ -146,6 +151,36 @@
+     def receive(self, raw, *, transport="unix"):
+         raise ValueError('execution feedback RPCs were removed; only admission controls are accepted')
+ 
++    def prefill_snapshot(self, worker):
++        return dict(version=self.prefill_snapshot_version,
++                    other_active_Bps=sum(entry["pressure_Bps"]
++                        for entry in self.active_prefill.values() if entry["worker"] != worker))
++
++    def register_active_prefill(self, rid, worker, forced, external_load):
++        record = self.controller.records[rid]
++        policy = getattr(self, "availability", None)
++        if (record.first_token_s is not None or record.finish_s is not None
++                or policy is not None and rid in policy.closed):
++            self.log_event("prefill_start_ignored", id=rid, worker=worker, reason="closed")
++            return False
++        pressure = self.controller.hints[rid]["pressure_Bps"] if external_load else 0
++        if record.state != "SUBMITTED" or record.worker_id not in (-1, worker):
++            raise ValueError("prefill start conflicts with request ownership")
++        if rid not in self.active_prefill:
++            record.worker_id = worker
++            entry = dict(worker=worker, pressure_Bps=pressure, forced=forced, external_load=external_load)
++            self.active_prefill[rid] = entry
++            self.prefill_snapshot_version += 1
++            self.log_event("prefill_started", id=rid, version=self.prefill_snapshot_version, **entry)
++        return True
++
++    def release_active_prefill(self, rid, reason):
++        entry = self.active_prefill.pop(rid, None)
++        if entry is not None:
++            self.prefill_snapshot_version += 1
++            self.log_event("prefill_ended", id=rid, version=self.prefill_snapshot_version,
++                           reason=reason, **entry)
++
+     def control(self, raw, *, transport='unix'):
+         """Atomic ledger mutation: no await between checking and debiting."""
+         if self.fatal:
+@@ -161,9 +196,16 @@
+         rid = self.aliases[key]
+         self.deliver()
+         now = self.now()
+-        if raw["op"] in ('acquire', 'force_acquire'):
++        op = raw["op"]
++        notice = op == "prefill_started"
++        if notice:
++            if not self.prefill_bandwidth_selection or type(raw.get("forced")) is not bool:
++                raise ValueError("invalid prefill start notification")
++            if raw["forced"]:
++                op = "force_acquire"
++        if op in ('acquire', 'force_acquire'):
+             from sim.stack.storage_hint import validate_hint
+-            forced = raw['op'] == 'force_acquire'
++            forced = op == 'force_acquire'
+             force_fields = {}
+             if forced:
+                 if not self.config['admission']['idle_bypass']:
+@@ -184,14 +226,16 @@
+                                ('routing_score_force_already_closed' if reply.get('already_closed') else 'routing_score_activated'),
+                                id=rid,permit_id=result['permit_id'],
+                                duration_wall_ns=reply['duration_wall_ns'])
+-        elif raw["op"] == "rollback":
++        elif notice:
++            result = {}
++        elif op == "rollback":
+             self.controller.rollback(rid, raw["worker_id"], raw["permit_id"], now)
+             if self.routing_score is not None:
+                 reply = self.routing_score.exchange('rollback',raw['request_id'],permit_id=raw['permit_id'])
+                 self.log_event('routing_score_rolled_back_queued' if reply.get('queued') else 'routing_score_rolled_back',id=rid,permit_id=raw['permit_id'],
+                                duration_wall_ns=reply['duration_wall_ns'])
+             result = dict(released=True)
+-        elif raw['op'] == 'routing_ready' and self.routing_score is not None:
++        elif op == 'routing_ready' and self.routing_score is not None:
+             record = self.controller.records[rid]
+             if (not self.controller.hints[rid]['is_heavy_read'] or record.lease_open
+                     or record.worker_id not in (-1,raw['worker_id'])):
+@@ -201,7 +245,7 @@
+             result = dict(ready=True)
+         else:
+             raise ValueError("unknown admission operation")
+-        if raw['op'] == 'force_acquire' and result['granted']:
++        if op == 'force_acquire' and result['granted']:
+             rec = self.controller.records[rid]
+             # The HTTP stream can overtake the asynchronous force notice. Store
+             # HTTP facts immediately, then release a late-registered permit.
+@@ -211,6 +255,13 @@
+                 event = ControlEvent(f"reconcile:{result['permit_id']}", kind, rid,
+                                      rec.worker_id, occurred, self.now())
+                 self.queue_event(event)
++        if notice:
++            result["registered"] = ((not raw["forced"] or result["granted"])
++                                    and self.register_active_prefill(
++                                        rid, raw["worker_id"], raw["forced"],
++                                        raw["forced"] or raw.get("external_load", True)))
++        if self.prefill_bandwidth_selection and (notice or op == "acquire"):
++            result["snapshot"] = self.prefill_snapshot(raw["worker_id"])
+         self.drain()
+         return dict(ok=True, **result)
+ 
+@@ -240,6 +291,8 @@
+             _,_,event = heapq.heappop(self.delayed)
+             event = replace(event, worker_id=self.controller.records[event.request_id].worker_id)
+             self.controller.on_event(event,now)
++            if self.prefill_bandwidth_selection and event.kind in ("first_token", "request_finished"):
++                self.release_active_prefill(event.request_id, event.kind)
+             self.log_event("feedback_delivered",id=event.request_id,kind=event.kind,
+                            event_id=event.event_id,occurred_s=event.occurred_s,
+                            visible_s=event.visible_s,worker=event.worker_id)
+@@ -297,6 +350,8 @@
+ 
+     def snapshot(self):
+         self.deliver()
++        prefill = dict(active_prefill=self.active_prefill,
++                       prefill_snapshot_version=self.prefill_snapshot_version) if self.prefill_bandwidth_selection else {}
+         return dict(status="failed" if self.fatal else "ready",fatal=self.fatal,
+                     execution_feedback='disabled', origin_monotonic_s=self.origin,
+                     rpc=self.rpc_info,
+@@ -307,7 +362,8 @@
+                     snapshot=asdict(self.controller.snapshot(self.now())),
+                     records={rid:asdict(r) for rid,r in self.controller.records.items()},
+                     delayed_events=len(self.delayed),invalid_reasons=sorted(self.controller.invalid_reasons),
+-                    events=list(self.events) if isinstance(self.events, deque) else self.events)
++                    events=list(self.events) if isinstance(self.events, deque) else self.events,
++                    **prefill)
+ 
+ 
+ def create_app(config, upstream, feedback_socket=None, event_log=None, *,
+--- a/sim/stack/best_effort.py
++++ b/sim/stack/best_effort.py
+@@ -30,6 +30,8 @@
+         state, controller = self.state, self.state.controller
+         self.closed.setdefault(rid, (time.monotonic(), reason))
+         rec = controller.records.get(rid)
++        if state.config["admission"].get("prefill_bandwidth_selection"):
++            state.release_active_prefill(rid, reason)
+         before = controller.held
+         if rec is not None:
+             controller.pending.discard(rid)
+--- a/scripts/check_read_admission.py
++++ b/scripts/check_read_admission.py
+@@ -44,7 +44,8 @@
+     status = status or json.loads((folder/'admission.final.json').read_text())
+     config = json.loads((folder/'config.json').read_text())
+     weighted = config['admission'].get('bandwidth_permits', False)
+-    if weighted:
++    snapshot = config['admission'].get('prefill_bandwidth_selection', False)
++    if weighted or snapshot:
+         from sim.stack.load_observation import with_audit_events
+         status = with_audit_events(status, folder)
+     if status.get('execution_feedback') == 'disabled':
+@@ -141,6 +142,8 @@
+     max_forced_per_worker = check_permit_ledger(events, permits)
+     assert not status.get('pending_engine_events')
+     bandwidth = check_bandwidth_ledger(events, records, hints, permits, config) if weighted else {}
++    if snapshot:
++        bandwidth.update(check_prefill_ledger(status, config))
+     durations = [r['duration_ns']/1e6 for r in responses]
+     return dict(status='pass', requests=len(records), hints_received=len(received),
+                 rpc_transport=rpc['transport'] if rpc else 'legacy_unix',
+@@ -196,6 +199,43 @@
+                 peak_held_Bps=peak, oversized_alone_grants=oversized, final_held_Bps=0.)
+ 
+ 
++def check_prefill_ledger(status, config):
++    hints, records = status['storage_hints'], status['records']
++    for rid, hint in hints.items():
++        assert hint['pressure_Bps'] == round(records[rid]['profile']['pressure_Bps'])
++    if config['admission'].get('force_light'):
++        assert not any(hint['is_heavy_read'] for hint in hints.values())
++        assert not status['permits']
++    version, ignored, forced = 0, 0, 0
++    started, active = set(), {}
++    for event in status['events']:
++        kind = event['event']
++        if kind == 'prefill_start_ignored':
++            ignored += 1
++            continue
++        if kind not in ('prefill_started', 'prefill_ended'):
++            continue
++        version += 1
++        assert event['version'] == version
++        rid = event['id']
++        if kind == 'prefill_started':
++            assert rid not in started
++            expected = hints[rid]['pressure_Bps'] if event.get('external_load', True) else 0
++            assert event['pressure_Bps'] == expected
++            assert records[rid]['worker_id'] == event['worker']
++            active[rid] = event
++            started.add(rid)
++            forced += int(event['forced'])
++        else:
++            start = active.pop(rid)
++            assert event['worker'] == start['worker'] and event['pressure_Bps'] == start['pressure_Bps']
++            assert event['reason'] in ('first_token', 'request_finished')
++    assert not active and not status['active_prefill']
++    assert version == status['prefill_snapshot_version']
++    return dict(prefill_registered=len(started), prefill_forced=forced,
++                prefill_late_notices=ignored, prefill_snapshot_version=version)
++
++
+ def configured_idle(folder):
+     return json.loads((folder/'config.json').read_text())['admission'].get('idle_bypass',False)
+ 
+--- a/scripts/run_tfs_stack.py
++++ b/scripts/run_tfs_stack.py
+@@ -107,7 +107,8 @@
+     config = json.loads((folder/"config.json").read_text())
+     if status.get('execution_feedback') == 'disabled':
+         status = save_admission_snapshot(
+-            folder, status, full_event_log=config["admission"].get("bandwidth_permits", False))
++            folder, status, full_event_log=(config["admission"].get("bandwidth_permits", False)
++                                          or config["admission"].get("prefill_bandwidth_selection", False)))
+         assert not any(e['event']=='feedback_received' and e.get('engine_id') for e in status['events'])
+     records = status["records"]
+     assert status["status"]=="ready" and not status["invalid_reasons"]
+@@ -630,7 +631,8 @@
+             status = request_json('http://127.0.0.1:28766/sim/admission')
+             status['routing_score'] = score_snapshot()
+             status = save_admission_snapshot(
+-                folder, status, full_event_log=cfg["admission"].get("bandwidth_permits", False))
++                folder, status, full_event_log=(cfg["admission"].get("bandwidth_permits", False)
++                                               or cfg["admission"].get("prefill_bandwidth_selection", False)))
+             write(folder/'routing.score.final.json',status['routing_score'])
+             from check_routing_accounting import check as check_weighted_routing
+             if not server_dynamo:

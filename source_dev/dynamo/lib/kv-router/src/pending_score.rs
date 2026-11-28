@@ -29,11 +29,29 @@ struct Entry {
     updated: Instant,
 }
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct WaitingLoad {
+    pub tokens: usize,
+    pub count: usize,
+}
+
+impl WaitingLoad {
+    fn add(&mut self, tokens: usize) {
+        self.tokens += tokens;
+        self.count += 1;
+    }
+
+    fn remove(&mut self, tokens: usize) {
+        self.tokens -= tokens;
+        self.count -= 1;
+    }
+}
+
 struct Ledger {
     factor: f64,
     epoch: String,
     entries: HashMap<String, Entry>,
-    waiting: HashMap<WorkerWithDpRank, usize>,
+    waiting: HashMap<WorkerWithDpRank, WaitingLoad>,
     events: Vec<Value>,
     origin: Instant,
     heartbeat: Option<Instant>,
@@ -105,7 +123,7 @@ impl Ledger {
         }
         e.worker = Some(worker);
         e.phase = Phase::Waiting;
-        if !e.degraded { *self.waiting.entry(worker).or_default() += tokens; }
+        if !e.degraded { self.waiting.entry(worker).or_default().add(tokens); }
         self.event("bound_waiting", id);
         Ok(())
     }
@@ -120,7 +138,7 @@ impl Ledger {
         if e.phase != Phase::Waiting || e.retired.contains(permit) {
             return Err("stale activation or request is not waiting".into());
         }
-        if !e.degraded { *self.waiting.get_mut(&e.worker.unwrap()).unwrap() -= e.tokens; }
+        if !e.degraded { self.waiting.get_mut(&e.worker.unwrap()).unwrap().remove(e.tokens); }
         e.phase = Phase::Active;
         e.permit = Some(permit.into());
         self.event("activated", id);
@@ -137,7 +155,7 @@ impl Ledger {
         e.retired.insert(permit.into());
         e.permit = None;
         e.phase = Phase::Waiting;
-        if !e.degraded { *self.waiting.entry(e.worker.unwrap()).or_default() += e.tokens; }
+        if !e.degraded { self.waiting.entry(e.worker.unwrap()).or_default().add(e.tokens); }
         self.event("rolled_back", id);
         Ok(())
     }
@@ -149,7 +167,7 @@ impl Ledger {
             return;
         }
         if e.phase == Phase::Waiting && !e.degraded {
-            *self.waiting.get_mut(&worker).unwrap() -= e.tokens;
+            self.waiting.get_mut(&worker).unwrap().remove(e.tokens);
         }
         e.phase = Phase::Closed;
         e.updated = Instant::now();
@@ -161,7 +179,7 @@ impl Ledger {
             "waiting":self.entries.values().filter(|e|e.phase==Phase::Waiting).count(),
             "active":self.entries.values().filter(|e|e.phase==Phase::Active).count(),
             "closed":self.entries.values().filter(|e|e.phase==Phase::Closed).count(),
-            "waiting_workers":self.waiting.iter().map(|(w,n)|json!({"worker_id":w.worker_id,"dp_rank":w.dp_rank,"tokens":n})).collect::<Vec<_>>(),
+            "waiting_workers":self.waiting.iter().map(|(w,n)|json!({"worker_id":w.worker_id,"dp_rank":w.dp_rank,"tokens":n.tokens,"count":n.count})).collect::<Vec<_>>(),
             "events":self.events})
     }
     fn score_view(&self, raw: Option<&str>, require_heartbeat: bool) -> ScoreSnapshot {
@@ -175,7 +193,7 @@ impl Ledger {
     fn degrade(&mut self, id: &str) {
         if let Some(e) = self.entries.get_mut(id) {
             if e.phase == Phase::Waiting && !e.degraded {
-                *self.waiting.get_mut(&e.worker.unwrap()).unwrap() -= e.tokens;
+                self.waiting.get_mut(&e.worker.unwrap()).unwrap().remove(e.tokens);
             }
             e.degraded = true;
         }
@@ -329,7 +347,7 @@ pub fn discount(worker: WorkerWithDpRank, block_size: u32) -> f64 {
         return 0.; // Full original load while score control is unavailable.
     }
     token_discount_blocks(
-        ledger.waiting.get(&worker).copied().unwrap_or(0),
+        ledger.waiting.get(&worker).map_or(0, |load| load.tokens),
         ledger.factor,
         block_size,
     )
@@ -361,13 +379,16 @@ mod tests {
         let w = WorkerWithDpRank::new(7, 0);
         l.register(&id, 100).unwrap();
         l.bind(&id, w, 100).unwrap();
-        assert_eq!(l.waiting[&w], 100);
+        assert_eq!(l.waiting[&w].tokens, 100);
+        assert_eq!(l.waiting[&w].count, 1);
         l.activate(&id, "p1").unwrap();
         l.activate(&id, "p1").unwrap();
-        assert_eq!(l.waiting[&w], 0);
+        assert_eq!(l.waiting[&w].tokens, 0);
+        assert_eq!(l.waiting[&w].count, 0);
         l.rollback(&id, "p1").unwrap();
         l.rollback(&id, "p1").unwrap();
-        assert_eq!(l.waiting[&w], 100);
+        assert_eq!(l.waiting[&w].tokens, 100);
+        assert_eq!(l.waiting[&w].count, 1);
         assert!(l.activate(&id, "p1").is_err());
         l.activate(&id, "p2").unwrap();
         assert!(l.rollback(&id, "p1").is_ok());
@@ -376,7 +397,8 @@ mod tests {
         assert_eq!(l.entries[&id].phase, Phase::Active);
         l.finish(&id, w);
         assert!(l.activate(&id, "p2").is_err());
-        assert_eq!(l.waiting[&w], 0);
+        assert_eq!(l.waiting[&w].tokens, 0);
+        assert_eq!(l.waiting[&w].count, 0);
     }
     #[test]
     fn pending_cancel_and_worker_failure_remove_discount() {
@@ -387,7 +409,8 @@ mod tests {
         l.bind(&id, w, 10).unwrap();
         l.finish(&id, w);
         l.finish(&id, w);
-        assert_eq!(l.waiting[&w], 0);
+        assert_eq!(l.waiting[&w].tokens, 0);
+        assert_eq!(l.waiting[&w].count, 0);
         assert!(l.register(&id, 10).is_err());
     }
     #[test]
@@ -474,7 +497,7 @@ pub fn discard_unbound(raw: &str) {
 pub struct ScoreSnapshot {
     pub factor: f64,
     pub heavy: bool,
-    pub waiting: HashMap<WorkerWithDpRank, usize>,
+    pub waiting: HashMap<WorkerWithDpRank, WaitingLoad>,
     pub active_prefill: HashMap<WorkerWithDpRank, usize>,
     pub additional_blocks: HashMap<WorkerWithDpRank, usize>,
 }
@@ -523,7 +546,7 @@ pub fn score_credits(
     decode: f64,
 ) -> (f64, f64, f64) {
     let waiting = token_discount_blocks(
-        snapshot.waiting.get(&worker).copied().unwrap_or(0),
+        snapshot.waiting.get(&worker).map_or(0, |load| load.tokens),
         snapshot.factor,
         block_size,
     );
@@ -588,7 +611,7 @@ mod adaptation_tests {
             heavy: true,
             ..Default::default()
         };
-        s.waiting.insert(worker, 160);
+        s.waiting.insert(worker, WaitingLoad { tokens: 160, count: 1 });
         s.active_prefill.insert(worker, 320);
         s.additional_blocks.insert(worker, 8);
         // P=30, H=2, W/B=10. Only this request's p=10 and d=8 are discounted.

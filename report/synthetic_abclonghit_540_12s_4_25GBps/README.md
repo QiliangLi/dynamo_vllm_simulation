@@ -2,6 +2,6 @@
 
 [离线HTML报告](20261124-182055_默认_TFS_固定A额度1/report.html) · [Markdown](20261124-182055_默认_TFS_固定A额度1/report.md)
 
-[新增报告](20261126-090103_默认_TFS_带宽账本/report.md) · [离线 HTML](20261126-090103_默认_TFS_带宽账本/report.html)
+[带宽账本对照（离线 HTML）](20261126-090103_默认_TFS_带宽账本/report.html) · [Markdown](20261126-090103_默认_TFS_带宽账本/report.md)
 
 [四策略对照](20261127-142438_四策略/report.md) · [离线 HTML](20261127-142438_四策略/report.html)

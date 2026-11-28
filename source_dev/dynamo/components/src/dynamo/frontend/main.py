@@ -106,7 +106,10 @@ def parse_args() -> tuple[FrontendConfig, Optional[Namespace], Optional[Namespac
 
     FrontendArgGroup().add_arguments(parser)
 
+    parser.add_argument("--heavy-spread", choices=("off", "5", "10", "100"), default="off",
+                        help="Spread waiting TFS heavy reads at a 5/10 percent tolerance or without a score ceiling (100)")
     args, unknown = parser.parse_known_args()
+    os.environ["DYN_TFS_HEAVY_SPREAD"] = args.heavy_spread
 
     config = FrontendConfig.from_cli_args(args)
     config.validate()

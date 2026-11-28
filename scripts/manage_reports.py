@@ -105,6 +105,7 @@ def catalog_text():
             'matched_input_and_model':'负载/模型对应；保留原运行版本',
             'historical_model_and_feedback':'历史模型/反馈版本',
             'research_runtime_export_only':'历史研究版结果；当时交付入口export_only',
+            'heavy_spread_four_arm':'四实例；全量开工上报；重读分散四档',
             'current_multidisk_five_arm':'本任务新跑；独立多盘/五方案/原生队列验收'}
     lines=['# 报告目录','','每行是一处归档入口；study_id相同表示同一研究，不重复计为独立实验。目录时间是归档创建时间，实际实验日期另列。','',
            '|Benchmark|报告创建时间（北京时间）|实际实验日期|实际比较方案|版本关系|报告|',
